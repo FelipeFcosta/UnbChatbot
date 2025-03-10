@@ -1,0 +1,61 @@
+# Synthetic QA Generation Configuration
+
+# Global settings
+global:
+  max_chunk_size: 4000          # Maximum chunk size in characters
+  min_chunk_size: 1000          # Minimum chunk size in characters
+  overlap_size: 200             # Overlap size between consecutive chunks
+
+# Factual accuracy mode
+factual_mode: true              # Enables full document context for improved truthfulness
+
+# Processing settings for specific file types
+processing:
+  html_pages:
+    preserve_structure: true        # Retain heading structure
+    full_document_threshold: 20000  # Character limit to keep HTML as a single unit
+    comprehensive_questions: true   # Generate questions covering all sections
+  
+  faq:
+    enabled: true                       # Enable specialized FAQ processing
+    generate_rephrased_questions: true
+    generate_related_questions: true
+    max_rephrased_questions: 5          # Limit rephrased variations per original (0 = unlimited)
+    max_related_questions: 3            # Limit related questions per original (0 = unlimited)
+    context_size: 2                     # Number of neighboring QA pairs included as context
+
+# API providers configuration
+providers:
+  question:
+    provider: openai
+    model: gpt-3.5-turbo
+    temperature: 0.7
+    max_tokens: 500
+  
+  answer:
+    provider: openai
+    model: gpt-3.5-turbo
+    temperature: 0.3              # Lower value for more factual responses
+    max_tokens: 1000
+
+# File processing settings
+file_processing:
+  include_extensions:
+    - .html
+    - .htm
+    - .pdf
+    - .txt
+    - .md
+  
+  exclude_patterns:
+    - images/
+    - assets/
+    - .git/
+    - styles/
+    - js/
+
+# Output settings
+output:
+  save_debug: true
+  format: json
+  include_source: true

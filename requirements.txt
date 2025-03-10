@@ -1,0 +1,6 @@
+beautifulsoup4>=4.9.0
+PyMuPDF>=1.18.0
+openai>=1.0.0
+pyyaml>=5.1
+tqdm>=4.40.0
+requests>=2.25.0
