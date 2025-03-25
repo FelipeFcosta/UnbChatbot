@@ -2,3 +2,4 @@
 output/
 synthetic_qa/modules/__pycache__/
 synthetic_qa.py
+.venv/

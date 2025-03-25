@@ -2,41 +2,71 @@
 
 # Global settings
 global:
-  max_chunk_size: 4000          # Maximum chunk size in characters
-  min_chunk_size: 1000          # Minimum chunk size in characters
-  overlap_size: 200             # Overlap size between consecutive chunks
+  max_chunk_size: 4000
+  min_chunk_size: 1000
+  overlap_size: 200
 
 # Factual accuracy mode
-factual_mode: true              # Enables full document context for improved truthfulness
+factual_mode: true
 
 # Processing settings for specific file types
 processing:
   html_pages:
-    preserve_structure: true        # Retain heading structure
-    full_document_threshold: 20000  # Character limit to keep HTML as a single unit
-    comprehensive_questions: true   # Generate questions covering all sections
+    full_document_threshold: 20000
+    comprehensive_questions: true
   
   faq:
-    enabled: true                       # Enable specialized FAQ processing
+    enabled: true
     generate_rephrased_questions: true
     generate_related_questions: true
-    max_rephrased_questions: 5          # Limit rephrased variations per original (0 = unlimited)
-    max_related_questions: 3            # Limit related questions per original (0 = unlimited)
-    context_size: 2                     # Number of neighboring QA pairs included as context
+    max_rephrased_questions: 7
+    max_related_questions: 3
+    context_size: 3
+
+# Iterations by document type
+iterations:
+  regular_document: 1
+  faq_document: 1
+
+# Question generation style variations
+question_styles:
+  writing_styles:
+    - name: 'Formal'
+      description: 'Write the question in a formal, academic tone.'
+    - name: 'Casual'
+      description: 'Rewrite the question in a natural, simple-worded, conversational tone—clear and approachable brazilian student. Avoid formal complex phrasing, but also do not use slang or excessively casual language.'
+    - name: 'Direct'
+      description: 'Write a direct, search-like simple query/keywords-based legible question (no question mark) seeking specific information.'
+    # - name: 'Detailed'
+    #   description: "Write a detailed question including the student's specific situation. e.g. \"Estou no 3° semestre e preciso solicitar equivalência para disciplina cursada em outra instituição. Qual o procedimento?\""
+  
+  question_types:
+    - name: 'Informational'
+      description: 'Seek factual information. The "What".'
+    - name: 'Procedural'
+      description: 'Ask about processes, steps, or how to do things. The "How"'
+    - name: 'Conceptual'
+      description: 'Seek explanation or understanding of concepts or policies. The "Why"'
 
 # API providers configuration
 providers:
+  faq_extraction:
+    provider: genai
+    model: gemini-2.0-flash
+    temperature: 0.4
+    max_tokens: 8192
+
   question:
-    provider: openai
-    model: gpt-3.5-turbo
-    temperature: 0.7
-    max_tokens: 500
+    provider: genai # openai
+    model: gemini-2.0-flash # gpt-3.5-turbo
+    temperature: 0.4
+    max_tokens: 8192
   
   answer:
-    provider: openai
-    model: gpt-3.5-turbo
-    temperature: 0.3              # Lower value for more factual responses
-    max_tokens: 1000
+    provider: genai
+    model: gemini-2.0-flash
+    temperature: 0.5
+    max_tokens: 8192
 
 # File processing settings
 file_processing:

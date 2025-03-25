@@ -14,14 +14,15 @@ import yaml
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
+from bs4 import BeautifulSoup
 
 # Import modules
 from modules.file_processor import FileProcessor
-from modules.faq_processor import process_faq_document
+from modules.faq_processor import FAQProcessor, process_faq_document
 from modules.text_chunker import TextChunker
 from modules.llm_client import LLMClient
 from modules.qa_generator import QAGenerator
-from modules.utils import group_related_files
+from modules.utils import group_related_files, get_hash
 
 # Logging setup
 logging.basicConfig(
@@ -50,7 +51,6 @@ class SyntheticQADataGenerator:
         
         # Get HTML processing settings
         html_config = self.config.get("processing", {}).get("html_pages", {})
-        self.preserve_html_structure = html_config.get("preserve_structure", True)
         self.html_full_doc_threshold = html_config.get("full_document_threshold", 20000)
         self.comprehensive_questions = html_config.get("comprehensive_questions", True)
         
@@ -89,14 +89,58 @@ class SyntheticQADataGenerator:
             
         logger.info(f"Found {len(all_files)} files to process")
         
-        # In factual mode, group related files together
-        if self.factual_mode:
-            # Group files by directory or relationship
-            file_groups = group_related_files(all_files, input_path)
-            logger.info(f"Grouped files into {len(file_groups)} sets for processing")
+        # First identify potential FAQ files (only HTML files can be FAQs)
+        faq_files = []
+        non_faq_files = []
+        
+        for file_path in all_files:
+            if file_path.suffix.lower() in ['.html', '.htm']:
+                # Check if this is an FAQ document
+                try:
+                    soup = FileProcessor.preprocess_html(file_path)
+                    if FAQProcessor.detect_faq_document(soup, file_path.name):
+                        logger.info(f"Detected FAQ document: {file_path.relative_to(input_path)}")
+                        faq_files.append((soup, file_path))
+                    else:
+                        non_faq_files.append((soup, file_path))
+                except Exception as e:
+                    logger.error(f"Error checking if {file_path} is FAQ: {e}")
+                    non_faq_files.append(file_path)
+            else:
+                non_faq_files.append(file_path)
+        
+        logger.info(f"Identified {len(faq_files)} FAQ files and {len(non_faq_files)} non-FAQ files")
+        
+        # Process all FAQs individually (never group them with other files)
+        faq_qa_pairs = []
+        
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Create future for each FAQ file
+            future_to_faq = {
+                executor.submit(process_faq_document, faq_soup, faq_path, output_path, self.config): faq_path 
+                for faq_soup, faq_path in faq_files
+            }
+            
+            # Collect results as they complete
+            for future in tqdm(as_completed(future_to_faq), total=len(faq_files), desc="Processing FAQ files"):
+                faq_path = future_to_faq[future]
+                try:
+                    qa_pairs = future.result()
+                    if qa_pairs:
+                        faq_qa_pairs.extend(qa_pairs)
+                        logger.info(f"Generated {len(qa_pairs)} QA pairs from FAQ {faq_path.relative_to(input_path)}")
+                except Exception as e:
+                    logger.error(f"Error processing FAQ file {faq_path}: {e}")
+        
+        # Now process the remaining non-FAQ files based on factual mode
+        non_faq_qa_pairs = []
+        
+        if self.factual_mode and non_faq_files:
+            # Group files by directory or relationship (but not FAQs)
+            file_groups = group_related_files(non_faq_files, input_path)
+            logger.info(f"Grouped non-FAQ files into {len(file_groups)} sets for processing")
             
             # Process each group
-            all_qa_pairs = []
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 future_to_group = {
                     executor.submit(self.process_file_group, group, input_path, output_path): i 
@@ -108,51 +152,58 @@ class SyntheticQADataGenerator:
                     try:
                         qa_pairs = future.result()
                         if qa_pairs:
-                            all_qa_pairs.extend(qa_pairs)
+                            non_faq_qa_pairs.extend(qa_pairs)
                             logger.info(f"Generated {len(qa_pairs)} QA pairs from group {group_idx}")
                     except Exception as e:
                         logger.error(f"Error processing group {group_idx}: {e}")
                         
-        else:
-            # Standard processing: files individually 
-            all_qa_pairs = []
-            
+        elif non_faq_files:  # Standard processing: files individually 
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 # Create future for each file
                 future_to_file = {
                     executor.submit(self.process_file, file_path, input_path, output_path): file_path 
-                    for file_path in all_files
+                    for file_path in non_faq_files
                 }
                 
                 # Collect results as they complete
-                for future in tqdm(as_completed(future_to_file), total=len(all_files), desc="Processing files"):
+                for future in tqdm(as_completed(future_to_file), total=len(non_faq_files), desc="Processing non-FAQ files"):
                     file_path = future_to_file[future]
                     try:
                         qa_pairs = future.result()
                         if qa_pairs:
-                            all_qa_pairs.extend(qa_pairs)
+                            non_faq_qa_pairs.extend(qa_pairs)
                             logger.info(f"Generated {len(qa_pairs)} QA pairs from {file_path.relative_to(input_path)}")
                     except Exception as e:
-                        logger.error(f"Error processing {file_path}: {e}")
+                        logger.error(f"Error processing file {file_path}: {e}")
+        
+        # Combine FAQ and non-FAQ QA pairs
+        all_qa_pairs = faq_qa_pairs + non_faq_qa_pairs
                     
         # Save all QA pairs to a final JSON file
         if all_qa_pairs:
             final_output = output_path / "synthetic_qa_data.json"
             with open(final_output, 'w', encoding='utf-8') as f:
                 json.dump(all_qa_pairs, f, ensure_ascii=False, indent=2)
-                
-            logger.info(f"Generated a total of {len(all_qa_pairs)} QA pairs")
+
+            logger.info(f"Generated a total of {len(all_qa_pairs)} QA pairs ({len(faq_qa_pairs)} from FAQs, {len(non_faq_qa_pairs)} from regular documents)")
             logger.info(f"Final output saved to {final_output}")
         else:
             logger.warning("No QA pairs were generated")
             
     def process_file_group(self, file_group, base_dir, output_dir):
         """Process a group of related files together."""
-        from modules.utils import get_hash
-        
         try:
             combined_text = ""
             sources = []
+            
+            # Extract domain info from the first file in the group for consistency
+            if file_group:
+                first_file = file_group[0]
+                domain, path, url = FileProcessor.extract_domain_and_path(first_file)
+                institution = FileProcessor.get_institution_name(domain)
+            else:
+                domain, path, url = "", "", ""
+                institution = ""
             
             # Combine all file contents with clear separation
             for file_path in file_group:
@@ -166,7 +217,8 @@ class SyntheticQADataGenerator:
                     continue
                     
                 # Add clear document boundary and source information
-                combined_text += f"\n\n--- DOCUMENT: {source_info} ---\n\n{text}\n\n"
+                _, file_path_part, file_url = FileProcessor.extract_domain_and_path(file_path)
+                combined_text += f"\n\n--- DOCUMENT: {domain}/{file_path_part} ---\n\n{text}\n\n"
             
             if not combined_text:
                 logger.warning(f"No text extracted from file group")
@@ -174,12 +226,12 @@ class SyntheticQADataGenerator:
                 
             # Create a combined source identifier
             if len(sources) == 1:
-                source_info = sources[0]
+                source_info = f"{domain}/{path}"
             else:
                 # Use the common directory or a concatenation of first 2 files
-                source_info = f"Group of {len(sources)} related files: {', '.join(str(s) for s in sources[:2])}"
+                source_info = f"Group of {len(sources)} related files from {institution}"
                 if len(sources) > 2:
-                    source_info += f" and {len(sources)-2} more"
+                    source_info += f" ({domain})"
             
             # Chunk the combined text, potentially keeping it all together in factual mode
             chunks = self.text_chunker.chunk_text(combined_text, factual_mode=self.factual_mode)
@@ -195,10 +247,13 @@ class SyntheticQADataGenerator:
                 # Generate a hash for this chunk
                 chunk_hash = f"{get_hash(source_info)}_{i}"
                 
+                # Use the first file in the group as the source path
+                source_path = str(file_group[0])
+                
                 # Generate QA pairs
                 qa_pairs = self.qa_generator.generate_qa_pairs(
                     chunk=chunk,
-                    source_info=source_info,
+                    source_path=source_path,
                     output_dir=output_dir,
                     chunk_hash=chunk_hash
                 )
@@ -213,35 +268,30 @@ class SyntheticQADataGenerator:
 
     def process_file(self, file_path, base_dir, output_dir):
         """Process a single file to generate QA pairs."""
-        from bs4 import BeautifulSoup
-        from modules.utils import get_hash
-        from modules.faq_processor import FAQProcessor
-        
         try:
             # Extract relative path for source info
             rel_path = file_path.relative_to(base_dir)
-            source_info = f"{rel_path}"
+            source_path = str(file_path)
             
             # Determine if this is an HTML file that might be an FAQ
             is_html = file_path.suffix.lower() in ['.html', '.htm']
-            
+
+            content = FileProcessor.preprocess_html(file_path)
+            soup = BeautifulSoup(content, 'html5lib')
+
             # Check if this is an FAQ document and process accordingly
             if is_html and self.config.get("processing", {}).get("faq", {}).get("enabled", True):
-                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                    content = f.read()
-                
-                soup = BeautifulSoup(content, 'html.parser')
                 if FAQProcessor.detect_faq_document(soup, file_path.name):
                     logger.info(f"Detected FAQ document: {rel_path}")
                     return process_faq_document(file_path, output_dir, self.config)
             
-            # Standard processing if not an FAQ or FAQ processing is disabled
+            # Standard processing if not a FAQ or FAQ processing is disabled
             
             # Extract text from file with appropriate settings
             if is_html:
-                text = self.file_processor.extract_text_from_html(file_path, preserve_structure=self.preserve_html_structure)
+                text = self.file_processor.extract_text_from_html(soup)
             else:
-                text = self.file_processor.extract_text_from_file(file_path)
+                text = self.file_processor.extract_text_from_file(soup)
                 
             if not text:
                 logger.warning(f"No text extracted from {rel_path}")
@@ -275,15 +325,16 @@ class SyntheticQADataGenerator:
             all_pairs = []
             for i, chunk in enumerate(chunks):
                 # Generate a hash for this chunk
-                chunk_hash = f"{get_hash(source_info)}_{i}"
+                chunk_hash = f"{get_hash(str(rel_path))}_{i}"
                 
                 # Generate QA pairs, indicating if this is a full document for comprehensive questions
                 qa_pairs = self.qa_generator.generate_qa_pairs(
                     chunk=chunk,
-                    source_info=str(rel_path),
+                    source_path=source_path,
                     output_dir=output_dir,
                     chunk_hash=chunk_hash,
-                    is_full_document=is_full_document and i == 0  # Only the first chunk should generate comprehensive questions
+                    is_full_document=is_full_document and i == 0,  # Only the first chunk should generate comprehensive questions
+                    is_faq=False  # This is not an FAQ document (we handle FAQs separately)
                 )
                 
                 all_pairs.extend(qa_pairs)
