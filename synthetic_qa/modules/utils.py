@@ -3,6 +3,8 @@ Utility functions for the Synthetic QA Generator.
 """
 
 import hashlib
+import logging
+import time
 import re
 import json
 from pathlib import Path
@@ -120,3 +122,84 @@ def json_if_valid(text: str) -> Optional[Union[Dict[str, Any], List[Any]]]:
         return data
     except (json.JSONDecodeError, ValueError):
         return None
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+logger = logging.getLogger(__name__)
+
+
+class RateLimiter:
+    """
+    A flexible rate limiter that works across different models and providers.
+    Tracks request timestamps to enforce a configurable requests per minute limit.
+    """
+    def __init__(self, rate_limit_rpm: Optional[int] = None, model_name: Optional[str] = None):
+        """
+        Initialize the rate limiter.
+        
+        Args:
+            rate_limit_rpm: Requests per minute limit. If None, no rate limiting is applied.
+            model_name: Name of the model for more informative logging
+        """
+        # Stores the timestamps of recent requests
+        self._request_timestamps = []
+        
+        # Rate limit in requests per minute
+        self._rate_limit_rpm = rate_limit_rpm
+        
+        # Model name for logging
+        self._model_name = model_name or "Unknown Model"
+
+    def wait(self):
+        """
+        Wait if necessary to comply with the rate limit.
+        If no rate limit is set, this method does nothing.
+        
+        Returns:
+            Float representing wait time in seconds, or 0 if no waiting is required
+        """
+        # If no rate limit is set, immediately return
+        if self._rate_limit_rpm is None:
+            return 0.0
+
+        current_time = time.time()
+
+        # Remove timestamps outside the last minute
+        self._request_timestamps = [
+            ts for ts in self._request_timestamps 
+            if current_time - ts < 60
+        ]
+
+        # Check if we've reached the rate limit
+        if len(self._request_timestamps) >= self._rate_limit_rpm:
+            # Calculate how long to wait
+            oldest_request_time = self._request_timestamps[0]
+            wait_time = 60 - (current_time - oldest_request_time)
+            
+            if wait_time > 0:
+                # Log the waiting information
+                logger.info(
+                    f"Rate limit reached for {self._model_name} "
+                    f"(Limit: {self._rate_limit_rpm} requests/minute). "
+                    f"Waiting {wait_time:.2f} seconds before next request."
+                )
+                
+                time.sleep(wait_time)
+                current_time = time.time()
+                
+                # After waiting, log that we're ready to proceed
+                logger.info(
+                    f"Wait period complete for {self._model_name}. "
+                    "Ready to make the next request."
+                )
+                
+                return wait_time
+            
+        # Record this request's timestamp
+        self._request_timestamps.append(current_time)
+        
+        return 0.0

@@ -14,13 +14,11 @@ import yaml
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
-from bs4 import BeautifulSoup
 
 # Import modules
 from modules.file_processor import FileProcessor
 from modules.faq_processor import FAQProcessor
 from modules.text_chunker import TextChunker
-from modules.llm_client import LLMClient
 from modules.qa_generator import QAGenerator
 from modules.utils import group_related_files, get_hash
 

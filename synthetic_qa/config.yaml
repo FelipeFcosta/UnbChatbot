@@ -59,12 +59,14 @@ providers:
   question:
     provider: genai # openai
     model: gemini-2.0-flash # gpt-3.5-turbo
+    rate_limit_rpm: 15
     temperature: 0.4
     max_tokens: 8192
   
   answer:
     provider: genai
     model: gemini-2.0-flash
+    rate_limit_rpm: 15 
     temperature: 0.5
     max_tokens: 8192
 

@@ -1,7 +1,7 @@
 """
 LLM client module for the Synthetic QA Generator.
 
-This module handles communication with LLM APIs.
+This module handles communication with LLM APIs, including intelligent rate limiting.
 """
 
 import os
@@ -9,7 +9,7 @@ import random
 import time
 import logging
 from typing import Dict, Any, Optional, List, Union
-from .utils import json_if_valid
+from .utils import json_if_valid, RateLimiter
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +33,9 @@ except ImportError:
 class LLMClient:
     """Handles communication with LLM APIs for question and answer generation."""
     
+    # Shared rate limiters for different models
+    _rate_limiters = {}
+    
     def __init__(self, config: Dict[str, Any]):
         """
         Initialize the LLM client with the provided configuration.
@@ -42,6 +45,21 @@ class LLMClient:
         """
         self.config = config
         self.client = None
+        
+        provider = config.get('provider', '').lower()
+        model = config.get('model', '')
+
+        # Create a descriptive model name for logging
+        model_name = f"{provider.upper()} {model}"
+        
+        # Set up rate limiter for this model
+        model_key = f"{config.get('provider', '').lower()}_{config.get('model', '')}"
+        rate_limit_rpm = config.get('rate_limit_rpm')
+        
+        # Create or retrieve the rate limiter for this specific model
+        if model_key not in self._rate_limiters:
+            self._rate_limiters[model_key] = RateLimiter(rate_limit_rpm, model_name)
+        self._rate_limiter = self._rate_limiters[model_key]
         
         # Initialize OpenAI client if needed
         if config.get("provider", "").lower() == "openai":
@@ -65,7 +83,6 @@ class LLMClient:
 
             self.client = genai.Client(api_key=api_key)
 
-
     def generate_text(self, prompt: str, max_retries: int = 5, temperature: Optional[float] = None, 
                      json_output: bool = False, long_output: bool = False) -> Union[str, Dict[str, Any], None]:
         """
@@ -81,6 +98,9 @@ class LLMClient:
         Returns:
             Generated text, parsed JSON (if json_output=True), or None on failure
         """
+        # Wait according to the rate limit before making the request
+        self._rate_limiter.wait()
+
         provider = self.config.get("provider", "").lower()
         model = self.config.get("model", "")
         
@@ -148,7 +168,6 @@ class LLMClient:
                         contents=current_prompt,
                         config=generation_config
                     )
-                    time.sleep(4) # limit to 15 RPM
 
                     full_response += response.text
 
