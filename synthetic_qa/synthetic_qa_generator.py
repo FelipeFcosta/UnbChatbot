@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 
 # Import modules
 from modules.file_processor import FileProcessor
-from modules.faq_processor import FAQProcessor, process_faq_document
+from modules.faq_processor import FAQProcessor
 from modules.text_chunker import TextChunker
 from modules.llm_client import LLMClient
 from modules.qa_generator import QAGenerator
@@ -95,14 +95,13 @@ class SyntheticQADataGenerator:
         
         for file_path in all_files:
             if file_path.suffix.lower() in ['.html', '.htm']:
-                # Check if this is an FAQ document
                 try:
                     soup = FileProcessor.preprocess_html(file_path)
                     if FAQProcessor.detect_faq_document(soup, file_path.name):
                         logger.info(f"Detected FAQ document: {file_path.relative_to(input_path)}")
                         faq_files.append((soup, file_path))
                     else:
-                        non_faq_files.append((soup, file_path))
+                        non_faq_files.append(file_path)
                 except Exception as e:
                     logger.error(f"Error checking if {file_path} is FAQ: {e}")
                     non_faq_files.append(file_path)
@@ -117,7 +116,7 @@ class SyntheticQADataGenerator:
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             # Create future for each FAQ file
             future_to_faq = {
-                executor.submit(process_faq_document, faq_soup, faq_path, output_path, self.config): faq_path 
+                executor.submit(FAQProcessor.process_faq_document, faq_soup, faq_path, output_path, self.config): faq_path 
                 for faq_soup, faq_path in faq_files
             }
             
@@ -276,22 +275,27 @@ class SyntheticQADataGenerator:
             # Determine if this is an HTML file that might be an FAQ
             is_html = file_path.suffix.lower() in ['.html', '.htm']
 
-            content = FileProcessor.preprocess_html(file_path)
-            soup = BeautifulSoup(content, 'html5lib')
+            if is_html:
+                content = FileProcessor.preprocess_html(file_path)
+                soup = content  # Already a BeautifulSoup object
+            else:
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
+                soup = content
 
             # Check if this is an FAQ document and process accordingly
             if is_html and self.config.get("processing", {}).get("faq", {}).get("enabled", True):
                 if FAQProcessor.detect_faq_document(soup, file_path.name):
                     logger.info(f"Detected FAQ document: {rel_path}")
-                    return process_faq_document(file_path, output_dir, self.config)
+                    return FAQProcessor.process_faq_document(soup, file_path, output_dir, self.config)
             
             # Standard processing if not a FAQ or FAQ processing is disabled
             
             # Extract text from file with appropriate settings
             if is_html:
-                text = self.file_processor.extract_text_from_html(soup)
+                text = self.file_processor.extract_text_from_html(soup, file_path)
             else:
-                text = self.file_processor.extract_text_from_file(soup)
+                text = self.file_processor.extract_text_from_file(file_path)
                 
             if not text:
                 logger.warning(f"No text extracted from {rel_path}")

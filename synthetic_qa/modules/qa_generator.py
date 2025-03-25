@@ -6,9 +6,8 @@ This module handles generating questions and answers from text chunks with domai
 
 import re
 import logging
-import random
 from pathlib import Path
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Optional
 
 from .llm_client import LLMClient
 from .file_processor import FileProcessor
@@ -56,8 +55,8 @@ class QAGenerator:
                            chunk: str, 
                            source_info: Dict[str, str], 
                            is_full_document: bool = False,
-                           writing_style: str = None,
-                           question_type: str = None) -> str:
+                           writing_style: Optional[str] = None,
+                           question_type: Optional[str] = None) -> str:
         """
         Create a prompt for generating questions from a text chunk.
         
@@ -262,12 +261,12 @@ Provide a helpful, accurate, and concise answer. Begin your response with "De ac
         return questions
 
     def generate_qa_pairs(self, 
-                          chunk: str, 
-                          source_path: str,
-                          output_dir: Path,
-                          chunk_hash: str,
-                          is_full_document: bool = False,
-                          is_faq: bool = False) -> List[Dict[str, str]]:
+                         chunk: str, 
+                         source_path: str,
+                         output_dir: Path,
+                         chunk_hash: str,
+                         is_full_document: bool = False,
+                         is_faq: bool = False) -> List[Dict[str, str]]:
         """
         Generate question-answer pairs from a text chunk.
         
@@ -390,7 +389,7 @@ Provide a helpful, accurate, and concise answer. Begin your response with "De ac
                             a_debug_path.write_text(answer_prompt, encoding="utf-8")
                             
                         # Add to QA pairs
-                        qa_pairs = {
+                        qa_pair = {
                             "question": question,
                             "answer": answer,
                             "source": source_path,
@@ -402,6 +401,6 @@ Provide a helpful, accurate, and concise answer. Begin your response with "De ac
                             "question_type": question_type_name,
                             "iteration": iteration
                         }
-                        all_qa_pairs.append(qa_pairs)
+                        all_qa_pairs.append(qa_pair)
         
         return all_qa_pairs

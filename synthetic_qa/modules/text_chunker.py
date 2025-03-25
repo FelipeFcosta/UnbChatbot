@@ -6,6 +6,7 @@ This module handles dividing text into semantically meaningful chunks for proces
 
 import re
 import logging
+from typing import List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -20,10 +21,11 @@ class TextChunker:
     """Handles chunking of text into manageable segments for LLM processing."""
     
     @staticmethod
-    def chunk_text(text: str, factual_mode: bool = False, 
+    def chunk_text(text: str, 
+                  factual_mode: bool = False, 
                   max_tokens: int = MAX_CONTEXT_TOKENS,
                   force_single_chunk: bool = False,
-                  small_doc_threshold: int = 10000) -> list:
+                  small_doc_threshold: int = 10000) -> List[str]:
         """
         Split text into semantically meaningful chunks.
         
@@ -37,7 +39,7 @@ class TextChunker:
         Returns:
             List of text chunks
         """
-        if not text.strip():
+        if not text or not text.strip():
             return []
 
         # Force single chunk if requested or document is small (regardless of mode)
@@ -88,7 +90,7 @@ class TextChunker:
             sentences = re.split(r'(?<=[.!?])\s+', section)
             
             for sentence in sentences:
-                if len(sentence.strip()) == 0:
+                if not sentence.strip():
                     continue
                     
                 # If adding this sentence exceeds max chunk size, start a new chunk

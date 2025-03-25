@@ -3,11 +3,10 @@ Utility functions for the Synthetic QA Generator.
 """
 
 import hashlib
-from pathlib import Path
-from typing import List, Dict
-from bs4 import BeautifulSoup
-import json
 import re
+import json
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Union
 
 
 def get_hash(text: str) -> str:
@@ -47,12 +46,18 @@ def group_related_files(files: List[Path], base_dir: Path) -> List[List[Path]]:
     return list(dir_groups.values())
 
 
-import json
-import re
-
-def sanitize_json_string(json_string):
+def sanitize_json_string(json_string: str) -> str:
     """
     Sanitizes a potentially problematic JSON string to make it parseable.
+    
+    Args:
+        json_string: The JSON string to sanitize
+        
+    Returns:
+        Sanitized JSON string
+        
+    Raises:
+        ValueError: If the JSON string cannot be sanitized
     """
     # First attempt: Try direct parsing
     try:
@@ -82,20 +87,36 @@ def sanitize_json_string(json_string):
     raise ValueError(f"JSON string could not be sanitized")
     
 
-def json_if_valid(text: str):
+def json_if_valid(text: str) -> Optional[Union[Dict[str, Any], List[Any]]]:
+    """
+    Extract and parse JSON from text if it contains valid JSON.
+    
+    Args:
+        text: Text that might contain JSON
+        
+    Returns:
+        Parsed JSON object or None if no valid JSON found
+    """
+    if not text:
+        return None
+        
+    # Find JSON-like pattern in the text
     json_pattern = r'(\{[\s\S]*\})'
     json_match = re.search(json_pattern, text)
     
     if not json_match:
         return None
 
-    if not json_match or len(re.findall(json_pattern, text)) > 1:
+    # Check if there's more than one JSON object in the text
+    if len(re.findall(json_pattern, text)) > 1:
         return None
     
     json_text = json_match.group(1)
 
     try:
-        data = json.loads(sanitize_json_string(json_text))
+        # Try to sanitize and parse the JSON
+        sanitized = sanitize_json_string(json_text)
+        data = json.loads(sanitized)
         return data
-    except json.JSONDecodeError:
+    except (json.JSONDecodeError, ValueError):
         return None

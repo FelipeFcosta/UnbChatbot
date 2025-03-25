@@ -11,9 +11,7 @@ import re
 from pathlib import Path
 from urllib.parse import urlparse, urljoin, urldefrag
 from bs4 import BeautifulSoup, Doctype, Comment
-from .llm_client import LLMClient
-from typing import Dict, Any, Optional
-
+from typing import Tuple
 
 # Optional dependency for PDF processing
 try:
@@ -21,6 +19,7 @@ try:
     PDF_AVAILABLE = True
 except ImportError:
     PDF_AVAILABLE = False
+    logging.warning("PyMuPDF not available. PDF processing will be disabled.")
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +45,7 @@ class FileProcessor:
     }
     
     @staticmethod
-    def extract_domain_and_path(file_path: Path) -> tuple:
+    def extract_domain_and_path(file_path: Path) -> Tuple[str, str, str]:
         """
         Extract domain and path information from a file path.
         
@@ -79,7 +78,7 @@ class FileProcessor:
                     if path.endswith('.html') or path.endswith('.htm'):
                         path = path[:-5]  # Remove .html or .htm
                     
-                    if (not domain.startswith("www")):
+                    if not domain.startswith("www"):
                         domain = f"www.{domain}"
 
                     return domain, path, f"{domain}/{path}"
@@ -127,7 +126,6 @@ class FileProcessor:
         """
         return FileProcessor.INSTITUTION_DOMAINS.get(domain, domain)
 
-
     @staticmethod
     def get_institution_courses(domain: str) -> str:
         """
@@ -137,16 +135,15 @@ class FileProcessor:
             domain: Domain string like "cic.unb.br"
             
         Returns:
-            Full institution name or the domain if not recognized
+            Comma-separated string of courses or "All Courses" if not recognized
         """
         return FileProcessor.INSTITUTION_COURSES.get(domain, "All Courses")
     
-    
     @staticmethod
-    def process_links_in_html(html_content: BeautifulSoup, file_path: str) -> None:
+    def process_links_in_html(html_content: BeautifulSoup, file_path: Path) -> None:
         """
         Process links in HTML content to convert them to markdown format [text](url).
-        This function reads HTML from file_path and modifies the BeautifulSoup object in place.
+        This function modifies the BeautifulSoup object in place.
         
         Args:
             html_content: BeautifulSoup object containing the parsed HTML content
@@ -158,15 +155,18 @@ class FileProcessor:
         not_working_urls = []
         working_urls = []
 
+        # Process <a> elements
         for link in html_content.find_all('a'):
             link_text = link.get_text().strip()
             link_url = link.get('href')
-            link_url, _ = urldefrag(link_url)
             
             if not link_url:
                 # If no href attribute, just use the text
                 link.replace_with(link_text)
                 continue
+            
+            # Remove fragment identifiers
+            link_url, _ = urldefrag(link_url)
                 
             # Check if the URL is relative
             parsed = urlparse(link_url)
@@ -201,6 +201,7 @@ class FileProcessor:
                     if url_to_try in working_urls:
                         working_url = url_to_try
                         break
+                    
                     retries = 3
                     for attempt in range(retries):
                         try:
@@ -210,30 +211,33 @@ class FileProcessor:
                                 working_urls.append(working_url)
                                 break
                             elif response.status_code in {301, 302, 303, 307, 308}:  # Redirect codes
-                                if url_to_try.split("/")[-1] in urljoin(base_url, response.headers.get('Location')):
-                                    url_to_try = urljoin(base_url, response.headers.get('Location'))
-                                    attempts = 0
-                                    continue
+                                if 'Location' in response.headers:
+                                    redirect_url = response.headers.get('Location')
+                                    if url_to_try.split("/")[-1] in urljoin(base_url, redirect_url):
+                                        url_to_try = urljoin(base_url, redirect_url)
+                                        attempt = 0
+                                        continue
                                 not_working_urls.append(url_to_try)
                                 break
                             else:
                                 not_working_urls.append(url_to_try)
                                 break
                         except Exception as e:
-                            logger.info(f"Failed to verify URL {url_to_try} - {e.__class__.__name__}")
-                            if (attempt < retries-1):
-                                logger.info(f"    attempting again...")
-                            time.sleep(1)
+                            logger.debug(f"Failed to verify URL {url_to_try} - {e.__class__.__name__}")
+                            if attempt < retries-1:
+                                time.sleep(1)
                 
                 # Create markdown link with working URL or default to domain
                 if working_url:
                     markdown_link = f"[{link_text}]({working_url})"
                 else:
-                    markdown_link = f"https://{domain}"
+                    # Use the base domain if no working URL found
+                    markdown_link = f"[{link_text}](https://{domain})"
             
+            # Replace the link with the markdown version
             link.replace_with(markdown_link)
 
-        # Find <select> elements containing <option> elements with URLs
+        # Process <select> elements containing <option> elements with URLs
         select_elements = html_content.find_all('select')
         for select in select_elements:
             options = select.find_all('option')
@@ -260,14 +264,23 @@ class FileProcessor:
                 markdown_content = "\n".join(markdown_list)
                 select.replace_with(markdown_content)
 
-
     @staticmethod
     def preprocess_html(file_path: Path) -> BeautifulSoup:
+        """
+        Preprocess HTML file by removing unnecessary elements and cleaning up the structure.
+        
+        Args:
+            file_path: Path to the HTML file
+            
+        Returns:
+            BeautifulSoup object with the preprocessed HTML
+        """
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             content = f.read()
         
         soup = BeautifulSoup(content, 'html5lib')
 
+        # Remove doctype
         for item in soup.contents:
             if isinstance(item, Doctype):
                 item.extract()
@@ -300,8 +313,9 @@ class FileProcessor:
             if main_content:
                 break
 
-        content_soup =  main_content if main_content else soup
+        content_soup = main_content if main_content else soup
 
+        # Handle whitespace in elements where it's significant
         whitespace_significant = ['pre', 'code', 'textarea']
         
         for element in content_soup.find_all(text=True):
@@ -311,17 +325,18 @@ class FileProcessor:
                     element.replace_with(normalized)
 
         content_soup.title = soup.title
+
         return content_soup
 
     @staticmethod
-    def extract_text_from_html(soup: BeautifulSoup, file_path: Path, llm_client: Optional[LLMClient] = None) -> str:
+    def extract_text_from_html(soup: BeautifulSoup, file_path: Path, llm_client=None) -> str:
         """
         Extract readable text content from HTML files with improved structure preservation.
         
         Args:
             soup: BeautifulSoup object of the document
             file_path: Path to the HTML file
-            llm_client: Optional LLMClient instance for llm markdown corrections if needed
+            llm_client: Optional LLM client for markdown corrections
             
         Returns:
             Extracted text with preserved structure in markdown format
@@ -343,9 +358,9 @@ class FileProcessor:
                     parent = h.parent
                     
                     current_header_position = header_positions.get(h, 0)
-                    counted_headers = set() # Track headers we've already counted
-                    # Find the path from root to this header to identify true ancestor elements
+                    counted_headers = set()  # Track headers we've already counted
                     
+                    # Find the path from root to this header to identify true ancestor elements
                     ancestor_elements = []
                     p = h.parent
                     while p:
@@ -355,7 +370,6 @@ class FileProcessor:
                     # Count parents that contain other header elements (creating semantic sections)
                     while parent and parent.name:
                         # Only count containers that have other heading elements
-
                         ancestor_headers = []
                         for header in parent.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], recursive=False):
                             if (header != h and header_positions.get(header, 0) < current_header_position and
@@ -395,7 +409,6 @@ class FileProcessor:
                         marker = '#' * new_level + ' '
                         new_tag = soup_copy.new_string(f"\n\n{marker}{heading_text}\n\n")
                         h.replace_with(new_tag)
-            
             
             # Process nested structures (divs, sections, articles)
             for container in soup_copy.find_all(['div', 'section', 'article', 'main', 'aside']):
@@ -465,9 +478,10 @@ class FileProcessor:
             text = '\n'.join(lines).strip()
             
             # Replace multiple consecutive newlines with just two
-            for _ in range(0,3):
+            for _ in range(3):
                 text = re.sub(r'\n{3,}', '\n\n', text)
 
+            # Use LLM to correct markdown if available
             if llm_client:
                 prompt = f"{text}\n\n-----\nCorrect the hierarchy of the headers and/or headers in this markdown " \
                     "where you see fit, consider it's a FAQ that may have topics that will include one or more qa pairs. " \
@@ -484,11 +498,18 @@ class FileProcessor:
         except Exception as e:
             logger.error(f"Error extracting text from HTML: {e}")
             return ""
-
     
     @staticmethod
     def extract_text_from_pdf(file_path: Path) -> str:
-        """Extract text content from PDF files."""
+        """
+        Extract text content from PDF files.
+        
+        Args:
+            file_path: Path to the PDF file
+            
+        Returns:
+            Extracted text from the PDF
+        """
         if not PDF_AVAILABLE:
             logger.error("PyMuPDF (fitz) not available. Cannot extract text from PDF.")
             return ""
@@ -503,13 +524,15 @@ class FileProcessor:
             logger.error(f"Error extracting text from PDF {file_path}: {e}")
             return ""
     
-    @staticmethod
-    def extract_text_from_file(file_path: Path) -> str:
+    def extract_text_from_file(self, file_path: Path) -> str:
         """
         Extract text from a file based on its extension.
         
         Args:
             file_path: Path to the file
+            
+        Returns:
+            Extracted text content
         """
         if not file_path.exists():
             logger.warning(f"File does not exist: {file_path}")
@@ -518,7 +541,8 @@ class FileProcessor:
         file_extension = file_path.suffix.lower()
         
         if file_extension in ['.html', '.htm']:
-            return FileProcessor.extract_text_from_html(file_path)
+            soup = FileProcessor.preprocess_html(file_path)
+            return FileProcessor.extract_text_from_html(soup, file_path)
         elif file_extension == '.pdf':
             return FileProcessor.extract_text_from_pdf(file_path)
         elif file_extension in ['.txt', '.md', '.csv', '.json']:
