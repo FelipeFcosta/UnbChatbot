@@ -4,3 +4,6 @@ synthetic_qa/modules/__pycache__/
 synthetic_qa.py
 .venv/
 fine_tuning/*.md
+fine_tuning/merge_model.py
+fine_tuning/push_model.py
+fine_tuning/__pycache__/

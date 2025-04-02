@@ -61,7 +61,7 @@ def run_fine_tuning(
     hf_dataset: str,
     hf_token: str = None,
     output_dir: str = "unb_chatbot",
-    base_model: str = "unsloth/Llama-3.2-3B-Instruct-bnb-4bit",
+    base_model: str = "Qwen2.5-7B-Instruct",
     epochs: int = 3,
     learning_rate: float = 5e-5,
     batch_size: int = 4,
@@ -259,7 +259,7 @@ def main(
     hf_dataset: str = 'liteofspace/unb-chatbot',
     hf_token: str = os.environ.get("HF_TOKEN"),
     output_dir: str = "unb_chatbot",
-    base_model: str = "unsloth/Llama-3.2-3B-Instruct-bnb-4bit",
+    base_model: str = "Qwen2.5-7B-Instruct",
     epochs: int = 3,
     batch_size: int = 4
 ):

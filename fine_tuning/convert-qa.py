@@ -38,18 +38,11 @@ def normalize_text(text):
     if not text:
         return ""
         
-    # Fix extra spaces
-    text = re.sub(r'\s+', ' ', text)
-    
     # Fix common HTML entities that might remain
     text = text.replace('&nbsp;', ' ')
     text = text.replace('&amp;', '&')
     text = text.replace('&lt;', '<')
     text = text.replace('&gt;', '>')
-    
-    # Fix inconsistent URL formatting
-    text = re.sub(r'www\s*\.\s*', 'www.', text)
-    text = re.sub(r'unb\s*\.\s*br', 'unb.br', text)
     
     # Normalize to avoid inconsistent representation of accents
     text = unicodedata.normalize('NFC', text)

@@ -9,12 +9,13 @@ import os
 import logging
 import argparse
 import json # Import json to read config files
+import re   # Import re for regex to extract response
 
 # --- Configuration ---
-APP_NAME = "unb-chatbot"
-DEFAULT_MODEL_DIR_NAME = "unb_chatbot" # Directory *inside* the volume
+APP_NAME = "unb-chatbot-gemma4b"
+DEFAULT_MODEL_DIR_NAME = "unb_chatbot_gemma12b_run2" # Directory *inside* the volume
 VOLUME_NAME = "unb-chatbot-models"       # Name of the Modal Volume
-GPU_CONFIG = "T4"                        # GPU for inference
+GPU_CONFIG = "A10G"                        # GPU for inference
 # BASE_MODEL variable is removed - it will be inferred from saved_model_path
 # ---------------------
 
@@ -64,7 +65,8 @@ MODEL_MOUNT_PATH = "/model_outputs" # Where the volume is mounted
 )
 def generate(user_prompt: str, model_dir_name: str = DEFAULT_MODEL_DIR_NAME):
     """Generates a response using the fine-tuned model."""
-    from unsloth import FastLanguageModel
+    from unsloth import FastModel
+    from unsloth.chat_templates import get_chat_template
     import torch
 
     # --- 1. Construct the path to your saved model ---
@@ -101,7 +103,7 @@ def generate(user_prompt: str, model_dir_name: str = DEFAULT_MODEL_DIR_NAME):
     # Unsloth automatically loads the base model specified in the config files
     # within `saved_model_path` and then applies the LoRA adapters from the same path.
     try:
-        model, tokenizer = FastLanguageModel.from_pretrained(
+        model, tokenizer = FastModel.from_pretrained(
             model_name=saved_model_path, # <--- Load from the saved directory
             max_seq_length=2048,
             dtype=None,
@@ -126,38 +128,52 @@ def generate(user_prompt: str, model_dir_name: str = DEFAULT_MODEL_DIR_NAME):
         raise
 
     # Ensure PEFT model is used for inference
-    FastLanguageModel.for_inference(model)
+    FastModel.for_inference(model)
 
     # --- 3. Prepare the prompt ---
-    messages = [
-        {"role": "user", "content": user_prompt},
-    ]
-    inputs = tokenizer.apply_chat_template(
+    messages = [{
+        "role": "user",
+        "content": [{
+            "type" : "text",
+            "text" : user_prompt,
+        }]
+    }]
+
+    tokenizer = get_chat_template(
+        tokenizer,
+        chat_template = "gemma-3",
+    )
+
+    text = tokenizer.apply_chat_template(
         messages,
-        tokenize=True,
-        add_generation_prompt=True,
-        return_tensors="pt",
-    ).to(next(model.parameters()).device)
+        add_generation_prompt = True, # Must add for generation
+    )
 
     # --- 4. Generate the response ---
     logger.info("Generating response...")
     # (Generation code remains the same)
     outputs = model.generate(
-        input_ids=inputs,
-        max_new_tokens=512,
-        use_cache=True,
-        do_sample=True,
-        temperature=0.6,
-        top_p=0.9,
-        pad_token_id=tokenizer.eos_token_id
+        **tokenizer([text], return_tensors = "pt").to("cuda"),
+        max_new_tokens = 564, # Increase for longer outputs!
+        # Recommended Gemma-3 settings!
+        temperature = 1.0, top_p = 0.95, top_k = 64,
     )
 
     # --- 5. Decode the response ---
-    response_tokens = outputs[0][inputs.shape[-1]:]
-    decoded_response = tokenizer.decode(response_tokens, skip_special_tokens=True)
+    decoded_response = tokenizer.batch_decode(outputs)
 
     logger.info("Generation complete.")
     return decoded_response
+
+def extract_model_response(full_response):
+    """Extract just the model's response from the full templated output."""
+    # Pattern to match content between <start_of_turn>model\n and <end_of_turn>
+    pattern = r'<start_of_turn>model\n(.*?)<end_of_turn>'
+    match = re.search(pattern, full_response, re.DOTALL)
+    
+    if match:
+        return match.group(1)
+    return "Could not extract model response"
 
 @app.local_entrypoint()
 def main(prompt: str = "ENADE é obrigatório?", model_dir: str = DEFAULT_MODEL_DIR_NAME):
@@ -170,11 +186,24 @@ def main(prompt: str = "ENADE é obrigatório?", model_dir: str = DEFAULT_MODEL_
     print("(Base model is automatically detected from the saved model files)")
 
     try:
-        response = generate.remote(user_prompt=prompt, model_dir_name=model_dir)
-        print("\nModel Response:")
-        print("-" * 20)
-        print(response)
-        print("-" * 20)
+        response_raw = generate.remote(user_prompt=prompt, model_dir_name=model_dir)
+        
+        print("\nRaw Model Response:")
+        print("-" * 40)
+        print(response_raw)
+        print("-" * 40)
+        
+        # Extract and print the markdown-friendly version
+        if response_raw and len(response_raw) > 0:
+            markdown_response = extract_model_response(response_raw[0])
+            
+            print("\nFormatted Markdown Response:")
+            print("-" * 40)
+            print(markdown_response)  # Already has proper newlines from extraction
+            print("-" * 40)
+        else:
+            print("No response received from model.")
+            
     except Exception as e:
         print("\n--- ERROR DURING REMOTE EXECUTION ---")
         print(f"An error occurred: {e}")
