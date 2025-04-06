@@ -105,16 +105,12 @@ def convert_qa_to_training_format(qa_pairs: List[Dict[str, Any]],
         # Extract question and answer from each pair
         question = pair.get("question", "")
         answer = pair.get("answer", "")
+        url = pair.get("url", "")
+        pair_hash = pair.get("qa_pair_hash", "")
         
         if not question or not answer:
             continue
         
-        # Create a simple hash to detect duplicates (using just the beginning of each)
-        pair_hash = hash(f"{question}|{answer}")
-        if pair_hash in seen_pairs:
-            continue
-        seen_pairs.add(pair_hash)
-            
         # Create a message object in the format expected by Unsloth
         message_obj = {
             "messages": [
@@ -123,25 +119,19 @@ def convert_qa_to_training_format(qa_pairs: List[Dict[str, Any]],
             ]
         }
         
-        # Add source metadata if available (for debugging/tracing)
-        if "source" in pair:
-            message_obj["source"] = pair.get("source", "")
+        # Add url metadata if available (for debugging/tracing)
+        if "url" in pair:
+            message_obj["url"] = url
             
-        # Add qa_pair_hash field
-        qa_hash = pair.get("qa_pair_hash", "general")
-        style_str = pair.get("writing_style", "Default")
-        iteration = pair.get("iteration", 0)
-        
-        # Format the hash similar to the example: faq_HASH_STYLE_NUMBER
-        message_obj["qa_pair_hash"] = f"{qa_hash}_{style_str}_{iteration}"
+        message_obj["qa_pair_hash"] = pair_hash
         
         # Extract the origin hash (part before style and iteration)
         # Example: from "faq_bb7532e0fd99_Direct_0" extract "faq_bb7532e0fd99"
-        origin_parts = qa_hash.split('_')
+        origin_parts = pair_hash.split('_')
         if len(origin_parts) >= 2:
             origin_hash = f"{origin_parts[0]}_{origin_parts[1]}"  # e.g., "faq_bb7532e0fd99"
         else:
-            origin_hash = qa_hash
+            origin_hash = pair_hash
             
         message_obj["origin_hash"] = origin_hash
         all_examples.append(message_obj)

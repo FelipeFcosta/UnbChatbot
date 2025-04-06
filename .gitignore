@@ -1,9 +1,9 @@
 .vscode/
-output/
-synthetic_qa/modules/__pycache__/
-synthetic_qa.py
+**/output/debug
+**/output/qa_pairs
+**/__pycache__/
 .venv/
 fine_tuning/*.md
-fine_tuning/merge_model.py
-fine_tuning/push_model.py
-fine_tuning/__pycache__/
+**/merge_model.py
+**/push_model.py
+**/*Zone.Identifier

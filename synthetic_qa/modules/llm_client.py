@@ -66,7 +66,7 @@ class LLMClient:
             if not OPENAI_AVAILABLE:
                 raise ImportError("OpenAI package not installed. Install it with 'pip install openai'")
             
-            api_key = os.environ.get("OPENAI_API_KEY")
+            api_key = os.environ.get("OPENAI_API_KEY2")
             if not api_key:
                 raise ValueError("OPENAI_API_KEY environment variable not set")
                 
@@ -99,7 +99,7 @@ class LLMClient:
             Generated text, parsed JSON (if json_output=True), or None on failure
         """
         # Wait according to the rate limit before making the request
-        self._rate_limiter.wait()
+        # self._rate_limiter.wait()
 
         provider = self.config.get("provider", "").lower()
         model = self.config.get("model", "")
@@ -181,15 +181,14 @@ class LLMClient:
                             if json_response:
                                 return json_response
                         except Exception:
-                            max_tries -= 1
-
-                        # Take the tail of the response to continue with LLM
-                        response_tail = full_response[-5000:] if len(full_response) > 5000 else full_response
+                            pass
+                    
+                        max_tries -= 1
 
                         continue_prompt = "\n\nContinue the existing JSON exactly from where it stopped, maintaining " \
                         "its structure and formatting without starting a new JSON object"
 
-                        current_prompt = prompt + "\n ...\n" + response_tail + continue_prompt
+                        current_prompt = prompt + "\n ...\n" + full_response + continue_prompt
                     
                     elif long_output:
                         # Clean up response for long text
@@ -201,14 +200,11 @@ class LLMClient:
                         else:
                             max_tries -= 1
 
-                        # Take the tail of the response to continue with LLM
-                        response_tail = full_response[-5000:] if len(full_response) > 5000 else full_response
-
                         continue_prompt = "\n\nContinue the existing text **exactly** from where it stopped, maintaining " \
                         "its structure and formatting without starting a new structured object\n" \
                         "if you're finished, your final line should be only the word 'DONE'"
 
-                        current_prompt = prompt + "\n ...\n" + response_tail + continue_prompt
+                        current_prompt = prompt + "\n ...\n" + full_response + continue_prompt
                     else:
                         # Single response is complete, return it
                         break
