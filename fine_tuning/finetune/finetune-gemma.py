@@ -22,8 +22,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+GPU = "T4"
+
 # Define Modal app and resources
-app = modal.App("unb-chatbot-gemma12b") # App name updated
+app = modal.App("unb-chatbot-gemma4b-run4") # App name updated
 
 # Create a Modal image with dependencies
 image = (
@@ -52,34 +54,36 @@ image = (
 
 # Volume to store output models
 output_volume = modal.Volume.from_name(
-    "unb-chatbot-models", create_if_missing=True
+    "unb-chatbot-gemma", create_if_missing=True
 )
 
+huggingface_secret = modal.Secret.from_name("huggingface")
 
 @app.function(
     image=image,
-    gpu="A10G", # Target A10G (24GB VRAM)
+    gpu=GPU, # Target A10G (24GB VRAM)
     timeout=60 * 60 * 4,
     volumes={"/outputs": output_volume},
     cpu=2,
     memory=24576,
+    secrets=[huggingface_secret],
 )
 def run_fine_tuning(
     hf_dataset: str,
-    hf_token: str = None,
-    output_dir: str = "unb_chatbot_gemma12b", # Updated default dir
-    base_model: str = "unsloth/gemma-3-12b-it-bnb-4bit",
+    output_dir: str = "unb_chatbot_gemma4b", # Updated default dir
+    base_model: str = "unsloth/gemma-3-4b-it-bnb-4bit",
     epochs: int = 3,
-    learning_rate: float = 5e-5,
+    learning_rate: float = 2e-4,
     batch_size: int = 2, # Starting batch size for A10G
-    lora_rank: int = 64,
-    lora_alpha: int = 64,
+    lora_rank: int = 8,
+    lora_alpha: int = 8,
     lora_dropout: float = 0.05,
     max_seq_length: int = 2048,
     warmup_ratio: float = 0.1,
     weight_decay: float = 0.01,
     resume_from_checkpoint: bool = True,
-    delete_output_dir: bool = False
+    delete_output_dir: bool = False,
+    lr_scheduler_type: str = "linear"
 ):
     """Run fine-tuning on Modal with A10G GPU, evaluation enabled, with updated transformers."""
     # Import dependencies
@@ -102,10 +106,14 @@ def run_fine_tuning(
     def apply_chat_template(examples):
         texts = tokenizer.apply_chat_template(examples["messages"])
         return { "text" : texts }
-    
-    if hf_token:
-        logger.info(f"Logging in to Hugging Face Hub with provided token")
-        login(token=hf_token)
+
+    hf_token = os.environ.get("HF_TOKEN")
+    if not hf_token:
+        logger.warning("Hugging Face token not found in environment variables.")
+        raise ValueError("Hugging Face token (HF_TOKEN) is required.")
+
+    logger.info(f"Logging in to Hugging Face Hub with provided token")
+    login(token=hf_token)
 
     # Output to volume
     output_dir_path = f"/outputs/{output_dir}"
@@ -119,7 +127,7 @@ def run_fine_tuning(
         
     logger.info(f"Starting fine-tuning process with the following settings:")
     logger.info(f"  Base Model: {base_model}")
-    logger.info(f"  GPU Type: A10G")
+    logger.info(f"  GPU Type: {GPU}")
     logger.info(f"  Using Hugging Face dataset: {hf_dataset}")
     logger.info(f"  Output Directory: {output_dir_path}")
     logger.info(f"  Epochs: {epochs}")
@@ -133,9 +141,10 @@ def run_fine_tuning(
     model, tokenizer = FastModel.from_pretrained(
         model_name=base_model,
         max_seq_length=max_seq_length,
-        load_in_4bit=True,
-        load_in_8bit=False,
+        load_in_4bit=False,
+        load_in_8bit=True,
         token=hf_token,
+        full_finetuning=False
     )
 
     # Apply LoRA adapters to the model
@@ -202,11 +211,10 @@ def run_fine_tuning(
     print("train_dataset[5]['text']:", train_dataset[5]["text"])
     model.config.text_config.use_cache = False
 
+    # solve bug with HybridCache
     _orig_recursively_apply = accel_ops.recursively_apply
-
     def patched_recursively_apply(func, data, test_type=lambda x: hasattr(x, "float") and isinstance(x, torch.Tensor), *args, **kwargs):
         def safe_func(x):
-            # If x is a HybridCache, skip conversion.
             if x.__class__.__name__ == "HybridCache":
                 return x
             return func(x)
@@ -216,7 +224,7 @@ def run_fine_tuning(
 
     # Check for existing checkpoint in the output directory
     resume_checkpoint = None
-    if resume_from_checkpoint and os.path.exists(output_dir_path) and any(os.path.exists(os.path.join(output_dir_path, d)) for d in ["checkpoint-"]):
+    if resume_from_checkpoint and os.path.exists(output_dir_path) and any(d.startswith("checkpoint-") for d in os.listdir(output_dir_path)):
         checkpoints = [d for d in os.listdir(output_dir_path) if d.startswith("checkpoint-")]
         if checkpoints:
             latest_checkpoint = sorted(checkpoints, key=lambda x: int(x.split("-")[1]))[-1]
@@ -238,18 +246,19 @@ def run_fine_tuning(
             warmup_ratio = warmup_ratio,
             num_train_epochs = epochs,
             # max_steps = 50,
-            learning_rate = learning_rate, # Reduce to 2e-5 for long training runs
+            learning_rate = learning_rate,
             logging_steps = 1,
             optim = "adamw_8bit",
             weight_decay=weight_decay,
-            lr_scheduler_type = "linear",
+            lr_scheduler_type = lr_scheduler_type,
             seed = 3407,
             report_to = "none", # Use this for WandB etc
-            eval_strategy="steps" if eval_dataset else "no", # Use eval_strategy
-            eval_steps=40 if eval_dataset else None,
-            save_strategy="steps",
-            save_steps=100,  # Save checkpoints every 50 steps
-            save_total_limit=3,  # Keep only the 3 most recent checkpoints
+            eval_strategy="steps",
+            eval_steps=40,
+            load_best_model_at_end=True,
+            metric_for_best_model="eval_loss",
+            save_steps=40,  # Save checkpoints
+            save_total_limit=3,  # checkpoints to keep
         ),
     )
 
@@ -264,37 +273,6 @@ def run_fine_tuning(
         response_part = "<start_of_turn>model\n",
     )
 
-    # Set up signal handlers for early stopping
-    early_stopped = False
-    
-    def signal_handler(sig, frame):
-        nonlocal early_stopped
-        if early_stopped:
-            logger.warning("Received second interrupt, forcing exit")
-            sys.exit(1)
-            
-        logger.warning("Received interrupt, saving model and exiting")
-        early_stopped = True
-        
-        # Save the model
-        try:
-            logger.info("Saving model due to early stopping...")
-            trainer.save_model(output_dir_path)
-            if hasattr(trainer, 'tokenizer') and trainer.tokenizer is not None:
-                trainer.tokenizer.save_pretrained(output_dir_path)
-            else:
-                tokenizer.save_pretrained(output_dir_path)
-            output_volume.commit()
-            logger.info(f"Model successfully saved to {output_dir_path}")
-        except Exception as e:
-            logger.error(f"Failed to save model during early stopping: {e}")
-        
-        sys.exit(0)
-
-    # Register signal handlers for SIGINT (Ctrl+C) and SIGTERM
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
-
     # Train the model
     logger.info("Starting training (evaluation enabled)...")
     try:
@@ -305,21 +283,20 @@ def run_fine_tuning(
         try:
             logger.warning("Attempting to save model state due to error...")
             trainer.save_model(output_dir_path)
-            if hasattr(trainer, 'tokenizer') and trainer.tokenizer is not None: trainer.tokenizer.save_pretrained(output_dir_path)
-            else: tokenizer.save_pretrained(output_dir_path)
+            trainer.processing_class.save_pretrained(output_dir_path)
             output_volume.commit()
             logger.info(f"Model state partially saved to {output_dir_path}")
         except Exception as save_e:
             logger.error(f"Failed to save model state after error: {save_e}")
         raise
 
+    final_eval_metrics = trainer.evaluate()
+    logger.info(f"Final evaluation: {final_eval_metrics}")
+
     # Save the final fine-tuned LoRA adapters
     logger.info(f"Saving final fine-tuned LoRA adapters to {output_dir_path}...")
     trainer.save_model(output_dir_path)
-    if hasattr(trainer, 'tokenizer') and trainer.tokenizer is not None:
-        trainer.tokenizer.save_pretrained(output_dir_path)
-    else:
-        tokenizer.save_pretrained(output_dir_path)
+    trainer.processing_class.save_pretrained(output_dir_path)
 
     logger.info("Fine-tuning complete! LoRA adapters saved successfully to volume.")
     output_volume.commit()
@@ -329,20 +306,15 @@ def run_fine_tuning(
 @app.local_entrypoint()
 def main(
     hf_dataset: str = 'liteofspace/unb-chatbot',
-    hf_token: str = os.environ.get("HF_TOKEN"),
-    output_dir: str = "unb_chatbot_gemma12b", # Match default
+    output_dir: str = "unb_chatbot_gemma4b", # Match default
     epochs: int = 3, # Match default
     batch_size: int = 2, # Match default
-    resume: bool = True, # Whether to resume from checkpoint
+    resume: bool = True,
     delete_output_dir: bool = False # Whether to delete existing output directory
 ):
-    if "HF_TOKEN" not in os.environ and hf_token is None:
-        logger.warning("HF_TOKEN environment variable not set. May be needed.")
-
     # Call the remote function
     result = run_fine_tuning.remote(
         hf_dataset=hf_dataset,
-        hf_token=hf_token,
         output_dir=output_dir,
         epochs=epochs,
         batch_size=batch_size,

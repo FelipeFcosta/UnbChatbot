@@ -12,10 +12,10 @@ import json # Import json to read config files
 import re   # Import re for regex to extract response
 
 # --- Configuration ---
-APP_NAME = "unb-chatbot-gemma4b"
+APP_NAME = "unb-chatbot-gemma"
 DEFAULT_MODEL_DIR_NAME = "unb_chatbot_gemma12b_run2" # Directory *inside* the volume
 VOLUME_NAME = "unb-chatbot-models"       # Name of the Modal Volume
-GPU_CONFIG = "A10G"                        # GPU for inference
+GPU_CONFIG = "T4"                        # GPU for inference
 # BASE_MODEL variable is removed - it will be inferred from saved_model_path
 # ---------------------
 

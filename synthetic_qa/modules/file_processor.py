@@ -9,7 +9,7 @@ import requests
 import time
 import re
 from pathlib import Path
-from urllib.parse import urlparse, urljoin, urldefrag
+from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup, Doctype, Comment
 from typing import Tuple
 
@@ -165,9 +165,6 @@ class FileProcessor:
                 link.replace_with(link_text)
                 continue
             
-            # Remove fragment identifiers
-            link_url, _ = urldefrag(link_url)
-                
             # Check if the URL is relative
             parsed = urlparse(link_url)
             is_relative = not (parsed.scheme and parsed.netloc)
