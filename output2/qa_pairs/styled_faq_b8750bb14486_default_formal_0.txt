@@ -1,4 +1,0 @@
-{
-  "question": "Poderia me informar sobre como proceder para marcar a sessão de defesa pública do Projeto Final 2 em Engenharia de Computação?",
-  "answer": "O agendamento da data, do horário e do local para a sessão de defesa pública do Projeto Final 2 (PF2) em Engenharia de Computação é de responsabilidade exclusiva do seu professor orientador.\n\nPara realizar o agendamento, o orientador deverá utilizar o [formulário de atendimento interno do Departamento de Ciência da Computação (CIC)](https://www.cic.unb.br/o-cic/fale-conosco). Caso persistam dúvidas sobre este procedimento, recomenda-se entrar em contato diretamente com a Secretaria do CIC."
-}

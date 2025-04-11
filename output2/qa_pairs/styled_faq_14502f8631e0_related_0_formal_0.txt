@@ -1,4 +1,0 @@
-{
-  "question": "Poderia me informar se a reprovação por três vezes em uma mesma matéria optativa resulta em desligamento do curso?",
-  "answer": "Não, a regra que prevê o desligamento do curso após três reprovações aplica-se exclusivamente a disciplinas de caráter **obrigatório**. Reprovações em disciplinas classificadas como optativas ou pertencentes a cadeias de seletividade não são consideradas para esta contagem."
-}

@@ -1,4 +1,0 @@
-{
-  "question": "Poderia me informar se existe algum modelo ou template oficial recomendado para a formatação do relatório do Projeto Final?",
-  "answer": "Sim, existe um template recomendado que pode ser utilizado como modelo para a formatação do relatório do Projeto Final. Trata-se de um modelo desenvolvido em LaTeX, disponível para acesso no seguinte repositório GitHub: [https://github.com/UnB-CIC/Monografia](https://github.com/UnB-CIC/Monografia)."
-}

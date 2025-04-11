@@ -1,4 +1,0 @@
-{
-  "question": "eu vi uns numero tipo 40/10 nas vagas reservada no sigaa o que eh isso?",
-  "answer": "Essa indicação 'X/Y' que você observou nas vagas reservadas de uma turma no SIGAA detalha a distribuição dessas vagas. O número representado por 'X' corresponde ao total de vagas reservadas especificamente para os alunos que estão ingressando naquele curso. Por sua vez, o número 'Y' indica quantas vagas estão reservadas para os outros alunos do mesmo curso, ou seja, aqueles que não são ingressantes."
-}

@@ -1,2 +1,0 @@
-Original Question: Ao avaliar a migração entre os currículos 1741/1 e 1741/2, quais informações do histórico devo comparar prioritariamente?
-Answer: A comparação mais importante deve ser feita entre a **carga horária total pendente** e a **lista de componentes curriculares pendentes** nos dois cenários (histórico atual no 1741/1 e simulação no 1741/2). Não se prenda apenas à comparação das cargas obrigatória e optativa isoladamente.

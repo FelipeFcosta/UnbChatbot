@@ -1,4 +1,0 @@
-{
-  "question": "Gostaria de entender como posso solicitar o aproveitamento dos meus certificados de língua estrangeira para reduzir a carga horária do meu curso.",
-  "answer": "Sim, é possível solicitar o aproveitamento de certificados de língua estrangeira como carga horária. Para compreender o funcionamento do processo e verificar os requisitos necessários, por favor, acesse a [página da Secretaria de Administração Acadêmica (SAA) que trata do aproveitamento de língua estrangeira](https://saa.unb.br/perguntas-frequentes#aproveitamento-de-carga-horaria-em-lingua-estrangeira)."
-}

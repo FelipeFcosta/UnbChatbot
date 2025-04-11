@@ -1,4 +1,0 @@
-{
-  "question": "onde acho info sobre os tramite de formatura tipo burocracia e colacao to acabando ja?",
-  "answer": "Para encontrar todas as instruções sobre os procedimentos burocráticos relativos à formatura, incluindo a colação de grau, você deve se dirigir à secretaria do Departamento de Ciência da Computação (CIC)."
-}

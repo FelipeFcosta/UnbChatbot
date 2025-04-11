@@ -1,4 +1,0 @@
-{
-  "question": "Aquela reserva de vaga no sigaa tipo 40/10 o que significa?",
-  "answer": "Sobre a notação de reserva de vagas que você mencionou, como '40/10', no SIGAA, o significado é o seguinte:\n\n*   O primeiro número ('X', no caso 40) indica a quantidade de vagas reservadas especificamente para os alunos que estão ingressando no curso associado àquela turma.\n*   O segundo número ('Y', no caso 10) representa o número total de vagas que são reservadas para os alunos veteranos (ou seja, aqueles que não são ingressantes) do mesmo curso.\n\nEssa notação 'X/Y' detalha, portanto, como as vagas de uma turma são distribuídas entre ingressantes e veteranos do curso."
-}

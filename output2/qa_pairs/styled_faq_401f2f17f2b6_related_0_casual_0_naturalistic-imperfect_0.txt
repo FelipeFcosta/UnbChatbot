@@ -1,4 +1,0 @@
-{
-  "question": "No SIGAA o que eu tenho que fazer antes de comecar um estagio novo de eng da computacao?",
-  "answer": "Antes de iniciar um novo estágio em Engenharia da Computação e prosseguir com o envio dos documentos para assinatura, é obrigatório que você efetue o [pré-cadastro do estágio no sistema SIGAA](https://www.deg.unb.br/196-estrutura-administrativa/daia-diretoria-de-acompanhamento-e-integracao-semestre/cesg-coordenacao-de-estagios-da-graduacao/672-cadastro-de-estagio-no-sigaa-perguntas). Este passo deve ser realizado no sistema antes do envio da documentação."
-}

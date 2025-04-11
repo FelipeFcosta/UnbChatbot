@@ -1,4 +1,0 @@
-{
-  "question": "eu queria saber como q eu entro em contato com o coordenador de engenharia da computacao?",
-  "answer": "Para informações sobre como entrar em contato com o coordenador de Engenharia de Computação, saiba que o Prof. Guilherme Novaes Ramos ocupa a função no período de janeiro de 2025 a janeiro de 2027.\n\nA forma preferencial de contato, que resolve a maioria das solicitações, é por e-mail: engcomputacao@unb.br.\n\nSe você necessitar de atendimento presencial ou por meio do Microsoft Teams, é possível agendar. Para isso, envie um e-mail para o endereço acima, indicando seus horários disponíveis e qual a modalidade de atendimento que prefere (presencial ou remota)."
-}

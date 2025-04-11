@@ -1,4 +1,0 @@
-{
-  "question": "Tem como eu me matricular numa disciplina se ainda não fiz o pré-requisito dela?",
-  "answer": "Respondendo à sua questão: não, isso não é possível. A matrícula em uma disciplina sem que o pré-requisito correspondente tenha sido cumprido é vedada em todas as circunstâncias, conforme estabelecido pela [Circular DEG n° 5/2008](https://deg.unb.br/images/legislacao/5_2008.pdf)."
-}

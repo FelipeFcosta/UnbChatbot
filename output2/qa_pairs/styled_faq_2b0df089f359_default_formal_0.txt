@@ -1,4 +1,0 @@
-{
-  "question": "De que maneira posso integralizar a carga horária total requerida pelo curso de Engenharia de Computação?",
-  "answer": "A integralização da carga horária total requerida pelo curso de Engenharia de Computação ocorre mediante o cumprimento, com aprovação, dos componentes curriculares obrigatórios, optativos e eletivos (também conhecidos como módulo livre), conforme definidos na estrutura curricular específica à qual você está vinculado."
-}

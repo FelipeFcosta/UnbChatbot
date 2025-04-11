@@ -1,4 +1,0 @@
-{
-  "question": "Como eu faço para cumprir todas as horas optativas que estão faltando no meu curso?",
-  "answer": "Para cumprir as horas optativas que estão faltando no seu curso, você precisa cursar disciplinas classificadas como optativas e/ou eletivas (módulo livre) e ser aprovado(a) nelas.\n\nA quantidade de horas optativas que você ainda precisa integralizar está especificada no seu histórico escolar, dentro do quadro “Carga Horária Integralizada/Pendente”."
-}

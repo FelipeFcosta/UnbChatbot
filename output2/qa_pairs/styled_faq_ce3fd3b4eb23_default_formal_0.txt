@@ -1,4 +1,0 @@
-{
-  "question": "Onde posso obter os dados para contatar a coordenação responsável pelo meu curso?",
-  "answer": "As informações de contato, bem como a identificação dos coordenadores responsáveis por cada curso, estão publicadas nas páginas específicas de cada um. Para obter esses dados, por favor, consulte o link referente ao seu curso:\n- [Ciência da Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)\n- [Computação (Licenciatura)](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)\n- [Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)\n- [Engenharia Mecatrônica](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)"
-}

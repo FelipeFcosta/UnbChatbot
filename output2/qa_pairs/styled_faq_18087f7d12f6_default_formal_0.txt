@@ -1,4 +1,0 @@
-{
-  "question": "Agradeceria se pudesse me explicar o procedimento para solicitar a matrícula na atividade de Estágio Supervisionado (1 ou 2) em Engenharia de Computação.",
-  "answer": "Para solicitar a matrícula na atividade de Estágio Supervisionado 1 ou Estágio Supervisionado 2 em Engenharia de Computação, o procedimento é o seguinte: Primeiramente, é importante notar que esta matrícula pode ser realizada a qualquer momento durante o semestre letivo, não se restringindo ao período oficial de matrículas.\n\nAssim que seus documentos de estágio estiverem devidamente assinados pelo professor orientador, você deve enviar um e-mail diretamente à coordenação do curso de Engenharia de Computação. Neste e-mail, formalize a solicitação de matrícula na atividade específica (Estágio 1 ou Estágio 2) e inclua o número do processo SEI correspondente à sua documentação de estágio assinada (tipicamente iniciado pelo prefixo 23106)."
-}

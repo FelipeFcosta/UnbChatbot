@@ -1,4 +1,0 @@
-{
-  "question": "Para as etapas regulares de matrícula e rematrícula, a data ou hora da minha solicitação influencia o resultado final da alocação?",
-  "answer": "Não, o momento (data ou hora) em que você realiza sua solicitação durante as etapas regulares de matrícula e rematrícula não afeta o resultado final da alocação de vagas. O processamento dessas solicitações ocorre de maneira coletiva, baseando-se em critérios de prioridade predefinidos. Inclusive, pode ser benéfico aguardar alguns dias para observar a demanda pelas turmas antes de finalizar sua solicitação."
-}

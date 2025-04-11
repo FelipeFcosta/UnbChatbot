@@ -1,4 +1,0 @@
-{
-  "question": "Em que situações eu consigo pedir pra me formar mais cedo em Engenharia de Computação?",
-  "answer": "A possibilidade de antecipar a sua formatura em Engenharia de Computação, conhecida como outorga antecipada de grau, existe apenas em circunstâncias excepcionais, que precisam ser devidamente comprovadas. Como exemplos de situações que podem justificar o pedido, temos: ter sido aprovado em concurso público, ter sido admitido em um programa de pós-graduação, ou ter recebido uma proposta de emprego condicionada à apresentação do diploma."
-}

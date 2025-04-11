@@ -1,4 +1,0 @@
-{
-  "question": "Como eu faço para conseguir validar as horas das atividades de extensão que participei?",
-  "answer": "Para obter a validação das horas de atividades de extensão que você participou e integralizá-las à sua carga horária no curso de Engenharia de Computação, é necessário realizar a solicitação formal. Você deve seguir as orientações e os procedimentos descritos no edital específico sobre extensão, que é publicado a cada semestre letivo."
-}

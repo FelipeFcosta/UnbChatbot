@@ -1,4 +1,0 @@
-Original Question: O que acontece se eu cursar mais de 360 horas de disciplinas eletivas em Engenharia de Computação?
-Answer: Sim, você pode cursar até 900 horas de componentes eletivos. Porém, apenas 360 horas eletivas são consideradas para abater a carga horária total do curso e a carga optativa pendente.
-
-Caso você curse mais que 360 horas eletivas, todas as disciplinas aparecerão em seu histórico, mas as horas excedentes não serão contabilizadas para a integralização do curso.

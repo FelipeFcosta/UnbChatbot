@@ -1,4 +1,0 @@
-{
-  "question": "Quero saber se FGA0073 Teoria de Eletronica Digital 1 conta como ENE0039 Sistemas Digitais pra engenharia de computacao?",
-  "answer": "Não, as disciplinas FGA0073 Teoria de Eletrônica Digital 1 e ENE0039 Sistemas Digitais não são consideradas equivalentes para fins curriculares no curso de Engenharia de Computação."
-}

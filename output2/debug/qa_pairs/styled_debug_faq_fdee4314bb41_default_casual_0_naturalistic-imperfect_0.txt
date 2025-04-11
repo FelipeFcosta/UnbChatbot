@@ -1,7 +1,0 @@
-Original Question: No total, quantas horas são necessárias para o curso de Engenharia de Computação?
-Answer: A quantidade total de horas necessárias para o curso de Engenharia de Computação depende da estrutura curricular à qual você pertence:
-
-*   Se você segue o **Currículo 1741/1**, o total é de **3.480 horas**.
-*   Se você segue o **Currículo 1741/2**, o total é de **3.780 horas**.
-
-Para confirmar qual é o seu currículo e a respectiva carga horária total exigida, verifique seu histórico escolar. O número do currículo está indicado no topo da primeira página, e o quadro resumo apresenta a carga horária total e a pendente.

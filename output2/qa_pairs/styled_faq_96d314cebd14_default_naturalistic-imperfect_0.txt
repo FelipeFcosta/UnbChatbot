@@ -1,4 +1,0 @@
-{
-  "question": "e se eu fizer mais q 360 horas das eletivas na engenharia de computacao, oq acontece?",
-  "answer": "Sim, é possível cursar mais de 360 horas em componentes eletivos, com um limite total de 900 horas.\n\nO que ocorre se você ultrapassar as 360 horas é que todas as disciplinas eletivas cursadas serão listadas em seu histórico escolar. No entanto, somente 360 horas serão efetivamente usadas para abater da carga horária total necessária para a conclusão do curso e da carga horária optativa pendente. As horas que excederem esse limite de 360 não serão contabilizadas para a integralização."
-}

@@ -1,4 +1,0 @@
-{
-  "question": "Qual a diferenca da matricula normal pra matricula extraordinaria?",
-  "answer": "A diferença principal entre a matrícula normal e a matrícula extraordinária reside no método de processamento das solicitações. Durante a matrícula e rematrícula normais, ocorre um processamento em lote (coletivo), no qual são utilizados critérios de prioridade para a distribuição das vagas. Já na matrícula extraordinária, não há esse processamento coletivo; as vagas disponíveis são ocupadas imediatamente, por ordem de chegada da solicitação (o primeiro a solicitar preenche a vaga, caso ela exista)."
-}

@@ -1,4 +1,0 @@
-{
-  "question": "Tem mesmo um minimo de carga horaria que eu preciso fazer todo semestre em EC?",
-  "answer": "Não há uma exigência formal de cumprir uma carga horária mínima a cada semestre para se manter no curso de Engenharia de Computação, apesar de o SIGAA poder mostrar um valor sugerido (por exemplo, 210 horas para os currículos 1741/1 e 1741/2).\n\n**Contudo, atenção a uma regra essencial para evitar o desligamento:** você deve ser aprovado(a) em, no mínimo, **quatro componentes** (disciplinas obrigatórias ou optativas, excluindo-se as eletivas) a cada **dois semestres letivos consecutivos**. O não cumprimento desta exigência é que pode levar ao desligamento."
-}

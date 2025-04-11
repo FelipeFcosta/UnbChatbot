@@ -1,4 +1,0 @@
-Original Question: Existe um número mínimo de horas de disciplinas optativas que eu tenho que fazer em Engenharia de Computação?
-Answer: Sim, existe uma carga horária optativa total que deve ser cumprida para a conclusão do curso (você pode conferir esse total no seu histórico). No entanto, a quantidade de horas que você precisará cursar *especificamente como optativa* pode ser menor.
-
-Isso acontece porque a sua carga horária optativa pendente também diminui quando você cursa disciplinas eletivas (módulo livre) ou quando uma disciplina é cumprida por equivalência ao cursar outra da estrutura curricular.

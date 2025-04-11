@@ -1,4 +1,0 @@
-{
-  "question": "Tem algum requisito antes de começar o Projeto Final da Engenharia de Computação que eu preciso saber?",
-  "answer": "Sim, existem pré-requisitos que precisam ser cumpridos antes de iniciar o Projeto Final em Engenharia de Computação. Um deles é ter concluído uma porcentagem mínima da carga horária total do curso, conforme estabelecido. É recomendado que você consulte o Regulamento de TCC específico do curso de Engenharia de Computação para verificar detalhadamente todas as exigências aplicáveis."
-}

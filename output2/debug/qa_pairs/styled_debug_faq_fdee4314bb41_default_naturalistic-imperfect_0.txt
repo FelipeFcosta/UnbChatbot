@@ -1,7 +1,0 @@
-Original Question: Qual a carga horária total do curso de Engenharia de Computação?
-Answer: A carga horária total exigida no curso de Engenharia de Computação depende da sua estrutura curricular:
-
-*   **Currículo 1741/1:** 3.480 horas
-*   **Currículo 1741/2:** 3.780 horas
-
-Você pode confirmar qual é o seu currículo e a carga horária total exigida verificando seu histórico escolar (o número do currículo está no topo da primeira página e a carga total/pendente no quadro resumo).

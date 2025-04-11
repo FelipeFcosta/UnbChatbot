@@ -1,4 +1,0 @@
-{
-  "question": "A reprovação em uma disciplina obrigatória cursada no período de Verão é contabilizada para fins de desligamento da universidade?",
-  "answer": "Sim, a reprovação em uma disciplina obrigatória cursada no período de Verão pode ser considerada para fins de desligamento. Contudo, a aplicação do desligamento depende do momento em que ocorre a terceira reprovação. Caso a terceira reprovação (incluindo uma ocorrida no Verão) se concretize durante um semestre regular, o desligamento ocorrerá. Entretanto, se a terceira reprovação acontecer especificamente *durante* o período de Verão, o desligamento por essa regra não será efetivado naquele momento."
-}

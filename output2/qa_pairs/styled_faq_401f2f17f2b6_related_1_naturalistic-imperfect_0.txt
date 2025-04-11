@@ -1,4 +1,0 @@
-{
-  "question": "qualquer professor pode me orientar no estagio de engenharia da computacao?",
-  "answer": "Não. Para ser seu orientador de estágio no curso de engenharia da computação, o professor precisa ser membro da Comissão de Estágio vinculada ao seu curso ou departamento."
-}

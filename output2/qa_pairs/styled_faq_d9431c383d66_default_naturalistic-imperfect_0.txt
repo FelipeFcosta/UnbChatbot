@@ -1,4 +1,0 @@
-{
-  "question": "a unb ajuda estudante que tem necessidade especial tipo tdah ou problema de saude mental?",
-  "answer": "Sim, a UnB possui estruturas de apoio para estudantes com necessidades especiais e questões de saúde mental.\n\n*   **Para Necessidades Educacionais Especiais (NEE):** O suporte é oferecido pela Diretoria de Atenção à Saúde da Comunidade Universitária (DASU) — por meio da Coordenação de Atenção Psicossocial (CAPsi) e da Coordenação de Atenção à Saúde e Bem-Estar (CASBEM) — e pela Diretoria da Diversidade (DIV). A Diretoria de Acessibilidade (DACES) também atua nesse sentido. Mais informações sobre acessibilidade estão disponíveis [aqui](http://www.acessibilidade.unb.br/).\n*   **Para Saúde Mental (Depressão, Ansiedade, etc.):** Recomenda-se buscar a Diretoria de Atenção à Saúde da Comunidade Universitária (DASU) para receber orientação e acolhimento. Mais informações podem ser encontradas [aqui](http://dasu.unb.br/)."
-}

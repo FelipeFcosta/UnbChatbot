@@ -1,4 +1,0 @@
-{
-  "question": "tem um minimo de horas optativas q eu sou obrigado a fazer em engenharia da computacao?",
-  "answer": "Sim, existe uma carga horária optativa total que precisa ser cumprida no curso, a qual está informada no seu histórico. No entanto, a quantidade específica de horas que você precisará cursar como 'optativa' pode ser variável.\n\nIsso se deve ao fato de que a sua carga horária optativa pendente também é reduzida quando você cursa e é aprovado(a) em disciplinas eletivas (módulo livre) ou quando uma disciplina obrigatória ou optativa é cumprida por equivalência ao cursar outra disciplina da estrutura curricular."
-}

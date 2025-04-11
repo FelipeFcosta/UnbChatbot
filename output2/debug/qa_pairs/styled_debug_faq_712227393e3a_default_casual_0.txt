@@ -1,4 +1,0 @@
-Original Question: Poderia explicar o que significa 'vagas reservadas para ingressantes' no contexto da matrícula?
-Answer: As 'vagas reservadas para ingressantes' são um número de vagas em certas turmas (especialmente de primeiro semestre) destinadas exclusivamente a alunos que acabaram de ingressar na UnB via Enem, PAS ou Vestibular (calouros).
-
-Isso pode dificultar a matrícula de alunos não-calouros nessas disciplinas. No SIGAA, a reserva é indicada por curso com dois números (X/Y), onde 'X' são as vagas para ingressantes e 'Y' para os demais alunos daquele curso (ex: 25/15 = 25 vagas para ingressantes, 15 para os demais).

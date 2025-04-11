@@ -1,4 +1,0 @@
-{
-  "question": "Na matrícula extraordinária, quem pede primeiro tem preferência?",
-  "answer": "Sim, na matrícula extraordinária, a ordem em que a solicitação é feita é fundamental. As vagas que ainda não foram preenchidas (remanescentes) são distribuídas seguindo rigorosamente a ordem de chegada dos pedidos."
-}

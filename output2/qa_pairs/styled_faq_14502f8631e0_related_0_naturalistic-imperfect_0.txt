@@ -1,4 +1,0 @@
-{
-  "question": "se eu reprovar 3x numa disciplina optativa mesma eles podem me desligar?",
-  "answer": "Não. O desligamento por reprovar três vezes na mesma disciplina é aplicável somente quando se trata de disciplinas **obrigatórias**. Portanto, reprovações em disciplinas optativas ou que pertençam a cadeias de seletividade não são contabilizadas para essa finalidade."
-}

@@ -1,4 +1,0 @@
-{
-  "question": "Gostaria de compreender o conceito de 'cadeia de seletividade' presente na estrutura curricular.",
-  "answer": "O conceito de 'cadeia de seletividade', presente em algumas estruturas curriculares, refere-se a um agrupamento específico de disciplinas de natureza optativa, listadas no currículo do seu curso, dentro do qual o estudante deve obrigatoriamente cumprir uma carga horária mínima determinada.\n\nPara ilustrar: suponha que uma determinada cadeia de seletividade exija o cumprimento de, no mínimo, 120 horas e contenha cinco disciplinas distintas, cada uma com 60 horas. Neste caso, você precisaria escolher e obter aprovação em, pelo menos, duas dessas cinco disciplinas para satisfazer a exigência da cadeia. É permitido, caso deseje, cursar um número maior de disciplinas dessa cadeia do que o mínimo exigido; toda a carga horária cursada e aprovada dentro da cadeia será contabilizada como carga horária optativa cumprida."
-}

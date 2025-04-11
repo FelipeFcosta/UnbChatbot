@@ -1,4 +1,0 @@
-{
-  "question": "Pode me passar o e-mail da coordenação de Engenharia de Computação?",
-  "answer": "Sim. O endereço de e-mail para entrar em contato com a coordenação do curso de Engenharia de Computação é: engcomputacao@unb.br."
-}

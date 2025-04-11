@@ -1,4 +1,0 @@
-{
-  "question": "Tô terminando o curso, onde eu acho as informações sobre a formatura, tipo a parte burocrática e a colação?",
-  "answer": "Para obter as informações detalhadas sobre os procedimentos de formatura, incluindo a parte burocrática e a colação de grau, você deve entrar em contato com a secretaria do Departamento de Ciência da Computação (CIC)."
-}

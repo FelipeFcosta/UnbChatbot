@@ -1,4 +1,0 @@
-{
-  "question": "Pra me formar em Engenharia de Computação, eu tenho que fazer o Enade?",
-  "answer": "A necessidade de realizar o Enade para se formar em Engenharia de Computação varia conforme o ano de conclusão.\n\n*   O exame não ocorre anualmente para todos os cursos.\n*   Se o Enade for aplicado para Engenharia de Computação no ano previsto para sua formatura, **sim, sua participação será obrigatória**.\n*   Caso não haja aplicação do exame para o curso no seu ano de conclusão, você será **automaticamente dispensado(a)** dessa exigência, e a pendência correspondente será retirada do seu histórico escolar.\n\nEspecificamente sobre o ano de **2024**, informamos que **não haverá** aplicação do Enade para os formandos de Engenharia de Computação da UnB."
-}

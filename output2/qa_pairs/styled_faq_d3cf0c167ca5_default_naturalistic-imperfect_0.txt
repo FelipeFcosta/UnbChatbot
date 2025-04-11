@@ -1,4 +1,0 @@
-{
-  "question": "preciso cursar quantas horas optativas no minimo?",
-  "answer": "Essa questão pode ser respondida com 'sim e não'. O seu histórico escolar, na seção 'Carga Horária Integralizada/Pendente', de fato informa a carga horária optativa total necessária para o curso.\n\nContudo, a carga horária 'pendente' exibida ali não é reduzida apenas pela conclusão de disciplinas optativas. Ela também diminui conforme você cursa e é aprovado(a) em disciplinas eletivas (do módulo livre). Além disso, cumprir um componente via equivalência, ao cursar outro componente da estrutura curricular, também pode abater horas da carga optativa pendente."
-}

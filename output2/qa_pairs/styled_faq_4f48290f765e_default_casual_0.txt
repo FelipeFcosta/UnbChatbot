@@ -1,4 +1,0 @@
-{
-  "question": "Passei em Circuitos Elétricos 1, na teoria e no laboratório, mas não passei em Circuitos Elétricos 2. O que eu tenho que fazer?",
-  "answer": "Nesse caso particular, envolvendo aprovação em Circuitos Elétricos 1 (teoria e laboratório) e reprovação em Circuitos Elétricos 2, a recomendação é procurar diretamente o coordenador do curso de Engenharia de Computação. Ele poderá fornecer as orientações necessárias para a sua situação."
-}

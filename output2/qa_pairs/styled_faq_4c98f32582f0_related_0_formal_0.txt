@@ -1,4 +1,0 @@
-{
-  "question": "Poderia citar algumas justificativas aceitáveis para requerer a outorga antecipada de grau em Engenharia de Computação?",
-  "answer": "A solicitação de outorga antecipada de grau é um procedimento excepcional, concedido apenas mediante justificativa comprovada. Algumas das justificativas consideradas aceitáveis incluem:\n\n*   Aprovação em concurso público cuja posse exija o diploma;\n*   Admissão em programa de pós-graduação (mestrado ou doutorado);\n*   Recebimento de oferta de emprego formal que requeira a conclusão da graduação.\n\nLembre-se que a comprovação documental da situação excepcional é indispensável."
-}

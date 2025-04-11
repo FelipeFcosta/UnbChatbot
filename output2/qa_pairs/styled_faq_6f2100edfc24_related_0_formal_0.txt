@@ -1,4 +1,0 @@
-{
-  "question": "Poderia me explicar qual é o aspecto distintivo fundamental entre os períodos regulares de matrícula/rematrícula e o período de matrícula extraordinária?",
-  "answer": "Certamente. O aspecto distintivo fundamental reside no método de processamento das solicitações. Nos períodos regulares de matrícula e rematrícula, as requisições dos estudantes são processadas em lote, de forma coletiva, aplicando-se critérios de prioridade definidos. Em contraste, durante o período de matrícula extraordinária, não ocorre processamento coletivo; as vagas disponíveis são alocadas individualmente e de forma imediata, seguindo a ordem cronológica das solicitações (primeiro a requisitar)."
-}

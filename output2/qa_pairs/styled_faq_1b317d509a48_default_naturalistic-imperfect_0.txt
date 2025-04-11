@@ -1,4 +1,0 @@
-{
-  "question": "tem como eu trocar do curriculo 1741/2 de volta pro 1741/1?",
-  "answer": "Não, trocar do currículo 1741/2 de volta para o 1741/1 não é uma opção permitida para o curso de Engenharia de Computação."
-}

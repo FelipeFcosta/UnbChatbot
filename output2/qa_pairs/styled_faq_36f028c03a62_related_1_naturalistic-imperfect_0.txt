@@ -1,4 +1,0 @@
-{
-  "question": "pra pedir a matricula do estagio obrigatorio por email quais informacoes vcs precisam?",
-  "answer": "Para efetuar a solicitação de matrícula em Estágio Supervisionado por e-mail à coordenação, a informação que você deve fornecer é o número do processo SEI sob o qual sua documentação de estágio assinada está arquivada. Uma dica útil é que o número desse processo geralmente começa com 23106."
-}

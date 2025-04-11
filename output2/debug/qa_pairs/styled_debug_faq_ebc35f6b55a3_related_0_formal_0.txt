@@ -1,2 +1,0 @@
-Original Question: O que devo priorizar na comparação ao decidir se mudo de estrutura curricular de engenharia da computação?
-Answer: Ao comparar sua estrutura curricular atual com uma nova (usando a simulação da SAA), **a análise deve se limitar principalmente à carga horária total pendente e à lista de componentes curriculares pendentes** em cada cenário.

@@ -1,4 +1,0 @@
-{
-  "question": "eh verdade q tem q pedir matricula bem no inicio pra conseguir vaga?",
-  "answer": "Não, isso não é verdade para as etapas de matrícula e rematrícula. A ordem em que você submete sua solicitação não tem impacto na sua chance de obter a vaga. O sistema processa todos os pedidos de forma conjunta, utilizando critérios de prioridade estabelecidos, e não a ordem de chegada. Inclusive, aguardar alguns dias após o início do período pode ser útil para analisar a demanda por cada turma antes de fazer seu pedido."
-}

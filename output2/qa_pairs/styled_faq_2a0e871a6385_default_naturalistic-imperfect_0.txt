@@ -1,4 +1,0 @@
-{
-  "question": "tem pre requisito pra comecar o projeto final la em engenharia de computacao?",
-  "answer": "Sim, existem condições prévias para iniciar o Projeto Final no curso de Engenharia de Computação. Uma delas é ter cumprido um percentual mínimo da carga horária total exigida pelo curso.\n\nPara obter a lista completa e detalhada de todas as exigências, é recomendável que você consulte o Regulamento de TCC específico do curso de Engenharia de Computação."
-}

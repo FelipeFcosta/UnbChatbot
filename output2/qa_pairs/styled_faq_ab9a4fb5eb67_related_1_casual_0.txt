@@ -1,4 +1,0 @@
-{
-  "question": "Faz diferença pedir a matrícula no primeiro dia ou tanto faz pra conseguir a vaga?",
-  "answer": "Não, o momento em que você realiza sua solicitação, seja no primeiro dia ou depois, não interfere na sua chance de conseguir a vaga nas etapas de matrícula e rematrícula. Isso ocorre porque a alocação das vagas não segue a ordem de chegada, mas sim um processamento conjunto que considera os critérios de prioridade estabelecidos. Pode ser interessante, inclusive, aguardar alguns dias, permitindo uma melhor análise da procura pelas turmas antes de submeter seu pedido."
-}

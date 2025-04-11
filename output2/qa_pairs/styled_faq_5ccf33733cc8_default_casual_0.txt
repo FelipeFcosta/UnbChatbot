@@ -1,4 +1,0 @@
-{
-  "question": "Vou me formar agora. Onde eu vejo as informações sobre a burocracia e a colação de grau?",
-  "answer": "Para obter informações detalhadas sobre os procedimentos burocráticos finais e a cerimônia de colação de grau, já que você está se formando, recomendamos que verifique as seguintes fontes oficiais:\n\n1.  A seção sobre colação de grau na página de perguntas frequentes da [Secretaria de Administração Acadêmica (SAA)](https://www.saa.unb.br/graduacao/perguntas-frequentes-grad#colacao-de-grau).\n2.  As informações disponíveis na página do [Cerimonial da UnB](http://cerimonial.unb.br/index.php?option=com_content&view=article&id=26&Itemid=698).\n\nApós consultar essas fontes gerais, é aconselhável procurar a secretaria do seu departamento (por exemplo, a secretaria do CIC) para receber orientações mais específicas relacionadas ao seu curso e esclarecer quaisquer dúvidas remanescentes."
-}

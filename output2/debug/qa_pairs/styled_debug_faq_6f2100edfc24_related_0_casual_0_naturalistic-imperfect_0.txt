@@ -1,2 +1,0 @@
-Original Question: Qual a diferença principal entre a matrícula/rematrícula normal e aquela matrícula extraordinária?
-Answer: A diferença fundamental está na forma como as solicitações são processadas. Na matrícula e rematrícula normais, há um processamento coletivo, onde se aplicam critérios de prioridade para alocar as vagas. Por outro lado, na matrícula extraordinária, não ocorre esse processamento em lote; as vagas são preenchidas por ordem de solicitação, de forma imediata (o primeiro estudante a solicitar a vaga, se disponível, a ocupa).

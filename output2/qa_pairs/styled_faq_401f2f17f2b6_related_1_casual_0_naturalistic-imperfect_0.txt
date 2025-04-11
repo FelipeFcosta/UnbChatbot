@@ -1,4 +1,0 @@
-{
-  "question": "Quem sao os professores que pode orientar meu estagio de engenharia da computacao?",
-  "answer": "Os professores aptos a orientar seu estágio no curso de Engenharia da Computação são aqueles que integram a Comissão de Estágio do seu curso/departamento. A orientação deve ser obrigatoriamente realizada por um desses docentes."
-}

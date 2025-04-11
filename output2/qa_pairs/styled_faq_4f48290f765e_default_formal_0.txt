@@ -1,4 +1,0 @@
-{
-  "question": "Encontro-me na situação de ter sido aprovado em Circuitos Elétricos 1 (teoria e laboratório), porém reprovado em Circuitos Elétricos 2. Poderia me indicar qual ação devo tomar?",
-  "answer": "Na situação específica que descreveu, tendo sido aprovado em Circuitos Elétricos 1 (teoria e laboratório) e reprovado em Circuitos Elétricos 2, a orientação correta é que você entre em contato diretamente com a coordenação do curso de Engenharia de Computação. O coordenador poderá fornecer as diretrizes adequadas para o seu caso."
-}

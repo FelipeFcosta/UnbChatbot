@@ -1,4 +1,0 @@
-{
-  "question": "Poderia me informar quais são os pré-requisitos para iniciar o estágio obrigatório do curso de Engenharia de Computação?",
-  "answer": "Sim, existem pré-requisitos definidos para que o estudante possa iniciar o estágio obrigatório do curso de Engenharia de Computação. Um exemplo frequente é a necessidade de ter concluído um percentual mínimo da carga horária total prevista na estrutura curricular do curso. É fundamental que consulte o [Regulamento de Estágio do curso de Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/documentos.jsf?lc=pt_BR&id=414610&idTipo=1) para verificar todas as condições, restrições e pré-requisitos aplicáveis."
-}

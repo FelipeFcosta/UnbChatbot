@@ -1,4 +1,0 @@
-{
-  "question": "Como eu faço pra validar minhas horas de atividades complementares?",
-  "answer": "Para realizar a validação de suas horas de atividades complementares, é indispensável que você consulte a regulamentação específica do seu curso. As informações detalhadas sobre os procedimentos e critérios se encontram nas páginas de cada curso listadas abaixo:\n- [Ciência da Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)\n- [Computação (Licenciatura)](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)\n- [Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)\n- [Engenharia Mecatrônica](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)"
-}

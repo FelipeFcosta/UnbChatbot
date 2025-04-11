@@ -1,4 +1,0 @@
-{
-  "question": "Eu já trabalho com computação, posso aproveitar essa experiência pro estágio obrigatório de Engenharia de Computação?",
-  "answer": "Sim, se você já atua profissionalmente em áreas relacionadas à computação, sua experiência pode ser utilizada para integralizar as horas de estágio obrigatório, conforme previsto no Projeto Pedagógico do Curso (PPC) de Engenharia de Computação.\n\nPara conhecer os detalhes sobre o processo de validação e a documentação necessária, por favor, entre em contato com a coordenação do curso."
-}

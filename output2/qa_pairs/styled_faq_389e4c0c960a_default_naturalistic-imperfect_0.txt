@@ -1,4 +1,0 @@
-{
-  "question": "e se eu faco mais que 360 horas de eletivas, o que acontece com a carga horaria?",
-  "answer": "Sim, você pode cursar mais de 360 horas eletivas, sendo o limite total de 900 horas em componentes classificados como eletivos (módulo livre).\n\nNo entanto, para o cálculo da carga horária total do seu curso, apenas 360 horas eletivas, no máximo, serão contabilizadas.\n\nCaso você exceda as 360 horas eletivas, essa carga horária adicional será registrada em seu histórico escolar. Contudo, ela não será utilizada para diminuir a carga horária total pendente do curso, nem a carga horária optativa pendente, além do limite estabelecido de 360 horas.\n\nPara mais informações sobre limites de carga horária, consulte a [página do DEG sobre legislação](https://www.deg.unb.br/legislacoes-gerais)."
-}

@@ -1,4 +1,0 @@
-{
-  "question": "Posso ser desligado se eu reprovar 3 vezes na mesma matéria optativa?",
-  "answer": "Não. A possibilidade de desligamento por acumular três reprovações na mesma disciplina se restringe a matérias **obrigatórias** do seu curso. Caso as reprovações ocorram em disciplinas optativas ou de cadeia de seletividade, elas não serão computadas para fins dessa regra."
-}

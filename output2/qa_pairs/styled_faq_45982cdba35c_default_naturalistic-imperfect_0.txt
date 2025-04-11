@@ -1,4 +1,0 @@
-{
-  "question": "qual a diferenca de aproveitamento pra dispensa de disciplina?",
-  "answer": "A diferença entre aproveitamento e dispensa reside na origem do conhecimento que se deseja validar no seu curso na UnB, embora ambos permitam reconhecer aprendizados externos às disciplinas regulares:\n\n*   **Aproveitamento de Estudos:** Utilizado quando você cursou componentes curriculares com conteúdo equivalente em **outra instituição** de ensino superior.\n*   **Dispensa:** Aplicado quando o conhecimento foi adquirido por **outras vias**, como experiência profissional relevante, participação em projetos, estágios, cursos de pós-graduação, exames de proficiência, etc.\n\nEm qualquer um dos casos, é obrigatório apresentar documentação para comprovar o conhecimento. Para mais informações, consulte a [página da SAA sobre aproveitamento](https://www.saa.unb.br/graduacao/perguntas-frequentes-grad#aproveitamento-de-disciplinas-de-ex-aluna-o-da-unb)."
-}

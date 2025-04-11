@@ -1,4 +1,0 @@
-{
-  "question": "pra saber minha estrutura curricular atual onde eu olho?",
-  "answer": "Para saber qual a sua estrutura curricular atual, você deve verificar o número do currículo. Essa informação está localizada no topo da primeira página do seu histórico escolar.\n\nCaso necessite de informações adicionais sobre como funcionam as estruturas curriculares, consulte a [página de Perguntas Frequentes da Secretaria de Administração Acadêmica (SAA)](https://www.saa.unb.br/graduacao/perguntas-frequentes-grad#estrutura-curricular)."
-}

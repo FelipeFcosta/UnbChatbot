@@ -1,4 +1,0 @@
-{
-  "question": "Se eu fui mal por causa de problema pessoal, posso pedir revisão da nota?",
-  "answer": "Não, o procedimento de revisão de menção não é aplicável para justificar um desempenho acadêmico baixo causado por problemas pessoais. A finalidade exclusiva da revisão de menção é a correção de possíveis erros na avaliação conduzida pelo professor. Caso seu desempenho tenha sido afetado por questões extra-acadêmicas, o recurso correto a ser buscado é o trancamento justificado."
-}

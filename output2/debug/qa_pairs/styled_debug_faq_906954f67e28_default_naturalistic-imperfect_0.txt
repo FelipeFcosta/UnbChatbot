@@ -1,4 +1,0 @@
-Original Question: Qual o tempo máximo permitido para concluir o curso de Engenharia de Computação?
-Answer: O prazo máximo para a conclusão do curso de Engenharia de Computação é de **18 semestres**, tanto para alunos do currículo 1741/1 quanto do 1741/2.
-
-Caso o aluno não consiga se formar dentro desse prazo, ele é desligado do curso. Se você perceber que pode exceder esse limite, converse com a coordenação do curso para verificar a possibilidade de solicitar uma prorrogação.

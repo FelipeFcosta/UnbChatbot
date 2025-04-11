@@ -1,4 +1,0 @@
-{
-  "question": "Considerando que estou na fase final do curso, poderia me indicar a qual setor devo me dirigir para obter informações sobre os trâmites de formatura, como a burocracia e a colação de grau?",
-  "answer": "Para obter informações completas sobre os trâmites de formatura, incluindo a burocracia e a colação de grau, o setor ao qual você deve se dirigir é a secretaria do Departamento de Ciência da Computação (CIC)."
-}

@@ -1,4 +1,0 @@
-{
-  "question": "onde posso ver as materias obrigatorias que ainda falta eu fazer em engenharia da computacao?",
-  "answer": "Para visualizar quais componentes obrigatórios ainda estão pendentes em seu curso de Engenharia de Computação, você deve consultar o seu histórico escolar.\n\nNele, há uma seção específica chamada “componentes curriculares obrigatórios pendentes” que lista essas disciplinas.\n\nAdicionalmente, essa mesma seção informa a carga horária ainda necessária para cada cadeia de seletividade, caso seu currículo possua essa estrutura (o currículo 1741/2, por exemplo, não as possui)."
-}

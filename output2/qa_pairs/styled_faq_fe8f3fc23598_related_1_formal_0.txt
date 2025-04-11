@@ -1,4 +1,0 @@
-{
-  "question": "Poderia me indicar qual disciplina deve ser cursada em substituição a 'Programação Orientada a Objetos' para cumprir os requisitos da Cadeia 7 do currículo 1741/1 de Engenharia de Computação?",
-  "answer": "Para atender aos requisitos da Cadeia 7 do currículo 1741/1 de Engenharia de Computação, em substituição à disciplina 'Programação Orientada a Objetos' que não é mais ofertada, o componente curricular que deve ser cursado é CIC0197 Técnicas de Programação 1."
-}

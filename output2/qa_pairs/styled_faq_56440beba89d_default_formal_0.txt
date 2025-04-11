@@ -1,4 +1,0 @@
-{
-  "question": "Gostaria de saber qual é a duração mínima prevista para a integralização do curso de Engenharia de Computação.",
-  "answer": "A duração mínima para a conclusão do curso de Engenharia de Computação na Universidade de Brasília depende do currículo em que o estudante está matriculado.\n\nConforme registrado no Sistema Integrado de Gestão de Atividades Acadêmicas (SIGAA):\n*   Para o **Currículo 1741/1**, o prazo mínimo previsto é de 8 semestres.\n*   Para o **Currículo 1741/2**, o prazo mínimo estabelecido é de 10 semestres.\n\nÉ importante notar que, embora o sistema possa permitir a formatura em um período inferior, tal situação é considerada excepcional e usualmente ocorre apenas mediante o aproveitamento de um número significativo de disciplinas cursadas previamente."
-}

@@ -1,4 +1,0 @@
-{
-  "question": "Eu já terminei as horas do estágio obrigatório de Engenharia de Computação, o que eu faço agora pra conseguir a menção?",
-  "answer": "Após ter cumprido toda a carga horária do estágio obrigatório de Engenharia de Computação, o próximo passo para obter a menção é entregar o Relatório de Atividades de Estágio.\n\nEste relatório precisa ser preenchido e assinado tanto por você quanto pelo seu supervisor na empresa onde o estágio foi realizado.\n\nVocê pode encontrar o modelo do relatório [aqui](https://www.cic.unb.br/informacoes/documentos). A entrega deve ser feita pelo [formulário de atendimento interno do CIC](https://www.cic.unb.br/o-cic/fale-conosco)."
-}

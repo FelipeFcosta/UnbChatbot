@@ -1,4 +1,0 @@
-{
-  "question": "O que quer dizer essa 'cadeia de seletividade' que aparece na grade do curso?",
-  "answer": "Uma 'cadeia de seletividade', conforme aparece na grade do seu curso, representa um conjunto específico de disciplinas optativas. Dentro desse conjunto, você é obrigado(a) a cumprir uma carga horária mínima.\n\nPor exemplo, imagine uma cadeia que exige um mínimo de 120 horas e oferece cinco disciplinas de 60 horas cada. Para atender a essa exigência, você precisaria escolher e ser aprovado(a) em, no mínimo, duas dessas cinco disciplinas.\n\nCaso deseje, você pode cursar mais disciplinas da cadeia do que o mínimo exigido. Toda a carga horária cursada nessas disciplinas da cadeia será contabilizada como carga horária optativa."
-}

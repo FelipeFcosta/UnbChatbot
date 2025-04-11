@@ -1,4 +1,0 @@
-{
-  "question": "Como q funciona as vagas na matricula extraordinaria?",
-  "answer": "Respondendo à sua pergunta sobre como funcionam as vagas na matrícula extraordinária: neste período, o sistema opera de maneira distinta. As vagas são ocupadas diretamente pelos estudantes interessados, seguindo a ordem em que as solicitações são recebidas. A matrícula é confirmada no exato momento do pedido.\n\nÉ relevante observar que, durante a matrícula extraordinária, a maior parte das reservas de vagas por curso deixa de ser aplicada. Apenas as reservas destinadas aos estudantes ingressantes permanecem válidas."
-}

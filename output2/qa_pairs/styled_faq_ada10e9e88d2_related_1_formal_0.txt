@@ -1,4 +1,0 @@
-{
-  "question": "Na situação de validação da experiência profissional como estágio obrigatório em engenharia da computação, quem são as partes responsáveis pela assinatura do Termo de Compromisso e do Plano de Atividades?",
-  "answer": "Para a validação da experiência profissional como estágio obrigatório, as partes responsáveis pela assinatura do Termo de Compromisso de Estágio (ou contrato equivalente) e do Plano de Atividades são você (o estudante) e o seu supervisor direto no ambiente de trabalho. Informa-se ainda que o Coordenador de Graduação pode atuar como professor orientador neste processo de validação."
-}

@@ -1,4 +1,0 @@
-{
-  "question": "Eu foi aprovado em Circuitos Eletricos 1 com lab, mas reprovei Circuitos Eletricos 2. O que fazer?",
-  "answer": "Para a situação específica de ter sido aprovado em Circuitos Elétricos 1 (com laboratório) e reprovado em Circuitos Elétricos 2, você deve procurar diretamente o coordenador do curso de Engenharia de Computação. Ele fornecerá as orientações adequadas sobre como proceder."
-}

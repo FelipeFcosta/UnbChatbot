@@ -1,4 +1,0 @@
-{
-  "question": "pra saber sobre o tcc de mecatronica onde que eu vejo?",
-  "answer": "Para obter informações sobre o Projeto Final de Curso (PFC) de Engenharia Mecatrônica, você deve consultar o [site oficial do curso](https://mecatronica.unb.br/index.php/pt/informacoes-academicas/pfc). Lá estão disponíveis todos os detalhes necessários, incluindo a regulamentação e os procedimentos a serem seguidos."
-}

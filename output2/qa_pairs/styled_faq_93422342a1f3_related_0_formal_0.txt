@@ -1,4 +1,0 @@
-{
-  "question": "Gostaria de saber qual é o local ou setor específico na UnB onde posso solicitar a simulação do meu histórico acadêmico para fins de migração curricular.",
-  "answer": "Para solicitar a simulação do seu histórico acadêmico visando a migração curricular, o setor responsável na UnB é a Secretaria de Administração Acadêmica (SAA). O atendimento da SAA está localizado no Centro de Vivência, edifício situado em frente à entrada sul do Instituto Central de Ciências (ICC)."
-}

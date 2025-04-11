@@ -22,12 +22,13 @@ processing:
     max_rephrased_questions: 7
     max_related_questions: 3
     context_size: 3
+    batch_size: 10
+
 
 # Iterations by document type
 iterations:
   regular_document: 1
   faq_document: 1
-  batch_size: 15
 
 # Question generation style variations
 question_styles:
@@ -35,18 +36,22 @@ question_styles:
     - name: 'Default'
       goal: 'Establish a clean, well-formed baseline; correct poorly phrased originals (especially abrupt ones); represent clear, unambiguous queries.'
       description: 'Generate a clear, straightforward question using complete sentences. Avoid excessive formality or informality. Focus on accurately representing the core query of the original question. **Crucially: If the original answer was very short (like "Sim.", "Não."), ensure this question naturally elicits the expanded, polite answer generated for the Default pair.** The question should sound like a typical, clear query a student might ask an assistant.'
-
+      iterations: 1
+    
     - name: 'Formal'
       goal: 'Ensure the Final LLM handles polite, grammatically correct, as a student would write it.'
       description: 'Generate a polite question using grammatically correct, complete sentences and a slightly formal tone. Represent a student interacting respectfully and formally, but avoid overly complex, archaic language or being prolix.'
+      iterations: 2
 
     - name: 'Casual'
       goal: 'Simulate common, less formal but still complete-sentence interactions; improve robustness to everyday language.'
       description: 'Generate a question using natural, conversational, simpler Portuguese, as a Brazilian student might ask directly in a chat. Use complete sentences but avoid complex phrasing. **Crucial: Maintain clear grammar and politeness; do NOT use slang, abbreviations, or excessive informality.** Example: "Como faço pra trancar?" instead of "Qual o procedimento para trancamento?".'
+      iterations: 2
 
     - name: 'Naturalistic/Imperfect'
       goal: 'Capture realistic, quickly typed/spoken inputs that use full sentences but contain common grammatical errors, unconventional word order, or minor typos, without losing the core meaning. Improve robustness to non-standard but understandable inputs.'
       description: 'Generate a question as a student might type quickly into a chat. Use full sentences but **intentionally introduce common, realistic grammatical errors (e.g., verb conjugation, concordance), slightly unconventional word order, or minor typos.** The core meaning and intent **must remain clear and easily understandable**, but the sentence structure should not be perfectly polished. Avoid slang or keyword-only fragments. Examples: "eu queria saber como faz pra trancar a materia", "se eu reprovar no verao conta pro desligamento?", "qual o prazo minimo engenharia da computacao pra formar?".'
+      iterations: 2
 
     # - name: 'Direct'
     #   goal: 'Ensure the Final LLM understands and responds correctly to minimal, keyword-based, or fragmented queries, similar to search engine inputs.'

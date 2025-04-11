@@ -1,4 +1,0 @@
-Original Question: Qual o procedimento para agendar a banca de defesa do Projeto Final 2 em Engenharia de Computação?
-Answer: O agendamento da banca de Projeto Final 2 (data, horário, membros) deve ser realizado pelo seu professor orientador.
-
-Ele deve usar [este formulário online](https://forms.office.com/pages/responsepage.aspx?id=oZs17AtjK024M8jm1I-AWXcelI-NHv1AsFTptEzXf1lUOUcyQzU3NUxIVFhVVzFMMVpONTBIWjZGMy4u&route=shorturl) para cadastrar a banca. Em caso de dúvidas, a secretaria do CIC pode auxiliar.

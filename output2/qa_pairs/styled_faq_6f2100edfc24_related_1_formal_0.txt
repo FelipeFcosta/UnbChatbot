@@ -1,4 +1,0 @@
-{
-  "question": "Poderia me explicar o funcionamento das vagas na matrícula extraordinária?",
-  "answer": "O funcionamento da matrícula extraordinária difere das etapas regulares. Nesse período, a maior parte das reservas de vagas por curso perde a validade, com exceção daquelas destinadas aos estudantes ingressantes. Os alunos podem, então, solicitar matrícula diretamente nas vagas disponíveis, sendo que o registro da matrícula ocorre de forma imediata, seguindo estritamente a ordem de solicitação."
-}

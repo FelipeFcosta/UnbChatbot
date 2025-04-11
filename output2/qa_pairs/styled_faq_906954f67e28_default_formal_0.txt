@@ -1,4 +1,0 @@
-{
-  "question": "Qual é o prazo máximo estipulado para que um estudante finalize todos os requisitos do curso de Engenharia de Computação?",
-  "answer": "O prazo máximo estipulado para que um estudante conclua integralmente o curso de Engenharia de Computação é de **18 semestres letivos**. Esta regra aplica-se indistintamente aos alunos vinculados tanto ao currículo 1741/1 quanto ao currículo 1741/2.\n\nCaso o estudante não consiga integralizar todos os créditos e requisitos do curso dentro deste período limite, ele será desligado da Universidade. Recomenda-se que, ao perceber risco de ultrapassar este prazo, o estudante procure a coordenação do curso para discutir a situação e verificar a possibilidade de solicitar formalmente uma prorrogação de prazo."
-}

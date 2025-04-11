@@ -1,4 +1,0 @@
-{
-  "question": "Poderia me informar se há um número mínimo obrigatório de horas para atividades complementares no meu curso?",
-  "answer": "A existência de um número mínimo obrigatório de horas para atividades complementares depende das normas de cada curso. Para confirmar essa informação, você deve verificar o regulamento específico do seu curso. As informações estão detalhadas nas páginas de cada um:\n- [Ciência da Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)\n- [Computação (Licenciatura)](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)\n- [Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)\n- [Engenharia Mecatrônica](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)"
-}

@@ -1,2 +1,0 @@
-Original Question: Quais disciplinas devo cursar para cumprir a Cadeia 1 de seletividade do currículo 1741/1 de Engenharia de Computação?
-Answer: Para a Cadeia 1 do currículo 1741/1, como as disciplinas originais não são mais ofertadas, você deve cursar ENE0066 Introdução aos Circuitos Elétricos e ENE0068 Sinais e Sistemas em Tempo Discreto.

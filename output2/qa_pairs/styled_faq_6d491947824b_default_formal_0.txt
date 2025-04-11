@@ -1,4 +1,0 @@
-{
-  "question": "Poderia me orientar sobre qual é o procedimento para solicitar a inclusão e o uso do nome social nos sistemas e registros da Universidade de Brasília?",
-  "answer": "O procedimento para solicitar a inclusão e o uso do nome social nos sistemas e registros da Universidade de Brasília está detalhado na página específica sobre o tema no Portal da Diversidade. Você pode encontrar todas as informações e orientações necessárias acessando o seguinte link: [https://diversidade.unb.br/index.php/nome-social](https://diversidade.unb.br/index.php/nome-social)."
-}

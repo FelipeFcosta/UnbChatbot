@@ -1,4 +1,0 @@
-{
-  "question": "Quais são os procedimentos necessários para cumprir integralmente a carga horária optativa pendente no curso de Engenharia de Computação?",
-  "answer": "Para cumprir integralmente a carga horária optativa pendente, o procedimento necessário é cursar e obter aprovação em componentes curriculares classificados como optativos e/ou eletivos (módulo livre).\n\nA quantidade exata de horas optativas que ainda precisam ser cumpridas pode ser verificada no seu histórico escolar, especificamente no quadro intitulado “Carga Horária Integralizada/Pendente”."
-}

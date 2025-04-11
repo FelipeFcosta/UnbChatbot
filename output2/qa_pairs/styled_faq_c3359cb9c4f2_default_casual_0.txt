@@ -1,4 +1,0 @@
-{
-  "question": "Se eu sofrer alguma discriminação aqui na UnB (tipo racismo, machismo), com quem eu falo pra pedir ajuda?",
-  "answer": "Em situações de discriminação ou violência (como racismo, machismo, homofobia, transfobia) ocorridas no âmbito da UnB, o órgão ao qual você deve se dirigir para buscar acolhimento e orientação é a **Secretaria de Direitos Humanos (SDH)** da universidade. A SDH é a instância responsável por esses casos.\n\nInformações adicionais podem ser encontradas no [Portal da Diversidade da UnB](https://diversidade.unb.br/)."
-}

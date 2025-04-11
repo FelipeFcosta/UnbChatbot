@@ -1,4 +1,0 @@
-{
-  "question": "Caso eu já possua experiência profissional na área, é possível utilizar meu vínculo empregatício para a validação da carga horária do estágio obrigatório?",
-  "answer": "Sim, é possível utilizar seu vínculo empregatício para a validação da carga horária do estágio obrigatório, desde que sua atuação profissional ocorra em área afim à engenharia da computação. Nesse cenário, para solicitar a validação, o Termo de Compromisso de Estágio (TCE) pode ser substituído por um contrato de trabalho ou documento análogo."
-}

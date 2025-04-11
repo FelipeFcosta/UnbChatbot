@@ -1,4 +1,0 @@
-{
-  "question": "Eu consigo me matricular numa materia mesmo se eu nao fiz o pre-requisito dela ainda?",
-  "answer": "Não, em nenhuma situação é permitido matricular-se em uma disciplina sem ter cumprido o pré-requisito exigido. A [Circular DEG n° 5/2008](https://deg.unb.br/images/legislacao/5_2008.pdf) veda expressamente essa possibilidade."
-}

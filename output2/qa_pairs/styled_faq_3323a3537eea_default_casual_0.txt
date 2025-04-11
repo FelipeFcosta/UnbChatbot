@@ -1,4 +1,0 @@
-{
-  "question": "Preciso fazer um número mínimo de horas de atividades complementares em Engenharia de Computação?",
-  "answer": "Não é exigido um número mínimo de horas de atividades complementares no curso de Engenharia de Computação. O currículo atual não define uma obrigatoriedade quanto a essa carga horária."
-}

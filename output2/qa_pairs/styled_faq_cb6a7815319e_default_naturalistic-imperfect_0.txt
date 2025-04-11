@@ -1,4 +1,0 @@
-{
-  "question": "Como eu entro num projeto de iniciacao cientifica, qual o caminho?",
-  "answer": "Para participar de um projeto de Iniciação Científica (IC), o caminho recomendado é:\n1.  Abordar professores que desenvolvam pesquisas em áreas que lhe interessam.\n2.  Você pode tanto apresentar suas próprias ideias de pesquisa quanto buscar informações sobre projetos já existentes orientados por eles.\n3.  Essa abordagem pode ser feita presencialmente ou via e-mail.\n4.  **Período Ideal:** Aconselha-se iniciar essa busca no início do ano (fevereiro ou março), visto que o edital do ProIC costuma ser publicado entre março e abril.\n5.  A submissão da inscrição ao edital é de responsabilidade do professor orientador.\n\nConsulte o site do [ProIC](https://proic.unb.br/) para mais informações."
-}

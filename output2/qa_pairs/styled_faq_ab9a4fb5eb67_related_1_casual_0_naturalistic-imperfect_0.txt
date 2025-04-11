@@ -1,4 +1,0 @@
-{
-  "question": "Se eu pedir matricula no primeiro dia ajuda pra conseguir a vaga ou nao?",
-  "answer": "Não, solicitar a matrícula no primeiro dia não aumenta suas chances de conseguir a vaga desejada durante as etapas regulares de matrícula e rematrícula. A razão para isso é que a distribuição das vagas não é feita por ordem de chegada. Em vez disso, todas as solicitações são processadas em conjunto, com base nos critérios de prioridade definidos.\n\nInclusive, pode ser útil aguardar alguns dias após o início do período. Isso permite que você observe a demanda pelas turmas e faça uma escolha mais informada antes de enviar sua solicitação."
-}

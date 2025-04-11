@@ -1,4 +1,0 @@
-{
-  "question": "Quais seriam exemplos de circunstâncias aceitas para a solicitação de um trancamento de matrícula justificado?",
-  "answer": "Sim, existem diversas circunstâncias previstas na [Resolução CEPE n° 93/2018](https://sig.unb.br/sigrh/downloadArquivo?idArquivo=2018090&key=7b5bbf8ffa41754075c478f548083f46) que podem justificar um pedido de trancamento de matrícula. Exemplos incluem:\n\n*   Afastamento por questões de saúde, seja do próprio estudante ou de um parente próximo;\n*   Realização de estudos no exterior;\n*   Necessidade imperiosa decorrente de serviço público;\n*   Falecimento de parente próximo;\n*   Participação em curso de formação;\n*   Convocação para serviço militar obrigatório;\n*   Situações comprovadas de vulnerabilidade psicológica ou social.\n\nÉ importante ressaltar que a apresentação de documentos comprobatórios é necessária para a solicitação."
-}

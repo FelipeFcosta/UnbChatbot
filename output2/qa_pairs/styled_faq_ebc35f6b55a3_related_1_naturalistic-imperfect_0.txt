@@ -1,4 +1,0 @@
-{
-  "question": "se eu mudar de estrutura curricular da pra desfazer depois?",
-  "answer": "Não. A alteração entre estruturas curriculares é um procedimento final. Uma vez que a migração é solicitada e concretizada, a mudança torna-se definitiva e não há como reverter a alteração para retornar à estrutura anterior."
-}

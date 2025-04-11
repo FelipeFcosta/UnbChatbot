@@ -1,4 +1,0 @@
-{
-  "question": "Dá pra fazer o Estágio Supervisionado 1 e o 2 no mesmo semestre em Engenharia de Computação?",
-  "answer": "Sim, o curso de Engenharia de Computação permite que o Estágio Supervisionado 1 e o Estágio Supervisionado 2 sejam integralizados no mesmo semestre letivo.\n\nPara que isso ocorra, você deverá apresentar um único relatório de estágio que comprove a realização de um mínimo de 300 horas de atividades. Isso equivale a cerca de 10 semanas com jornada de 30h/semana, ou 15 semanas com 20h/semana.\n\nApós submeter este relatório unificado, é necessário comunicar ao coordenador do curso sua intenção de utilizar o documento para validar ambos os estágios (Estágio 1 e Estágio 2)."
-}

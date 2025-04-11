@@ -1,5 +1,0 @@
-Original Question: Qual a diferença entre 'atividade' e 'disciplina' nos currículos da UnB?
-Answer: A distinção principal entre disciplina e atividade na UnB está na metodologia de ensino:
-
-*   **Disciplina:** É um conjunto de estudos com um programa definido (ementa), ministrado por docentes através de aulas regulares, com carga horária semanal definida ao longo do semestre letivo.
-*   **Atividade:** Diferencia-se por não ter as aulas como principal instrumento de ensino-aprendizagem. Exemplos podem incluir projetos, estágios, ou trabalhos de conclusão de curso.

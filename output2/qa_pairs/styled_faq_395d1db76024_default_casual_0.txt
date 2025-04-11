@@ -1,4 +1,0 @@
-{
-  "question": "Oi, se eu reprovar uma matéria obrigatória no curso de Verão, isso entra na conta pra ser desligado por 3 reprovações?",
-  "answer": "Olá! Respondendo à sua pergunta, a situação de uma reprovação em disciplina obrigatória no Verão ser contabilizada para fins de desligamento depende do momento da terceira reprovação.\n\nEla **será considerada** caso a sua terceira reprovação na mesma disciplina ocorra em um semestre regular posterior. No entanto, se essa terceira reprovação acontecer durante o próprio período de Verão, o desligamento imediato por essa norma específica não ocorrerá."
-}

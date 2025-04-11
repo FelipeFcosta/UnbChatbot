@@ -1,4 +1,0 @@
-{
-  "question": "Na hora de comparar pra decidir se mudo de estrutura curricular em engenharia da computação, o que eu deveria olhar primeiro?",
-  "answer": "Ao utilizar a simulação da SAA para comparar sua estrutura curricular vigente com uma nova opção, os principais pontos a serem observados são a carga horária total que resta a ser cumprida e a relação de componentes curriculares (disciplinas) pendentes em cada uma das estruturas. Sua análise deve priorizar esses dois elementos."
-}

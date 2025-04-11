@@ -1,4 +1,0 @@
-{
-  "question": "tem um numero minimo de hora eletiva pra eu fazer?",
-  "answer": "Não, não há um número de horas mínimo estabelecido para as disciplinas eletivas (também chamadas de 'módulo livre').\n\nVale ressaltar, contudo, que cursar componentes eletivos auxilia na integralização da carga horária total para a conclusão do seu curso. Para este fim específico, um máximo de 360 horas eletivas será considerado."
-}

@@ -1,4 +1,0 @@
-{
-  "question": "na hora de ver a migracao entre os curriculos quais info do historico sao as mais importante pra comparar?",
-  "answer": "Ao avaliar a migração entre os currículos 1741/1 e 1741/2, as informações mais importantes a serem comparadas são a **carga horária total restante** para a conclusão do curso e a **lista das disciplinas pendentes** em cada um dos cenários (ou seja, como está seu histórico no 1741/1 e como ficaria na simulação do 1741/2). É recomendável não se concentrar apenas na comparação isolada das cargas horárias obrigatória e optativa."
-}

@@ -1,4 +1,0 @@
-{
-  "question": "o que quer dizer essa cadeia de seletividade que tem no curriculo?",
-  "answer": "Uma 'cadeia de seletividade' no currículo se refere a um conjunto específico de disciplinas optativas. Dentro desse conjunto, você precisa cumprir uma carga horária mínima estabelecida.\n\nPor exemplo: se uma cadeia exige um mínimo de 120 horas e lista cinco disciplinas de 60 horas cada, você deve escolher e ser aprovado em, no mínimo, duas dessas disciplinas para atender à exigência. É permitido cursar mais disciplinas da cadeia além do mínimo; toda a carga horária cursada dentro dela será contabilizada como carga horária optativa."
-}

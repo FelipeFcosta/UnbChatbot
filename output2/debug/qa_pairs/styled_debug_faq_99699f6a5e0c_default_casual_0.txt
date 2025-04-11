@@ -1,7 +1,0 @@
-Original Question: Há equivalência entre as disciplinas CIC0229 Circuitos Lógicos e ENE0039 Sistemas Digitais para alunos de Engenharia de Computação?
-Answer: Sim, existe equivalência entre CIC0229 Circuitos Lógicos e ENE0039 Sistemas Digitais, mas com restrições importantes:
-
-*   A equivalência é válida **apenas** para alunos da estrutura curricular **1741/2** de Engenharia de Computação.
-*   **Não** se aplica à estrutura 1741/1, pois ambas as disciplinas fazem parte dela, e a validação duplicaria a carga horária.
-*   **Não** é válida para alunos de outros cursos.
-*   **Importante:** Não há equivalência entre as disciplinas de laboratório (CIC0231 Lab. Circuitos Lógicos e ENE0040 Lab. Sistemas Digitais). Cursar uma não dispensa a outra.

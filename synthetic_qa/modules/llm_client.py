@@ -77,8 +77,7 @@ class LLMClient:
             if not GEMINI_AVAILABLE:
                 raise ImportError("genAI package not installed. Install it with 'pip install google-genai'")
             
-            # api_key = os.environ.get("GEMINI_API_KEY2")
-            api_key = "AIzaSyB7--wFQ92bX0NCjoNKgEnYv4yGyaHdn0w"
+            api_key = os.environ.get("GEMINI_API_KEY")
             if not api_key:
                 raise ValueError("GEMINI_API_KEY environment variable not set")
 

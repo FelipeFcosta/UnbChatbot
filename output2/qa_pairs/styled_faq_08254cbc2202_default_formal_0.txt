@@ -1,4 +1,0 @@
-{
-  "question": "Sendo estudante de Engenharia de Computação, é viável ter um orientador para o Projeto Final que seja vinculado a um departamento diferente do CIC ou do ENE?",
-  "answer": "Sim, é viável que um estudante de Engenharia de Computação tenha um orientador de Projeto Final vinculado a um departamento diferente do Departamento de Ciência da Computação (CIC) ou do Departamento de Engenharia Elétrica (ENE). Contudo, existe uma condição obrigatória: caso seu orientador principal não pertença ao quadro docente do CIC ou do ENE, será indispensável contar também com um coorientador que seja professor em um desses dois departamentos."
-}

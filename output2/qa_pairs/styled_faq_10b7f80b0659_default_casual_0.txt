@@ -1,4 +1,0 @@
-{
-  "question": "Com quem eu falo se tiver alguma reclamação sobre a UnB, tipo da estrutura ou do atendimento?",
-  "answer": "Para registrar reclamações de caráter geral na UnB, abrangendo temas como infraestrutura, ensino, atendimento ou procedimentos, o canal oficial designado é a [Ouvidoria da UnB](https://ouvidoria.unb.br/)."
-}

@@ -1,4 +1,0 @@
-{
-  "question": "Poderia especificar se há algum requisito acadêmico que deve ser cumprido antes de poder iniciar a atividade de Projeto Final 1 em Engenharia de Computação?",
-  "answer": "Sim, existe um requisito acadêmico para a matrícula na atividade de Projeto Final 1 no curso de Engenharia de Computação. O estudante deve ter concluído (integralizado), no mínimo, 70% da carga horária total estabelecida para o curso."
-}

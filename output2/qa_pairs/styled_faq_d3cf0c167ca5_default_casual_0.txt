@@ -1,4 +1,0 @@
-{
-  "question": "Tem um número mínimo de horas de matérias optativas que eu sou obrigado a fazer?",
-  "answer": "De certa forma, sim e não. O seu histórico escolar indica a carga horária total de disciplinas optativas que você precisa cumprir para concluir o curso, geralmente no quadro 'Carga Horária Integralizada/Pendente'.\n\nContudo, é importante notar que essa carga horária 'pendente' não é reduzida apenas cursando disciplinas classificadas como 'optativas'. Ela também diminui à medida que você é aprovado(a) em disciplinas 'eletivas' (do módulo livre). Além disso, se você cumprir um componente curricular por equivalência ao cursar outro componente da estrutura, isso também pode reduzir a sua carga horária optativa pendente."
-}

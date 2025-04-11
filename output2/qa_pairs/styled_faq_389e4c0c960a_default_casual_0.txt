@@ -1,4 +1,0 @@
-{
-  "question": "Eu posso passar das 360 horas nas eletivas? Isso muda alguma coisa na minha carga horária pra formar?",
-  "answer": "Sim, é possível cursar mais de 360 horas em componentes curriculares eletivos (módulo livre), chegando a um total de até 900 horas.\n\nEntretanto, para o cálculo da carga horária total exigida para a sua formatura (integralização do curso), apenas um limite máximo de 360 horas eletivas será efetivamente contabilizado.\n\nCaso você ultrapasse essas 360 horas eletivas, o excedente constará em seu histórico escolar, mas não servirá para diminuir a carga horária total ou optativa que ainda falta para você concluir o curso, além daquele limite de 360 horas.\n\nPara consultar detalhes sobre os limites de carga horária, acesse a [página do DEG referente à legislação](https://www.deg.unb.br/legislacoes-gerais)."
-}

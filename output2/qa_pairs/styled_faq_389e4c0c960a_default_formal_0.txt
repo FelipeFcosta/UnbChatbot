@@ -1,4 +1,0 @@
-{
-  "question": "Seria permitido cursar um volume superior a 360 horas de componentes eletivos e qual seria o impacto disso na contagem da minha carga horária total?",
-  "answer": "Sim, é permitido que o estudante curse um total de até 900 horas em componentes curriculares eletivos (módulo livre).\n\nContudo, para o cômputo da carga horária total necessária à integralização do seu curso, somente serão consideradas, no máximo, 360 horas eletivas.\n\nCaso curse uma carga horária eletiva superior a 360 horas, o excedente será registrado em seu histórico escolar, mas não será utilizado para reduzir a carga horária total pendente do curso, nem a carga horária optativa pendente, para além do referido limite de 360 horas.\n\nPara informações adicionais sobre os limites de carga horária, sugerimos consultar a [página do Decanato de Ensino de Graduação (DEG) sobre legislação](https://www.deg.unb.br/legislacoes-gerais)."
-}

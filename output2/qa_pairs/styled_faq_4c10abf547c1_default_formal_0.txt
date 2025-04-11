@@ -1,4 +1,0 @@
-{
-  "question": "Gostaria de saber se há um número mínimo de horas que devo obrigatoriamente cursar a cada semestre no curso de Engenharia de Computação.",
-  "answer": "Não existe uma obrigatoriedade estrita de cursar um número mínimo de horas a cada semestre para garantir a permanência no curso de Engenharia de Computação, ainda que o sistema SIGAA possa apresentar uma indicação de carga horária mínima (como, por exemplo, 210 horas para os currículos 1741/1 e 1741/2).\n\nContudo, é fundamental estar ciente de uma regra determinante para evitar o desligamento: é necessário obter aprovação em, no mínimo, **quatro componentes curriculares** (disciplinas obrigatórias ou optativas, excluindo-se disciplinas eletivas) ao longo de cada **dois semestres letivos consecutivos**. O descumprimento desta norma pode resultar no desligamento do estudante do curso."
-}

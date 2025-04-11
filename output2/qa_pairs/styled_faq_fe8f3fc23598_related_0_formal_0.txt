@@ -1,4 +1,0 @@
-{
-  "question": "Gostaria de saber quais componentes curriculares devem ser cursados atualmente para atender aos requisitos da Cadeia 1 de seletividade, pertencente ao currículo 1741/1 de Engenharia de Computação.",
-  "answer": "Para cumprir os requisitos da Cadeia 1 de seletividade, pertencente ao currículo 1741/1 do curso de Engenharia de Computação, os estudantes devem cursar atualmente as seguintes disciplinas, visto que as originais não são mais ofertadas: ENE0066 Introdução aos Circuitos Elétricos e ENE0068 Sinais e Sistemas em Tempo Discreto."
-}

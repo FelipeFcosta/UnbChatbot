@@ -1,2 +1,0 @@
-Original Question: Qual disciplina substitui 'Programação Orientada a Objetos' na Cadeia 7 do currículo 1741/1 de Engenharia de Computação?
-Answer: Para a Cadeia 7 do currículo 1741/1, como 'Programação Orientada a Objetos' não é mais ofertada, você deve cursar CIC0197 Técnicas de Programação 1.

@@ -1,7 +1,0 @@
-Original Question: Quais são as diferentes estruturas curriculares do curso de Engenharia de Computação?
-Answer: Para o curso de Engenharia de Computação, as estruturas curriculares relevantes são:
-
-*   **1741/-2:** Vigorou entre 2009 e 2016. Está inativo e não há mais alunos nele.
-*   **1741/1:** Possui carga horária total de 3.480 horas. Vigorou até 2024 e, embora inativo para novos ingressos, ainda possui alunos matriculados.
-*   **1741/2:** É a estrutura vigente atualmente, com carga horária total de 3.780 horas. Foi criada para atender a exigências legais e é considerada uma estrutura de transição.
-*   **1741/3:** Está em fase final de aprovação. Representa uma atualização pedagógica, alinhada à legislação (incluindo extensão), e terá carga total de 3.210 horas.

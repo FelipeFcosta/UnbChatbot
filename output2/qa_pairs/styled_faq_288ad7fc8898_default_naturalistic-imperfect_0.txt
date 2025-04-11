@@ -1,4 +1,0 @@
-{
-  "question": "quais sao as grades curriculares q existe pra engenharia de computacao?",
-  "answer": "Para o curso de Engenharia de Computação, as seguintes estruturas curriculares são relevantes:\n\n*   **1741/-2:** Vigeu de 2009 a 2016. Esta estrutura está inativa e não há mais alunos nela.\n*   **1741/1:** Com carga horária total de 3.480 horas, esta estrutura vigorou até 2024. Embora inativa para novos ingressantes, ainda possui alunos cursando-a.\n*   **1741/2:** Esta é a estrutura curricular vigente, totalizando 3.780 horas. Foi criada em resposta a exigências legais e é considerada uma estrutura de transição.\n*   **1741/3:** Encontra-se na fase final de aprovação. Representa uma modernização pedagógica, alinhada à legislação (incluindo a extensão curricularizada), e terá carga total de 3.210 horas."
-}

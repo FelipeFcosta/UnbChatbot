@@ -1,4 +1,0 @@
-{
-  "question": "Poderia me informar se existem requisitos prévios que precisam ser atendidos antes de iniciar o estágio obrigatório no curso de Engenharia de Computação?",
-  "answer": "Sim, existe um requisito prévio para iniciar o estágio obrigatório no curso de Engenharia de Computação. É necessário que o estudante tenha concluído (integralizado), no mínimo, 60% da carga horária total prevista no currículo do curso."
-}

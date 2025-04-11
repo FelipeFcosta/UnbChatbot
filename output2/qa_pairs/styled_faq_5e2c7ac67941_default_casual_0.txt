@@ -1,4 +1,0 @@
-{
-  "question": "Preciso já ter cumprido alguma parte do curso pra começar o Projeto Final 1 em Engenharia de Computação?",
-  "answer": "Sim, para se matricular em Projeto Final 1 no curso de Engenharia de Computação, é exigido que o estudante já tenha concluído (integralizado) o equivalente a, no mínimo, 70% da carga horária total do curso."
-}

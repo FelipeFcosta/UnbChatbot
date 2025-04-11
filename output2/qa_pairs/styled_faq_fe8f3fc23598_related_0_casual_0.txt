@@ -1,4 +1,0 @@
-{
-  "question": "Pra completar a Cadeia 1 do currículo 1741/1 de Engenharia de Computação, quais matérias eu tenho que fazer agora?",
-  "answer": "Para completar os requisitos da Cadeia 1 de seletividade do currículo 1741/1 de Engenharia de Computação, considerando que as disciplinas originais não estão mais disponíveis, você deverá cursar as seguintes disciplinas: ENE0066 Introdução aos Circuitos Elétricos e ENE0068 Sinais e Sistemas em Tempo Discreto."
-}

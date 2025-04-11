@@ -1,4 +1,0 @@
-{
-  "question": "Poderia me esclarecer se a participação no exame Enade é um requisito obrigatório para a graduação em Engenharia de Computação?",
-  "answer": "A obrigatoriedade de participação no Exame Nacional de Desempenho dos Estudantes (Enade) para os concluintes do curso de Engenharia de Computação varia anualmente.\n\nObserve os seguintes pontos:\n*   O Enade não é aplicado para o curso de Engenharia de Computação em todos os anos.\n*   Caso o exame seja aplicado para Engenharia de Computação no seu ano de conclusão, **sim, a sua participação será obrigatória**.\n*   Se não houver aplicação do Enade para o curso no ano previsto para sua formatura, você será **automaticamente dispensado(a)** da obrigação, e esta pendência será removida do seu histórico escolar.\n\nInformamos que, especificamente para o ano de **2024**, não está prevista a aplicação do Enade para os estudantes formandos do curso de Engenharia de Computação da UnB."
-}

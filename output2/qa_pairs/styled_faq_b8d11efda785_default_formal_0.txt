@@ -1,4 +1,0 @@
-{
-  "question": "Como posso discernir, através do meu histórico escolar, se um componente curricular cursado foi registrado como obrigatório, optativo ou eletivo?",
-  "answer": "Sim, é possível discernir a classificação de um componente curricular cursado diretamente no seu histórico escolar através dos símbolos apresentados ao lado do nome da disciplina:\n\n*   **Eletivo (Módulo Livre):** É indicado pelo símbolo de cerquilha (`#`).\n*   **Optativo:** É indicado por um dos seguintes símbolos: asterisco (`*`), 'e' comercial (`&`) ou símbolo de parágrafo (`§`).\n*   **Obrigatório:** Geralmente, não apresenta símbolo ao lado do nome. Contudo, em alguns casos, pode aparecer com um 'e' minúsculo (`e`) ou uma arroba (`@`)."
-}

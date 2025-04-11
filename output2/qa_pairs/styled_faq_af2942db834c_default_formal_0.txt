@@ -1,4 +1,0 @@
-{
-  "question": "Quais são os requisitos para integralizar a carga horária total estabelecida para o meu curso?",
-  "answer": "Para integralizar a carga horária total estabelecida para o seu curso, o requisito fundamental é obter aprovação em todos os componentes curriculares definidos na respectiva estrutura curricular. Isso engloba os componentes classificados como obrigatórios, os optativos e os eletivos (estes últimos também conhecidos como módulo livre)."
-}

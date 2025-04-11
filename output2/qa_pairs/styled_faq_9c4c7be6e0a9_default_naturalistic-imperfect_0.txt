@@ -1,4 +1,0 @@
-{
-  "question": "Da pra fazer o projeto final de engenharia de computacao em dupla com um amigo?",
-  "answer": "Sim, o desenvolvimento do Projeto Final em dupla é permitido no curso de Engenharia de Computação."
-}

@@ -1,7 +1,0 @@
-Original Question: Como posso identificar se uma disciplina é obrigatória, optativa ou eletiva para Engenharia de Computação?
-Answer: Para saber a classificação de uma disciplina em Engenharia de Computação, consulte a estrutura curricular correspondente ao seu número de currículo (informado no seu histórico).
-
-*   **Obrigatórias e Optativas:** Estão listadas na sua estrutura curricular.
-*   **Eletivas (Módulo Livre):** São quaisquer disciplinas que *não* estão listadas na sua estrutura curricular como obrigatórias ou optativas.
-
-É fundamental verificar a lista específica do seu currículo, pois a classificação pode variar. Você pode visualizar as estruturas curriculares de Engenharia de Computação [nesta página](https://sigaa.unb.br/sigaa/public/curso/curriculo.jsf?lc=pt_BR&id=414610) (clique no ícone de caderno ao lado do seu currículo).

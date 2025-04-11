@@ -1,4 +1,0 @@
-{
-  "question": "Compensa mudar do currículo 1741/1 pro 1741/2 em Engenharia de Computação?",
-  "answer": "A decisão sobre migrar do currículo 1741/1 para o 1741/2 em Engenharia de Computação é estritamente pessoal e deve levar em conta sua situação acadêmica específica.\n\nÉ altamente recomendável que, antes de qualquer coisa, você assista com muita atenção a [este vídeo explicativo](https://youtu.be/iyMJGDt0rYU).\n\nSe, mesmo após assistir ao vídeo, você continuar considerando a mudança, é essencial seguir o procedimento detalhado para avaliação e solicitação [conforme descrito em outra seção deste FAQ](https://www.cic.unb.br/informacoes/faq#posso-mudar-de-estrutura-curricular). Lembre-se sempre que a migração de currículo é um processo definitivo."
-}

@@ -1,4 +1,0 @@
-{
-  "question": "pra formar em engenharia da computacao eu sou obrigado fazer o enade?",
-  "answer": "A obrigatoriedade de realizar o Enade para concluir Engenharia de Computação está vinculada ao ano de sua formatura.\n\n*   Este exame não é aplicado anualmente para o curso.\n*   Se o Enade for aplicado para Engenharia de Computação no ano em que você estiver concluindo o curso, **sim, sua participação será obrigatória**.\n*   Caso não haja aplicação do exame para o curso no seu ano de formatura, você será **automaticamente dispensado(a)**, e a exigência será retirada do seu histórico.\n\nEspecificamente para o ano de **2024**, informamos que **não haverá** Enade para os formandos de Engenharia de Computação da UnB."
-}

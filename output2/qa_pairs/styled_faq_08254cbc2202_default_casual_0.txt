@@ -1,4 +1,0 @@
-{
-  "question": "Posso ter um orientador pro Projeto Final que não seja do CIC ou do ENE, mesmo sendo de Engenharia de Computação?",
-  "answer": "Sim, é possível ter um orientador de Projeto Final que não seja do Departamento de Ciência da Computação (CIC) nem do Departamento de Engenharia Elétrica (ENE). Contudo, nesta situação, é obrigatório que você também tenha um coorientador que seja professor vinculado a um desses dois departamentos (CIC ou ENE)."
-}

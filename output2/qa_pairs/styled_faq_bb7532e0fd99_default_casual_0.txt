@@ -1,4 +1,0 @@
-{
-  "question": "Preciso cumprir alguma coisa antes de poder começar o estágio obrigatório de Engenharia de Computação?",
-  "answer": "Sim, existem condições que precisam ser atendidas antes de iniciar o estágio obrigatório de Engenharia de Computação. Um requisito comum é ter completado uma porcentagem mínima da carga horária total do curso.\n\nÉ muito importante que você verifique todas as restrições e os pré-requisitos aplicáveis consultando o [Regulamento de Estágio do curso de Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/documentos.jsf?lc=pt_BR&id=414610&idTipo=1)."
-}

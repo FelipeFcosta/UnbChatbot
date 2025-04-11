@@ -1,4 +1,0 @@
-{
-  "question": "O que eu preciso fazer pra pedir revisão da minha nota se achar que ela está errada?",
-  "answer": "Para solicitar a revisão de sua menção por suspeita de erro, você deve seguir um procedimento específico. Este recurso visa unicamente a correção de **erros na avaliação** por parte do professor, não sendo aplicável para pedir novas avaliações fora do período letivo ou para justificar desempenho insuficiente por razões pessoais (neste caso, o procedimento adequado é o trancamento justificado).\n\nÉ essencial que seu pedido seja bem justificado, apontando com clareza o motivo pelo qual considera a nota incorreta. Os passos usuais são:\n1. Consultar as regras e os prazos aplicáveis na [página da SAA sobre revisão de menção](https://saa.unb.br/perguntas-frequentes#revisao-de-mencao).\n2. Submeter o pedido de forma oficial junto à unidade que oferece a disciplina."
-}

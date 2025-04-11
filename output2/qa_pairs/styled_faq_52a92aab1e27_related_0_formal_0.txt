@@ -1,4 +1,0 @@
-{
-  "question": "Caso o professor indefira meu pedido de revisão de menção, a quem mais eu poderia recorrer?",
-  "answer": "Sim. Na eventualidade de o professor indeferir o pedido inicial de revisão de menção, o estudante tem o direito de interpor um recurso. Esse recurso será submetido à análise de uma comissão composta por professores da unidade acadêmica correspondente. O parecer final emitido por essa comissão será, então, apreciado por um órgão colegiado competente."
-}

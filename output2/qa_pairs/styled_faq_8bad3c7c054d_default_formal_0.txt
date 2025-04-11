@@ -1,4 +1,0 @@
-{
-  "question": "Poderia me informar sobre o que consistiu o currículo 1741/-2 de Engenharia de Computação e se ainda existe a possibilidade de migrar para essa estrutura?",
-  "answer": "O currículo 1741/-2 de Engenharia de Computação foi uma estrutura curricular que esteve em vigor entre os anos de 2009 e 2016. Atualmente, este currículo encontra-se inativo e não possui mais alunos matriculados. Portanto, não é possível realizar a migração para essa estrutura.\n\nÉ importante não o confundir com o currículo 1741/2, que é a estrutura vigente desde o ano de 2024."
-}

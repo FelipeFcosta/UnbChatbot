@@ -1,4 +1,0 @@
-{
-  "question": "Onde eu posso ver sobre las bolsas de ajuda financeira e moradia da UnB?",
-  "answer": "Você pode encontrar informações sobre os programas de assistência estudantil (que incluem bolsas de auxílio financeiro) e sobre moradia universitária nos seguintes canais oficiais da UnB:\n\n*   **Portal de Serviços UnB - Assistência Estudantil:** [https://www.unb.br/servicos/assistencia-estudantil](https://www.unb.br/servicos/assistencia-estudantil)\n*   **Site da Diretoria de Desenvolvimento Social (DDS):** [https://dds.dac.unb.br/](https://dds.dac.unb.br/)\n\nPara esclarecimentos mais específicos ou detalhados sobre sua situação, a recomendação é procurar diretamente a DDS."
-}

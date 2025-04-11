@@ -1,4 +1,0 @@
-{
-  "question": "se eu pedir pra formar mais cedo ainda preciso fazer estagio e tcc?",
-  "answer": "Não. Mesmo com a obtenção da outorga antecipada de grau, não é possível obter dispensa das obrigações do estágio. A carga horária completa do estágio obrigatório deve ser cumprida, assim como a elaboração e a apresentação do relatório de projeto final de curso (TCC) perante uma banca examinadora."
-}

@@ -1,4 +1,0 @@
-{
-  "question": "quais os critério que a unb usa pra classificar na matricula?",
-  "answer": "Os critérios que a UnB utiliza para a classificação nas fases de matrícula e rematrícula estão detalhados e podem ser verificados na [página específica da SAA sobre matrícula](https://www.saa.unb.br/matricula#quais-sao-os-criterios-de-prioridade).\n\nÉ importante notar que a ordem cronológica da sua solicitação, durante essas etapas, não impacta a sua classificação final."
-}

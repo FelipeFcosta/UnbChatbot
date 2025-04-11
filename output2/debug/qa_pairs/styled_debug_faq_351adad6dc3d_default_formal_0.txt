@@ -1,8 +1,0 @@
-Original Question: Como é feita a matrícula nas atividades de Projeto Final de Engenharia de Computação (PF1 e PF2)?
-Answer: A matrícula nas atividades de Projeto Final (CIC0267 - PF1 ou CIC0268 - PF2) para Engenharia de Computação não segue o período oficial de matrícula, embora possa ser feita nele.
-
-O procedimento correto é:
-1.  Converse com seu professor orientador.
-2.  Peça ao seu orientador para abrir um processo via SEI direcionado à Coordenação de Engenharia de Computação.
-3.  O processo deve conter uma solicitação formal de matrícula, como no exemplo abaixo:
-    *"Prezado Coordenador, solicito a matrícula do(a) discente [Seu Nome Completo] (matrícula [Seu Número de Matrícula]), do curso de Engenharia de Computação, na atividade [CIC0267 PROJETO FINAL EM ENGENHARIA DE COMPUTAÇÃO 1 ou CIC0268 PROJETO FINAL EM ENGENHARIA DE COMPUTAÇÃO 2], sob minha orientação. Atenciosamente, Prof. [Nome do Orientador], matrícula FUB [Matrícula FUB do Orientador]."*

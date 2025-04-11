@@ -1,4 +1,0 @@
-{
-  "question": "Poderia me informar sobre o limite superior de carga horária que é permitido cursar a cada semestre no curso de Engenharia de Computação?",
-  "answer": "O limite superior de carga horária que pode ser cursada por semestre no curso de Engenharia de Computação difere de acordo com o currículo ao qual o estudante está vinculado:\n\n*   Para o **Currículo 1741/1**, a carga horária máxima permitida é de **480 horas** semestrais.\n*   Para o **Currículo 1741/2**, a carga horária máxima permitida é de **450 horas** semestrais."
-}

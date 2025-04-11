@@ -1,4 +1,0 @@
-{
-  "question": "o que eu preciso ter pra conseguir me formar?",
-  "answer": "Para você conseguir se formar, é indispensável atender a um conjunto de requisitos. São eles:\n\na)  Ter concluído com êxito todos os componentes curriculares que são obrigatórios na estrutura do seu curso.\nb)  Ter satisfeito todas as condições das cadeias de seletividade, caso elas se apliquem ao seu currículo específico.\nc)  Ter cumprido integralmente a carga horária de componentes optativos exigida, zerando a pendência correspondente.\n\nVocê pode acompanhar o status de cumprimento desses requisitos verificando seu histórico escolar."
-}

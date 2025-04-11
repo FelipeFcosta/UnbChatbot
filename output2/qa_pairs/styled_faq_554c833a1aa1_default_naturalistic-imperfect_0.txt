@@ -1,4 +1,0 @@
-{
-  "question": "qual o melhor jeito pra achar um orientador pro meu tcc?",
-  "answer": "O melhor caminho para você encontrar um orientador para seu Projeto Final envolve algumas etapas práticas:\n\n1.  **Mapeie seus Interesses:** Comece identificando as áreas de conhecimento ou as disciplinas que mais lhe atraem.\n2.  **Pesquise Docentes:** Busque por professores que atuam nessas áreas, seja ministrando aulas ou desenvolvendo pesquisas relacionadas.\n3.  **Faça o Contato Inicial:** Procure conversar com os professores selecionados. Você pode fazer isso pessoalmente ou através de e-mail (neste caso, é recomendável já indicar seu tema de interesse ou perguntar sobre as linhas de orientação do professor).\n4.  **Planeje com Antecedência:** É fundamental iniciar essa busca e as conversas com bastante antecedência, de preferência no semestre anterior ao planejado para o início do TCC, ou, no máximo, logo nas primeiras semanas do semestre em questão."
-}

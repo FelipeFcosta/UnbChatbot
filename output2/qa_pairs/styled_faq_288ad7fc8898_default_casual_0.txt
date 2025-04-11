@@ -1,4 +1,0 @@
-{
-  "question": "Quais são os currículos que já existiram ou existem pra Engenharia de Computação?",
-  "answer": "Apresentamos as estruturas curriculares que já existiram ou existem para o curso de Engenharia de Computação:\n\n*   **1741/-2:** Esteve em vigor de 2009 a 2016. Encontra-se inativo e sem alunos vinculados.\n*   **1741/1:** Totaliza 3.480 horas de carga horária. Permaneceu vigente até 2024 e, embora inativo para novos estudantes, ainda conta com alunos matriculados.\n*   **1741/2:** É a estrutura curricular atual, com carga horária total de 3.780 horas. Foi estabelecida para cumprir exigências legais e é vista como uma estrutura de transição.\n*   **1741/3:** Está nos estágios finais de aprovação. Trata-se de uma atualização pedagógica, alinhada à legislação (abrangendo a extensão) e terá uma carga total de 3.210 horas."
-}

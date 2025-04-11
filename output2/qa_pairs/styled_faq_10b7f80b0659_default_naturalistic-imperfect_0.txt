@@ -1,4 +1,0 @@
-{
-  "question": "Onde q eu registro reclamacao geral das coisas da unb, tipo atendimento ou infraestrutura?",
-  "answer": "Para registrar reclamações gerais referentes à Universidade de Brasília, incluindo questões de infraestrutura, ensino, atendimento, procedimentos, entre outras, o canal apropriado é a [Ouvidoria da UnB](https://ouvidoria.unb.br/)."
-}

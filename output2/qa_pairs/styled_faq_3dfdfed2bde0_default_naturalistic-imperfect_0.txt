@@ -1,4 +1,0 @@
-{
-  "question": "Eu ja trabalho com computacao, tem como usar isso pro estagio obrigatorio da engenharia de computacao?",
-  "answer": "Sim, o Projeto Pedagógico do Curso (PPC) de Engenharia de Computação contempla a possibilidade de aproveitar a experiência profissional de alunos que já atuam em áreas correlatas para cumprir as horas de estágio obrigatório.\n\nPara entender como funciona o processo de validação e qual documentação é requerida, é necessário entrar em contato com a coordenação do curso."
-}

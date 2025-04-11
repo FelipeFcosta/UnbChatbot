@@ -1,4 +1,0 @@
-{
-  "question": "Se eu acabar fazendo mais do que 360 horas em matérias eletivas, o que acontece?",
-  "answer": "Sim, é permitido que você curse mais do que 360 horas em matérias eletivas (o limite é de 900 horas). Porém, é importante estar ciente de que apenas 360 dessas horas serão consideradas para abater a carga horária total do curso e a carga optativa pendente.\n\nCaso você curse uma quantidade superior a 360 horas eletivas, todas as disciplinas constarão em seu histórico, mas as horas excedentes não serão contabilizadas para a integralização do curso."
-}

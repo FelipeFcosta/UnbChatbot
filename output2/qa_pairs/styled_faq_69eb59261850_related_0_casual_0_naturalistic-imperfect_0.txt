@@ -1,4 +1,0 @@
-{
-  "question": "O estagio obrigatorio e o TCC continuam sendo necessarios mesmo se eu colar grau mais cedo?",
-  "answer": "Sim, o estágio obrigatório e o TCC continuam sendo necessários mesmo em caso de colação de grau antecipada. A solicitação e obtenção da outorga antecipada de grau não isenta o estudante da obrigação de cumprir integralmente a carga horária do estágio obrigatório. Igualmente, a elaboração do relatório de projeto final de curso (TCC) e sua apresentação perante banca examinadora permanecem como requisitos indispensáveis para a conclusão do curso."
-}

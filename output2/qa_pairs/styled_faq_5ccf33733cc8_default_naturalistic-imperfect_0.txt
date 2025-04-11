@@ -1,4 +1,0 @@
-{
-  "question": "eu to formando esse semestre aonde que eu acho as informacoes sobre a burocracia pra colar grau?",
-  "answer": "Como formando(a) neste semestre, para encontrar as informações sobre a burocracia da colação de grau e os procedimentos finais, sugere-se consultar os seguintes recursos institucionais:\n\n1.  A página de perguntas frequentes da [Secretaria de Administração Acadêmica (SAA)](https://www.saa.unb.br/graduacao/perguntas-frequentes-grad#colacao-de-grau).\n2.  As informações disponibilizadas na página do [Cerimonial da UnB](http://cerimonial.unb.br/index.php?option=com_content&view=article&id=26&Itemid=698).\n\nDepois de verificar essas fontes de informação gerais, é aconselhável que você procure a secretaria do seu departamento (por exemplo, a secretaria do CIC) para obter instruções mais direcionadas ao seu curso e para esclarecer quaisquer dúvidas que ainda possa ter."
-}

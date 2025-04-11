@@ -1,4 +1,0 @@
-Original Question: Qual o procedimento para usar certificados de língua estrangeira para abater carga horária em Engenharia de Computação?
-Answer: Para solicitar o aproveitamento de certificados de língua estrangeira como carga horária, você deve usar o [formulário de peticionamento eletrônico da SAA](https://www.saa.unb.br/sistemas/peticionamento-eletronico).
-
-Consulte este [manual](https://www.saa.unb.br/images/documentos/graduacao/manual_credito_lingua_estrangeira.pdf) para as orientações detalhadas. O acompanhamento do pedido pode ser feito pelo [acesso externo do SEI](https://sei.unb.br/sei/controlador_externo.php?acao=usuario_externo_logar&acao_origem=usuario_externo_enviar_cadastro&id_orgao_acesso_externo=0).

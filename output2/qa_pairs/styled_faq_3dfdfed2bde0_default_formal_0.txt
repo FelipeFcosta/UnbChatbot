@@ -1,4 +1,0 @@
-{
-  "question": "Atualmente, estou empregado na área de computação. Seria possível utilizar essa experiência profissional para cumprir as horas do estágio obrigatório do curso de Engenharia de Computação?",
-  "answer": "Sim, é possível utilizar sua experiência profissional atual para cumprir as horas do estágio obrigatório em Engenharia de Computação. O Projeto Pedagógico do Curso (PPC) prevê essa possibilidade para estudantes que já trabalham profissionalmente em áreas correlatas à computação.\n\nPara obter informações detalhadas sobre o procedimento exato de validação e a documentação exigida, recomenda-se entrar em contato diretamente com a coordenação do curso de Engenharia de Computação."
-}

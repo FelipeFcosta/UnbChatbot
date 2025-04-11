@@ -1,4 +1,0 @@
-{
-  "question": "Como eu faço pra mudar de curso dentro da UnB?",
-  "answer": "Para mudar de curso dentro da UnB, você deve participar do processo seletivo de Mudança de Curso. Este processo permite que estudantes regulares (tipicamente aqueles que ingressaram via PAS, Vestibular ou ENEM) troquem de curso de graduação.\n\nAs regras e condições são definidas em um edital publicado semestralmente no [site da Secretaria de Administração Acadêmica (SAA)](https://saa.unb.br/graduacao/dupla-e-mudanca). Lá você encontrará os requisitos, prazos e o formulário necessário para a solicitação. A [Resolução CEPE UnB nº 053/2022](https://deg.unb.br/images/legislacao/resolucao_cepe_53_2022.pdf) contém as normas gerais. É importante acompanhar todas as fases do processo pelo site da SAA."
-}

@@ -1,4 +1,0 @@
-{
-  "question": "Poderia detalhar quais são as condições fundamentais que preciso cumprir para estar apto(a) à colação de grau?",
-  "answer": "Para estar apto(a) à colação de grau e, consequentemente, concluir seu curso, é necessário o cumprimento das seguintes condições fundamentais:\n\na)  Obtenção de aprovação em todos os componentes curriculares classificados como obrigatórios em sua estrutura curricular.\nb)  Atendimento a todas as exigências de seletividade (cadeias de pré-requisitos), caso aplicáveis ao seu currículo.\nc)  Integralização completa da carga horária optativa requerida (zerar a carga horária optativa pendente).\n\nRecomendamos a consulta ao seu histórico escolar para verificar o status de cumprimento de cada uma dessas exigências."
-}

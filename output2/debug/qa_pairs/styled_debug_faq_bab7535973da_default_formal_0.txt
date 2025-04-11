@@ -1,5 +1,0 @@
-Original Question: Quais são as regras e características do estágio não obrigatório em Engenharia da Computação?
-Answer: O estágio não obrigatório tem as seguintes características principais:
-1.  Não é um requisito para se formar no curso.
-2.  Deve ser obrigatoriamente **remunerado**.
-3.  As horas podem ser usadas para integralizar [atividades complementares](https://www.cic.unb.br/informacoes/faq#atividades-complementares), conforme o regulamento do seu curso.

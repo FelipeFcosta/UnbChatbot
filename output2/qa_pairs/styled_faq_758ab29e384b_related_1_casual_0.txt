@@ -1,4 +1,0 @@
-{
-  "question": "E pra fazer uma segunda graduação na UnB depois de terminar a primeira, como funciona?",
-  "answer": "Após concluir sua primeira graduação na UnB, você pode buscar uma segunda através do processo de Dupla Diplomação. Este mecanismo permite a um aluno regular iniciar outro curso de graduação.\n\nO processo seletivo é regulado por um edital específico, lançado a cada semestre e disponível no [portal da SAA](https://saa.unb.br/graduacao/dupla-e-mudanca). O edital informa os critérios e o cronograma. As normas estão detalhadas no Art. 8º da [Resolução CEPE UnB nº 053/2022](https://deg.unb.br/images/legislacao/resolucao_cepe_53_2022.pdf). A inscrição é feita via formulário eletrônico, e todo o acompanhamento ocorre pelo site da SAA."
-}

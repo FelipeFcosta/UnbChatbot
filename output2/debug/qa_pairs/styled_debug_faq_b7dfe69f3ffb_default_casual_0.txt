@@ -1,5 +1,0 @@
-Original Question: Qual o limite máximo de carga horária que posso cursar por semestre em Engenharia de Computação?
-Answer: A carga horária máxima permitida por semestre no curso de Engenharia de Computação varia conforme o currículo:
-
-*   **Currículo 1741/1:** 480 horas
-*   **Currículo 1741/2:** 450 horas

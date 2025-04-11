@@ -1,4 +1,0 @@
-{
-  "question": "Onde eu acho a lista dos projetos de extensão da UnB?",
-  "answer": "Você pode encontrar a lista de projetos e outras iniciativas de extensão da UnB diretamente no portal [SIGAA Extensão](https://sig.unb.br/sigaa/public/extensao/consulta_extensao.jsf).\n\nSe quiser ver os projetos de um departamento específico, como o Departamento de Ciência da Computação, basta selecionar a 'Unidade Responsável' correspondente (por exemplo, 'DEPTO CIÊNCIAS DA COMPUTAÇÃO - BRASÍLIA') na ferramenta de busca da página."
-}

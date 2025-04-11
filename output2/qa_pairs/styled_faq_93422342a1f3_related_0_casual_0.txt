@@ -1,4 +1,0 @@
-{
-  "question": "Onde na UnB eu peço aquela simulação de histórico pra mudar de currículo?",
-  "answer": "Para solicitar a simulação do seu histórico acadêmico em uma nova estrutura curricular, você deve se dirigir à Secretaria de Administração Acadêmica (SAA). O atendimento da SAA é realizado no Centro de Vivência, prédio localizado em frente à entrada sul do Instituto Central de Ciências (ICC)."
-}

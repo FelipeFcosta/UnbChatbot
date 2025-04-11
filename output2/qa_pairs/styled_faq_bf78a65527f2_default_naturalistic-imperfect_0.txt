@@ -1,4 +1,0 @@
-{
-  "question": "como a unb define o que é 'extensao universitaria'?",
-  "answer": "A 'extensão universitária' é definida pela UnB como um processo amplo, que engloba dimensões interdisciplinares, políticas, educacionais, culturais, esportivas, científicas e tecnológicas.\n\nO principal objetivo é promover uma interação transformadora e baseada no diálogo entre a universidade e outros setores da sociedade, especialmente aqueles fora do ambiente acadêmico. Na UnB, busca-se que essa interação seja mútua, gere e dissemine conhecimento de forma dialógica, valorizando o protagonismo dos estudantes e estabelecendo um vínculo claro com a sua formação."
-}

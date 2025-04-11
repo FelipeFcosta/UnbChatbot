@@ -1,4 +1,0 @@
-{
-  "question": "como eu faço a matricula pra materia de estagio obrigatorio de engenharia da computacao?",
-  "answer": "Para solicitar a matrícula na atividade de [Estágio Supervisionado](https://sigaa.unb.br/sigaa/public/departamento/componentes.jsf?id=508) de Engenharia da Computação, você deve, primeiramente, obter todas as assinaturas necessárias nos seus documentos de estágio, incluindo a do professor orientador. Com a documentação assinada e registrada no SEI, envie um e-mail para a coordenação do curso solicitando a matrícula.\n\nÉ imprescindível informar no corpo do e-mail o número do processo [SEI](https://sei.unb.br/) correspondente (que geralmente começa com 23106).\n\nImportante: essa solicitação pode ser feita a qualquer momento durante o semestre, não se limitando ao período oficial de matrícula, embora seja recomendável fazê-la durante esse período."
-}

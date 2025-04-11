@@ -1,4 +1,0 @@
-{
-  "question": "como que pede pra usar nome social nos documento da unb?",
-  "answer": "Para solicitar o uso do nome social nos documentos e sistemas da UnB, você deve seguir os procedimentos informados no Portal da Diversidade. Todas as informações e orientações necessárias estão disponíveis na seguinte página: [https://diversidade.unb.br/index.php/nome-social](https://diversidade.unb.br/index.php/nome-social)."
-}

@@ -1,4 +1,0 @@
-Original Question: Como posso encontrar informações sobre os projetos e ações de extensão oferecidos pela UnB?
-Answer: Você pode consultar a lista de projetos e outras ações de extensão da UnB diretamente no [SIGAA Extensão](https://sig.unb.br/sigaa/public/extensao/consulta_extensao.jsf).
-
-Para visualizar os projetos de um departamento específico, como o de Ciência da Computação, basta selecionar a 'Unidade Responsável' correspondente (por exemplo, 'DEPTO CIÊNCIAS DA COMPUTAÇÃO - BRASÍLIA') na ferramenta de busca.

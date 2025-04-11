@@ -1,4 +1,0 @@
-{
-  "question": "meus certificado de lingua estrangeira pode usar pra abater hora do curso né?",
-  "answer": "Sim, é permitida a utilização de certificados de língua estrangeira para integralizar carga horária do curso. Para verificar os detalhes sobre como este processo funciona e quais os requisitos, por favor, consulte a [página da SAA que detalha o aproveitamento de carga horária em língua estrangeira](https://saa.unb.br/perguntas-frequentes#aproveitamento-de-carga-horaria-em-lingua-estrangeira)."
-}

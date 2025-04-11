@@ -1,4 +1,0 @@
-{
-  "question": "aonde q eu posso ver a lista de disciplinas que vao oferecer no proximo semestre?",
-  "answer": "Você pode consultar a lista de disciplinas previstas para serem oferecidas no próximo semestre acessando o [SIGAA, na seção de consulta pública de turmas](https://sig.unb.br/sigaa/public/turmas/listar.jsf?aba=p-ensino).\n\nPara visualizar as turmas de um departamento em particular, como o Departamento de Ciência da Computação, utilize o filtro 'Unidade Responsável' e selecione a unidade desejada (por exemplo, DEPTO CIÊNCIAS DA COMPUTAÇÃO - BRASÍLIA).\n\nA lista que será exibida reflete a oferta que foi aprovada pelo departamento, contudo, é importante notar que podem ocorrer ajustes e alterações até a consolidação final da oferta para o semestre. Na mesma ferramenta de consulta, você também pode verificar a oferta de outras unidades acadêmicas da UnB."
-}

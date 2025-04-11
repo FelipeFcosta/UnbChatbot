@@ -1,4 +1,0 @@
-{
-  "question": "como q eu zero as horas optativas q faltam em engenharia da computacao?",
-  "answer": "Para zerar as horas optativas que faltam em Engenharia de Computação, é necessário que você curse e seja aprovado(a) em componentes curriculares definidos como optativos e/ou eletivos (módulo livre).\n\nA quantidade de horas optativas que você ainda precisa cumprir está indicada no seu histórico escolar, no quadro “Carga Horária Integralizada/Pendente”."
-}

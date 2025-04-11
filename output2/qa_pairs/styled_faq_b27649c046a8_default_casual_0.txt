@@ -1,4 +1,0 @@
-{
-  "question": "Tem alguma coisa que eu preciso ter feito antes de começar o estágio obrigatório de Engenharia de Computação?",
-  "answer": "Sim, há um pré-requisito para poder iniciar o estágio obrigatório no curso de Engenharia de Computação. É indispensável que você tenha completado (integralizado) ao menos 60% da carga horária total do curso."
-}

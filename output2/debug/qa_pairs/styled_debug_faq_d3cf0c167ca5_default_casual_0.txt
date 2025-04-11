@@ -1,4 +1,0 @@
-Original Question: Existe uma quantidade mínima de horas optativas que preciso cursar?
-Answer: A resposta é 'sim e não'. Seu histórico escolar mostra a carga horária optativa total exigida para o curso no quadro 'Carga Horária Integralizada/Pendente'.
-
-No entanto, essa carga 'pendente' diminui não apenas ao cursar disciplinas optativas, mas também à medida que você cursa disciplinas eletivas (módulo livre). Além disso, cumprir um componente por equivalência ao cursar outro componente da estrutura curricular também pode abater a carga optativa pendente.

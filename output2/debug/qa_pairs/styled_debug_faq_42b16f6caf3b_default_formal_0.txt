@@ -1,6 +1,0 @@
-Original Question: Preciso cumprir uma quantidade mínima de horas em atividades complementares?
-Answer: A exigência de uma carga horária mínima para atividades complementares varia conforme o curso. Você deve verificar o regulamento específico do seu curso para confirmar essa informação. Acesse a página correspondente ao seu curso para consultar o regulamento:
-- [Ciência da Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)
-- [Computação (Licenciatura)](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)
-- [Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)
-- [Engenharia Mecatrônica](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)

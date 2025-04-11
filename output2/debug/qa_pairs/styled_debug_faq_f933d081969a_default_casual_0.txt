@@ -1,5 +1,0 @@
-Original Question: A disciplina Sinais e Sistemas em Tempo Discreto é classificada como obrigatória ou optativa em Engenharia de Computação?
-Answer: A classificação da disciplina ENE0068 Sinais e Sistemas em Tempo Discreto depende do seu currículo em Engenharia de Computação:
-
-*   **Currículo 1741/2:** É uma disciplina **obrigatória**.
-*   **Currículo 1741/1:** Conta como **optativa**. No entanto, se você ainda não cumpriu a Cadeia 1 de seletividade, precisará cursá-la para completar a carga horária mínima dessa cadeia.
