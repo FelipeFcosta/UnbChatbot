@@ -1,0 +1,4 @@
+{
+  "question": "Aquela regra de passar 4 materias a cada dois semestre, ela ainda vale ou mudou?",
+  "answer": "Sobre a regra de aprovação em 4 componentes curriculares a cada dois semestres, informamos que, embora ela exista e permaneça tecnicamente válida, sua aplicação rigorosa não tem ocorrido nos últimos períodos letivos. Contudo, a recomendação é que os estudantes se esforcem para cumprir essa exigência, a fim de evitar eventuais contratempos futuros."
+}

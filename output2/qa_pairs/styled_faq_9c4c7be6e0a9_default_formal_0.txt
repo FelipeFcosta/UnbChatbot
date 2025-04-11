@@ -1,0 +1,4 @@
+{
+  "question": "O curso de Engenharia de Computação permite que o Projeto Final seja desenvolvido em colaboração, ou seja, em dupla com outro colega?",
+  "answer": "Sim, o curso de Engenharia de Computação permite que o Projeto Final seja desenvolvido em colaboração entre dois estudantes, ou seja, em dupla."
+}

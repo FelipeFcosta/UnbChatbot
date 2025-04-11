@@ -1,0 +1,4 @@
+{
+  "question": "Qual procedimento devo realizar no sistema SIGAA previamente ao início de um estágio em engenharia da computação?",
+  "answer": "Previamente ao início de um novo estágio em engenharia da computação, e antes de encaminhar os documentos para assinatura, o procedimento a ser realizado é o [pré-cadastro do estágio no sistema SIGAA](https://www.deg.unb.br/196-estrutura-administrativa/daia-diretoria-de-acompanhamento-e-integracao-semestre/cesg-coordenacao-de-estagios-da-graduacao/672-cadastro-de-estagio-no-sigaa-perguntas)."
+}

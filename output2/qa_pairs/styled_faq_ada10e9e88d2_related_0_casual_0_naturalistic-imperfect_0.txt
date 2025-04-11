@@ -1,0 +1,4 @@
+{
+  "question": "Meu trabalho atual que eh parecido com eng de computacao, da pra usar o contrato dele pra contar como estagio obrigatorio?",
+  "answer": "Sim, é possível utilizar o contrato do seu trabalho atual para validar o estágio obrigatório. Para isso, sua atividade profissional deve ser em uma área compatível com a Engenharia da Computação. Nesse caso, o contrato de trabalho (ou um documento similar) pode substituir o Termo de Compromisso de Estágio (TCE), permitindo que você solicite a validação dessa experiência profissional."
+}

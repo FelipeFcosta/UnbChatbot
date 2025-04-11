@@ -1,0 +1,4 @@
+{
+  "question": "É possível realizar a migração do currículo 1741/2 para a estrutura curricular 1741/1?",
+  "answer": "Não, a migração da estrutura curricular 1741/2 para a estrutura 1741/1 não é permitida no curso de Engenharia de Computação."
+}

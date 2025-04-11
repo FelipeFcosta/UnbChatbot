@@ -1,0 +1,4 @@
+{
+  "question": "Onde eu vejo qual é o número do meu currículo atual?",
+  "answer": "O número que identifica a sua estrutura curricular atual está localizado na parte superior da primeira página do seu histórico escolar.\n\nCaso precise de informações adicionais sobre como interpretar as estruturas curriculares, você pode consultar a [página de perguntas frequentes da Secretaria de Administração Acadêmica (SAA)](https://www.saa.unb.br/graduacao/perguntas-frequentes-grad#estrutura-curricular)."
+}

@@ -1,0 +1,4 @@
+{
+  "question": "qual email pra falar com a coordenacao de engenharia de computacao?",
+  "answer": "O e-mail para entrar em contato com a coordenação do curso de Engenharia de Computação é engcomputacao@unb.br."
+}

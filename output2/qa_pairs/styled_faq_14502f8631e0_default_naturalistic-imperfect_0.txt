@@ -1,0 +1,4 @@
+{
+  "question": "Quais sao as coisas principais que faz um aluno ser desligado do curso na UnB?",
+  "answer": "As razões mais comuns que levam ao desligamento de um aluno de um curso de graduação na UnB são:\n1.  Reprovar por 3 vezes na mesma disciplina obrigatória.\n2.  Não ser aprovado em, no mínimo, 4 disciplinas (obrigatórias ou optativas) somando-se os resultados de dois semestres consecutivos.\n3.  Não efetuar matrícula em disciplinas por dois semestres seguidos (ou obter menção SR - Sem Rendimento - em todas as disciplinas cursadas por dois semestres consecutivos).\n4.  Não integralizar o curso dentro do prazo máximo estabelecido.\n\n**Observação importante:** Para as regras 1 e 2, os semestres letivos de 2020.1 até 2022.2 não foram contabilizados devido à pandemia. Além disso, disciplinas de cadeias de seletividade são consideradas optativas e não entram na contagem para a regra 1."
+}

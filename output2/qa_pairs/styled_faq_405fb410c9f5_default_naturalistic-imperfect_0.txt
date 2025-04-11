@@ -1,0 +1,4 @@
+{
+  "question": "pra revisar a menção como que faz o processo?",
+  "answer": "O processo de revisão de menção tem a finalidade específica de corrigir **erros na avaliação** que possam ter sido cometidos pelo professor responsável. É importante entender que este procedimento não abrange solicitações de novas avaliações após o encerramento do semestre, nem se destina a justificar desempenho acadêmico insatisfatório por razões pessoais (para esta última situação, o mecanismo adequado é o trancamento justificado).\n\nSeu pedido precisa ter uma fundamentação sólida, explicitando as razões pelas quais considera a menção incorreta. De forma geral, as etapas são:\n1.  Consultar as normas e prazos na [página da SAA sobre revisão de menção](https://saa.unb.br/perguntas-frequentes#revisao-de-mencao).\n2.  Protocolar o pedido formalmente junto à unidade acadêmica que ofereceu a disciplina."
+}

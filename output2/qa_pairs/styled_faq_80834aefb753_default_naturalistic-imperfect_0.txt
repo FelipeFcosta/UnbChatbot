@@ -1,0 +1,4 @@
+{
+  "question": "Como q eu faço pra validar minhas horas de atividades complementares em engenharia de computaao?",
+  "answer": "A validação de suas horas de atividades complementares em Engenharia de Computação é feita mediante solicitação, a qual deve seguir estritamente as regras definidas no edital específico para este fim. Este edital é publicado a cada semestre."
+}

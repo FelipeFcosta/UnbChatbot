@@ -1,0 +1,4 @@
+{
+  "question": "Eu preciso matricular o estagio obrigatorio junto com as outras materias?",
+  "answer": "Não, não é estritamente necessário matricular o Estágio Supervisionado juntamente com as demais disciplinas no período regular de matrícula. Contudo, essa prática é aconselhável. Saiba que você pode solicitar a matrícula do estágio posteriormente, assim que tiver as assinaturas requeridas em sua documentação."
+}

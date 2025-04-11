@@ -1,0 +1,4 @@
+{
+  "question": "Da pra fazer e validar estagio 1 e estagio 2 junto no mesmo semestre pra eng comp?",
+  "answer": "Sim, é possível cursar e validar tanto o Estágio Supervisionado 1 quanto o Estágio Supervisionado 2 dentro do mesmo semestre letivo em Engenharia de Computação.\n\nPara tal, é necessário que seu relatório de estágio comprove a realização de um total de, no mínimo, 300 horas de atividades (o que corresponde a cerca de 10 semanas trabalhando 30h/semana ou 15 semanas trabalhando 20h/semana).\n\nDepois de enviar este relatório único comprovando as 300 horas, você precisa comunicar ao coordenador do curso sua intenção de que este mesmo relatório seja utilizado para validar ambos os componentes curriculares (Estágio 1 e Estágio 2)."
+}

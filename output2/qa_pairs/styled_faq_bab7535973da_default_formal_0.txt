@@ -1,0 +1,4 @@
+{
+  "question": "Poderia detalhar as regras e as características que definem o estágio não obrigatório para estudantes de Engenharia da Computação?",
+  "answer": "Certamente. As regras e características que definem o estágio não obrigatório para estudantes de Engenharia da Computação são as seguintes:\n1.  Não constitui um requisito obrigatório para a conclusão do curso e obtenção do diploma.\n2.  É imprescindível que seja uma atividade **remunerada**.\n3.  As horas de estágio podem ser utilizadas para a integralização de [atividades complementares](https://www.cic.unb.br/informacoes/faq#atividades-complementares), desde que em conformidade com o regulamento específico do curso de Engenharia da Computação."
+}

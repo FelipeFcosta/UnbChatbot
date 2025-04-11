@@ -1,0 +1,4 @@
+Original Question: Como me matriculo na disciplina de estágio obrigatório em Engenharia da Computação?
+Answer: A matrícula na atividade de [Estágio Supervisionado](https://sigaa.unb.br/sigaa/public/departamento/componentes.jsf?id=508) pode ser feita a qualquer momento durante o semestre, não necessariamente no período oficial de matrícula (embora seja recomendado).
+
+Após obter as assinaturas necessárias nos seus documentos de estágio obrigatório (incluindo a do professor orientador), você deve enviar um e-mail para a coordenação do seu curso solicitando a matrícula. É importante informar no e-mail o número do processo [SEI](https://sei.unb.br/) onde a documentação assinada está registrada (geralmente começa com 23106).

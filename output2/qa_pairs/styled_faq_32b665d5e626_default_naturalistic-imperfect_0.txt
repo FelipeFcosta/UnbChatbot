@@ -1,0 +1,4 @@
+{
+  "question": "onde que eu acho a formula como calcula o ira?",
+  "answer": "A fórmula para o cálculo do Índice de Rendimento Acadêmico (IRA) e uma explicação detalhada de como ele é apurado pela UnB estão disponíveis para consulta no documento oficial denominado \"Manual para estudantes\".\n\nVocê pode acessá-lo aqui: [\"Manual para estudantes\"](https://deg.unb.br/manualparaestudantes)."
+}

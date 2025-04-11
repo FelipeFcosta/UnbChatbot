@@ -1,0 +1,457 @@
+[
+  {
+    "question": "Poderia me informar sobre como devo proceder para validar as horas referentes às atividades complementares?",
+    "answer": "Para obter a validação das horas de atividades complementares, é necessário que você consulte o regulamento específico do seu curso. Cada curso possui suas próprias diretrizes, disponíveis nas respectivas páginas:\n- [Ciência da Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)\n- [Computação (Licenciatura)](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)\n- [Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)\n- [Engenharia Mecatrônica](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_72102d51670d_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Gostaria de entender como posso solicitar o aproveitamento dos meus certificados de língua estrangeira para reduzir a carga horária do meu curso.",
+    "answer": "Sim, é possível solicitar o aproveitamento de certificados de língua estrangeira como carga horária. Para compreender o funcionamento do processo e verificar os requisitos necessários, por favor, acesse a [página da Secretaria de Administração Acadêmica (SAA) que trata do aproveitamento de língua estrangeira](https://saa.unb.br/perguntas-frequentes#aproveitamento-de-carga-horaria-em-lingua-estrangeira).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_35b586c7ea6b_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia me informar se há um número mínimo obrigatório de horas para atividades complementares no meu curso?",
+    "answer": "A existência de um número mínimo obrigatório de horas para atividades complementares depende das normas de cada curso. Para confirmar essa informação, você deve verificar o regulamento específico do seu curso. As informações estão detalhadas nas páginas de cada um:\n- [Ciência da Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)\n- [Computação (Licenciatura)](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)\n- [Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)\n- [Engenharia Mecatrônica](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_42b16f6caf3b_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Quais são os passos necessários para que eu possa participar de um projeto de Iniciação Científica?",
+    "answer": "Para ingressar em um projeto de Iniciação Científica (IC), o primeiro passo é estabelecer contato com professores que trabalham nas áreas de pesquisa que lhe interessam. Você pode tanto propor suas próprias ideias quanto se informar sobre projetos já existentes sob a orientação deles.\n\nÉ recomendado buscar esses professores pessoalmente ou via e-mail, idealmente já mencionando o tema de seu interesse. O momento mais propício para iniciar essa conversa é no semestre anterior ao desejado para começar a IC, ou bem no início do semestre (fevereiro ou março). Isso se deve ao fato de que o edital para os projetos geralmente é publicado em março/abril, e a inscrição é realizada pelo professor orientador.\n\nInformações adicionais de caráter geral podem ser encontradas na [página do ProIC](https://proic.unb.br/index.php?option=com_content&view=article&id=649&Itemid=530).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_2e777987295f_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia me indicar o canal adequado para formalizar uma queixa sobre infraestrutura, aulas, atendimento ou outros procedimentos universitários?",
+    "answer": "O canal apropriado para formalizar queixas relativas a infraestrutura, aulas, atendimento, procedimentos universitários ou outras questões relacionadas é a [Ouvidoria da UnB](https://ouvidoria.unb.br/). Este é o órgão oficial para o encaminhamento de tais reclamações.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_bcb2c61aec15_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Onde posso obter os dados para contatar a coordenação responsável pelo meu curso?",
+    "answer": "As informações de contato, bem como a identificação dos coordenadores responsáveis por cada curso, estão publicadas nas páginas específicas de cada um. Para obter esses dados, por favor, consulte o link referente ao seu curso:\n- [Ciência da Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)\n- [Computação (Licenciatura)](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)\n- [Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)\n- [Engenharia Mecatrônica](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_ce3fd3b4eb23_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "A reprovação em uma disciplina obrigatória cursada no período de Verão é contabilizada para fins de desligamento da universidade?",
+    "answer": "Sim, a reprovação em uma disciplina obrigatória cursada no período de Verão pode ser considerada para fins de desligamento. Contudo, a aplicação do desligamento depende do momento em que ocorre a terceira reprovação. Caso a terceira reprovação (incluindo uma ocorrida no Verão) se concretize durante um semestre regular, o desligamento ocorrerá. Entretanto, se a terceira reprovação acontecer especificamente *durante* o período de Verão, o desligamento por essa regra não será efetivado naquele momento.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_34071d8cbec2_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia confirmar a regra que exige aprovação em no mínimo quatro disciplinas a cada dois semestres consecutivos para evitar o desligamento?",
+    "answer": "Confirmamos a existência da regra que exige a aprovação em, no mínimo, quatro componentes curriculares (sejam eles obrigatórios ou optativos) a cada dois semestres consecutivos para que o estudante mantenha seu vínculo e evite o desligamento. É relevante notar que, embora essa norma esteja formalmente estabelecida, houve períodos recentes em que sua aplicação não ocorreu de forma estrita. De toda forma, recomenda-se enfaticamente que se esforce para cumprir tal exigência, a fim de evitar quaisquer problemas acadêmicos.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_49480f15aac2_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia detalhar as regras e as características que definem o estágio não obrigatório para estudantes de Engenharia da Computação?",
+    "answer": "Certamente. As regras e características que definem o estágio não obrigatório para estudantes de Engenharia da Computação são as seguintes:\n1.  Não constitui um requisito obrigatório para a conclusão do curso e obtenção do diploma.\n2.  É imprescindível que seja uma atividade **remunerada**.\n3.  As horas de estágio podem ser utilizadas para a integralização de [atividades complementares](https://www.cic.unb.br/informacoes/faq#atividades-complementares), desde que em conformidade com o regulamento específico do curso de Engenharia da Computação.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_bab7535973da_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Qual é o procedimento para realizar a matrícula na disciplina de estágio obrigatório do curso de Engenharia da Computação?",
+    "answer": "Para realizar a matrícula na disciplina de [Estágio Supervisionado](https://sigaa.unb.br/sigaa/public/departamento/componentes.jsf?id=508) do curso de Engenharia da Computação, o procedimento é o seguinte: A matrícula pode ser solicitada a qualquer tempo durante o semestre letivo, não se limitando ao período oficial de matrículas, embora seja recomendado fazê-la nesse período.\n\nUma vez que tenha obtido todas as assinaturas requeridas nos documentos do estágio obrigatório, incluindo a do seu professor orientador, você deve enviar um e-mail à coordenação do curso de Engenharia da Computação, solicitando a efetivação da matrícula. É crucial que, neste e-mail, você informe o número do processo no [SEI (Sistema Eletrônico de Informações)](https://sei.unb.br/) onde a documentação assinada foi registrada (esse número geralmente inicia com 23106).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_36f028c03a62_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia, por gentileza, me explicar o procedimento para obter as assinaturas necessárias em meus documentos de estágio de Engenharia de Computação?",
+    "answer": "Com certeza. Para obter as assinaturas em seus documentos de estágio, o procedimento padrão é encaminhá-los por meio do Sistema Eletrônico de Informações ([SEI](https://sei.unb.br/)) diretamente à Comissão de Estágio do seu curso. Frequentemente, esse encaminhamento é realizado via secretaria do departamento correspondente, como a Secretaria do Departamento de Ciência da Computação (CIC).\n\nEspecificamente para iniciar um novo estágio, siga estes passos:\n1. Realize o [pré-cadastro do estágio no SIGAA](https://www.deg.unb.br/196-estrutura-administrativa/daia-diretoria-de-acompanhamento-e-integracao-semestre/cesg-coordenacao-de-estagios-da-graduacao/672-cadastro-de-estagio-no-sigaa-perguntas).\n2. Submeta o Termo de Compromisso de Estágio (TCE) ou o contrato equivalente, juntamente com o Plano de Atividades, ao CIC utilizando o [formulário de atendimento interno](https://www.cic.unb.br/o-cic/fale-conosco).\n3. Os modelos necessários para estes documentos estão disponíveis [neste link](https://www.cic.unb.br/informacoes/documentos).\n4. É preciso indicar um professor orientador de estágio que seja membro da Comissão de Estágio.\n\nCaso necessite de esclarecimentos adicionais, recomenda-se o contato com a Secretaria do CIC.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_401f2f17f2b6_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Gostaria de saber se a obrigatoriedade do estágio em Engenharia de Computação se mantém mesmo para estudantes que já atuam profissionalmente na área de computação.",
+    "answer": "Sim, o estágio no curso de Engenharia de Computação é curricularmente classificado como obrigatório. Contudo, o [Regulamento de Estágio do curso](https://sigaa.unb.br/sigaa/public/curso/documentos.jsf?lc=pt_BR&id=414610&idTipo=1) prevê a possibilidade de que estudantes já engajados profissionalmente em atividades correlatas à computação (ou engenharia de computação, conforme o curso) utilizem essa experiência para validar as horas de estágio obrigatório.\n\nPara solicitar essa validação, é necessário apresentar a documentação pertinente, como o Termo de Compromisso de Estágio (TCE) – que pode ser adaptado ou substituído pelo contrato de trabalho – e o Plano de Atividades. Ambos os documentos devem estar assinados por você e pelo seu supervisor na empresa. Neste cenário, o professor orientador pode ser o [Coordenador de Graduação](https://www.cic.unb.br/informacoes/faq#quem-e-e-como-falo-com-a-coordenadcao-do-curso). Utilize a data de sua contratação como data de início para fins de documentação. Os [modelos de documentos podem ser consultados aqui](https://www.cic.unb.br/informacoes/documentos).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_ada10e9e88d2_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia me informar quais são os pré-requisitos para iniciar o estágio obrigatório do curso de Engenharia de Computação?",
+    "answer": "Sim, existem pré-requisitos definidos para que o estudante possa iniciar o estágio obrigatório do curso de Engenharia de Computação. Um exemplo frequente é a necessidade de ter concluído um percentual mínimo da carga horária total prevista na estrutura curricular do curso. É fundamental que consulte o [Regulamento de Estágio do curso de Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/documentos.jsf?lc=pt_BR&id=414610&idTipo=1) para verificar todas as condições, restrições e pré-requisitos aplicáveis.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_bb7532e0fd99_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Após a conclusão da carga horária do estágio obrigatório em Engenharia de Computação, quais são os passos necessários para que a menção correspondente seja registrada?",
+    "answer": "Para que a menção correspondente ao estágio obrigatório seja registrada após a conclusão da carga horária exigida, é necessário submeter o Relatório de Atividades de Estágio. Este documento deve ser devidamente preenchido e assinado por você e também pelo seu supervisor na organização onde o estágio foi realizado.\n\nO modelo oficial do relatório está disponível para consulta e download [neste endereço](https://www.cic.unb.br/informacoes/documentos). A entrega do relatório preenchido e assinado deve ser efetuada por meio do [formulário de atendimento interno do CIC](https://www.cic.unb.br/o-cic/fale-conosco).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_48b439bd308f_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Gostaria de confirmar se as notas obtidas em disciplinas cursadas durante o período de Verão são consideradas no cálculo do Índice de Rendimento Acadêmico.",
+    "answer": "Sim, confirmo que as notas obtidas em disciplinas cursadas durante o período letivo de Verão são, de fato, consideradas para o cálculo do seu Índice de Rendimento Acadêmico (IRA). Para efeito deste cálculo, essas disciplinas são contabilizadas como se tivessem sido cursadas no último semestre regular do ano civil anterior. A título de exemplo, uma disciplina realizada no Verão de 2024, identificado academicamente como semestre 2023.4, terá impacto no cálculo do IRA como se pertencesse ao semestre 2023.2.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_328187852344_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia esclarecer a distinção entre os conceitos de aproveitamento e dispensa de componentes curriculares?",
+    "answer": "Certamente. Embora ambos os mecanismos, aproveitamento e dispensa, permitam validar conhecimentos adquiridos fora das disciplinas regulares do seu curso atual na UnB, a principal distinção reside na origem desse conhecimento:\n\n*   **Aproveitamento de Estudos:** Refere-se à validação de componentes curriculares com conteúdos equivalentes que você tenha cursado e sido aprovado(a) em **outra instituição de ensino superior**.\n*   **Dispensa:** Aplica-se à validação de conhecimentos adquiridos por meio de **outras formas de aprendizado ou experiência**, como vivência profissional relevante na área, participação em projetos significativos, realização de estágios, conclusão de cursos de pós-graduação, obtenção de certificados em exames de proficiência, entre outras atividades.\n\nEm ambas as situações, é indispensável a apresentação de documentação comprobatória que evidencie o conhecimento adquirido. Informações adicionais sobre o processo de aproveitamento podem ser encontradas na [página da Secretaria de Administração Acadêmica (SAA)](https://www.saa.unb.br/graduacao/perguntas-frequentes-grad#aproveitamento-de-disciplinas-de-ex-aluna-o-da-unb).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_45982cdba35c_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia me explicar como se diferenciam os termos 'atividade' e 'disciplina' conforme utilizados nas estruturas curriculares da UnB?",
+    "answer": "A diferença fundamental entre 'disciplina' e 'atividade', conforme utilizadas nas estruturas curriculares da UnB, reside na metodologia de ensino-aprendizagem empregada:\n\n*   **Disciplina:** Caracteriza-se por ser um conjunto de estudos com um programa formal (ementa) estabelecido, sendo ministrada por docentes por meio de aulas regulares e encontros presenciais ou virtuais, com uma carga horária semanal definida ao longo do semestre letivo.\n*   **Atividade:** Distingue-se por não ter as aulas formais como o principal veículo para o processo de ensino-aprendizagem. Exemplos comuns de atividades incluem o desenvolvimento de projetos, a realização de estágios supervisionados ou a elaboração de trabalhos de conclusão de curso.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_2d1696cf5031_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Gostaria de compreender o conceito de 'cadeia de seletividade' presente na estrutura curricular.",
+    "answer": "O conceito de 'cadeia de seletividade', presente em algumas estruturas curriculares, refere-se a um agrupamento específico de disciplinas de natureza optativa, listadas no currículo do seu curso, dentro do qual o estudante deve obrigatoriamente cumprir uma carga horária mínima determinada.\n\nPara ilustrar: suponha que uma determinada cadeia de seletividade exija o cumprimento de, no mínimo, 120 horas e contenha cinco disciplinas distintas, cada uma com 60 horas. Neste caso, você precisaria escolher e obter aprovação em, pelo menos, duas dessas cinco disciplinas para satisfazer a exigência da cadeia. É permitido, caso deseje, cursar um número maior de disciplinas dessa cadeia do que o mínimo exigido; toda a carga horária cursada e aprovada dentro da cadeia será contabilizada como carga horária optativa cumprida.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_dbb23c5da02d_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Quais são os requisitos para integralizar a carga horária total estabelecida para o meu curso?",
+    "answer": "Para integralizar a carga horária total estabelecida para o seu curso, o requisito fundamental é obter aprovação em todos os componentes curriculares definidos na respectiva estrutura curricular. Isso engloba os componentes classificados como obrigatórios, os optativos e os eletivos (estes últimos também conhecidos como módulo livre).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_af2942db834c_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "É necessário cumprir um número mínimo específico de horas em disciplinas classificadas como optativas?",
+    "answer": "A resposta a essa questão é tanto 'sim' quanto 'não'. Seu histórico escolar apresenta, no quadro denominado 'Carga Horária Integralizada/Pendente', o total de carga horária optativa que é exigido para a conclusão do curso.\n\nEntretanto, a carga horária indicada como 'pendente' nesse quadro não é reduzida exclusivamente pela aprovação em disciplinas classificadas como optativas. Ela também diminui à medida que você obtém aprovação em disciplinas eletivas (conhecidas como módulo livre). Adicionalmente, o cumprimento de um componente curricular por meio de equivalência, ao cursar outro componente previsto na estrutura curricular, também pode resultar na redução da carga horária optativa pendente.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_d3cf0c167ca5_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Gostaria de saber se existe uma exigência de carga horária mínima para as disciplinas eletivas, também conhecidas como módulo livre.",
+    "answer": "Não, informamos que não há uma exigência de carga horária mínima para os componentes curriculares eletivos, também denominados 'módulo livre'.\n\nEntretanto, cursar tais disciplinas contribui para a integralização da carga horária total requerida para a conclusão do seu curso. É importante notar que um limite máximo de 360 horas de disciplinas eletivas pode ser aproveitado para essa finalidade.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_f48d52191c02_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Seria permitido cursar um volume superior a 360 horas de componentes eletivos e qual seria o impacto disso na contagem da minha carga horária total?",
+    "answer": "Sim, é permitido que o estudante curse um total de até 900 horas em componentes curriculares eletivos (módulo livre).\n\nContudo, para o cômputo da carga horária total necessária à integralização do seu curso, somente serão consideradas, no máximo, 360 horas eletivas.\n\nCaso curse uma carga horária eletiva superior a 360 horas, o excedente será registrado em seu histórico escolar, mas não será utilizado para reduzir a carga horária total pendente do curso, nem a carga horária optativa pendente, para além do referido limite de 360 horas.\n\nPara informações adicionais sobre os limites de carga horária, sugerimos consultar a [página do Decanato de Ensino de Graduação (DEG) sobre legislação](https://www.deg.unb.br/legislacoes-gerais).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_389e4c0c960a_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia me informar qual é o procedimento para identificar a classificação (obrigatória, optativa ou eletiva) de uma disciplina dentro do meu curso?",
+    "answer": "Para identificar a classificação de um componente curricular (disciplina ou atividade) como obrigatório, optativo ou eletivo dentro do seu curso, o procedimento correto é consultar a estrutura curricular específica à qual você está vinculado.\n\nO número que identifica o seu currículo pode ser encontrado na parte superior do seu histórico escolar.\n\nA estrutura curricular detalha todos os componentes **obrigatórios** e **optativos**. Qualquer componente que **não** conste nessa lista é classificado como **eletivo** (módulo livre) para o seu percurso acadêmico.\n\nÉ fundamental que verifique a estrutura correspondente ao *seu* currículo, pois a classificação de um mesmo componente pode diferir entre currículos distintos ou entre cursos diferentes.\n\nAs estruturas curriculares podem ser acessadas nas páginas oficiais dos cursos:\n- [Ciência da Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)\n- [Computação (Licenciatura)](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)\n- [Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)\n- [Engenharia Mecatrônica](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)\n\nInformações complementares sobre [componentes optativos](https://www.saa.unb.br/graduacao/perguntas-frequentes-grad#componentes-optativo) e [eletivos](https://www.saa.unb.br/graduacao/perguntas-frequentes-grad#componentes-eletivos) estão disponíveis na página da Secretaria de Administração Acadêmica (SAA).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_689da125eafd_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Gostaria de verificar a possibilidade de solicitar a migração para uma estrutura curricular mais recente do meu curso, caso exista.",
+    "answer": "Sim, em geral, é possível solicitar a migração para uma estrutura curricular mais recente, se houver uma disponível para o seu curso. Contudo, ressaltamos que **essa decisão deve ser avaliada com extrema cautela**, uma vez que a nova estrutura pode implicar a necessidade de cursar componentes adicionais, o que poderia, potencialmente, postergar a sua data de formatura.\n\nO procedimento recomendado envolve as seguintes etapas:\n\n1.  **Comparar as Estruturas:** Analise detalhadamente as diferenças entre a sua estrutura curricular atual e a nova. As estruturas podem ser consultadas nas páginas dos respectivos cursos:\n    *   [Ciência da Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)\n    *   [Computação (Licenciatura)](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)\n    *   [Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)\n    *   [Engenharia Mecatrônica](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)\n2.  **Solicitar Simulação:** Requisite à Secretaria de Administração Acadêmica (SAA) uma simulação de como seu histórico escolar ficaria na nova estrutura curricular.\n3.  **Comparar Históricos:** Examine minuciosamente a simulação fornecida pela SAA e compare-a com seu histórico atual. **O foco principal deve ser na carga horária TOTAL pendente e na lista de componentes curriculares PENDENTES.** Evite comparar apenas as cargas horárias optativa e obrigatória isoladamente, pois a classificação de componentes pode mudar entre as estruturas.\n4.  **Decidir e Solicitar:** Caso, após essa análise criteriosa, opte pela migração, formalize a solicitação enviando um e-mail à coordenação do seu curso.\n\n**Atenção:** A migração de estrutura curricular é um procedimento **irreversível**. Após a efetivação da mudança, não será possível retornar à estrutura anterior.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_ebc35f6b55a3_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Qual o método para consultar e identificar a estrutura curricular à qual estou vinculado atualmente?",
+    "answer": "Para identificar a estrutura curricular à qual você está atualmente vinculado(a), o método consiste em verificar o número do currículo. Esta informação consta no cabeçalho, na primeira página do seu histórico escolar.\n\nPara informações adicionais sobre como interpretar as estruturas curriculares, consulte a [página de perguntas frequentes da Secretaria de Administração Acadêmica (SAA)](https://www.saa.unb.br/graduacao/perguntas-frequentes-grad#estrutura-curricular).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_dca93fddc440_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia me fornecer informações sobre as distintas estruturas curriculares existentes para o curso de Engenharia de Computação?",
+    "answer": "Informamos sobre as distintas estruturas curriculares existentes para o curso de Engenharia de Computação:\n\n*   **Currículo 1741/-2:** Esteve vigente entre os anos de 2009 e 2016. Atualmente, encontra-se inativo e não possui mais discentes vinculados.\n*   **Currículo 1741/1:** Possui uma carga horária total de 3.480 horas. Vigorou até o ano de 2024. Embora esteja inativo para novos ingressantes, ainda existem alunos matriculados nesta estrutura.\n*   **Currículo 1741/2:** Corresponde à estrutura vigente no momento atual, com uma carga horária total de 3.780 horas. Foi implementada para atender a requisitos legais e é tida como uma estrutura de transição.\n*   **Currículo 1741/3:** Encontra-se em fase final de aprovação. Representará uma atualização pedagógica, alinhada às normativas legais (incluindo a curricularização da extensão), e terá uma carga horária total de 3.210 horas.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_288ad7fc8898_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia me orientar sobre os fatores a considerar ao avaliar se a migração do currículo 1741/1 para o 1741/2, em Engenharia de Computação, seria vantajosa?",
+    "answer": "A avaliação sobre a conveniência de migrar do currículo 1741/1 para o 1741/2, no curso de Engenharia de Computação, é uma decisão de caráter pessoal, que depende da sua trajetória e situação acadêmica individual.\n\nRecomendamosfortemente que, primeiramente, assista com máxima atenção ao [vídeo explicativo disponível neste link](https://youtu.be/iyMJGDt0rYU).\n\nCaso, após assistir ao vídeo, ainda considere a possibilidade de migração, é fundamental seguir os passos detalhados sobre como proceder com a avaliação e a solicitação, conforme [descrito nesta seção do FAQ](https://www.cic.unb.br/informacoes/faq#posso-mudar-de-estrutura-curricular). Reiteramos que o processo de migração de currículo é irreversível.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_d88f9412a472_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia me explicar o que são e qual a natureza dos componentes curriculares obrigatórios que se referem às atividades de extensão?",
+    "answer": "Os componentes curriculares obrigatórios referentes a atividades de extensão são uma exigência estabelecida pela legislação brasileira. Conforme [determinado por lei](https://www.gov.br/mec/pt-br/cne/normas-classificadas-por-assunto/extensao-na-educacao-superior-brasileira), é necessário que, no mínimo, 10% da carga horária total dos cursos de graduação seja dedicada a programas e projetos de extensão universitária.\n\nNa Universidade de Brasília (UnB), essa determinação legal é cumprida por meio da incorporação de componentes curriculares específicos e obrigatórios de extensão nas estruturas curriculares dos cursos. Para identificar quais são esses componentes em seu curso específico, recomenda-se a consulta ao respectivo Projeto Pedagógico do Curso (PPC).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_13e0764460cf_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Qual é a definição institucional da UnB para o termo 'extensão universitária'?",
+    "answer": "A definição institucional de 'extensão universitária' na UnB a descreve como um processo abrangente – de natureza interdisciplinar, política, educacional, cultural, esportiva, científica e tecnológica. Seu propósito é fomentar uma interação transformadora e dialógica entre a universidade e outros segmentos da sociedade, com ênfase naqueles externos ao ambiente acadêmico.\n\nO objetivo central na UnB é que essa interação seja recíproca, resultando na produção e disseminação de conhecimento de maneira dialógica, destacando-se o protagonismo estudantil e a articulação com a formação do estudante.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_bf78a65527f2_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Quais são os meios disponíveis para consultar os projetos e demais ações de extensão que a UnB oferece?",
+    "answer": "A consulta aos projetos e demais ações de extensão oferecidos pela UnB pode ser realizada através do [Sistema Integrado de Gestão de Atividades Acadêmicas - Módulo Extensão (SIGAA Extensão)](https://sig.unb.br/sigaa/public/extensao/consulta_extensao.jsf).\n\nCaso deseje visualizar os projetos vinculados a um departamento específico, como o Departamento de Ciência da Computação, basta utilizar a ferramenta de busca e selecionar a 'Unidade Responsável' apropriada (por exemplo, 'DEPTO CIÊNCIAS DA COMPUTAÇÃO - BRASÍLIA').",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_6f9c8cfa3ae4_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia detalhar quais são as condições fundamentais que preciso cumprir para estar apto(a) à colação de grau?",
+    "answer": "Para estar apto(a) à colação de grau e, consequentemente, concluir seu curso, é necessário o cumprimento das seguintes condições fundamentais:\n\na)  Obtenção de aprovação em todos os componentes curriculares classificados como obrigatórios em sua estrutura curricular.\nb)  Atendimento a todas as exigências de seletividade (cadeias de pré-requisitos), caso aplicáveis ao seu currículo.\nc)  Integralização completa da carga horária optativa requerida (zerar a carga horária optativa pendente).\n\nRecomendamos a consulta ao seu histórico escolar para verificar o status de cumprimento de cada uma dessas exigências.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_f1d45854fbd0_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Gostaria de informação sobre o prazo mínimo estabelecido para a integralização do meu curso de graduação.",
+    "answer": "O prazo mínimo estipulado para a integralização do seu curso de graduação é definido no Projeto Pedagógico do Curso (PPC) correspondente e pode variar conforme a estrutura curricular específica à qual você está vinculado(a).\n\nPara obter essa informação precisa, sugerimos consultar a página oficial do seu curso:\n- [Ciência da Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)\n- [Computação (Licenciatura)](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)\n- [Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)\n- [Engenharia Mecatrônica](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)\n\nEmbora o sistema acadêmico possa, em tese, permitir a conclusão em um período inferior ao mínimo estabelecido, tal situação ocorre geralmente em circunstâncias excepcionais, como no caso de aproveitamento de um volume significativo de créditos de disciplinas cursadas previamente. É importante ressaltar que o prazo mínimo pode ser distinto para estudantes vinculados a diferentes estruturas curriculares dentro de um mesmo curso.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_ffcb86a4915d_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "A realização do exame Enade é uma exigência obrigatória para a conclusão do meu curso e obtenção do diploma?",
+    "answer": "A participação no Exame Nacional de Desempenho dos Estudantes (Enade) é obrigatória apenas se o seu curso específico for selecionado para aplicação do exame no ano em que você estiver concluindo a graduação.\n\nO Enade não é aplicado anualmente para todos os cursos. Portanto, se o seu curso estiver incluído na avaliação do Enade no seu ano de formatura, a realização da prova será, sim, uma exigência. Caso contrário, se não houver aplicação para o seu curso naquele ano, você será automaticamente considerado(a) dispensado(a) da obrigação, e a pendência relativa ao Enade será removida do seu histórico escolar.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_169fcbf63edd_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Existe a possibilidade de requerer a outorga de grau em data anterior à cerimônia oficial de colação?",
+    "answer": "Sim, existe a possibilidade de requerer a outorga de grau em data anterior à cerimônia oficial, porém, trata-se de uma medida de caráter excepcional. A concessão da outorga antecipada é condicionada a situações específicas e regulamentada por normativas da universidade (a exemplo das [Resoluções do Instituto de Ciências Exatas - IE](https://www.exatas.unb.br/index.php/en-us/documentos/resolucoes) para os cursos vinculados a este instituto).\n\nOs requisitos gerais para a solicitação incluem:\n*   Comprovação de um motivo excepcional (por exemplo, aprovação em concurso público, admissão em programa de pós-graduação, ou oferta de emprego que exija o diploma).\n*   Estar matriculado(a) na condição de formando(a) no semestre corrente ou como provável formando(a) no semestre subsequente.\n*   Obtenção de aprovação em avaliações específicas designadas para cada disciplina pendente.\n\nÉ fundamental observar que não existe a possibilidade de dispensa do cumprimento da carga horária de estágio obrigatório, nem da elaboração e apresentação do trabalho final de curso (TCC) perante banca examinadora.\n\nPara informações complementares, recomenda-se a consulta à [página do Cerimonial da UnB sobre outorga antecipada](https://cerimonial.unb.br/index.php?option=com_content&view=article&id=17&Itemid=680).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_69eb59261850_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Sendo um formando neste semestre, onde posso obter orientações sobre os trâmites administrativos e a cerimônia de colação de grau?",
+    "answer": "Como formando(a) neste semestre, para obter orientações sobre os trâmites administrativos finais e a cerimônia de colação de grau, recomendamos que consulte as seguintes fontes:\n\n1.  A página de perguntas frequentes da [Secretaria de Administração Acadêmica (SAA)](https://www.saa.unb.br/graduacao/perguntas-frequentes-grad#colacao-de-grau).\n2.  A página oficial do [Cerimonial da UnB](http://cerimonial.unb.br/index.php?option=com_content&view=article&id=26&Itemid=698).\n\nApós a consulta a essas páginas institucionais, sugerimos que entre em contato com a secretaria do seu departamento acadêmico (como a secretaria do CIC, por exemplo) para obter instruções mais específicas relativas ao seu curso e esclarecer eventuais dúvidas remanescentes.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_5ccf33733cc8_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia descrever as distintas etapas que compõem o processo de matrícula em disciplinas na Universidade de Brasília?",
+    "answer": "O processo de matrícula em disciplinas na Universidade de Brasília é estruturado em três etapas distintas:\n\n1.  **Matrícula:** Corresponde à fase inicial, na qual o(a) estudante realiza a solicitação das vagas nas turmas de seu interesse. Após o período de solicitações, o sistema realiza um processamento coletivo, e o resultado é divulgado, informando em quais turmas a vaga foi concedida.\n2.  **Rematrícula:** Esta etapa oferece uma segunda oportunidade para solicitar vagas, caso não tenha obtido todas as desejadas na fase anterior, ou para realizar ajustes na grade horária. O procedimento de solicitação e processamento coletivo é repetido.\n3.  **Matrícula Extraordinária:** Na última fase, as vagas que permaneceram disponíveis após as etapas anteriores (com exceção daquelas reservadas a estudantes ingressantes) são oferecidas para matrícula direta. Nesta etapa, não ocorre processamento coletivo; a matrícula é confirmada imediatamente pelo(a) estudante, por ordem de solicitação, nas vagas disponíveis no sistema.\n\nInformações relevantes:\n*   Consulte as [instruções detalhadas sobre matrícula fornecidas pelo Decanato de Ensino de Graduação (DEG)](https://deg.unb.br/matricula-menu-estudante).\n*   Verifique as datas específicas de cada etapa no [calendário acadêmico](https://www.saa.unb.br/graduacao/calendario-academico#calendario-de-matricula).\n*   **Importante:** Nas fases de Matrícula e Rematrícula, a ordem cronológica da sua solicitação não afeta o resultado final, pois o processamento considera critérios de prioridade definidos pela Universidade.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_6f2100edfc24_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Considerando a dificuldade em obter vagas para disciplinas de alta procura, quais abordagens estratégicas são recomendadas durante o período de matrícula?",
+    "answer": "Para aumentar as chances de obter vaga em disciplinas de alta procura, especialmente durante as fases de matrícula e rematrícula (cujo processamento é coletivo e não baseado na ordem de solicitação), recomenda-se adotar as seguintes abordagens estratégicas:\n\n1.  **Análise das Reservas de Vagas:** Verifique no SIGAA a distribuição das vagas da turma desejada: quantas são reservadas para alunos do seu curso (não ingressantes) e quantas para outros públicos (outros cursos, ingressantes). Priorize turmas com maior número de vagas reservadas para o seu perfil e evite aquelas com alta reserva para outros grupos.\n2.  **Monitoramento da Demanda:** Não é necessário realizar a matrícula no primeiro dia. Acompanhar a evolução do número de solicitações ao longo do período pode fornecer indicativos sobre quais turmas estão mais ou menos concorridas, auxiliando na sua decisão.\n3.  **Solicitação Ampliada:** Solicite matrícula em um número de disciplinas superior ao que efetivamente pretende cursar (observando as regras da sua grade curricular). Caso obtenha mais vagas do que o necessário, será possível cancelar as excedentes posteriormente.\n4.  **Confirmação e Comprovação:** Assegure-se de completar todas as etapas de confirmação no SIGAA ao finalizar suas solicitações. Salve o atestado de matrícula gerado pelo sistema como comprovante.\n5.  **Reavaliação para Rematrícula:** No intervalo entre a matrícula e a rematrícula, verifique se ocorreram alterações no número de vagas ou nas reservas. Pode ser vantajoso tentar a mesma turma novamente ou ajustar sua estratégia com base nas novas informações.\n6.  **Utilização das Informações do SIGAA:** Analise dados como a capacidade total da turma, o número de solicitações registradas nas etapas anteriores e a proporção de vagas reservadas (geralmente indicada como X/Y, onde X representa vagas para ingressantes e Y para os demais alunos do curso).\n7.  **Verificação do Local de Oferta:** Esteja atento(a) aos códigos que indicam a localidade da turma: FCE (Faculdade UnB Ceilândia), FCTE (Faculdade UnB Gama), FUP (Faculdade UnB Planaltina). Outros locais referem-se ao campus Darcy Ribeiro (Plano Piloto/Asa Norte).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_ab9a4fb5eb67_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Caso não tenha obtido a vaga desejada nas etapas regulares de matrícula e rematrícula, qual seria a alternativa subsequente disponível?",
+    "answer": "Caso não tenha conseguido a vaga desejada durante as etapas regulares de matrícula e rematrícula, a alternativa subsequente é a **matrícula extraordinária**. Nesta fase, ocorrem algumas mudanças importantes:\n\n*   As reservas de vagas por curso (exceto aquelas destinadas a ingressantes) deixam de ter validade. Isso pode resultar na liberação de vagas que antes não estavam acessíveis para você.\n*   A alocação das vagas remanescentes ocorre estritamente **por ordem de chegada**. O(a) primeiro(a) estudante a solicitar a vaga disponível no sistema a obterá.\n*   É fundamental tentar realizar a matrícula **imediatamente no início do período** desta etapa.\n*   Recomenda-se verificar o sistema **repetidas vezes ao longo do dia**, pois novas vagas podem surgir a qualquer momento devido a cancelamentos de matrícula por outros estudantes ou ajustes na oferta.\n*   Se um(a) estudante cancelar sua matrícula ou se vagas adicionais forem inseridas na turma, a prioridade será de quem realizar a solicitação primeiro após a disponibilização.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_e097ed69c9a4_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Como posso determinar quais componentes curriculares seriam mais adequados para cursar em um determinado semestre letivo?",
+    "answer": "A escolha dos componentes curriculares a serem cursados em cada semestre letivo é flexível, contanto que sejam respeitados os pré-requisitos estabelecidos para cada disciplina.\n\nPara obter uma orientação sobre a sequência recomendada de componentes obrigatórios, aconselha-se consultar o **fluxo curricular sugerido** correspondente à sua estrutura curricular. Este fluxo geralmente integra o 'Relatório da Estrutura Curricular', disponível para consulta na página oficial do seu curso:\n- [Ciência da Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)\n- [Computação (Licenciatura)](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)\n- [Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)\n- [Engenharia Mecatrônica](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)\n\nO mesmo relatório também apresenta a lista de componentes optativos. Contudo, é importante notar que pode não ser necessário cursar *todos* os optativos listados. A carga horária optativa pendente, que pode ser verificada no seu histórico escolar, também pode ser reduzida por meio do cumprimento de componentes eletivos (módulo livre) ou através de processos de equivalência de disciplinas.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_465df67f35cf_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Em qual local posso encontrar a relação oficial das disciplinas programadas para serem ofertadas no semestre seguinte?",
+    "answer": "A relação oficial das disciplinas cuja oferta está programada para o semestre seguinte pode ser consultada diretamente no [Sistema Integrado de Gestão de Atividades Acadêmicas (SIGAA), através da funcionalidade de consulta pública de turmas](https://sig.unb.br/sigaa/public/turmas/listar.jsf?aba=p-ensino).\n\nPara visualizar a oferta de um departamento específico, como o de Ciência da Computação, basta selecionar o departamento correspondente no campo 'Unidade Responsável' (por exemplo, 'DEPTO CIÊNCIAS DA COMPUTAÇÃO - BRASÍLIA').\n\nA lista exibida corresponde à oferta aprovada pelo departamento no momento da consulta, mas é importante ressaltar que podem ocorrer alterações até a consolidação final da oferta semestral. Nessa mesma página, também é possível consultar a oferta de outras unidades acadêmicas da UnB.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_a2e065079b9a_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia me informar sobre os critérios utilizados pela UnB para a classificação dos estudantes nos processos de matrícula e rematrícula?",
+    "answer": "Prezado(a) estudante,\n\nOs critérios de prioridade aplicados pela Universidade de Brasília (UnB) durante o processamento das solicitações nas etapas de matrícula e rematrícula estão disponíveis para consulta na [página oficial da Secretaria de Administração Acadêmica (SAA) sobre matrícula](https://www.saa.unb.br/matricula#quais-sao-os-criterios-de-prioridade).\n\nÉ importante ressaltar que, nessas etapas, a ordem cronológica em que a sua solicitação é realizada não interfere na sua classificação final.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_5d0d4b15c209_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia me explicar como se dá o procedimento para solicitar a revisão de uma menção atribuída?",
+    "answer": "O procedimento para solicitar a revisão de menção destina-se exclusivamente à correção de **erros de avaliação** cometidos pelo docente responsável pela disciplina. Este mecanismo não se aplica a pedidos de novas avaliações após o término do período letivo, nem serve como justificativa para baixo rendimento acadêmico decorrente de questões pessoais; para tais situações, o recurso apropriado é o trancamento justificado.\n\nPara que sua solicitação seja considerada, ela deve ser devidamente fundamentada, explicitando claramente os motivos pelos quais a menção atribuída é considerada incorreta. O processo compreende, em geral, as seguintes etapas:\n1.  Consultar as normas e os prazos estipulados na [página da SAA referente à revisão de menção](https://saa.unb.br/perguntas-frequentes#revisao-de-mencao).\n2.  Submeter o pedido formalmente à unidade acadêmica responsável pela oferta da disciplina em questão.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_405fb410c9f5_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Qual seria a abordagem mais recomendada para identificar e contatar um professor que possa orientar meu Projeto Final de Curso?",
+    "answer": "A abordagem mais recomendada para identificar e contatar um professor orientador para o seu Projeto Final de Curso (PFC) envolve as seguintes etapas:\n\n1.  **Identificação de Áreas de Interesse:** Reflita sobre as áreas de conhecimento ou disciplinas que despertam maior afinidade em sua trajetória acadêmica.\n2.  **Pesquisa de Docentes:** Identifique os professores que ministram disciplinas nessas áreas de interesse ou que conduzem pesquisas relacionadas aos temas.\n3.  **Início do Contato:** Estabeleça comunicação com os professores identificados. As opções incluem:\n    *   Procurá-los pessoalmente nos departamentos ou em horários de atendimento.\n    *   Enviar um e-mail profissional, preferencialmente já indicando seu tema de interesse ou indagando sobre possíveis temas de orientação que o professor costuma supervisionar.\n4.  **Antecedência:** Recomenda-se enfaticamente que essas conversas sejam iniciadas no semestre letivo anterior ao previsto para o começo do desenvolvimento do PFC, ou, alternativamente, logo nas primeiras semanas do semestre em que se pretende iniciá-lo.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_554c833a1aa1_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Gostaria de saber se há exigências prévias para que eu possa começar o Projeto Final no curso de Engenharia de Computação.",
+    "answer": "Sim, existem exigências prévias para que um estudante possa iniciar o Projeto Final no curso de Engenharia de Computação. Dentre elas, está a necessidade de ter concluído uma porcentagem mínima da carga horária total do curso.\n\nRecomendamos fortemente a consulta ao Regulamento de Trabalho de Conclusão de Curso (TCC) específico do curso de Engenharia de Computação para verificar a totalidade das exigências e pré-requisitos aplicáveis.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_2a0e871a6385_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia me detalhar o procedimento para realizar a matrícula nas disciplinas de Projeto Final (PF1 e PF2) de Engenharia de Computação?",
+    "answer": "Para realizar a matrícula nas disciplinas de Projeto Final (CIC0267 - PF1 ou CIC0268 - PF2) do curso de Engenharia de Computação, o procedimento difere do período regular de matrícula via sistema, ainda que possa coincidir temporalmente com ele.\n\nO procedimento correto a ser seguido é:\n1.  Estabelecer contato com o seu professor orientador definido para o Projeto Final.\n2.  Solicitar ao seu orientador que inicie um processo formal via Sistema Eletrônico de Informações (SEI), direcionado à Coordenação do Curso de Engenharia de Computação.\n3.  Este processo no SEI deve obrigatoriamente conter uma solicitação formal de matrícula, conforme o modelo exemplificado abaixo:\n\n    *\"Prezado Coordenador, solicito a matrícula do(a) discente [Seu Nome Completo] (matrícula [Seu Número de Matrícula]), do curso de Engenharia de Computação, na atividade [CIC0267 PROJETO FINAL EM ENGENHARIA DE COMPUTAÇÃO 1 ou CIC0268 PROJETO FINAL EM ENGENHARIA DE COMPUTAÇÃO 2], sob minha orientação. Atenciosamente, Prof. [Nome do Orientador], matrícula FUB [Matrícula FUB do Orientador].\"*",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_351adad6dc3d_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia me informar sobre como proceder para marcar a sessão de defesa pública do Projeto Final 2 em Engenharia de Computação?",
+    "answer": "O agendamento da data, do horário e do local para a sessão de defesa pública do Projeto Final 2 (PF2) em Engenharia de Computação é de responsabilidade exclusiva do seu professor orientador.\n\nPara realizar o agendamento, o orientador deverá utilizar o [formulário de atendimento interno do Departamento de Ciência da Computação (CIC)](https://www.cic.unb.br/o-cic/fale-conosco). Caso persistam dúvidas sobre este procedimento, recomenda-se entrar em contato diretamente com a Secretaria do CIC.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_b8750bb14486_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia me indicar onde posso localizar as informações referentes ao Projeto Final de Curso de Engenharia Mecatrônica?",
+    "answer": "Todas as informações pertinentes ao Projeto Final de Curso (PFC) de Engenharia Mecatrônica, o que inclui os regulamentos aplicáveis e os procedimentos operacionais, estão disponíveis para consulta no [site oficial do curso de Engenharia Mecatrônica](https://mecatronica.unb.br/index.php/pt/informacoes-academicas/pfc).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_90a51840a667_default_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Em que período do ano costuma ser divulgado o edital referente à Iniciação Científica?",
+    "answer": "O edital referente aos programas de Iniciação Científica da UnB é, usualmente, divulgado entre os meses de março e abril de cada ano.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_2e777987295f_related_0_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Gostaria de esclarecer quem é o responsável por realizar a inscrição no projeto de Iniciação Científica, o estudante ou o professor orientador?",
+    "answer": "A responsabilidade pela inscrição do estudante no projeto de Iniciação Científica recai sobre o professor orientador selecionado para supervisionar o trabalho.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_2e777987295f_related_1_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia me confirmar se a norma que exige aprovação em quatro componentes curriculares a cada dois semestres está em aplicação no momento?",
+    "answer": "A norma que estabelece a exigência de aprovação em, no mínimo, quatro componentes curriculares a cada dois semestres letivos consecutivos existe e está, tecnicamente, em vigor na Universidade de Brasília. Contudo, informamos que sua aplicação não tem ocorrido de forma estrita nos últimos semestres. Apesar disso, recomendamos aos estudantes que se esforcem para cumprir esta exigência, a fim de evitar eventuais contratempos futuros.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_49480f15aac2_related_0_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Gostaria de saber se a matrícula no estágio obrigatório deve obrigatoriamente ocorrer dentro do período oficial de matrícula?",
+    "answer": "Não, a matrícula no Estágio Supervisionado não é obrigatória durante o período oficial de matrícula estabelecido pelo calendário acadêmico. Contudo, recomenda-se realizá-la nesse período. A solicitação de matrícula pode ser efetuada após a assinatura dos seus documentos de estágio.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_36f028c03a62_related_0_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia me informar quais dados são necessários para enviar à coordenação ao requisitar a matrícula em estágio obrigatório via correio eletrônico?",
+    "answer": "Sim. Para requisitar a matrícula em Estágio Supervisionado via correio eletrônico à coordenação, o dado necessário a ser informado é o número do processo SEI que contém a sua documentação de estágio devidamente assinada. É útil notar que, geralmente, este número de processo inicia-se com 23106.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_36f028c03a62_related_1_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Qual procedimento devo realizar no sistema SIGAA previamente ao início de um estágio em engenharia da computação?",
+    "answer": "Previamente ao início de um novo estágio em engenharia da computação, e antes de encaminhar os documentos para assinatura, o procedimento a ser realizado é o [pré-cadastro do estágio no sistema SIGAA](https://www.deg.unb.br/196-estrutura-administrativa/daia-diretoria-de-acompanhamento-e-integracao-semestre/cesg-coordenacao-de-estagios-da-graduacao/672-cadastro-de-estagio-no-sigaa-perguntas).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_401f2f17f2b6_related_0_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Quais docentes estão habilitados a atuar como orientadores para o estágio do curso de engenharia da computação?",
+    "answer": "Os docentes habilitados a atuar como orientadores para o estágio do curso de engenharia da computação são aqueles que integram a Comissão de Estágio do respectivo curso ou departamento.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_401f2f17f2b6_related_1_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Caso eu já possua experiência profissional na área, é possível utilizar meu vínculo empregatício para a validação da carga horária do estágio obrigatório?",
+    "answer": "Sim, é possível utilizar seu vínculo empregatício para a validação da carga horária do estágio obrigatório, desde que sua atuação profissional ocorra em área afim à engenharia da computação. Nesse cenário, para solicitar a validação, o Termo de Compromisso de Estágio (TCE) pode ser substituído por um contrato de trabalho ou documento análogo.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_ada10e9e88d2_related_0_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Na situação de validação da experiência profissional como estágio obrigatório em engenharia da computação, quem são as partes responsáveis pela assinatura do Termo de Compromisso e do Plano de Atividades?",
+    "answer": "Para a validação da experiência profissional como estágio obrigatório, as partes responsáveis pela assinatura do Termo de Compromisso de Estágio (ou contrato equivalente) e do Plano de Atividades são você (o estudante) e o seu supervisor direto no ambiente de trabalho. Informa-se ainda que o Coordenador de Graduação pode atuar como professor orientador neste processo de validação.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_ada10e9e88d2_related_1_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Ao avaliar a possibilidade de migração entre estruturas curriculares de engenharia da computação, quais aspectos comparativos devo considerar prioritários?",
+    "answer": "Ao avaliar a migração entre estruturas curriculares, utilizando a simulação da SAA para comparar a estrutura atual com a nova, os aspectos prioritários a serem considerados são, fundamentalmente, a carga horária total ainda pendente e a relação dos componentes curriculares pendentes em cada uma das estruturas sob análise. A análise deve concentrar-se primordialmente nesses dois pontos.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_ebc35f6b55a3_related_0_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Gostaria de saber se a mudança de estrutura curricular é um processo reversível, permitindo o retorno à estrutura anterior posteriormente?",
+    "answer": "Não, a mudança de estrutura curricular não é um processo reversível. Uma vez que a migração entre estruturas curriculares é solicitada e efetivada pela administração acadêmica, trata-se de uma alteração definitiva, não sendo possível retornar à estrutura curricular anterior.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_ebc35f6b55a3_related_1_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "A solicitação de outorga antecipada de grau implica na dispensa da obrigatoriedade do estágio ou do Trabalho de Conclusão de Curso?",
+    "answer": "Não, a solicitação de outorga antecipada de grau não implica na dispensa da obrigatoriedade do estágio ou do Trabalho de Conclusão de Curso (TCC). Mesmo que a colação de grau seja antecipada, permanece a exigência de cumprimento integral da carga horária do estágio obrigatório, assim como da elaboração e apresentação do relatório final de curso perante uma banca examinadora.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_69eb59261850_related_0_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia me explicar qual é o aspecto distintivo fundamental entre os períodos regulares de matrícula/rematrícula e o período de matrícula extraordinária?",
+    "answer": "Certamente. O aspecto distintivo fundamental reside no método de processamento das solicitações. Nos períodos regulares de matrícula e rematrícula, as requisições dos estudantes são processadas em lote, de forma coletiva, aplicando-se critérios de prioridade definidos. Em contraste, durante o período de matrícula extraordinária, não ocorre processamento coletivo; as vagas disponíveis são alocadas individualmente e de forma imediata, seguindo a ordem cronológica das solicitações (primeiro a requisitar).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_6f2100edfc24_related_0_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Poderia me explicar o funcionamento das vagas na matrícula extraordinária?",
+    "answer": "O funcionamento da matrícula extraordinária difere das etapas regulares. Nesse período, a maior parte das reservas de vagas por curso perde a validade, com exceção daquelas destinadas aos estudantes ingressantes. Os alunos podem, então, solicitar matrícula diretamente nas vagas disponíveis, sendo que o registro da matrícula ocorre de forma imediata, seguindo estritamente a ordem de solicitação.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_6f2100edfc24_related_1_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Qual o significado da notação numérica, como por exemplo 40/10, utilizada para indicar a reserva de vagas no sistema SIGAA?",
+    "answer": "A notação no formato 'X/Y', utilizada no sistema SIGAA para indicar a distribuição de vagas reservadas em uma turma, possui um significado específico. O número 'X' representa a quantidade de vagas asseguradas para os alunos que estão ingressando naquele curso específico. Já o número 'Y' indica a quantidade de vagas reservadas aos demais estudantes (não ingressantes) do mesmo curso.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_ab9a4fb5eb67_related_0_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "Para as etapas regulares de matrícula e rematrícula, a data ou hora da minha solicitação influencia o resultado final da alocação?",
+    "answer": "Não, o momento (data ou hora) em que você realiza sua solicitação durante as etapas regulares de matrícula e rematrícula não afeta o resultado final da alocação de vagas. O processamento dessas solicitações ocorre de maneira coletiva, baseando-se em critérios de prioridade predefinidos. Inclusive, pode ser benéfico aguardar alguns dias para observar a demanda pelas turmas antes de finalizar sua solicitação.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_ab9a4fb5eb67_related_1_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "No caso específico da matrícula extraordinária, a sequência em que realizo o pedido de vaga possui alguma importância?",
+    "answer": "Sim, a sequência do seu pedido de vaga é determinante no caso específico da matrícula extraordinária. A alocação das vagas remanescentes disponíveis nessa etapa ocorre estritamente por ordem de solicitação, ou seja, quem solicita primeiro tem a vaga garantida.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_e097ed69c9a4_related_0_formal_0",
+    "type": "styled"
+  },
+  {
+    "question": "É permitido submeter um pedido de revisão de menção quando o desempenho insatisfatório foi causado por circunstâncias pessoais adversas?",
+    "answer": "Não, não é permitido utilizar o pedido de revisão de menção para justificar desempenho insatisfatório decorrente de circunstâncias pessoais adversas. Este procedimento destina-se unicamente à correção de eventuais erros cometidos pelo professor durante o processo de avaliação. Para situações envolvendo questões extra-acadêmicas que impactaram o desempenho, o recurso apropriado é solicitar o trancamento justificado da disciplina ou do semestre.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_405fb410c9f5_related_0_formal_0",
+    "type": "styled"
+  }
+]

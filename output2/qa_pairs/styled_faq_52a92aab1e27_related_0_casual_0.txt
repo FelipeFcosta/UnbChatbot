@@ -1,0 +1,4 @@
+{
+  "question": "Se o professor não aceitar meu pedido pra revisar minha nota, tem mais alguém pra quem eu posso pedir?",
+  "answer": "Sim, existe um procedimento adicional caso seu pedido inicial seja negado. Se o professor responsável pela disciplina indeferir sua solicitação para revisão da menção, você pode formalizar um recurso. Esse recurso será avaliado por uma comissão de docentes da sua unidade acadêmica. A decisão final sobre o parecer dessa comissão caberá a um órgão colegiado."
+}

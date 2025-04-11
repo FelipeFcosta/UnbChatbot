@@ -1,0 +1,4 @@
+{
+  "question": "Em qual documento ou seção posso encontrar a metodologia de cálculo do Índice de Rendimento Acadêmico (IRA)?",
+  "answer": "A metodologia de cálculo do Índice de Rendimento Acadêmico (IRA), incluindo a fórmula exata utilizada pela Universidade de Brasília (UnB), pode ser encontrada com detalhamento no documento oficial denominado [\"Manual para estudantes\"](https://deg.unb.br/manualparaestudantes)."
+}

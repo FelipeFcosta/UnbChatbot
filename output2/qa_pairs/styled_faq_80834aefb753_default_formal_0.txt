@@ -1,0 +1,4 @@
+{
+  "question": "Poderia me informar qual é o procedimento para solicitar a validação de horas de atividades complementares no curso de Engenharia de Computação?",
+  "answer": "Para solicitar a validação de horas de atividades complementares no curso de Engenharia de Computação, o procedimento correto é seguir as regras estabelecidas no edital específico para este fim. Este edital é publicado semestralmente pela coordenação do curso."
+}

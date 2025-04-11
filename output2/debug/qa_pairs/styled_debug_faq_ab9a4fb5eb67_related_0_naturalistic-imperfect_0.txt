@@ -1,0 +1,2 @@
+Original Question: No SIGAA, o que significa a reserva de vagas indicada com números (ex: 40/10)?
+Answer: A indicação 'X/Y' nas vagas reservadas de uma turma no SIGAA significa: 'X' é o número de vagas reservadas para alunos ingressantes daquele curso, e 'Y' é o número de vagas reservadas para os demais alunos (não ingressantes) daquele mesmo curso.

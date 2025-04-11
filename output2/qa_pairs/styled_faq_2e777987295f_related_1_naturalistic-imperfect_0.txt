@@ -1,0 +1,4 @@
+{
+  "question": "quem que faz a inscricao no projeto de ic eu ou o professor?",
+  "answer": "A inscrição de estudantes em projetos de Iniciação Científica é realizada pelo professor orientador responsável pelo respectivo projeto."
+}

@@ -1,0 +1,4 @@
+{
+  "question": "Quais condições preciso satisfazer para me formar no curso de Engenharia de Computação?",
+  "answer": "Para obter o diploma no curso de Engenharia de Computação, é necessário satisfazer integralmente as seguintes condições:\n\na)  Alcançar aprovação em todos os componentes curriculares definidos como obrigatórios na sua estrutura curricular específica.\nb)  Cumprir todas as exigências relativas às cadeias de seletividade, caso se apliquem à sua estrutura curricular (ressalta-se que o currículo 1741/2 não possui cadeias de seletividade).\nc)  Zerar completamente a carga horária optativa que estiver pendente."
+}

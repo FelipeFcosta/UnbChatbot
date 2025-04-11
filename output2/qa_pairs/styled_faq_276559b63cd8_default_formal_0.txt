@@ -1,0 +1,4 @@
+{
+  "question": "Necessito saber qual o procedimento correto para realizar o agendamento da banca de defesa do Projeto Final 2 em Engenharia de Computação.",
+  "answer": "O procedimento correto para o agendamento da banca de defesa do Projeto Final 2 em Engenharia de Computação é de responsabilidade do seu professor orientador. Cabe a ele realizar o cadastro da banca, definindo data, horário e membros.\n\nPara efetuar o cadastro, o orientador deve utilizar [este formulário online específico](https://forms.office.com/pages/responsepage.aspx?id=oZs17AtjK024M8jm1I-AWXcelI-NHv1AsFTptEzXf1lUOUcyQzU3NUxIVFhVVzFMMVpONTBIWjZGMy4u&route=shorturl). Caso surjam dúvidas durante o processo, a secretaria do Departamento de Ciência da Computação (CIC) está à disposição para prestar auxílio."
+}

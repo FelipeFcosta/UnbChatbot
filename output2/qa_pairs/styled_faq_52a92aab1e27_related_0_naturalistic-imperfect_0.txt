@@ -1,0 +1,4 @@
+{
+  "question": "se o professor nao aceitar meu pedido de revisao de nota tem mais alguem que eu possa pedir?",
+  "answer": "Sim, há uma instância superior para recorrer. Se o seu pedido inicial de revisão de menção for negado pelo professor da disciplina, você tem o direito de solicitar um recurso. Esse recurso será então examinado por uma comissão específica de professores da sua unidade acadêmica. O parecer dessa comissão será posteriormente submetido à apreciação de um órgão colegiado para a decisão final."
+}

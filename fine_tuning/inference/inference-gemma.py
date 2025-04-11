@@ -12,9 +12,9 @@ import json # Import json to read config files
 import re   # Import re for regex to extract response
 
 # --- Configuration ---
-APP_NAME = "unb-chatbot-gemma"
-DEFAULT_MODEL_DIR_NAME = "unb_chatbot_gemma12b_run2" # Directory *inside* the volume
-VOLUME_NAME = "unb-chatbot-models"       # Name of the Modal Volume
+APP_NAME = "unb-chatbot-gemma4b-inference"
+DEFAULT_MODEL_DIR_NAME = "gemma4b_run1" # Directory *inside* the volume
+VOLUME_NAME = "unb-chatbot-gemma"       # Name of the Modal Volume
 GPU_CONFIG = "T4"                        # GPU for inference
 # BASE_MODEL variable is removed - it will be inferred from saved_model_path
 # ---------------------
@@ -105,7 +105,7 @@ def generate(user_prompt: str, model_dir_name: str = DEFAULT_MODEL_DIR_NAME):
     try:
         model, tokenizer = FastModel.from_pretrained(
             model_name=saved_model_path, # <--- Load from the saved directory
-            max_seq_length=2048,
+            max_seq_length=3072,
             dtype=None,
             load_in_4bit=True,
         )
@@ -156,7 +156,7 @@ def generate(user_prompt: str, model_dir_name: str = DEFAULT_MODEL_DIR_NAME):
         **tokenizer([text], return_tensors = "pt").to("cuda"),
         max_new_tokens = 564, # Increase for longer outputs!
         # Recommended Gemma-3 settings!
-        temperature = 1.0, top_p = 0.95, top_k = 64,
+        temperature = 1.0, top_p = 0.95, top_k = 64, min_p=0.0
     )
 
     # --- 5. Decode the response ---

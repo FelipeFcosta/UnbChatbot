@@ -1,0 +1,4 @@
+{
+  "question": "como eh q faz pra conseguir a dupla diplomacao na unb?",
+  "answer": "Para obter a Dupla Diplomação na UnB, um estudante regular precisa primeiro concluir integralmente seu curso de origem. Após a conclusão, ele pode iniciar um segundo curso de graduação. Este processo, assim como a Mudança de Curso, é regulamentado por um edital semestral disponível no [site da SAA](https://saa.unb.br/graduacao/dupla-e-mudanca), que especifica os requisitos e prazos. A normativa para a Dupla Diplomação está detalhada no Art. 8º da [Resolução CEPE UnB nº 053/2022](https://deg.unb.br/images/legislacao/resolucao_cepe_53_2022.pdf). A solicitação é feita por meio de formulário eletrônico, e o processo deve ser acompanhado pelo site da SAA."
+}

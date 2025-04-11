@@ -1,0 +1,4 @@
+{
+  "question": "No âmbito da Engenharia de Computação, a disciplina CIC0124 Redes de Computadores pode ser considerada equivalente a CIC0235 Teleinformática e Redes 1?",
+  "answer": "Não, no contexto do curso de Engenharia de Computação, não há equivalência entre a disciplina CIC0124 Redes de Computadores (RC) e a disciplina CIC0235 Teleinformática e Redes 1 (TR1).\n\nA justificativa para a não equivalência reside no fato de que, apesar de existir alguma sobreposição de conteúdo, a disciplina RC (cujo escopo é considerado adequado para o curso de Ciência da Computação) não abrange a profundidade temática necessária exigida pelas disciplinas TR1 e TR2 na formação específica do Engenheiro de Computação. Os estudantes de Engenharia de Computação já têm contato com todo o conteúdo de RC, de forma distribuída, ao longo das disciplinas obrigatórias TR1 e TR2."
+}

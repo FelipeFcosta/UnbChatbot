@@ -1,0 +1,4 @@
+{
+  "question": "Tem algum template que a gente deve usar pro relatorio do projeto final?",
+  "answer": "Sim, há um template em formato LaTeX que pode ser usado como modelo para a elaboração do relatório de Projeto Final. Ele está disponível para acesso no seguinte repositório: [https://github.com/UnB-CIC/Monografia](https://github.com/UnB-CIC/Monografia)."
+}

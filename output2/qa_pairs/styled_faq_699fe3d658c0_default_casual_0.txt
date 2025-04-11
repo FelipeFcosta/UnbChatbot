@@ -1,0 +1,4 @@
+{
+  "question": "Tenho que fazer uma quantidade mínima de horas de extensão no curso de Engenharia de Computação?",
+  "answer": "Não, atualmente não é requerida uma quantidade mínima de horas de extensão para os currículos 1741/1 e 1741/2 de Engenharia de Computação.\n\nContudo, é importante estar ciente de que um novo currículo está sendo elaborado e este preverá a necessidade de cumprir 10% da carga horária total do curso em atividades de extensão. Esta obrigatoriedade será aplicável apenas aos estudantes que ingressarem neste novo currículo ou que decidirem migrar para ele após sua implementação."
+}

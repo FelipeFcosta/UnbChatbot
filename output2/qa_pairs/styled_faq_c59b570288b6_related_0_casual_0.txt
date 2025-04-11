@@ -1,0 +1,4 @@
+{
+  "question": "Que tipo de motivo eu posso usar pra pedir um trancamento justificado?",
+  "answer": "Para solicitar um trancamento justificado, você pode apresentar motivos como os previstos na [Resolução CEPE n° 93/2018](https://sig.unb.br/sigrh/downloadArquivo?idArquivo=2018090&key=7b5bbf8ffa41754075c478f548083f46). Estes incluem, por exemplo: problemas de saúde (seus ou de familiar próximo), oportunidade de estudos fora do país, convocação para serviço público de caráter inadiável, falecimento de parente próximo, participação em curso de formação, serviço militar obrigatório, ou ainda situações de vulnerabilidade social ou psicológica. Lembre-se que é indispensável apresentar a documentação que comprove o motivo alegado."
+}

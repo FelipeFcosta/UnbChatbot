@@ -1,0 +1,4 @@
+{
+  "question": "pra marcar a defesa do meu projeto final 2 de computacao como eu faço?",
+  "answer": "Para marcar a defesa do seu projeto final 2 de computação, informamos que o agendamento da sessão (data, horário e local) deve ser efetuado pelo seu professor orientador. É ele quem deve utilizar o [formulário de atendimento interno do CIC](https://www.cic.unb.br/o-cic/fale-conosco) para essa finalidade.\n\nSe surgirem questionamentos sobre o procedimento, a orientação é contatar a Secretaria do CIC."
+}

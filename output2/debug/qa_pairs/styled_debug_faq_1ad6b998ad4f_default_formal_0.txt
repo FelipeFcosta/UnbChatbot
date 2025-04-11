@@ -1,0 +1,4 @@
+Original Question: Onde verifico quais componentes obrigatórios ainda faltam para eu cursar em Engenharia de Computação?
+Answer: Para saber quais componentes obrigatórios você ainda precisa cumprir, consulte seu histórico escolar. Ele apresenta uma lista denominada “componentes curriculares obrigatórios pendentes”.
+
+Essa seção também informa a carga horária pendente para cada cadeia de seletividade, se aplicável ao seu currículo (o currículo 1741/2 não possui cadeias de seletividade).

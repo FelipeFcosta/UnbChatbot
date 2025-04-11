@@ -1,0 +1,4 @@
+{
+  "question": "como faço pra validar minhas horas de extensao na engenharia da computacao?",
+  "answer": "Para que suas horas de extensão sejam validadas e contabilizadas na carga horária do curso de Engenharia de Computação, é necessário que você realize uma solicitação formal. Essa solicitação deve seguir estritamente as instruções contidas no edital específico para esse fim, o qual é divulgado semestralmente."
+}

@@ -1,0 +1,4 @@
+{
+  "question": "Gostaria de verificar se existe equivalência entre a disciplina FGA0073 Teoria de Eletrônica Digital 1 e ENE0039 Sistemas Digitais no contexto do curso de Engenharia de Computação.",
+  "answer": "Não, informamos que não há equivalência estabelecida entre a disciplina FGA0073 Teoria de Eletrônica Digital 1 e a disciplina ENE0039 Sistemas Digitais no âmbito do curso de Engenharia de Computação da UnB."
+}

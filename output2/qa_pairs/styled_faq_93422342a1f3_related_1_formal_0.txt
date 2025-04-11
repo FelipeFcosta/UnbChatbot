@@ -1,0 +1,4 @@
+{
+  "question": "Ao considerar a migração entre os currículos 1741/1 e 1741/2, quais são os dados do histórico acadêmico que requerem análise prioritária para comparação?",
+  "answer": "Ao analisar a migração entre os currículos 1741/1 e 1741/2 de Engenharia de Computação, a comparação prioritária deve ser focada nos seguintes dados do histórico acadêmico: a **carga horária total ainda pendente** para conclusão do curso e a **lista específica de componentes curriculares pendentes** em cada um dos cenários (ou seja, no histórico atual do currículo 1741/1 e na simulação para o currículo 1741/2). É importante não se ater apenas à comparação isolada das cargas horárias obrigatória e optativa."
+}

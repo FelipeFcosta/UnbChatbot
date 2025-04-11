@@ -1,0 +1,4 @@
+{
+  "question": "Pra validar meu trabalho como estagio obrigatorio de eng da computacao, assinatura de quem precisa no Termo e no Plano?",
+  "answer": "Para validar sua experiência de trabalho como estágio obrigatório em Engenharia da Computação, os documentos requeridos (Termo de Compromisso de Estágio/contrato equivalente e Plano de Atividades) precisam da sua assinatura e da assinatura do seu supervisor direto no trabalho. Adicionalmente, é relevante notar que o Coordenador de Graduação está habilitado a atuar como seu professor orientador para essa finalidade de validação."
+}

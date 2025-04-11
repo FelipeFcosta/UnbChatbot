@@ -1,0 +1,4 @@
+{
+  "question": "A solicitação de outorga antecipada de grau implica na dispensa da obrigatoriedade do estágio ou do Trabalho de Conclusão de Curso?",
+  "answer": "Não, a solicitação de outorga antecipada de grau não implica na dispensa da obrigatoriedade do estágio ou do Trabalho de Conclusão de Curso (TCC). Mesmo que a colação de grau seja antecipada, permanece a exigência de cumprimento integral da carga horária do estágio obrigatório, assim como da elaboração e apresentação do relatório final de curso perante uma banca examinadora."
+}

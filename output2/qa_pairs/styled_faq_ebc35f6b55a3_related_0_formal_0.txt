@@ -1,0 +1,4 @@
+{
+  "question": "Ao avaliar a possibilidade de migração entre estruturas curriculares de engenharia da computação, quais aspectos comparativos devo considerar prioritários?",
+  "answer": "Ao avaliar a migração entre estruturas curriculares, utilizando a simulação da SAA para comparar a estrutura atual com a nova, os aspectos prioritários a serem considerados são, fundamentalmente, a carga horária total ainda pendente e a relação dos componentes curriculares pendentes em cada uma das estruturas sob análise. A análise deve concentrar-se primordialmente nesses dois pontos."
+}

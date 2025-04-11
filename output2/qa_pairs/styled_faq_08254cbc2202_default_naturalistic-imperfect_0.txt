@@ -1,0 +1,4 @@
+{
+  "question": "Se eu sou de eng comp posso ter orientador de projeto final de fora do cic ou ene?",
+  "answer": "Sim, um aluno de Engenharia de Computação pode ser orientado por um professor de outro departamento. Contudo, há uma regra importante: se o seu orientador principal não for um docente do Departamento de Ciência da Computação (CIC) ou do Departamento de Engenharia Elétrica (ENE), torna-se obrigatória a presença de um coorientador que seja professor em um destes dois departamentos (CIC ou ENE)."
+}

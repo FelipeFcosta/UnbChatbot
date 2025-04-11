@@ -1,0 +1,4 @@
+{
+  "question": "Ao solicitar a outorga antecipada de grau, é necessário realizar alguma avaliação complementar referente às disciplinas pendentes?",
+  "answer": "Sim, é necessário. O estudante que solicita a outorga antecipada de grau deverá realizar e ser aprovado em uma avaliação específica para cada disciplina ainda não concluída. Essa avaliação é definida especificamente para esta finalidade."
+}

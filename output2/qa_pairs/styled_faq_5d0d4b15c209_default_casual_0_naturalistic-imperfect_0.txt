@@ -1,0 +1,4 @@
+{
+  "question": "Como funciona as prioridade da UnB na hora de matricular?",
+  "answer": "As prioridades para matrícula e rematrícula na Universidade de Brasília são definidas com base em critérios específicos. Para consultá-los em detalhe, por favor, acesse a [página da SAA sobre matrícula](https://www.saa.unb.br/matricula#quais-sao-os-criterios-de-prioridade).\nÉ importante saber que a ordem na qual você efetua a sua solicitação não interfere na sua classificação de prioridade para estas etapas."
+}

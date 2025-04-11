@@ -1,0 +1,4 @@
+{
+  "question": "Em qual local posso consultar a lista de componentes curriculares obrigatórios que ainda preciso cursar para concluir Engenharia de Computação?",
+  "answer": "A lista de componentes curriculares obrigatórios que ainda precisam ser cursados para a conclusão do curso de Engenharia de Computação pode ser consultada diretamente no seu histórico escolar.\n\nProcure pela seção denominada “componentes curriculares obrigatórios pendentes”. Nessa mesma seção, você também encontrará a informação sobre a carga horária pendente para cada cadeia de seletividade, caso o seu currículo possua essa exigência (o currículo 1741/2 não possui cadeias de seletividade)."
+}

@@ -1,0 +1,4 @@
+{
+  "question": "Pode me explicar o que são esses componentes obrigatórios de extensão?",
+  "answer": "Os componentes obrigatórios de extensão são parte da estrutura curricular devido a uma exigência legal no Brasil. A [legislação pertinente](https://www.gov.br/mec/pt-br/cne/normas-classificadas-por-assunto/extensao-na-educacao-superior-brasileira) estabelece que um mínimo de 10% da carga horária total dos cursos de graduação deve ser alocado a programas e projetos de extensão universitária.\n\nNa UnB, essa diretriz é implementada pela inclusão de componentes curriculares específicos de extensão, de caráter obrigatório, nas estruturas dos cursos. Para saber exatamente quais são esses componentes no seu curso, você deve consultar o Projeto Pedagógico do Curso (PPC)."
+}

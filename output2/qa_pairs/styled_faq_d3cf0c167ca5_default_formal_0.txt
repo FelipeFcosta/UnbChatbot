@@ -1,0 +1,4 @@
+{
+  "question": "É necessário cumprir um número mínimo específico de horas em disciplinas classificadas como optativas?",
+  "answer": "A resposta a essa questão é tanto 'sim' quanto 'não'. Seu histórico escolar apresenta, no quadro denominado 'Carga Horária Integralizada/Pendente', o total de carga horária optativa que é exigido para a conclusão do curso.\n\nEntretanto, a carga horária indicada como 'pendente' nesse quadro não é reduzida exclusivamente pela aprovação em disciplinas classificadas como optativas. Ela também diminui à medida que você obtém aprovação em disciplinas eletivas (conhecidas como módulo livre). Adicionalmente, o cumprimento de um componente curricular por meio de equivalência, ao cursar outro componente previsto na estrutura curricular, também pode resultar na redução da carga horária optativa pendente."
+}

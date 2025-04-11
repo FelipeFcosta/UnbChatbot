@@ -1,0 +1,4 @@
+{
+  "question": "Caso um estudante vivencie uma situação de discriminação na UnB, como machismo ou racismo, a qual setor ele deve recorrer para receber orientação e apoio?",
+  "answer": "Caso um estudante vivencie alguma situação de discriminação ou violência dentro da Universidade de Brasília, como machismo, racismo, homofobia ou transfobia, o setor ao qual deve recorrer para receber orientação e apoio é a **Secretaria de Direitos Humanos (SDH)** da UnB. Este é o órgão responsável por acolher e orientar os estudantes nestes casos.\n\nMais informações podem ser encontradas no [Portal da Diversidade da UnB](https://diversidade.unb.br/)."
+}

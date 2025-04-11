@@ -1,0 +1,4 @@
+{
+  "question": "Gostaria de esclarecer quem é o responsável por realizar a inscrição no projeto de Iniciação Científica, o estudante ou o professor orientador?",
+  "answer": "A responsabilidade pela inscrição do estudante no projeto de Iniciação Científica recai sobre o professor orientador selecionado para supervisionar o trabalho."
+}

@@ -1,0 +1,4 @@
+{
+  "question": "Em quanto tempo no máximo eu tenho que terminar o curso de Engenharia de Computação?",
+  "answer": "O tempo limite para integralizar o curso de Engenharia de Computação é de **18 semestres letivos**. Esse prazo é válido para ambos os currículos ativos, 1741/1 e 1741/2.\n\nA não conclusão dentro deste período máximo implica no desligamento do estudante do curso. Caso você anteveja dificuldades em cumprir este prazo, é recomendável procurar a coordenação de Engenharia de Computação para se informar sobre a viabilidade de uma solicitação de prorrogação."
+}

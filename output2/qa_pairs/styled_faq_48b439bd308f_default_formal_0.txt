@@ -1,0 +1,4 @@
+{
+  "question": "Após a conclusão da carga horária do estágio obrigatório em Engenharia de Computação, quais são os passos necessários para que a menção correspondente seja registrada?",
+  "answer": "Para que a menção correspondente ao estágio obrigatório seja registrada após a conclusão da carga horária exigida, é necessário submeter o Relatório de Atividades de Estágio. Este documento deve ser devidamente preenchido e assinado por você e também pelo seu supervisor na organização onde o estágio foi realizado.\n\nO modelo oficial do relatório está disponível para consulta e download [neste endereço](https://www.cic.unb.br/informacoes/documentos). A entrega do relatório preenchido e assinado deve ser efetuada por meio do [formulário de atendimento interno do CIC](https://www.cic.unb.br/o-cic/fale-conosco)."
+}

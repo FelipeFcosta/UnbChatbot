@@ -1,0 +1,4 @@
+{
+  "question": "Se eu reprovar numa matéria obrigatória no Verão, posso ser desligado por isso?",
+  "answer": "Sim, uma reprovação em disciplina obrigatória durante o curso de Verão pode, de fato, ser considerada para fins de desligamento. Contudo, a aplicação desta regra depende crucialmente de quando ocorre a terceira reprovação: se esta terceira reprovação (contabilizando uma ocorrida no Verão) se concretizar durante um semestre regular, você estará sujeito ao desligamento. Porém, se a terceira reprovação acontecer especificamente *durante* o período de Verão, o desligamento por essa norma não será aplicado naquele momento."
+}

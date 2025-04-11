@@ -1,0 +1,4 @@
+{
+  "question": "Me desligaram da UnB, como que faz pra pedir pra voltar pro meu curso?",
+  "answer": "Para solicitar o retorno ao curso após um desligamento da UnB, o procedimento a ser seguido é o de reintegração, que está detalhado na [Resolução CEG n° 1/2023](https://deg.unb.br/images/legislacao/resolucao_ceg_001_2023_estabelece_procedimento_reintegracao.pdf).\n\nUm ponto relevante é que não existe um edital específico com datas fixas para essa solicitação; ela pode ser realizada a qualquer momento. Você pode encontrar mais informações sobre como proceder na [página do Decanato de Ensino de Graduação (DEG) sobre reintegração](http://deg.unb.br/reintegracao)."
+}

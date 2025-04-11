@@ -1,0 +1,4 @@
+{
+  "question": "Como faço para usar meu certificado de idioma pra contar como horas do curso?",
+  "answer": "Sim, você pode utilizar certificados de proficiência em língua estrangeira para contabilizar carga horária em seu curso. Para se informar sobre como esse procedimento funciona e quais são os requisitos exigidos, recomendamos consultar a [página da Secretaria de Administração Acadêmica (SAA) que detalha o aproveitamento de carga horária em língua estrangeira](https://saa.unb.br/perguntas-frequentes#aproveitamento-de-carga-horaria-em-lingua-estrangeira)."
+}

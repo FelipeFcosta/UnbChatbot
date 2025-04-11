@@ -1,0 +1,4 @@
+{
+  "question": "eu consigo aproveitar materia que fiz em outra faculdade aqui na unb?",
+  "answer": "Sim, você pode pedir o aproveitamento de disciplinas que cursou em outra Instituição de Ensino Superior (IES). A única restrição é que essas disciplinas **não podem ter sido cursadas simultaneamente** ao período em que você já estava com matrícula ativa na UnB.\n\n*   Para mais informações, acesse: [Perguntas Frequentes SAA](https://saa.unb.br/graduacao/perguntas-frequentes-grad#aproveitamento-de-disciplinas-de-outras-instituicoes-de-ensino-superior)\n*   Veja o manual do processo: [Manual Ap. Estudos](https://saa.unb.br/images/documentos/graduacao/peticionamento/Manual_Ap_Estudos__v4.0.pdf)\n\nSe você é um estudante que acabou de ingressar na UnB vindo de outra IES e precisa cursar matérias com pré-requisitos que acredita já ter satisfeito, recomenda-se que procure a coordenação do seu curso."
+}

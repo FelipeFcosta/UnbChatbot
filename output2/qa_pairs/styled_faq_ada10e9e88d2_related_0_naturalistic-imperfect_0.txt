@@ -1,0 +1,4 @@
+{
+  "question": "meu contrato de trabalho serve pra validar o estagio obrigatorio se eu ja trabalho na area?",
+  "answer": "Sim. Se você já exerce atividade profissional em área correlata à engenharia da computação, seu contrato de trabalho (ou um documento similar) pode substituir o Termo de Compromisso de Estágio (TCE) no momento de solicitar a validação dessa experiência como estágio obrigatório."
+}

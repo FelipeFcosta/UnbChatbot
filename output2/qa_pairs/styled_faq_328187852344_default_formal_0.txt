@@ -1,0 +1,4 @@
+{
+  "question": "Gostaria de confirmar se as notas obtidas em disciplinas cursadas durante o período de Verão são consideradas no cálculo do Índice de Rendimento Acadêmico.",
+  "answer": "Sim, confirmo que as notas obtidas em disciplinas cursadas durante o período letivo de Verão são, de fato, consideradas para o cálculo do seu Índice de Rendimento Acadêmico (IRA). Para efeito deste cálculo, essas disciplinas são contabilizadas como se tivessem sido cursadas no último semestre regular do ano civil anterior. A título de exemplo, uma disciplina realizada no Verão de 2024, identificado academicamente como semestre 2023.4, terá impacto no cálculo do IRA como se pertencesse ao semestre 2023.2."
+}

@@ -1,0 +1,632 @@
+[
+  {
+    "faq_q": "Como falo com o coordenador do curso?",
+    "faq_a": "O coordenador do curso durante o período de janeiro de 2025 a janeiro de 2027 é o Prof. Guilherme Novaes Ramos. A grande maioria das demandas pode ser resolvida pelo coordenador por e-mail: engcomputacao arroba unb ponto br. Se preferir agendar um atendimento presencial ou via Teams, basta enviar um e-mail informando sua disponibilidade de horário e a forma preferencial de atendimento (presencial/remoto).",
+    "topics": [
+      "COORDENAÇÃO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_66149a9fb7fb"
+  },
+  {
+    "faq_q": "Quais disciplinas devo fazer em cada semestre?",
+    "faq_a": "Você tem a liberdade de escolher quais disciplinas vai cursar em cada semestre, desde que respeitados os pré-requisitos.\n\nEsta [tabela](https://www.ene.unb.br/joaoluiz/engcomputacao_fluxo_sugerido_1741-1.pdf) mostra uma sugestão, referente ao currículo 1741/1. Esta [tabela](https://www.ene.unb.br/joaoluiz/engcomputacao_fluxo_sugerido_1741-2.pdf) mostra uma sugestão referente ao currículo 1741/2. O número do seu currículo está informado no topo da primeira página do seu histórico.\n\nNote que essas tabelas listam um número bem grande de disciplinas optativas. É possível que você não precise cursar todas essas optativas para se formar, pois a carga horária optativa pendente (mostrada em seu histórico) vai sendo decrementada à medida em que você integraliza carga horária eletiva (módulo livre). Também é possível que a carga optativa pendente seja decrementada quando se cumpre, por equivalência, um componente optativo ao cursar com aprovação um outro componente da estrutura curricular.",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_4c3fb911d3d1"
+  },
+  {
+    "faq_q": "O que eu preciso fazer para me formar?",
+    "faq_a": "Para se formar é preciso satisfazer as seguintes condições: (a) cumprir todos os componentes obrigatórios do seu currículo; (b) cumprir todas as cadeias de seletividade do seu currículo; e (c) zerar a carga optativa pendente. O currículo 1741/2 não contém cadeias de seletividade.",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_3b2f7b5122a2"
+  },
+  {
+    "faq_q": "Qual é a carga horária total do curso?",
+    "faq_a": "Para o currículo 1741/1, a carga horária total do curso é 3480 horas. Para o currículo 1741/2, a carga horária total do curso é 3780 horas. O número do seu currículo está informado no topo da primeira página do seu histórico. A carga horária total exigida está informada no quadro “Carga Horária Integralizada/Pendente” de seu histórico.",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_fdee4314bb41"
+  },
+  {
+    "faq_q": "É possível migrar do currículo 1741/1 para o currículo 1741/2?",
+    "faq_a": "Sim. O primeiro passo é assistir a este [vídeo](https://youtu.be/iyMJGDt0rYU). O segundo passo é procurar a SAA e solicitar uma simulação do seu histórico na estrutura 1741/2 (a SAA atende no Centro de Vivência, prédio em frente à entrada sul do ICC). Sugiro comparar, nos dois históricos (histórico atual no currículo 1741/1 e simulação de migração para o currículo 1741/2), o campo de carga horária total pendente, bem como a lista de componentes curriculares pendentes. Não se atenha a uma comparação das cargas horárias obrigatória e optativa pendentes dos dois históricos, pois as disciplinas de cadeia de seletividade (\"optatórias\") do currículo 1741/1 contam como optativas no currículo 1741/1 e contam como obrigatórias no currículo 1741/2, mas na prática precisam ser cursadas em ambas os currículos. A comparação deve se limitar à carga horária total pendente e à lista de componentes curriculares pendentes.\n\nVocê pode também comparar as duas estruturas curriculares. Estas tabelas mostram sugestões de fluxo curricular referentes aos currículos [1741/1](https://www.ene.unb.br/joaoluiz/engcomputacao_fluxo_sugerido_1741-1.pdf) e [1741/2](https://www.ene.unb.br/joaoluiz/engcomputacao_fluxo_sugerido_1741-2.pdf). As listas de optativas e outras informações relevantes do dois currículos podem ser visualizadas neste [link](https://sigaa.unb.br/sigaa/public/curso/curriculo.jsf?lc=pt_BR&id=414610), clicando nos ícones com um \"caderno\".\n\nApós essa análise, a solicitação de migração pode ser solicitada à coordenação do curso por e-mail. Ressalta-se que não é possível desfazer a migração sob hipótese nenhuma, portanto solicite a migração apenas se tiver certeza de que é a melhor opção para você. Se precisar tirar alguma dúvida antes de tomar sua decisão, procure a coordenação do curso.",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_93422342a1f3"
+  },
+  {
+    "faq_q": "É possível migrar do currículo 1741/2 para o currículo 1741/1?",
+    "faq_a": "Não.",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_1b317d509a48"
+  },
+  {
+    "faq_q": "O que é o currículo 1741/-2? É possível migrar para ele?",
+    "faq_a": "É um currículo inativo, que vigorou de 2009 a 2016. Não há mais nenhum aluno nesse currículo. Não é possível migrar para ele. Não confundir com o currículo 1741/2, que entrou em vigência em 2024.",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_8bad3c7c054d"
+  },
+  {
+    "faq_q": "Como integralizo a carga horária total do curso?",
+    "faq_a": "Cumprindo componentes obrigatórios, optativos e eletivos (módulo livre).",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_2b0df089f359"
+  },
+  {
+    "faq_q": "Como zero a carga optativa pendente?",
+    "faq_a": "Cumprindo componentes optativos e eletivos (módulo livre). A carga optativa pendente está informada no quadro “Carga Horária Integralizada/Pendente” de seu histórico.",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_867e6d47fd0e"
+  },
+  {
+    "faq_q": "Existe carga horária optativa mínima?",
+    "faq_a": "Sim e não. A carga optativa exigida está informada no quadro “Carga Horária Integralizada/Pendente” de seu histórico. Mas a carga optativa pendente vai sendo decrementada à medida em que você integraliza carga horária eletiva (módulo livre) e também quando se cumpre, por equivalência, um componente optativo ao cursar com aprovação um outro componente da estrutura curricular.",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_8154e583315c"
+  },
+  {
+    "faq_q": "Existe carga horária eletiva mínima?",
+    "faq_a": "Não. Entretanto, a carga horária eletiva (também conhecida como “módulo livre”) ajuda a integralizar a carga horária total do curso, até o limite máximo de 360 horas.",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_90c9fa29fdb4"
+  },
+  {
+    "faq_q": "Posso cursar mais que 360 horas de carga horária eletiva?",
+    "faq_a": "Sim, você pode cursar até 900 horas de componentes eletivos. Entretanto, a carga eletiva integralizável é de no máximo 360 horas. Caso você curse mais que 360 horas de carga eletiva, será deduzido somente 360 horas da carga horária total do curso e da carga optativa pendente. Todos os componentes eletivos cursados aparecem em seu histórico escolar, mas a carga horária excedente não é contabilizada.",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_96d314cebd14"
+  },
+  {
+    "faq_q": "Como eu sei se uma disciplina é obrigatória, optativa ou eletiva?",
+    "faq_a": "A sua estrutura curricular informa quais são as disciplinas obrigatórias e optativas do seu currículo. Se uma disciplina não está listada em sua estrutura curricular, então ela é eletiva (módulo livre) para você. Uma disciplina pode ser optativa para um currículo, mas eletiva em outro. Portanto, é importante que você olhe a lista de disciplinas do seu currículo. O número do seu currículo está informado no topo da primeira página do seu histórico. Para visualizar a lista de disciplinas do seu currículo, vá [nesta página](https://sigaa.unb.br/sigaa/public/curso/curriculo.jsf?lc=pt_BR&id=414610) e clique no ícone com um caderno à direita da sua estrutura curricular.",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_7ec0a73633eb"
+  },
+  {
+    "faq_q": "Como eu sei se uma disciplina que eu cursei foi contabilizada como obrigatória, optativa ou eletiva?",
+    "faq_a": "No histórico escolar, componentes eletivos (módulo livre) aparecem indicados com uma cerquilha (#). Componentes optativos aparecem indicados por um asterisco (*), por um “e comercial” (&) ou por um símbolo de pagrágrafo (§). Componentes obrigatórios aparecem sem nenhum símbolo ao lado, ou com uma letra “e” minúscula (e), ou com uma arroba (@).",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_b8d11efda785"
+  },
+  {
+    "faq_q": "Quais componentes obrigatórios ainda preciso cumprir?",
+    "faq_a": "O seu histórico escolar mostra uma lista de “compontentes curriculares obrigatórios pendentes”. Essa lista mostra também a carga horária pendente referente a cada cadeia de seletividade. O currículo 1741/2 não contém cadeias de seletividade.",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_1ad6b998ad4f"
+  },
+  {
+    "faq_q": "O que é uma cadeia de seletividade?",
+    "faq_a": "É uma lista de componentes optativos, dos quais você deve cumprir uma carga total mínima. Por exemplo, suponha uma cadeia de seletividade com carga horária mínima de 120 horas, a qual contém cinco componentes de 60 horas cada; isto significa que você só precisa cumprir dois dos cinco componentes, à sua livre escolha. Se desejar, você pode cursar mais do que a carga mínima; inclusive, pode cursar todos os compontentes da cadeia. Toda a carga horária da cadeia de seletividade que você cursar é considerada carga horária optativa para fins de integralização.",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_0c1d5eddecbb"
+  },
+  {
+    "faq_q": "Quais são as cadeias de seletividade do meu currículo?",
+    "faq_a": "O currículo 1741/2 não contém cadeias de seletividade.\n\nSegue algumas informações referentes às cadeias de seletividade do currículo 1741/1.\n\n- Cadeia 1: As disciplinas Circuitos Elétricos 2 e Circuitos Elétricos Aplicados não são mais ofertadas. Você deve então cursar ENE0066 Introdução aos Circuitos Elétricos e ENE0068 Sinais e Sistemas em Tempo Discreto.\n\n- Cadeia 2: A disciplina Circuitos Elétricos 1 não é mais ofertada. Você deve então cursar ENE0304 Circuitos Elétricos e ENE0282 Laboratório de Circuitos Elétricos.\n\n- Cadeia 3: Você deve cursar ENE0039 Sistemas Digitais e ENE0040 Laboratório de Sistemas Digitais. As demais disciplinas não são mais ofertadas.\n\n- Cadeia 4: Você deve cursar ENE0045 Eletrônica e ENE0046 Laboratório de Eletrônica. As disciplinas de Dispositivos e Circuitos Eletrônicos não são mais ofertadas.\n\n- Cadeia 5: Você deve cursar ENE0056 Sistemas Microprocessados e ENE0058 Laboratório de Sistemas Microprocessados. As disciplinas de Sistemas Digitais 2 não são mais ofertadas.\n\n- Cadeia 6: Não existe no currículo 1741/1.\n\n- Cadeia 7: Você deve cursar CIC0197 Técnicas de Programação 1. A disciplina Programação Orientada a Objetos não é mais ofertada.",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_fe8f3fc23598"
+  },
+  {
+    "faq_q": "Como é calculado o índice de rendimento acadêmico (IRA)?",
+    "faq_a": "A fórmula para o cálculo do IRA está explicada no [\"Manual para estudantes\"](https://deg.unb.br/manualparaestudantes) da UnB.",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_32b665d5e626"
+  },
+  {
+    "faq_q": "Disciplinas de verão afetam o IRA?",
+    "faq_a": "Sim, as disciplinas cursadas no período de verão entram no cálculo do IRA. Para efeitos do período a ser considerado, elas são equiparadas às disciplinas cursadas no último período regular do ano anterior. Por exemplo, no caso do verão de 2024 (semestre 2023.4), as disciplinas entram no cálcuo do IRA como se tivessem sido cursadas no semestre 2023.2.",
+    "topics": [
+      "CURRÍCULO DO CURSO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_d7a84a89399c"
+  },
+  {
+    "faq_q": "Como integralizo carga horária de extensão?",
+    "faq_a": "Você deve fazer a solicitação conforme edital, publicado semestralmente.",
+    "topics": [
+      "EXTENSÃO E ATIVIDADES COMPLEMENTARES"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_91e404e61014"
+  },
+  {
+    "faq_q": "Existe carga horária mínima de atividades de extensão?",
+    "faq_a": "Os currículos 1741/1 e 1741/2 não contemplam carga horária extensionista mínima. Está sendo elaborado um novo currículo do curso em que 10% da carga horária total será obrigatoriamente extensionista. No momento, não há previsão para esse novo currículo entrar em vigência. Somente os alunos que ingressarem nesse novo currículo (ou que voluntariamente optarem por migrar para o mesmo) precisarão cumprir carga extensionista mínima.",
+    "topics": [
+      "EXTENSÃO E ATIVIDADES COMPLEMENTARES"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_699fe3d658c0"
+  },
+  {
+    "faq_q": "Como integralizo carga horária de atividades complementares?",
+    "faq_a": "Você deve fazer a solicitação conforme edital, publicado semestralmente.",
+    "topics": [
+      "EXTENSÃO E ATIVIDADES COMPLEMENTARES"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_80834aefb753"
+  },
+  {
+    "faq_q": "Existe carga horária mínima de atividades complementares?",
+    "faq_a": "O curso de Engenharia de Computação não prevê carga horária mínima de atividades complementares.",
+    "topics": [
+      "EXTENSÃO E ATIVIDADES COMPLEMENTARES"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_3323a3537eea"
+  },
+  {
+    "faq_q": "Como integralizo carga horária referente a certificados de língua estrangeira?",
+    "faq_a": "O pedido para aproveitamento de certificados de língua estrangeira deverá ser realizado por meio do [formulário de peticionamento eletrônico](https://www.saa.unb.br/sistemas/peticionamento-eletronico). Aqui tem um [manual](https://www.saa.unb.br/images/documentos/graduacao/manual_credito_lingua_estrangeira.pdf) com as orientações. Você poderá acompanhar o resultado por meio do [acesso externo via SEI](https://sei.unb.br/sei/controlador_externo.php?acao=usuario_externo_logar&acao_origem=usuario_externo_enviar_cadastro&id_orgao_acesso_externo=0).",
+    "topics": [
+      "EXTENSÃO E ATIVIDADES COMPLEMENTARES"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_70ada4cd27b2"
+  },
+  {
+    "faq_q": "Como faço para participar de um projeto de iniciação científica?",
+    "faq_a": "Converse com professores que lecionam disciplinas e/ou desenvolvem pesquisa em áreas de conhecimento que você tem afinidade. Você pode levar suas próprias ideias de projeto ao professor ou pode perguntá-lo sobre possíveis temas de projeto. Procure-os pessoalmente ou envie e-mails. O edital normalmente é publicado em março ou abril e a inscrição é feita pelo professor orientador. Assim, recomenda-se conversar com os professores no início do ano em que se deseja iniciar o projeto (fevereiro ou março). Mais informações [aqui](https://proic.unb.br/).",
+    "topics": [
+      "EXTENSÃO E ATIVIDADES COMPLEMENTARES"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_cb6a7815319e"
+  },
+  {
+    "faq_q": "Eu passei em teoria e laboratório de Circuitos Elétricos 1, mas não passei em teoria e/ou laboratório de Circuitos Elétricos 2. E agora?",
+    "faq_a": "Entre em contato com o coordenador do curso para receber orientações.",
+    "topics": [
+      "EQUIVALÊNCIAS E PRÉ-REQUISITOS"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_4f48290f765e"
+  },
+  {
+    "faq_q": "Sinais e Sistemas em Tempo Discreto é obrigatória ou optativa?",
+    "faq_a": "Para o currículo 1741/2, ela é obrigatória. Para o currículo 1741/1, ela conta como optativa, mas note que, caso você ainda não tenha cumprido a Cadeia 1, será necessário cursá-la para completar a carga horária mínima dessa cadeia.",
+    "topics": [
+      "EQUIVALÊNCIAS E PRÉ-REQUISITOS"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_f933d081969a"
+  },
+  {
+    "faq_q": "Existe equivalência entre CIC0229 Circuitos Lógicos e ENE0039 Sistemas Digitais?",
+    "faq_a": "Sim, mas ela é válida somente para alunos da estrutura curricular 1741/2. Não é possível criar essa equivalência para a estrutura curricular 1741/1, pois a carga horária seria integralizada de forma duplicada, uma vez que ambas as disciplinas fazem parte dessa estrutura curricular. Essa equivalência também não é válida para alunos de outros cursos, pois é específica para alunos da estrutura curricular 1741/2 do curso de Engenharia de Computação.\n\nNote que não existe equivalência entre as disciplinas de laboratório, então os alunos que cursarem CIC0231 Laboratório de Circuitos Lógicos não serão dispensados de cursar ENE0040 Laboratório de Sistemas Digitais.",
+    "topics": [
+      "EQUIVALÊNCIAS E PRÉ-REQUISITOS"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_99699f6a5e0c"
+  },
+  {
+    "faq_q": "Existe equivalência entre FGA0073 Teoria de Eletrônica Digital 1 e ENE0039 Sistemas Digitais?",
+    "faq_a": "Não.",
+    "topics": [
+      "EQUIVALÊNCIAS E PRÉ-REQUISITOS"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_bf1005f8fda4"
+  },
+  {
+    "faq_q": "Existe equivalência entre CIC0124 Redes de Computadores e CIC0235 Teleinformática e Redes 1?",
+    "faq_a": "Não. RC cobre alguns tópicos de TR1 e alguns tópicos de TR2, mas muitos tópicos de TR1 e de TR2 não são vistos em RC. Para que houvesse equivalência de RC para TR1 ou de RC para TR2, seria necessário uma sobreposição maior do que a observada. Os professores do CIC entendem que o conteúdo de RC é suficiente para um profissional da área de Ciência da Computação, mas não é suficiente para um profissional de Engenharia de Computação. Apesar de haver grande sobreposição entre os dois cursos, tratam-se de cursos diferentes, com atribuições profissionais diferentes. Alunos de Engenharia de Computação não devem cursar RC, pois todo o conteúdo de RC é visto nas disciplinas obrigatórias TR1 e TR2.",
+    "topics": [
+      "EQUIVALÊNCIAS E PRÉ-REQUISITOS"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_32d31172e725"
+  },
+  {
+    "faq_q": "É possível pedir quebra de pré-requisito?",
+    "faq_a": "Não. A [Circular DEG n° 5/2008](https://deg.unb.br/images/legislacao/5_2008.pdf) determina que não será efetuada matrícula em disciplina sem que o aluno tenha cursado o respectivo pré-requisito, sob nenhuma hipótese.",
+    "topics": [
+      "EQUIVALÊNCIAS E PRÉ-REQUISITOS"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_f3d16760c80d"
+  },
+  {
+    "faq_q": "Como eu faço para conseguir matrícula em uma disciplina concorrida?",
+    "faq_a": "A matrícula na UnB acontece em três etapas: matrícula, rematrícula e matrícula extraordinaria. As datas de início e fim de cada etapa são informadas no calendário de matrícula do semestre, disponível na página da SAA.\n\nDurante a matrícula e a rematrícula, o processamento é coletivo. Nessas etapas, a “ordem de chegada” não faz diferença em termos de priorização, por isso não existe motivo para você escolher suas turmas com pressa. Como você só pode tentar uma turma de cada disciplina, é importante avaliar quais turmas você tem mais chance de conseguir vaga.\n\nO SIGAA mostra algumas informações importantes, que podem te ajudar nessa escolha: capacidade da turma; número de solicitações realizadas na matrícula; número de solicitações realizadas na rematrícula; vagas reservadas para ingressantes de cada curso; e vagas reservadas para demais alunos de cada curso. As vagas reservadas aparecem listadas por curso e são mostrados dois números separados por uma barra (exemplos: 40/0; 40/10; 0/30; etc.), sendo o primeiro o número de vagas reservadas para ingressantes daquele curso, e o segundo o número de vagas reservadas para demais alunos daquele curso. Por exemplo, se consta a informação 25/15 ao lado do nome de determinado curso, significa que há 25 vagas reservadas para ingressantes desse curso e 15 vagas reservadas aos demais alunos desse curso.\n\nPor exemplo, se a turma tem capacidade para 40 alunos, sendo que 30 vagas estão reservadas para ingressantes e 10 vagas estão reservadas para alunos de outros cursos, então não adianta tentar matrícula nessa turma, pois não há nenhuma vaga disponível para você. Em outro exemplo, se uma turma tem 60 vagas, sendo que 55 vagas estão reservadas para alunos de outros cursos, então significa que só há 5 vagas disponíveis para você tentar. Observe então quantas solicitações de matrícula já foram realizadas para essa turma. Se já tem 200 alunos concorrendo por essas 5 vagas, talvez seja prudente tentar matrícula em outra turma. A informação sobre solitações de matrícula vai sendo atualizada ao longo do período de matrícula e rematrícula; por isso, pode ser uma boa estratégia não fazer sua matrícula nos primeiros dias, de modo a ter mais informações sobre quais turmas são mais ou menos disputadas. Outra boa estratégia é priorizar turmas que têm muitas vagas reservadas para alunos não-ingressantes do seu curso.\n\nAtenção com o local da turma: FGA ou FCTE é no Gama; FCE ou FCTS é em Ceilândia; FUP é em Planaltina.",
+    "topics": [
+      "MATRÍCULA"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_68175eb4d7d4"
+  },
+  {
+    "faq_q": "Não consegui vaga na matrícula nem na rematrícula. E agora?",
+    "faq_a": "Você deve tentar novamente durante a matrícula extraordinária. Nesta etapa, somente as vagas reservadas para ingressantes continuam reservadas; as demais reservas de vagas por curso perdem efeito. Assim, muitas vagas que antes estavam inacessíveis para você podem se tornar acessíveis. Mas, na matrícula extraordinária, as vagas remanescentes são alocadas para quem pedir primeiro. Por isso, é importante tentar se matricular já no primeiro minuto da matrícula extraordinária. Além disso, é importante olhar várias vezes por dia ao longo dos próximos dias para verificar se alguma vaga ficou disponível. Durante a matrícula extraordinária, se alguém se desmatricular ou se for aberta alguma vaga extra na turma, a prioridade é de quem pedir primeiro. É muito comum haver desistências até o último dia da matrícula extraordinária, então fique de olho para tentar se matricular na vaga de algum desistente!",
+    "topics": [
+      "MATRÍCULA"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_c5940d2ca84c"
+  },
+  {
+    "faq_q": "Quais são os critérios de classificação durante a matrícula e rematrícula?",
+    "faq_a": "Na matrícula e rematrícula, os critérios de classificação são: 1°- condição de calouro; 2°- disciplina obrigatória; 3°- disciplina optativa; 4°- disciplina módulo livre. Os seguintes critérios de desempate são observados: 1º- estudante com cadastro aprovado na DACES (NEE); 2º- prováveis formandos; 3º- aderência ao fluxo; 4º- posição relativa no curso (proximidade da conclusão); e 5º- índice de rendimento acadêmico (IRA). Durante a matrícula e a rematrícula, o processamento é coletivo; nessas etapas, a “ordem de chegada” não faz diferença em termos de priorização, por isso não existe motivo para você escolher suas turmas com pressa.",
+    "topics": [
+      "MATRÍCULA"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_e399447a922e"
+  },
+  {
+    "faq_q": "O que são vagas reservadas para ingressantes?",
+    "faq_a": "As turmas de disciplinas de primeiro semestre costumam ter muitas vagas reservadas para alunos ingressantes (calouros), por isso é tão difícil conseguir vaga nessas disciplinas quando não se é mais calouro. As vagas reservadas para ingressantes são exclusivas para discentes com ingresso por Enem, PAS ou Vestibular. No SIGAA, as vagas reservadas aparecem listadas por curso e são mostrados dois números separados por uma barra (exemplos: 40/0; 40/10; 0/30; etc.), sendo o primeiro o número de vagas reservadas para ingressantes daquele curso, e o segundo o número de vagas reservadas para demais alunos daquele curso. Por exemplo, se consta a informação 25/15 ao lado do nome de determinado curso, significa que há 25 vagas reservadas para ingressantes desse curso e 15 vagas reservadas aos demais alunos desse curso.",
+    "topics": [
+      "MATRÍCULA"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_712227393e3a"
+  },
+  {
+    "faq_q": "Como funciona o co-requisito nas disciplinas que têm teoria e laboratório?",
+    "faq_a": "Nas disciplinas do ENE (Sistemas Digitais, Sistemas Microprocessados, Circuitos Elétricos e Eletrônica), o laboratório tem a teoria como co-requisito, mas a teoria não tem co-requisito nenhum. O mesmo acontece com Física 2 e Física 2 Experimental. Portanto, você pode se matricular só na teoria ou em ambas, mas não pode se matricular só no laboratório. Se você estiver matriculado em ambas, você pode trancar ambas ou pode trancar somente o laboratório, mas não consegue trancar a teoria sem trancar o laboratório. Se você já passou na teoria em um semestre anterior, o co-requisito do laboratório está satisfeito, então o laboratório passa a seguir as mesmas regras de uma disciplina sem co-requisito.",
+    "topics": [
+      "MATRÍCULA"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_0ce9cb8c4ef7"
+  },
+  {
+    "faq_q": "Qual é a carga horária máxima por semestre?",
+    "faq_a": "A carga horária máxima por semestre é de 480h para alunos do currículo 1741/1 e 450h para alunos do currículo 1741/2.",
+    "topics": [
+      "CARGA HORÁRIA MÁXIMA E MÍNIMA"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_b7dfe69f3ffb"
+  },
+  {
+    "faq_q": "Qual é a carga horária mínima por semestre?",
+    "faq_a": "Embora o SIGAA informe que a a carga horária mínima por semestre é de 210h para os currículos 1741/1 e 1741/2, não existe exigência de se cumprir essa carga horária mínima por semestre.\n\nContudo, todos os alunos precisam cumprir uma condição para não serem desligados do curso: ser aprovado em no mínimo quatro componentes obrigatórios ou optativos a cada dois semestres consecutivos. Caso você não cumpra essa condição, você é desligado do curso!\n\nPor exemplo, se você só passar em 1 disciplina no semestre atual, precisará passar em no mínimo 3 disciplinas no semestre seguinte.  Componentes eletivos (módulo livre) não contam.",
+    "topics": [
+      "CARGA HORÁRIA MÁXIMA E MÍNIMA"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_4c10abf547c1"
+  },
+  {
+    "faq_q": "Qual é o prazo máximo para conclusão do curso?",
+    "faq_a": "O prazo máximo para conclusão é de 18 semestres para alunos dos currículos 1741/1 e 1741/2. Caso o aluno não se forme dentro do prazo máximo, é desligado do curso. Caso perceba que não vai conseguir se formar dentro do prazo, verifique com a coordenação do curso se há possibilidade de obter uma prorrogação.",
+    "topics": [
+      "DESLIGAMENTO E REINTEGRAÇÃO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_906954f67e28"
+  },
+  {
+    "faq_q": "O que preciso evitar para não ser desligado?",
+    "faq_a": "As causas mais comuns de desligamento são: (1) reprovar três vezes a mesma disciplina obrigatória; (2) não ter sido aprovado em no mínimo quatro disciplinas (obrigatórias ou optativas) no total em dois semestres consecutivos; (3) não efetuar matrícula em disciplinas (ou ser reprovado com SR em todas as disciplinas) por dois semestres consecutivos; (4) não concluir o curso dentro do prazo máximo. Os semestres de 2020.1 a 2022.2 não são considerados para as regras (1) e (2), tendo em vista o contexto de pandemia. Disciplinas de cadeia de seletividade são optativas e, portanto, não são consideradas para a regra (1).",
+    "topics": [
+      "DESLIGAMENTO E REINTEGRAÇÃO"
+    ],
+    "course": null,
+    "qa_pair_hash": "faq_14502f8631e0"
+  },
+  {
+    "faq_q": "Reprovação em disciplina obrigatória durante o verão conta para o desligamento?",
+    "faq_a": "Mais ou menos. Se a terceira reprovação em disciplina obrigatória acontecer durante um semestre regular, e uma das reprovações tiver acontecido durante o verão, você será desligado. Contudo, se a terceira reprovação acontecer durante o período de verão, você não será desligado.",
+    "topics": [
+      "DESLIGAMENTO E REINTEGRAÇÃO"
+    ],
+    "course": null,
+    "qa_pair_hash": "faq_395d1db76024"
+  },
+  {
+    "faq_q": "Eu fui desligado da UnB, mas gostaria de retornar. Como solicito reintegração?",
+    "faq_a": "A reintegração na UnB é regulamentada pela [Resolução CEG n° 1/2023](https://deg.unb.br/images/legislacao/resolucao_ceg_001_2023_estabelece_procedimento_reintegracao.pdf). Não há edital, o que faz com que a solicitação possa ser feita a qualquer momento. Mais informações [aqui](http://deg.unb.br/reintegracao).",
+    "topics": [
+      "DESLIGAMENTO E REINTEGRAÇÃO"
+    ],
+    "course": null,
+    "qa_pair_hash": "faq_f330fb9f7fac"
+  },
+  {
+    "faq_q": "Como faço para trancar uma disciplina?",
+    "faq_a": "O trancamento de disciplina é feito pelo SIGAA, por meio do caminho: SIGAA > Aba Ensino > Trancamento de Matrícula > Trancar. O trancamento de disciplina deve ser requerido antes de completado 50% do semestre em que é pleiteado. Fique atento ao prazo para trancamento, previsto no calendário de atividades, disponível no site da SAA. Note que só é possível trancar uma vez cada disciplina (exceto trancamento justificado). O trancamento não tem impacto no IRA. Não é permitido trancar todas as disciplinas do semestre; neste caso, recomenda-se fazer um trancamento geral de matrícula. Em especial, recomenda-se não trancar disciplinas de primeiro semestre, pois estas têm muitas vagas reservadas para calouros, o que dificulta a matrícula de não-calouros em semestres posteriores. Cabe lembrar que trancar disciplinas pode resultar em atraso no curso, especialmente se a disciplina for pré-requisito de outras disciplinas obrigatórias.",
+    "topics": [
+      "TRANCAMENTO"
+    ],
+    "course": null,
+    "qa_pair_hash": "faq_d1f521d63278"
+  },
+  {
+    "faq_q": "Como faço para trancar o semestre?",
+    "faq_a": "O aluno pode solicitar o trancamento geral de matrícula (TGM), o qual implica a suspensão de todas as atividades acadêmicas do estudante, sem perda de seu vínculo regular com a UnB. É possível trancar até dois semestres (consecutivos ou não) sem apresentar justificativa (não há limite no caso de trancamento justificado). O TGM deve ser requerido antes de completado 75% do semestre em que é pleiteado. Fique atento ao prazo para trancamento, previsto no calendário de atividades, disponível no site da SAA. Na hipótese de o TGM ser pleiteado em semestres consecutivos, sua concessão deverá ser renovada a cada semestre. O TGM será concedido somente a estudantes que tenham cursado com aprovação na UnB no mínimo um componente do seu curso, considerando o último ingresso no curso atual. O TGM deve ser realizado pelo próprio estudante através do SIGAA, por meio do caminho: SIGAA > Portal do Discente > Aba Ensino > Suspensão de Programa > Suspensão Regular.",
+    "topics": [
+      "TRANCAMENTO"
+    ],
+    "course": null,
+    "qa_pair_hash": "faq_85baceb8f098"
+  },
+  {
+    "faq_q": "Como faço para efetuar um trancamento justificado?",
+    "faq_a": "O aluno, a qualquer momento, pode solicitar o trancamento justificado (TJ) de disciplina(s) específica(s) ou de todas as disciplinas do semestre (trancamento geral de matrícula justificado, ou TGMJ). O TJ ou TGMJ deve ser solicitado dentro de dois anos a partir do prazo limite para seu requerimento original ou a partir da cessação do motivo concreto que impossibilitou o estudante de efetivar o pleito na época correta. É necessário estar munido de comprovantes, por exemplo, no caso de motivo de saúde, o laudo/atestado médico. Não há limite de quantos trancamentos justificados você pode fazer. Ao fazer um trancamento justificado, você não \"gasta\" um trancamento automático (trancamento automático é o trancamento não justificado). O trancamento não tem impacto no IRA. No caso de TGMJ, este deve ser renovado a cada semestre em que o estudante pretender sua concessão. As hipóteses de trancamento justificado são previstas na [Resolução CEPE n° 93/2018](https://sig.unb.br/sigrh/downloadArquivo?idArquivo=2018090&key=7b5bbf8ffa41754075c478f548083f46) e incluem: afastamento por motivo de saúde do(a) estudante ou parente de 1º grau em linha reta ou 2º grau colateral; afastamento para estudos no exterior; afastamento por necessidade imperiosa do serviço público, ou seja, quando ocorre uma atividade fora de sua rotina natural de trabalho, como: um curso pelo qual o servidor é responsável; óbito de cônjuge, parente de 1º grau em linha reta ou 2º grau colateral; curso de formação (em caso de servidor público civil ou militar); afastamento para incorporação ao serviço militar obrigatório; vulnerabilidade, por exemplo, psicológica ou social. Aqui tem um [manual](https://saa.unb.br/images/documentos/graduacao/peticionamento/manual_trancamento_05_03_23.pdf). O peticionamento é feito [aqui](https://sei.unb.br/sei/controlador_externo.php?acao=usuario_externo_logar&acao_origem=usuario_externo_enviar_cadastro&id_orgao_acesso_externo=0). Lembre-se de anexar todos os comprovantes pertinentes.",
+    "topics": [
+      "TRANCAMENTO"
+    ],
+    "course": null,
+    "qa_pair_hash": "faq_c59b570288b6"
+  },
+  {
+    "faq_q": "Como solicito revisão de menção?",
+    "faq_a": "Se você discordar da menção atribuída a você pelo professor da disciplina, você pode pedir revisão de menção. A revisão de menção se destina exclusivamente a corrigir erros na avaliação por parte do professor, não sendo possível usar um pedido de revisão de menção para solicitar avaliações substitutivas ou complementares após o fim do semestre. A revisão de menção também não pode ser usada para tentar justificar um baixo desempenho com base em questões extra-acadêmicas (para estes casos, se aplica o mecanismo do trancamento justificado). O pedido deve estar muito bem embasado e apontar exatamente os motivos pelos quais a menção atribuída está errada. Para solicitar revisão de menção, você deve preencher o formulário de \"revisão de menção final em disciplina\", disponível [nesta página](https://saa.unb.br/graduacao/formularios), e dar entrada no processo na secretaria da unidade acadêmica responsável pela disciplina a ser revisada. Para disciplinas do CIC, você pode enviar a documentação pelo [formulário de atendimento interno do CIC](https://cic.unb.br/o-cic/fale-conosco). Para disciplinas do ENE, você pode enviar a documentação por este [link](http://www.ene.unb.br/index.php/component/breezingforms/ff_form/17/ff_page/1?ff_form=17&ff_page=1). Para disciplinas de outras unidades, procure a unidade responsável. As datas para solicitação constam no calendário acadêmico da UnB, disponível no site da SAA. A unidade acadêmica responsável pela disciplina deve comunicar o aluno acerca do resultado de seu pedido de revisão de menção. Pedidos de revisão de menção normalmente são analisados pelo próprio professor da turma. Caso o pedido seja indeferido, existe a possibilidade de solicitar recurso. O recurso é analisado por uma comissão de professores da unidade e o parecer da comissão é apreciado por um órgão colegiado.",
+    "topics": [
+      "REVISÃO DE MENÇÃO E RECLAMAÇÕES"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_52a92aab1e27"
+  },
+  {
+    "faq_q": "Tenho uma reclamação sobre infraestrutura, ensino, atendimento, procedimentos, etc. Como encaminho?",
+    "faq_a": "Procure a [Ouvidoria da UnB](https://ouvidoria.unb.br/).",
+    "topics": [
+      "REVISÃO DE MENÇÃO E RECLAMAÇÕES"
+    ],
+    "course": null,
+    "qa_pair_hash": "faq_10b7f80b0659"
+  },
+  {
+    "faq_q": "Como faço para ter meus documentos de estágio assinados?",
+    "faq_a": "No curso de Engenharia de Computação, quem assina os documentos de estágio são os professores da comissão de estágio. Isso é intermediado pela secretaria do CIC. Para novos estágios, você deve fazer o pré-cadastro do estágio no SIGAA e enviar o seu Termo de Compromisso de Estágio (ou seu contrato de estágio) e seu Plano de Atividades para o CIC usando o [formulário de atendimento interno](https://cic.unb.br/o-cic/fale-conosco). Aqui tem [modelos dos documen](https://www.cic.unb.br/informacoes/documentos)[tos](https://www.cic.unb.br/informacoes/documentos). Este [manual](https://cic.unb.br/informacoes/documentos?download=39:cartilha-da-graduacao) fala um pouco mais sobre o processo de formalização do estágio junto ao CIC. Ao preencher os documentos de estágio, você vai precisar informar quem é seu professor orientador de estágio; indique um dos três professores membros da comissão de estágio do CIC: Jan Mendonça Correa; Marcelo Ladeira; ou Carla Denise Castanho. Se precisar de mais alguma informação, procure a secretaria do CIC.",
+    "topics": [
+      "ESTÁGIO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_bfdc67f67858"
+  },
+  {
+    "faq_q": "Eu trabalho na área de computação. Preciso fazer estágio obrigatório?",
+    "faq_a": "O PPC do curso permite que um discente que atua profissionalmente em área afim da engenharia de computação use essa experiência para integralizar as horas de estágio obrigatório. Entre em contato com o coordenador do curso para receber mais informações.",
+    "topics": [
+      "ESTÁGIO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_3dfdfed2bde0"
+  },
+  {
+    "faq_q": "Existe algum pré-requisito para começar o estágio obrigatório?",
+    "faq_a": "Sim. O estágio obrigatório só pode ser iniciado após o aluno ter integralizado 60% da carga horária total do curso.",
+    "topics": [
+      "ESTÁGIO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_b27649c046a8"
+  },
+  {
+    "faq_q": "Como faço para ser matriculado em estágio obrigatório?",
+    "faq_a": "A matrícula em Estágio Supervisionado 1 e 2 não precisa ser feita durante o período oficial de matrícula, podendo ser feita nas primeiras semanas de aula ou mesmo mais adiante no semestre. Após ter seus documentos de estágio obrigatório assinados pelo seu professor orientador de estágio, envie um e-mail à coordenação do curso solicitando a matrícula em Estágio Supervisionado 1 ou 2. Não deixe de informar o número do processo SEI onde se encontra sua documentação assinada (é um número longo, que começa com 23106).",
+    "topics": [
+      "ESTÁGIO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_18087f7d12f6"
+  },
+  {
+    "faq_q": "Já concluí as 150 horas de estágio obrigatório. Como faço para receber a menção?",
+    "faq_a": "Se você já completou 150 horas de estágio (5 semanas no caso de um estágio de 30 horas semanais; 8 semanas se estágio de 20 horas semanais), você já está apto(a) a receber a menção desse componente e integralizar as horas no currículo. Para isso, é necessário a entrega do Relatório de Atividades de Estágio. O Relatório de Atividades deve estarpreenchido e assinado por você e pelo seu supervisor de estágio na empresa. O modelo de documento (EST_Relatorio_de_Atividades) está [aqui](https://cic.unb.br/informacoes/documentos). A entrega do Relatório de Atividades de Estágio deve ser feita usando o [formulário de atendimento interno do CIC](https://cic.unb.br/o-cic/fale-conosco).",
+    "topics": [
+      "ESTÁGIO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_9587ca0b9df5"
+  },
+  {
+    "faq_q": "É possível integralizar Estágio 1 e 2 em um único semestre?",
+    "faq_a": "Sim, desde que seu relatório de estágio contemple um período de no mínimo 300 horas (10 semanas no caso de um estágio de 30 horas semanais; 15 semanas se estágio de 20 horas semanais).  Após enviar o relatório de estágio, entre em contato com o coordenador de curso informando que deseja integralizar os dois componentes de estágio com base no mesmo relatório.",
+    "topics": [
+      "ESTÁGIO"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_907255daa346"
+  },
+  {
+    "faq_q": "Existe algum pré-requisito para começar o projeto final?",
+    "faq_a": "Sim. A matrícula em Projeto Final 1 só é permitida após o aluno ter integralizado 70% da carga horária total do curso.",
+    "topics": [
+      "PROJETO FINAL"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_5e2c7ac67941"
+  },
+  {
+    "faq_q": "Como faço para ser matriculado em Projeto Final 1 ou 2?",
+    "faq_a": "A matrícula em Projeto Final 1 e 2 não precisa ser feita durante o período oficial de matrícula, podendo ser feita nas primeiras semanas de aula ou mesmo mais adiante no semestre. Para se matricular nas atividades de Projeto Final, peça a seu orientador para encaminhar um processo via SEI ao coordenador de Engenharia de Computação, com a seguinte solicitação:\n\"Prezado coordenador, solicito a matrícula do(a) discente Fulano de Tal (matrícula 12345678), do curso de Engenharia de Computação, na atividade\n( ) CIC0267 PROJETO FINAL EM ENGENHARIA DE COMPUTAÇÃO 1\n( ) CIC0268 PROJETO FINAL EM ENGENHARIA DE COMPUTAÇÃO 2,\nsob minha orientação. Atenciosamente, Prof. Beltrano da Silva, matrícula FUB 123456.\"",
+    "topics": [
+      "PROJETO FINAL"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_8b433a8c6b65"
+  },
+  {
+    "faq_q": "Como faço para encontrar um orientador de Projeto Final?",
+    "faq_a": "Converse com professores que lecionam disciplinas e/ou desenvolvem pesquisa em áreas de conhecimento que você tem afinidade. Você pode levar suas próprias ideias de projeto ao professor ou pode perguntá-lo sobre possíveis temas de projeto. Procure-os pessoalmente ou envie e-mails. Recomenda-se conversar com os professores no semestre anterior ao início do trabalho, ou nas primeiras semanas do semestre em que se iniciará o Projeto Final.",
+    "topics": [
+      "PROJETO FINAL"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_0cdcf4c65dde"
+  },
+  {
+    "faq_q": "O orientador do Projeto Final pode ser de qualquer departamento?",
+    "faq_a": "Sim. Mas, se seu orientador não for professor do CIC ou do ENE, você precisará ter um coorientador de um desses departamentos.",
+    "topics": [
+      "PROJETO FINAL"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_08254cbc2202"
+  },
+  {
+    "faq_q": "É permitido fazer Projeto Final em dupla?",
+    "faq_a": "Sim.",
+    "topics": [
+      "PROJETO FINAL"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_9c4c7be6e0a9"
+  },
+  {
+    "faq_q": "Existe um template para o relatório de Projeto Final?",
+    "faq_a": "Sim. Neste [link](https://github.com/UnB-CIC/Monografia) você encontra um template para o LaTeX.",
+    "topics": [
+      "PROJETO FINAL"
+    ],
+    "course": null,
+    "qa_pair_hash": "faq_9b7ac933ab7f"
+  },
+  {
+    "faq_q": "Como faço para agendar minha banca de Projeto Final 2?",
+    "faq_a": "O cadastro da banca deve ser realizado pelo professor orientador, usando este [formulário](https://forms.office.com/pages/responsepage.aspx?id=oZs17AtjK024M8jm1I-AWXcelI-NHv1AsFTptEzXf1lUOUcyQzU3NUxIVFhVVzFMMVpONTBIWjZGMy4u&route=shorturl). Em caso de dúvidas, procure a secretaria do CIC.",
+    "topics": [
+      "PROJETO FINAL"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_276559b63cd8"
+  },
+  {
+    "faq_q": "Qual é o prazo mínimo para conclusão do curso?",
+    "faq_a": "O SIGAA informa que o prazo mínimo para conclusão é de 8 semestres para alunos do currículo 1741/1 e de 10 semestres para alunos do currículo 1741/2, mas o sistema permite que o aluno se forme em menos tempo. Entretanto, isso normalmente só acontece em casos excepcionais, como quando o aluno aproveita disciplinas cursadas anteriormente.",
+    "topics": [
+      "FORMATURA"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_56440beba89d"
+  },
+  {
+    "faq_q": "Sou obrigado a fazer o Enade?",
+    "faq_a": "O Enade de Engenharia de Computação não é aplicado todo ano. Se houver Enade no ano em que você vai ser formar, você é obrigado a fazer a prova. Caso contrário, você será dispensado e a pendência de Enade será automaticamente removida do seu histórico. No ano de 2024 não será aplicado Enade para os formandos de Engenharia de Computação da UnB.",
+    "topics": [
+      "FORMATURA"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_38c4be1d438d"
+  },
+  {
+    "faq_q": "Falta poucas matérias para eu me formar. Posso pedir outorga antecipada de grau?",
+    "faq_a": "Um pedido de outorga antecipada de grau só é admissível em casos excepcionais. Alguns exemplos são: aprovação em concurso público, admissão em curso de pós-graduação, oferta de emprego que exige o diploma, etc. Tudo precisa estar devidamente justificado e comprovado.\n\nO aluno precisa ser formando no semestre, ou considerado provável formando no semestre subsequente. Para cada disciplina pendente, o aluno precisa ser aprovado em uma avaliação específica. Não existe possibilidade de dispensa de carga horária de estágio obrigatório. Também não existe possibilidade de o aluno ser dispensado de elaborar um relatório de projeto final de curso e de apresentá-lo perante a uma banca avaliadora.\n\nPara mais informações, consulte a [Resolução CEG n° 2/2008](https://deg.unb.br/images/legislacao/ceg_2_2008.pdf) e a [Resolução IE n° 35/2024](https://www.ene.unb.br/joaoluiz/resolucao_outorga_antecipada_IE_2024.pdf). Está em elaboração uma resolução semelhante no âmbito da FT.",
+    "topics": [
+      "FORMATURA"
+    ],
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_4c98f32582f0"
+  },
+  {
+    "faq_q": "Vou concluir o curso neste semestre. Como obtenho informações sobre questões burocráticas, colação de grau, etc.?",
+    "faq_a": "Procure a secretaria do CIC para receber todas as instruções.",
+    "topics": [
+      "FORMATURA"
+    ],
+    "course": null,
+    "qa_pair_hash": "faq_de3ca199ba59"
+  },
+  {
+    "faq_q": "Posso aproveitar disciplinas que cursei em outra universidade?",
+    "faq_a": "Sim, desde que não tenham sido cursadas concomitantemente com o curso da UnB.  Mais informações [aqui](https://saa.unb.br/graduacao/perguntas-frequentes-grad#aproveitamento-de-disciplinas-de-outras-instituicoes-de-ensino-superior) e [aqui](https://saa.unb.br/images/documentos/graduacao/peticionamento/Manual_Ap_Estudos__v4.0.pdf). Se você está vindo de outra universidade e este é seu primeiro semestre na UnB, e você deseja se matricular em disciplinas com pré-requisito, procure o coordenador do curso.",
+    "topics": [
+      "TRANSFERÊNCIA, MUDANÇA DE CURSO E DUPLA DIPLOMAÇÃO"
+    ],
+    "course": null,
+    "qa_pair_hash": "faq_912e54ff3cb0"
+  },
+  {
+    "faq_q": "Como faço para mudar de curso? Posso me formar em dois cursos?",
+    "faq_a": "A mudança de curso e a dupla diplomação são regidos por edital, publicado semestralmente; mais informações [aqui](https://saa.unb.br/graduacao/dupla-e-mudanca). A mudança de curso também pode ser feita por meio de um novo ingresso (por exemplo, por meio de um novo vestibular ou participando do edital de ingresso para portadores de diploma de curso superior); mais informações [aqui](https://estudenaunb.unb.br/). É possível solicitar à SAA que gere um histórico simulado, para que você veja quais disciplinas seriam aproveitadas caso você ingresse em um novo curso.\n\nA mudança de curso consiste na autorização dada ao estudante regular de graduação para ter alterado o vínculo com seu curso de ingresso na UnB para outro curso de sua escolha, desde que tenham ingressado pelo PAS, Vestibular ou ENEM. Os requisitos da mudança de curso estão expressamente previstos no edital semestral do DEG/SAA publicado no [site da SAA](https://saa.unb.br/graduacao/dupla-e-mudanca). A previsão específica para a mudança de curso ocorre segundo [Resolução CEPE UnB nº 053/2022](https://deg.unb.br/images/legislacao/resolucao_cepe_53_2022.pdf). A solicitação da mudança de curso deve ser feita em conformidade com as datas e os requisitos do respectivo edital do DEG/SAA, por meio do formulário eletrônico disponibilizado no próprio edital de mudança de curso. Os prazos serão fixados pelo edital de mudança de curso do DEG/SAA e deverão ser rigorosamente seguidos pelos discentes pleiteantes. Os resultados da mudança de curso serão publicados no [site da SAA](https://saa.unb.br/graduacao/dupla-e-mudanca), conforme os prazos fixados em edital. Todas as publicações referentes às etapas do processo de mudança de curso ocorrerão através de edital. Portanto, o acompanhamento das etapas processo de mudança de curso deve ser realizado através do [site da SAA](https://saa.unb.br/graduacao/dupla-e-mudanca).\n\nA dupla diplomação consiste na autorização dada ao aluno regular de graduação para iniciar a segunda diplomação, após a conclusão do curso de origem. Os requisitos da dupla diplomação estão expressamente previstos no edital semestral do DEG/SAA publicado no [site da SAA](https://saa.unb.br/graduacao/dupla-e-mudanca). A previsão específica para a dupla diplomação ocorre segundo o Art. 8º da [Resolução CEPE UnB nº 053/2022](https://deg.unb.br/images/legislacao/resolucao_cepe_53_2022.pdf). A solicitação da dupla diplomação deve ser feita em conformidade com as datas e os requisitos do respectivo edital do DEG/SAA, por meio do formulário eletrônico disponibilizado no próprio edital de dupla diplomação. Os prazos serão fixados pelo edital de dupla diplomação do DEG/SAA e deverão ser rigorosamente seguidos pelos discentes pleiteantes. Os resultados da dupla diplomação serão publicados no [site da SAA](https://saa.unb.br/graduacao/dupla-e-mudanca), conforme os prazos fixados em edital. Todas as publicações referentes às etapas do processo de dupla diplomação ocorrerão através de edital. Portanto, o acompanhamento das etapas processo de dupla diplomação deve ser realizado através do [site da SAA](https://saa.unb.br/graduacao/dupla-e-mudanca).",
+    "topics": [
+      "TRANSFERÊNCIA, MUDANÇA DE CURSO E DUPLA DIPLOMAÇÃO"
+    ],
+    "course": null,
+    "qa_pair_hash": "faq_758ab29e384b"
+  },
+  {
+    "faq_q": "Como obtenho informações sobre assistência estudantil e moradia no campus?",
+    "faq_a": "[Aqui](https://www.unb.br/servicos/assistencia-estudantil) e [aqui](https://dds.dac.unb.br/). Para maiores informações, procure a DDS.",
+    "topics": [
+      "QUESTÕES SOCIAIS"
+    ],
+    "course": null,
+    "qa_pair_hash": "faq_bf323362fa4d"
+  },
+  {
+    "faq_q": "Como obtenho orientações referentes a estudantes com necessidades especiais ou com condições de saúde mental?",
+    "faq_a": "A DACES acolhe estudantes com necessidades especiais (incluindo condições como TEA e TDAH) e promove o diálogo com os professores no sentido de reduzir as barreiras que dificultam o desempenho desses estudantes nas disciplinas; mais informações [aqui](http://www.acessibilidade.unb.br/). Com relação a questões de saúde mental como depressão e ansiedade, recomenda-se procurar orientações junto à DASU; mais informações [aqui](http://dasu.unb.br/).",
+    "topics": [
+      "QUESTÕES SOCIAIS"
+    ],
+    "course": null,
+    "qa_pair_hash": "faq_d9431c383d66"
+  },
+  {
+    "faq_q": "Estou sofrendo com questões de machismo, racismo, homofobia, transfobia, etc. Onde posso buscar orientação?",
+    "faq_a": "A Secretaria de Direitos Humanos da UnB acolhe estudantes nessas situações. Mais informações [aqui](https://diversidade.unb.br/).",
+    "topics": [
+      "QUESTÕES SOCIAIS"
+    ],
+    "course": null,
+    "qa_pair_hash": "faq_c3359cb9c4f2"
+  },
+  {
+    "faq_q": "Quais são os procedimentos para solicitação do uso do nome social na UnB?",
+    "faq_a": "Veja as informações [aqui](https://diversidade.unb.br/index.php/nome-social).",
+    "topics": [
+      "QUESTÕES SOCIAIS"
+    ],
+    "course": null,
+    "qa_pair_hash": "faq_6d491947824b"
+  }
+]

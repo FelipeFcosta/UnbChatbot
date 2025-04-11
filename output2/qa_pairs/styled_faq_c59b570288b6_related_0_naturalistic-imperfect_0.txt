@@ -1,0 +1,4 @@
+{
+  "question": "que tipo de motivo eh valido pra conseguir um trancamento justificado me da exemplos?",
+  "answer": "Sim, diversos motivos são considerados válidos para um trancamento justificado, conforme estabelece a [Resolução CEPE n° 93/2018](https://sig.unb.br/sigrh/downloadArquivo?idArquivo=2018090&key=7b5bbf8ffa41754075c478f548083f46). A norma prevê hipóteses como, por exemplo:\n\n*   Questões de saúde do estudante ou de um familiar próximo;\n*   Participação em programa de estudos no exterior;\n*   Obrigações inadiáveis de serviço público;\n*   Falecimento de um parente próximo;\n*   Necessidade de realizar um curso de formação;\n*   Cumprimento do serviço militar obrigatório;\n*   Condições de vulnerabilidade social ou psicológica.\n\nÉ imprescindível a apresentação de documentos que comprovem a situação alegada."
+}

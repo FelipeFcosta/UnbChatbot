@@ -1,0 +1,4 @@
+Original Question: Existe uma carga horária mínima obrigatória por semestre em Engenharia de Computação?
+Answer: Embora o SIGAA possa indicar uma carga horária mínima (ex: 210h para os currículos 1741/1 e 1741/2), **não há uma exigência estrita** de cumprir esse mínimo a cada semestre para permanecer no curso.
+
+**No entanto, existe uma regra crucial para evitar o desligamento:** você precisa ser aprovado(a) em, no mínimo, **quatro componentes** (obrigatórios ou optativos, não contando eletivos) a cada **dois semestres consecutivos**. O não cumprimento desta condição pode levar ao desligamento.

@@ -1,0 +1,4 @@
+{
+  "question": "Quais seriam as consequências acadêmicas caso eu curse um total superior a 360 horas em disciplinas eletivas no curso de Engenharia de Computação?",
+  "answer": "Sim, é permitido cursar uma carga horária superior a 360 horas em disciplinas eletivas, sendo o limite máximo de 900 horas.\n\nA consequência acadêmica é que, embora todas as disciplinas eletivas cursadas constem em seu histórico escolar, apenas as primeiras 360 horas serão efetivamente contabilizadas para a integralização da carga horária total do curso e para abater da carga horária optativa pendente. As horas excedentes a 360 não contribuem para esses requisitos de conclusão."
+}

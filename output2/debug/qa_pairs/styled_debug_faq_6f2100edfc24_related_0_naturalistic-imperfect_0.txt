@@ -1,0 +1,2 @@
+Original Question: Qual a principal diferença entre as etapas de matrícula/rematrícula e a matrícula extraordinária?
+Answer: A principal diferença é o processamento: na matrícula e rematrícula, as solicitações são processadas coletivamente com base em critérios de prioridade. Na matrícula extraordinária, não há processamento coletivo; as vagas são preenchidas imediatamente por ordem de chegada (primeiro a solicitar).

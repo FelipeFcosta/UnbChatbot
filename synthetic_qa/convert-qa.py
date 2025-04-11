@@ -77,9 +77,10 @@ def filter_institutional_qa(qa_pairs: List[Dict[str, Any]]) -> List[Dict[str, An
     logger.info(f"Kept {len(filtered_pairs)}/{len(qa_pairs)} QA pairs")
     return filtered_pairs
 
+
 def convert_qa_to_training_format(qa_pairs: List[Dict[str, Any]], 
                                  output_file: Path,
-                                 validation_split: float = 0.1,
+                                 validation_split: float = 0.50,
                                  create_validation: bool = True) -> None:
     """
     Convert synthetic QA pairs to the format required for Unsloth training.
@@ -96,9 +97,6 @@ def convert_qa_to_training_format(qa_pairs: List[Dict[str, Any]],
     
     # Create training data in the required format
     all_examples = []
-    
-    # Keep track of unique question-answer combinations to avoid duplicates
-    seen_pairs = set()
     
     # Extract and format all valid examples
     for pair in qa_pairs:
@@ -156,14 +154,16 @@ def convert_qa_to_training_format(qa_pairs: List[Dict[str, Any]],
     val_data = []
     
     logger.info(f"Distributing examples from {len(examples_by_origin)} distinct origins")
-    
+
     for origin_hash, examples in examples_by_origin.items():
         # Shuffle examples for this origin
         random.shuffle(examples)
         
         if create_validation and validation_split > 0:
             # Calculate how many examples should go to validation
+            print('validation_split:', validation_split)
             val_count = max(1, int(len(examples) * validation_split))
+            print('val_count:', val_count)
             
             # Ensure we don't put ALL examples in validation
             if val_count >= len(examples):
@@ -223,7 +223,7 @@ def main():
     parser = argparse.ArgumentParser(description="Convert synthetic QA data to training format")
     parser.add_argument("--input", required=True, help="Path to synthetic_qa_data.json")
     parser.add_argument("--output", default="training_data", help="Base name for output files")
-    parser.add_argument("--validation-split", type=float, default=0.1, 
+    parser.add_argument("--validation-split", type=float, default=0.10, 
                         help="Percentage of data to use for validation (0.0-1.0)")
     parser.add_argument("--skip-validation", action="store_true", 
                         help="Skip creating a validation set")
@@ -251,6 +251,7 @@ def main():
     
     logger.info(f"Loaded {len(qa_data)} QA pairs from {input_path}")
     
+
     # Convert and save in the required format
     output_path = Path(args.output)
     convert_qa_to_training_format(

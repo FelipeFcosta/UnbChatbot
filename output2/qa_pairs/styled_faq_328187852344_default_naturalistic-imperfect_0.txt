@@ -1,0 +1,4 @@
+{
+  "question": "as nota das materias de verao, elas influencia no meu ira?",
+  "answer": "Sim, as notas obtidas nas disciplinas que você cursar durante o período de Verão influenciam o cálculo do seu Índice de Rendimento Acadêmico (IRA). \n\nPara efeito desse cálculo, essas disciplinas são consideradas como se fizessem parte do último semestre regular do ano anterior. Como exemplo, uma disciplina feita no Verão de 2024 (que é o semestre 2023.4) terá o mesmo impacto no IRA que uma disciplina cursada no semestre 2023.2."
+}

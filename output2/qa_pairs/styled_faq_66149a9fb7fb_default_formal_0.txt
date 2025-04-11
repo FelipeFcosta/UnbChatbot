@@ -1,0 +1,4 @@
+{
+  "question": "Gostaria de saber quais são as formas de contato disponíveis para falar com o coordenador do curso de Engenharia de Computação.",
+  "answer": "Para contatar o coordenador do curso de Engenharia de Computação, Prof. Guilherme Novaes Ramos (mandato de janeiro de 2025 a janeiro de 2027), as seguintes formas estão disponíveis:\n\n*   **E-mail:** A maioria das solicitações pode ser encaminhada e resolvida através do endereço engcomputacao@unb.br.\n*   **Atendimento Agendado:** Caso necessite de atendimento presencial ou remoto via Microsoft Teams, é possível agendar um horário. Para isso, envie um e-mail para o endereço acima, informando sua disponibilidade e a modalidade de atendimento preferida (presencial ou remota)."
+}

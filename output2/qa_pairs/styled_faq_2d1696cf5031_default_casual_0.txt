@@ -1,0 +1,4 @@
+{
+  "question": "Qual a diferença que tem entre 'atividade' e 'disciplina' nos cursos aqui da UnB?",
+  "answer": "A distinção entre 'disciplina' e 'atividade' nos cursos da UnB está relacionada principalmente à forma como o ensino é conduzido:\n\n*   **Disciplina:** Refere-se a um conjunto de estudos com um conteúdo programático (ementa) definido, que é ministrado por professores por meio de aulas regulares e possui uma carga horária semanal estabelecida ao longo do semestre.\n*   **Atividade:** Caracteriza-se por não utilizar as aulas como o principal meio de ensino e aprendizagem. Exemplos comuns incluem o desenvolvimento de projetos, a realização de estágios ou a elaboração de trabalhos de conclusão de curso."
+}

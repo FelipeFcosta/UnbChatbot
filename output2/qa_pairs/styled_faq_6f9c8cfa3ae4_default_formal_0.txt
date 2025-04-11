@@ -1,0 +1,4 @@
+{
+  "question": "Quais são os meios disponíveis para consultar os projetos e demais ações de extensão que a UnB oferece?",
+  "answer": "A consulta aos projetos e demais ações de extensão oferecidos pela UnB pode ser realizada através do [Sistema Integrado de Gestão de Atividades Acadêmicas - Módulo Extensão (SIGAA Extensão)](https://sig.unb.br/sigaa/public/extensao/consulta_extensao.jsf).\n\nCaso deseje visualizar os projetos vinculados a um departamento específico, como o Departamento de Ciência da Computação, basta utilizar a ferramenta de busca e selecionar a 'Unidade Responsável' apropriada (por exemplo, 'DEPTO CIÊNCIAS DA COMPUTAÇÃO - BRASÍLIA')."
+}

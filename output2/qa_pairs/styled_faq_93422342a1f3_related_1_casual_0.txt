@@ -1,0 +1,4 @@
+{
+  "question": "Na hora de comparar os currículos 1741/1 e 1741/2, o que eu preciso olhar com mais atenção na simulação do histórico?",
+  "answer": "Ao realizar a comparação entre os currículos 1741/1 e 1741/2 por meio da simulação de histórico, o foco principal da sua análise deve estar na **carga horária total que ainda resta** para a conclusão do curso e na **relação de componentes curriculares específicos pendentes** em cada um dos cenários (seu histórico atual no 1741/1 e a simulação para o 1741/2). Evite se concentrar apenas na comparação isolada das cargas horárias obrigatória e optativa."
+}

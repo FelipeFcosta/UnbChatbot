@@ -1,0 +1,4 @@
+{
+  "question": "Quais docentes estão habilitados a atuar como orientadores para o estágio do curso de engenharia da computação?",
+  "answer": "Os docentes habilitados a atuar como orientadores para o estágio do curso de engenharia da computação são aqueles que integram a Comissão de Estágio do respectivo curso ou departamento."
+}

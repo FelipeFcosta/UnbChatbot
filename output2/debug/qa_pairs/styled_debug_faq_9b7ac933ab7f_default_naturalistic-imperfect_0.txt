@@ -1,0 +1,2 @@
+Original Question: Há algum modelo (template) oficial ou recomendado para formatar o relatório do Projeto Final?
+Answer: Sim, existe um template disponível para LaTeX que pode ser usado como modelo para o relatório do Projeto Final. Você pode encontrá-lo neste repositório: [https://github.com/UnB-CIC/Monografia](https://github.com/UnB-CIC/Monografia).

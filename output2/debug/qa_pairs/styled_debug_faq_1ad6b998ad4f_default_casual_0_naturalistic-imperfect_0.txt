@@ -1,0 +1,4 @@
+Original Question: Como eu vejo a lista das disciplinas obrigatórias que ainda faltam pra eu cursar em Engenharia de Computação?
+Answer: Você pode verificar exatamente quais disciplinas obrigatórias ainda faltam cursar consultando o seu histórico escolar. Lá existe uma seção específica chamada “componentes curriculares obrigatórios pendentes”.
+
+Nessa mesma seção, caso seu currículo possua cadeias de seletividade, também será informada a carga horária pendente para cada uma delas (vale notar que o currículo 1741/2 não possui cadeias de seletividade).

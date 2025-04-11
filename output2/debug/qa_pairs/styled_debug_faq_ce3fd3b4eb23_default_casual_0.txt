@@ -1,0 +1,6 @@
+Original Question: Como posso encontrar e entrar em contato com a coordenação do meu curso?
+Answer: As informações de contato e quem são os responsáveis pela coordenação de cada curso estão disponíveis nas respectivas páginas dos cursos. Consulte o link correspondente ao seu:
+- [Ciência da Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)
+- [Computação (Licenciatura)](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)
+- [Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)
+- [Engenharia Mecatrônica](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)

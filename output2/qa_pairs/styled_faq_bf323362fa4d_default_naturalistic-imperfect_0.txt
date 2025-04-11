@@ -1,0 +1,4 @@
+{
+  "question": "como eu vejo sobre ajuda com bolsa e moradia na unb?",
+  "answer": "Você pode encontrar informações sobre os programas de assistência estudantil (o que abrange bolsas) e também sobre moradia universitária nos seguintes endereços eletrônicos da UnB:\n\n*   **Portal de Serviços UnB - Assistência Estudantil:** [https://www.unb.br/servicos/assistencia-estudantil](https://www.unb.br/servicos/assistencia-estudantil)\n*   **Diretoria de Desenvolvimento Social (DDS):** [https://dds.dac.unb.br/](https://dds.dac.unb.br/)\n\nCaso necessite de informações mais específicas ou detalhadas, a recomendação é que procure diretamente a DDS."
+}

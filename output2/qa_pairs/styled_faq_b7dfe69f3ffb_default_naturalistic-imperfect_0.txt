@@ -1,0 +1,4 @@
+{
+  "question": "Quanto de carga horaria maxima que eu posso pegar por semestre em engenharia de computacao?",
+  "answer": "Sim, a carga horária máxima que você pode cursar por semestre no curso de Engenharia de Computação depende do seu currículo:\n\n*   Se você pertence ao **Currículo 1741/1**, o limite é de **480 horas**.\n*   Se você pertence ao **Currículo 1741/2**, o limite é de **450 horas**."
+}

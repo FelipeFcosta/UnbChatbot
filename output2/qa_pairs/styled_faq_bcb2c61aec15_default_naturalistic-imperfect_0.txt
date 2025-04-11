@@ -1,0 +1,4 @@
+{
+  "question": "se eu quiser fazer reclamacao sobre infraestrutura ou aulas aonde eu vou?",
+  "answer": "Para fazer reclamações sobre questões como infraestrutura, ensino, atendimento ou procedimentos administrativos, entre outros assuntos, você deve se dirigir à [Ouvidoria da UnB](https://ouvidoria.unb.br/). Este é o canal oficial para o encaminhamento desse tipo de manifestação."
+}

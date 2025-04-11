@@ -1,0 +1,10 @@
+Original Question: Como sei quais disciplinas ou componentes devo cursar em cada semestre?
+Answer: Você tem flexibilidade para escolher quais componentes cursar a cada semestre, desde que cumpra os pré-requisitos exigidos.
+
+Para ter uma ideia da sequência recomendada de componentes obrigatórios, consulte o **fluxo curricular sugerido** para a sua estrutura curricular. Ele geralmente está disponível como parte do 'Relatório da Estrutura Curricular' na página do seu curso:
+- [Ciência da Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)
+- [Computação (Licenciatura)](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)
+- [Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)
+- [Engenharia Mecatrônica](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)
+
+O mesmo relatório lista os componentes optativos. Lembre-se que você pode não precisar cursar *todos* os optativos listados, pois a carga horária optativa pendente (visível no seu histórico) também pode ser reduzida ao cursar componentes eletivos (módulo livre) ou através de equivalências.

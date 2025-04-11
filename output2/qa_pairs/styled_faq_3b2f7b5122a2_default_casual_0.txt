@@ -1,0 +1,4 @@
+{
+  "question": "O que eu preciso cumprir pra conseguir me formar em Engenharia de Computação?",
+  "answer": "Para concluir o curso e se formar em Engenharia de Computação, você precisa atender às seguintes exigências:\n\na) Obter aprovação em todos os componentes curriculares considerados obrigatórios na sua estrutura curricular.\nb) Satisfazer todas as exigências de cadeias de seletividade, caso o seu currículo as possua (o currículo 1741/2, por exemplo, não tem essa exigência).\nc) Cumprir integralmente a carga horária optativa exigida, zerando qualquer pendência."
+}

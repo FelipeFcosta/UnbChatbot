@@ -1,0 +1,4 @@
+{
+  "question": "o edital de ic normally sai em que epoca?",
+  "answer": "Normalmente, o edital de Iniciação Científica da UnB é publicado anualmente por volta dos meses de março ou abril."
+}

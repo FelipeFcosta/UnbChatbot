@@ -1,0 +1,4 @@
+{
+  "question": "Gostaria de confirmar se as menções obtidas em disciplinas cursadas durante o período de Verão são incluídas no cálculo do IRA.",
+  "answer": "Sim, confirmo que as menções obtidas em disciplinas cursadas durante o período letivo de Verão são, de fato, incluídas no cálculo do seu Índice de Rendimento Acadêmico (IRA).\n\nPara fins de cálculo, essas menções são consideradas como se as disciplinas tivessem sido cursadas no último semestre regular do ano anterior. Por exemplo, as menções de disciplinas cursadas no período de Verão de 2024 (identificado como semestre 2023.4) serão incorporadas ao cálculo do IRA como se pertencessem ao semestre 2023.2."
+}

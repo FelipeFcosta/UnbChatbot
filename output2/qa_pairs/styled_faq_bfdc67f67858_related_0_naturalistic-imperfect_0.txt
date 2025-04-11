@@ -1,0 +1,4 @@
+{
+  "question": "pra engenharia da computacao qual nome de professor eu ponho nos documento de estagio?",
+  "answer": "Ao preencher sua documentação de estágio para Engenharia de Computação, você deverá indicar o nome de um dos professores responsáveis pela comissão de estágio do Departamento de Ciência da Computação (CIC). Os professores designados para essa função são: Jan Mendonça Correa, Marcelo Ladeira ou Carla Denise Castanho."
+}

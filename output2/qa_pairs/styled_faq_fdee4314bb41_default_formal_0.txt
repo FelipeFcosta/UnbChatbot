@@ -1,0 +1,4 @@
+{
+  "question": "Poderia me informar qual é a carga horária total exigida para a conclusão do curso de Engenharia de Computação?",
+  "answer": "A carga horária total exigida para a conclusão do curso de Engenharia de Computação varia conforme a estrutura curricular à qual você está vinculado:\n\n*   **Para o Currículo 1741/1:** A carga horária total é de 3.480 horas.\n*   **Para o Currículo 1741/2:** A carga horária total é de 3.780 horas.\n\nVocê pode confirmar qual é a sua estrutura curricular e a respectiva carga horária total consultando seu histórico escolar. O número do currículo encontra-se no cabeçalho da primeira página, e a carga horária total/pendente está detalhada no quadro resumo."
+}

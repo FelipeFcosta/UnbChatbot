@@ -1,0 +1,4 @@
+{
+  "question": "Queria saber sobre o currículo 1741/-2 de Engenharia de Computação, o que ele foi? Ainda posso mudar pra ele?",
+  "answer": "O currículo 1741/-2 de Engenharia de Computação foi a estrutura curricular utilizada entre 2009 e 2016. Ele não está mais ativo e não existem alunos matriculados nele atualmente. Por essa razão, não é possível migrar para essa estrutura curricular.\n\nÉ importante ter atenção para não o confundir com o currículo 1741/2, que é o atual, vigente desde 2024."
+}

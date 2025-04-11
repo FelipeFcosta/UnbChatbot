@@ -1,0 +1,4 @@
+{
+  "question": "O que a UnB considera como sendo extensão universitária?",
+  "answer": "Na Universidade de Brasília, a extensão universitária é entendida como um processo abrangente (que envolve aspectos interdisciplinares, políticos, educacionais, culturais, esportivos, científicos e tecnológicos) cuja finalidade é promover uma interação de caráter transformador e dialógico entre a universidade e outros setores da sociedade, priorizando aqueles externos ao meio acadêmico.\n\nO principal objetivo dessa interação na UnB é que ela seja recíproca, gerando e disseminando conhecimento através do diálogo, com ênfase no protagonismo dos estudantes e na conexão com sua formação acadêmica."
+}

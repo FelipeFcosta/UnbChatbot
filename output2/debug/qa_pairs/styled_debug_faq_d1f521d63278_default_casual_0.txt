@@ -1,0 +1,9 @@
+Original Question: Qual o procedimento para solicitar o trancamento de uma disciplina específica?
+Answer: O trancamento de uma disciplina específica (não justificado) é feito pelo próprio estudante através do SIGAA:
+*   **Caminho:** Portal do Discente > Aba Ensino > Trancamento de Matrícula > Trancar.
+
+**Informações importantes:**
+*   **Prazo:** Deve ser solicitado antes de se completarem 50% do período letivo (verifique o calendário acadêmico no site da SAA).
+*   **Limite:** Só é possível trancar cada disciplina uma vez (exceto trancamento justificado).
+*   **Impacto:** O trancamento não afeta seu IRA.
+*   **Restrições:** Não é permitido trancar todas as disciplinas do semestre (nesse caso, use o Trancamento Geral de Matrícula). Evite trancar disciplinas de primeiro semestre ou que sejam pré-requisitos importantes, pois isso pode atrasar seu curso.

@@ -1,0 +1,4 @@
+{
+  "question": "é obrigatorio ter um minimo de horas de atividade complementar pra fazer?",
+  "answer": "A obrigatoriedade de cumprir uma carga horária mínima em atividades complementares é definida pelo regulamento de cada curso. Portanto, para saber se essa exigência se aplica ao seu caso, você precisa consultar o regulamento específico do seu curso. Encontre o regulamento acessando a página correspondente:\n- [Ciência da Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)\n- [Computação (Licenciatura)](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)\n- [Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)\n- [Engenharia Mecatrônica](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)"
+}

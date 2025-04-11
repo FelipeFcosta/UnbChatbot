@@ -1,0 +1,4 @@
+{
+  "question": "Gostaria de confirmar se há um número mínimo obrigatório de horas em atividades complementares para o curso de Engenharia de Computação.",
+  "answer": "Não, o curso de Engenharia de Computação não possui uma carga horária mínima obrigatória estipulada para a realização de atividades complementares."
+}

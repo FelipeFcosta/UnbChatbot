@@ -1,0 +1,4 @@
+{
+  "question": "Como é que marca a banca de defesa do Projeto Final 2 em Engenharia de Computação?",
+  "answer": "A marcação da banca de defesa do seu Projeto Final 2 é uma responsabilidade do seu professor orientador. Ele é quem deve definir a data, o horário e os membros da banca.\n\nPara registrar essas informações, o orientador deve utilizar [este formulário online](https://forms.office.com/pages/responsepage.aspx?id=oZs17AtjK024M8jm1I-AWXcelI-NHv1AsFTptEzXf1lUOUcyQzU3NUxIVFhVVzFMMVpONTBIWjZGMy4u&route=shorturl). Se houver alguma dúvida sobre o procedimento, a secretaria do CIC pode oferecer suporte."
+}

@@ -1,0 +1,4 @@
+{
+  "question": "Eu tenho mesmo que passar em 4 matérias a cada dois semestres pra não ser desligado?",
+  "answer": "Sim, essa regra existe e está formalmente em vigor. Ela determina que o estudante deve ser aprovado em, no mínimo, quatro componentes curriculares (sejam eles obrigatórios ou optativos) a cada dois semestres letivos consecutivos para não ser desligado do curso. É importante notar que, embora a regra exista, houve períodos recentes em que sua aplicação não foi estrita. Mesmo assim, recomendamos fortemente que você se esforce para cumprir essa exigência e evitar quaisquer problemas futuros."
+}

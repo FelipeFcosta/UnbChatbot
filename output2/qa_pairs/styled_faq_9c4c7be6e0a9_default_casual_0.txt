@@ -1,0 +1,4 @@
+{
+  "question": "Eu posso fazer o Projeto Final de Engenharia de Computação junto com um colega?",
+  "answer": "Sim, o regulamento do curso de Engenharia de Computação permite que o Projeto Final seja desenvolvido por dois estudantes em conjunto (em dupla)."
+}

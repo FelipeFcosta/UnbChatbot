@@ -1,0 +1,4 @@
+{
+  "question": "Quem pede primeiro na matricula extraordinaria eles dao preferencia?",
+  "answer": "Sim, para a matrícula extraordinária, a ordem do pedido é determinante. As vagas remanescentes, ou seja, aquelas que não foram preenchidas nas etapas anteriores, são alocadas estritamente conforme a ordem de chegada das solicitações. Portanto, quem solicita primeiro tem preferência nesse período específico."
+}

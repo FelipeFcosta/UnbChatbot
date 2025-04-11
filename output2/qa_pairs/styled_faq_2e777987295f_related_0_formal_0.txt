@@ -1,0 +1,4 @@
+{
+  "question": "Em que período do ano costuma ser divulgado o edital referente à Iniciação Científica?",
+  "answer": "O edital referente aos programas de Iniciação Científica da UnB é, usualmente, divulgado entre os meses de março e abril de cada ano."
+}

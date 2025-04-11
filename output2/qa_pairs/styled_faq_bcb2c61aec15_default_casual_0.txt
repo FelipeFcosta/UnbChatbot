@@ -1,0 +1,4 @@
+{
+  "question": "Onde eu reclamo sobre problemas na faculdade, tipo infraestrutura ou aulas?",
+  "answer": "A [Ouvidoria da UnB](https://ouvidoria.unb.br/) é o canal oficial para o registro de reclamações sobre diversos assuntos da universidade. Isso inclui questões relacionadas à infraestrutura, ensino, qualidade do atendimento, procedimentos administrativos, entre outros."
+}

@@ -1,0 +1,4 @@
+Original Question: Como faço para marcar a data da defesa pública do meu Projeto Final 2 em Engenharia de Computação?
+Answer: O agendamento da data, horário e local da sessão de defesa pública do Projeto Final 2 deve ser realizado pelo seu professor orientador.
+
+O orientador deve utilizar o [formulário de atendimento interno do CIC](https://www.cic.unb.br/o-cic/fale-conosco) para fazer esse agendamento. Em caso de dúvidas sobre o procedimento, entre em contato com a Secretaria do CIC.

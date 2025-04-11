@@ -1,0 +1,4 @@
+{
+  "question": "Tem algum requisito antes de poder comecar o estagio obrigatorio de engenharia da computacao?",
+  "answer": "Sim, para poder começar o estágio obrigatório no curso de Engenharia de Computação, há o requisito de ter completado (integralizado) um mínimo de 60% da carga horária total do curso."
+}

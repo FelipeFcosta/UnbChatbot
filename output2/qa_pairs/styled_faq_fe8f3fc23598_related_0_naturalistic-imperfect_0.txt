@@ -1,0 +1,4 @@
+{
+  "question": "pra fazer a cadeia 1 do curriculo 1741/1 quais materia eu curso agora?",
+  "answer": "Para cumprir a Cadeia 1 de seletividade do currículo 1741/1, visto que as disciplinas originais não são mais ofertadas, você precisa cursar as seguintes disciplinas: ENE0066 Introdução aos Circuitos Elétricos e ENE0068 Sinais e Sistemas em Tempo Discreto."
+}

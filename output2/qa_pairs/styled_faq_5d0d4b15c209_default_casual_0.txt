@@ -1,0 +1,4 @@
+{
+  "question": "Como a UnB decide quem tem prioridade na hora da matrícula e rematrícula?",
+  "answer": "A definição de prioridade para matrícula e rematrícula na UnB segue critérios específicos. Para conhecer detalhadamente quais são esses critérios, você pode acessar a [página da SAA sobre matrícula](https://www.saa.unb.br/matricula#quais-sao-os-criterios-de-prioridade).\nVale ressaltar que, para essas etapas, a ordem em que você realiza a sua solicitação não influencia a sua posição na classificação de prioridade."
+}

@@ -1,0 +1,4 @@
+{
+  "question": "Como eu posso encontrar um professor que me orienta no TCC?",
+  "answer": "Para encontrar um professor que possa orientar seu Projeto Final (TCC), recomendamos o seguinte processo:\n\n1.  **Defina Seus Interesses:** Comece refletindo sobre as áreas ou disciplinas de maior interesse acadêmico para você.\n2.  **Pesquise Docentes:** Identifique professores que trabalham nessas áreas, seja ministrando disciplinas ou conduzindo pesquisas relacionadas.\n3.  **Faça Contato:** Procure os professores selecionados, presencialmente ou por e-mail. Ao enviar um e-mail, é recomendável já indicar seu tema de interesse ou perguntar sobre os tópicos que eles costumam orientar.\n4.  **Antecipe-se:** É fundamental iniciar essa busca com antecedência. O ideal é no semestre anterior ao início previsto do TCC, ou, no máximo, nas primeiras semanas do semestre em que pretende começar."
+}

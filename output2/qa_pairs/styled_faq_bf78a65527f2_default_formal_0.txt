@@ -1,0 +1,4 @@
+{
+  "question": "Qual é a definição institucional da UnB para o termo 'extensão universitária'?",
+  "answer": "A definição institucional de 'extensão universitária' na UnB a descreve como um processo abrangente – de natureza interdisciplinar, política, educacional, cultural, esportiva, científica e tecnológica. Seu propósito é fomentar uma interação transformadora e dialógica entre a universidade e outros segmentos da sociedade, com ênfase naqueles externos ao ambiente acadêmico.\n\nO objetivo central na UnB é que essa interação seja recíproca, resultando na produção e disseminação de conhecimento de maneira dialógica, destacando-se o protagonismo estudantil e a articulação com a formação do estudante."
+}

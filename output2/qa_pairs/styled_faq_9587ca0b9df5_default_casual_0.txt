@@ -1,0 +1,4 @@
+{
+  "question": "Terminei as horas do estágio obrigatório de Engenharia de Computação, o que eu faço agora pra receber a nota?",
+  "answer": "Para receber a menção após concluir as horas de estágio obrigatório em Engenharia de Computação, você precisa entregar o **Relatório de Atividades de Estágio**. Isso pode ser feito assim que completar as 150 horas exigidas (aproximadamente 5 semanas para 30h/semana ou 8 semanas para 20h/semana).\n\nO relatório deve ser preenchido e assinado tanto por você quanto pelo seu supervisor na empresa.\n\n*   **Onde encontrar o modelo:** O modelo (EST_Relatorio_de_Atividades) está disponível na página de documentos do CIC: [https://cic.unb.br/informacoes/documentos](https://cic.unb.br/informacoes/documentos).\n*   **Como entregar:** A entrega deve ser feita pelo [formulário de atendimento interno do CIC](https://cic.unb.br/o-cic/fale-conosco)."
+}

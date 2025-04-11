@@ -1,0 +1,4 @@
+{
+  "question": "da pra pedir revisao de mencao por causa de problemas pessoais q atrapalhou?",
+  "answer": "Não, o pedido de revisão de menção não pode ser utilizado em função de problemas pessoais que tenham prejudicado seu desempenho. A finalidade desse procedimento é estritamente a correção de possíveis erros cometidos pelo professor na avaliação. Para lidar com situações de baixo desempenho causadas por questões extra-acadêmicas, o recurso apropriado é o trancamento justificado."
+}

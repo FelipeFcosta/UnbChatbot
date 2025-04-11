@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Fine-tune the Gemma-3 LLM using Unsloth's LoRA approach with UNB Chatbot QA data.
-This script uses Modal to run the fine-tuning process on cloud A10G GPUs.
+This script uses Modal to run the fine-tuning process on cloud GPUs.
 Includes updated transformers version to address HybridCache error during evaluation.
 """
 
@@ -22,10 +22,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-GPU = "T4"
+GPU = "A10G"
+VOLUME_NAME = "unb-chatbot-gemma"
 
 # Define Modal app and resources
-app = modal.App("unb-chatbot-gemma4b-run4") # App name updated
+app = modal.App("unb-chatbot-gemma4b") # App name updated
 
 # Create a Modal image with dependencies
 image = (
@@ -54,7 +55,7 @@ image = (
 
 # Volume to store output models
 output_volume = modal.Volume.from_name(
-    "unb-chatbot-gemma", create_if_missing=True
+    VOLUME_NAME, create_if_missing=True
 )
 
 huggingface_secret = modal.Secret.from_name("huggingface")
@@ -70,22 +71,26 @@ huggingface_secret = modal.Secret.from_name("huggingface")
 )
 def run_fine_tuning(
     hf_dataset: str,
-    output_dir: str = "unb_chatbot_gemma4b", # Updated default dir
-    base_model: str = "unsloth/gemma-3-4b-it-bnb-4bit",
-    epochs: int = 3,
+    epochs: int,
+    output_dir: str = "unb_chatbot_gemma4b",
+    base_model: str = "unsloth/gemma-3-4b-it",
+    load_in_4bit = False,
+    load_in_8bit = True,
     learning_rate: float = 2e-4,
-    batch_size: int = 2, # Starting batch size for A10G
-    lora_rank: int = 8,
-    lora_alpha: int = 8,
+    batch_size: int = 2, # Starting batch size for
+    gradient_accumulation_steps: int = 8,
+    lora_rank: int = 64,
+    lora_alpha: int = 64,
     lora_dropout: float = 0.05,
-    max_seq_length: int = 2048,
+    max_seq_length: int = 4096,
     warmup_ratio: float = 0.1,
     weight_decay: float = 0.01,
     resume_from_checkpoint: bool = True,
     delete_output_dir: bool = False,
-    lr_scheduler_type: str = "linear"
+    lr_scheduler_type: str = "cosine_with_restarts",
+    packing: bool = False
 ):
-    """Run fine-tuning on Modal with A10G GPU, evaluation enabled, with updated transformers."""
+    """Run fine-tuning on Modal, evaluation enabled."""
     # Import dependencies
     from unsloth import FastModel
     import torch
@@ -100,8 +105,6 @@ def run_fine_tuning(
     import accelerate.utils.operations as accel_ops
 
     logger.info(f"Using Transformers version: {transformers.__version__}") # Log version
-
-    gradient_accumulation_steps = 4 if batch_size == 2 else 2 if batch_size == 4 else 8 if batch_size == 1 else 1
 
     def apply_chat_template(examples):
         texts = tokenizer.apply_chat_template(examples["messages"])
@@ -136,13 +139,23 @@ def run_fine_tuning(
     logger.info(f"  Gradient Accumulation Steps: {gradient_accumulation_steps}")
     logger.info(f"  Resume from checkpoint: {resume_from_checkpoint}")
 
+    if load_in_4bit and load_in_8bit:
+        # raise error, only one must be true
+        raise ValueError("Cannot load model in both 4-bit and 8-bit mode. Please set one to True and the other to False.")
+    elif load_in_4bit:
+        logger.info("  Loading model with 4bit quantization:")
+    else:
+        logger.info("  Loading model with 8bit quantization:")
+
+
+
     # Load the base model and tokenizer
     logger.info("Loading base model and tokenizer...")
     model, tokenizer = FastModel.from_pretrained(
         model_name=base_model,
         max_seq_length=max_seq_length,
-        load_in_4bit=False,
-        load_in_8bit=True,
+        load_in_4bit=load_in_4bit,
+        load_in_8bit=load_in_8bit,
         token=hf_token,
         full_finetuning=False
     )
@@ -175,6 +188,10 @@ def run_fine_tuning(
 
         # Get train split
         train_dataset = dataset.get("train", dataset.get("training"))
+        # shuffle train_dataset
+        train_dataset = train_dataset.shuffle(seed=42)
+
+        
         if train_dataset is None:
             raise ValueError(f"No 'train' or 'training' split found in dataset {hf_dataset}")
         logger.info(f"Loaded training dataset with {len(train_dataset)} examples")
@@ -213,10 +230,11 @@ def run_fine_tuning(
 
     # solve bug with HybridCache
     _orig_recursively_apply = accel_ops.recursively_apply
+
     def patched_recursively_apply(func, data, test_type=lambda x: hasattr(x, "float") and isinstance(x, torch.Tensor), *args, **kwargs):
         def safe_func(x):
             if x.__class__.__name__ == "HybridCache":
-                return x
+                return x  # Skip to avoid .float() call
             return func(x)
         return _orig_recursively_apply(safe_func, data, test_type=test_type, *args, **kwargs)
 
@@ -238,11 +256,12 @@ def run_fine_tuning(
         tokenizer = tokenizer,
         train_dataset = train_dataset,
         eval_dataset = eval_dataset, # Can set up evaluation!
+        packing = packing,
         args = SFTConfig(
             output_dir = output_dir_path,
             dataset_text_field = "text",
             gradient_accumulation_steps=gradient_accumulation_steps, # Use GA to mimic batch size!
-            per_device_train_batch_size = 2,
+            per_device_train_batch_size = batch_size,
             warmup_ratio = warmup_ratio,
             num_train_epochs = epochs,
             # max_steps = 50,
@@ -251,13 +270,14 @@ def run_fine_tuning(
             optim = "adamw_8bit",
             weight_decay=weight_decay,
             lr_scheduler_type = lr_scheduler_type,
+            lr_scheduler_kwargs={"num_cycles":6},
             seed = 3407,
             report_to = "none", # Use this for WandB etc
             eval_strategy="steps",
-            eval_steps=40,
+            eval_steps=20,
             load_best_model_at_end=True,
             metric_for_best_model="eval_loss",
-            save_steps=40,  # Save checkpoints
+            save_steps=20,  # Save checkpoints
             save_total_limit=3,  # checkpoints to keep
         ),
     )
@@ -324,4 +344,4 @@ def main(
 
     print(result)
     print("\nTo download the model adapters, run:")
-    print(f"  modal volume get unb-chatbot-models {output_dir} ./local_model_dir_{output_dir.replace('/', '_')}")
+    print(f"  modal volume get {VOLUME_NAME} {output_dir} ./local_model_dir_{output_dir.replace('/', '_')}")

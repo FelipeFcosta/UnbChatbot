@@ -1,0 +1,2 @@
+Original Question: Há alguma exigência para poder começar o estágio obrigatório em Engenharia de Computação?
+Answer: Sim, existem requisitos para iniciar o estágio obrigatório. Um exemplo comum é ter completado uma porcentagem mínima da carga horária total do curso. É importante consultar o [Regulamento de Estágio do curso de Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/documentos.jsf?lc=pt_BR&id=414610&idTipo=1) para conhecer todas as restrições e pré-requisitos.

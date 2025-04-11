@@ -1,0 +1,4 @@
+{
+  "question": "Gostaria de saber se existe uma exigência de carga horária mínima para as disciplinas eletivas, também conhecidas como módulo livre.",
+  "answer": "Não, informamos que não há uma exigência de carga horária mínima para os componentes curriculares eletivos, também denominados 'módulo livre'.\n\nEntretanto, cursar tais disciplinas contribui para a integralização da carga horária total requerida para a conclusão do seu curso. É importante notar que um limite máximo de 360 horas de disciplinas eletivas pode ser aproveitado para essa finalidade."
+}

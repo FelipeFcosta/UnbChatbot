@@ -1,0 +1,4 @@
+{
+  "question": "Quantas horas no máximo eu posso pegar por semestre em Engenharia de Computação?",
+  "answer": "O limite máximo de carga horária semestral que um estudante pode cursar em Engenharia de Computação é definido pelo currículo ao qual está vinculado. Os valores são:\n\n*   **480 horas** para estudantes do Currículo **1741/1**.\n*   **450 horas** para estudantes do Currículo **1741/2**."
+}

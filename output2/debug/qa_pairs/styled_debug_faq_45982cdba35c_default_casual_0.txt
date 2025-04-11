@@ -1,0 +1,7 @@
+Original Question: Qual a diferença entre aproveitamento e dispensa de disciplinas/componentes?
+Answer: Tanto o aproveitamento quanto a dispensa permitem que você valide conhecimentos adquiridos fora das disciplinas regulares do seu curso atual na UnB, mas a origem do conhecimento difere:
+
+*   **Aproveitamento de Estudos:** Aplica-se quando você cursou componentes curriculares equivalentes em **outra instituição** de ensino superior.
+*   **Dispensa:** Aplica-se quando você adquiriu o conhecimento através de **outras atividades**, como experiência profissional relevante, projetos, estágios, cursos de pós-graduação, exames de proficiência, etc.
+
+Em ambos os casos, é necessário apresentar documentação que comprove o conhecimento adquirido. Mais detalhes podem ser encontrados na [página da SAA sobre aproveitamento](https://www.saa.unb.br/graduacao/perguntas-frequentes-grad#aproveitamento-de-disciplinas-de-ex-aluna-o-da-unb).

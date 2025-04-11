@@ -1,0 +1,4 @@
+{
+  "question": "As notas que tirei nas matérias de Verão contam para o meu IRA?",
+  "answer": "Sim, as notas que você obtiver nas disciplinas cursadas no período de Verão entram no cálculo do seu Índice de Rendimento Acadêmico (IRA).\n\nNo cálculo do IRA, essas disciplinas são consideradas como se tivessem sido cursadas no último semestre regular do ano anterior. Por exemplo, se você cursar uma disciplina no Verão de 2024 (que é identificado como semestre 2023.4), ela afetará o seu IRA da mesma forma que uma disciplina cursada no semestre 2023.2."
+}

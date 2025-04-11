@@ -1,0 +1,4 @@
+{
+  "question": "Poderia me indicar o canal adequado para formalizar uma queixa sobre infraestrutura, aulas, atendimento ou outros procedimentos universitários?",
+  "answer": "O canal apropriado para formalizar queixas relativas a infraestrutura, aulas, atendimento, procedimentos universitários ou outras questões relacionadas é a [Ouvidoria da UnB](https://ouvidoria.unb.br/). Este é o órgão oficial para o encaminhamento de tais reclamações."
+}

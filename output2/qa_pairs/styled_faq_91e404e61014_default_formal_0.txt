@@ -1,0 +1,4 @@
+{
+  "question": "Qual é o processo formal que devo seguir para solicitar a validação das horas cumpridas em atividades de extensão para o curso de Engenharia de Computação?",
+  "answer": "O processo formal para solicitar a validação e integralização das horas cumpridas em atividades de extensão no curso de Engenharia de Computação requer que o estudante siga as orientações e procedimentos detalhados no edital específico sobre o tema.\n\nEste edital é publicado pela Universidade a cada semestre letivo, estabelecendo os prazos, documentos necessários e critérios para a solicitação."
+}

@@ -1,0 +1,4 @@
+{
+  "question": "Pra Iniciação Científica, o aluno se inscreve sozinho ou é o professor que inscreve ele?",
+  "answer": "No caso da Iniciação Científica, a inscrição do estudante em um projeto é realizada pelo professor orientador que é responsável pelo referido projeto."
+}

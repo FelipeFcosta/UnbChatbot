@@ -1,0 +1,4 @@
+{
+  "question": "Depois que eu mudar de estrutura curricular, da pra desfazer e voltar pra antiga?",
+  "answer": "Não, não é possível desfazer a mudança de estrutura curricular e retornar à anterior. Uma vez que sua solicitação de mudança é processada, a alteração para a nova estrutura curricular é definitiva e não pode ser revertida."
+}

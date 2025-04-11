@@ -1,0 +1,4 @@
+{
+  "question": "eu preciso fazer um tanto minimo de hora eletiva pra engenharia da computacao?",
+  "answer": "Não, para o curso de Engenharia de Computação não se exige um mínimo de carga horária em disciplinas eletivas (módulo livre).\n\nEntretanto, cursar essas disciplinas é uma forma de contribuir para a integralização da carga horária total do seu curso. Para esse propósito, você pode aproveitar um limite máximo de 360 horas eletivas."
+}

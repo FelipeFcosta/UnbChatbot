@@ -1,0 +1,4 @@
+{
+  "question": "como q eu faco pra completar todas horas do curso de engenharia de computacao?",
+  "answer": "Para fazer a integralização de todas as horas do curso de Engenharia de Computação, você deve cumprir os componentes obrigatórios, optativos e eletivos (conhecidos como módulo livre) que estão estabelecidos na sua estrutura curricular específica."
+}

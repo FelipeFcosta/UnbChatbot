@@ -1,0 +1,4 @@
+{
+  "question": "O que eu preciso cumprir pra poder me formar?",
+  "answer": "Para poder colar grau e concluir seu curso, você precisa satisfazer integralmente as seguintes condições:\n\na)  Ter aprovação em todos os componentes curriculares definidos como obrigatórios na sua estrutura curricular.\nb)  Ter cumprido todas as exigências de seletividade (cadeias de pré-requisitos), caso elas existam no seu currículo.\nc)  Ter completado totalmente a carga horária optativa exigida, ou seja, zerado a pendência correspondente.\n\nÉ possível verificar o andamento do cumprimento de todas essas exigências consultando o seu histórico escolar."
+}

@@ -1,0 +1,4 @@
+{
+  "question": "pra conseguir a outorga antecipada eu vo ter que fazer alguma prova pras materias que faltam?",
+  "answer": "Sim. Para obter a outorga antecipada de grau, o estudante precisa realizar e ser aprovado em uma avaliação específica para cada disciplina que ainda estiver pendente em seu currículo. Essas avaliações são elaboradas especificamente para atender a essa finalidade de antecipação."
+}

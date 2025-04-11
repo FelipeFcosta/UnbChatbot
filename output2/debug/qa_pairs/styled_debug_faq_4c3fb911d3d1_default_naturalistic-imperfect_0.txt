@@ -1,0 +1,9 @@
+Original Question: Existe uma ordem recomendada de quais disciplinas cursar a cada semestre em Engenharia de Computação?
+Answer: Você tem liberdade para escolher as disciplinas que cursará a cada semestre, desde que respeite os pré-requisitos de cada uma.
+
+No entanto, existem sugestões de fluxo curricular que podem te ajudar a organizar seus estudos:
+*   [Sugestão para o currículo 1741/1](https://www.ene.unb.br/joaoluiz/engcomputacao_fluxo_sugerido_1741-1.pdf)
+*   [Sugestão para o currículo 1741/2](https://www.ene.unb.br/joaoluiz/engcomputacao_fluxo_sugerido_1741-2.pdf)
+(Lembre-se que o número do seu currículo está no seu histórico escolar).
+
+É importante notar que esses fluxos podem listar muitas disciplinas optativas. Você talvez não precise cursar todas elas, pois a carga horária optativa pendente diminui ao cursar eletivas (módulo livre) ou por meio de equivalências.

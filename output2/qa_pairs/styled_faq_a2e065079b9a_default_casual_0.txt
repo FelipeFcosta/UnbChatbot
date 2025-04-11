@@ -1,0 +1,4 @@
+{
+  "question": "Onde eu vejo a lista das matérias que vão abrir no semestre que vem?",
+  "answer": "A relação de disciplinas que serão ofertadas no próximo semestre pode ser verificada no [SIGAA, na área de consulta pública de turmas](https://sig.unb.br/sigaa/public/turmas/listar.jsf?aba=p-ensino).\n\nSe desejar visualizar as disciplinas de um departamento específico, como o de Ciência da Computação, basta selecioná-lo no filtro 'Unidade Responsável' (por exemplo,'DEPTO CIÊNCIAS DA COMPUTAÇÃO - BRASÍLIA').\n\nLembre-se que a lista exibida é a oferta aprovada pelo departamento, mas podem ocorrer mudanças até a consolidação final. Nessa mesma página, você também pode conferir a oferta de outras unidades acadêmicas."
+}

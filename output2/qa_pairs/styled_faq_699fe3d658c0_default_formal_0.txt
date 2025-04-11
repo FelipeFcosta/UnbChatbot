@@ -1,0 +1,4 @@
+{
+  "question": "Gostaria de saber se existe uma exigência de carga horária mínima para atividades de extensão no curso de Engenharia de Computação.",
+  "answer": "Atualmente, não há uma exigência de carga horária mínima para atividades de extensão nos currículos 1741/1 e 1741/2 do curso de Engenharia de Computação.\n\nContudo, informamos que um novo currículo está em fase de desenvolvimento e este sim contemplará a obrigatoriedade de 10% da carga horária total em atividades de extensão. Ressaltamos que essa exigência será aplicável somente aos estudantes que ingressarem sob a égide deste novo currículo ou àqueles que optarem pela migração quando o mesmo entrar em vigor."
+}

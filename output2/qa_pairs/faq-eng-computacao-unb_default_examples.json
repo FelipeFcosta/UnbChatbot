@@ -1,0 +1,583 @@
+[
+    {
+        "question": "Como posso entrar em contato com o coordenador do curso de Engenharia de Computação?",
+        "answer": "O coordenador do curso de Engenharia de Computação para o período de janeiro de 2025 a janeiro de 2027 é o Prof. Guilherme Novaes Ramos.\n\nA maioria das solicitações pode ser resolvida por e-mail: engcomputacao@unb.br.\n\nCaso prefira um atendimento presencial ou por Microsoft Teams, você pode agendar enviando um e-mail com sua disponibilidade de horário e a modalidade preferida (presencial ou remota).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_66149a9fb7fb_default",
+        "type": "styled"
+    },
+    {
+        "question": "Existe uma ordem recomendada de quais disciplinas cursar a cada semestre em Engenharia de Computação?",
+        "answer": "Você tem liberdade para escolher as disciplinas que cursará a cada semestre, desde que respeite os pré-requisitos de cada uma.\n\nNo entanto, existem sugestões de fluxo curricular que podem te ajudar a organizar seus estudos:\n*   [Sugestão para o currículo 1741/1](https://www.ene.unb.br/joaoluiz/engcomputacao_fluxo_sugerido_1741-1.pdf)\n*   [Sugestão para o currículo 1741/2](https://www.ene.unb.br/joaoluiz/engcomputacao_fluxo_sugerido_1741-2.pdf)\n(Lembre-se que o número do seu currículo está no seu histórico escolar).\n\nÉ importante notar que esses fluxos podem listar muitas disciplinas optativas. Você talvez não precise cursar todas elas, pois a carga horária optativa pendente diminui ao cursar eletivas (módulo livre) ou por meio de equivalências.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_4c3fb911d3d1_default",
+        "type": "styled"
+    },
+    {
+        "question": "Quais são os requisitos para concluir o curso de Engenharia de Computação?",
+        "answer": "Para se formar em Engenharia de Computação, você precisa cumprir as seguintes condições:\n\na)  Ser aprovado(a) em todos os componentes curriculares obrigatórios da sua estrutura curricular.\nb)  Cumprir as exigências de todas as cadeias de seletividade (se aplicável ao seu currículo - o currículo 1741/2 não possui cadeias de seletividade).\nc)  Zerar a carga horária optativa pendente.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_3b2f7b5122a2_default",
+        "type": "styled"
+    },
+    {
+        "question": "Qual a carga horária total do curso de Engenharia de Computação?",
+        "answer": "A carga horária total exigida no curso de Engenharia de Computação depende da sua estrutura curricular:\n\n*   **Currículo 1741/1:** 3.480 horas\n*   **Currículo 1741/2:** 3.780 horas\n\nVocê pode confirmar qual é o seu currículo e a carga horária total exigida verificando seu histórico escolar (o número do currículo está no topo da primeira página e a carga total/pendente no quadro resumo).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_fdee4314bb41_default",
+        "type": "styled"
+    },
+    {
+        "question": "Posso solicitar a migração do currículo 1741/1 para o 1741/2?",
+        "answer": "Sim, é possível migrar do currículo 1741/1 para o 1741/2 em Engenharia de Computação, mas a decisão exige análise cuidadosa.\n\n**Passos recomendados:**\n1.  Assista a [este vídeo explicativo](https://youtu.be/iyMJGDt0rYU).\n2.  Procure a SAA (Secretaria de Administração Acadêmica, localizada no Centro de Vivência) e peça uma simulação do seu histórico na estrutura 1741/2.\n3.  **Compare cuidadosamente** seu histórico atual (1741/1) com a simulação (1741/2), focando na **carga horária total pendente** e na **lista de componentes curriculares pendentes**. Evite comparar apenas as cargas optativas/obrigatórias isoladamente, pois a classificação pode mudar.\n4.  Consulte também as sugestões de fluxo ([1741/1](https://www.ene.unb.br/joaoluiz/engcomputacao_fluxo_sugerido_1741-1.pdf), [1741/2](https://www.ene.unb.br/joaoluiz/engcomputacao_fluxo_sugerido_1741-2.pdf)) e as listas de disciplinas ([neste link](https://sigaa.unb.br/sigaa/public/curso/curriculo.jsf?lc=pt_BR&id=414610), clicando nos ícones de caderno).\n5.  Após analisar tudo, se decidir migrar, envie a solicitação por e-mail à coordenação do curso.\n\n**Importante:** A migração é **irreversível**. Tenha certeza da sua decisão. Se tiver dúvidas, procure a coordenação antes de solicitar.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_93422342a1f3_default",
+        "type": "styled"
+    },
+    {
+        "question": "Posso solicitar a migração do currículo 1741/2 para o 1741/1?",
+        "answer": "Não, a migração do currículo 1741/2 para o currículo 1741/1 não é permitida para o curso de Engenharia de Computação.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_1b317d509a48_default",
+        "type": "styled"
+    },
+    {
+        "question": "O que foi o currículo 1741/-2 de Engenharia de Computação e posso migrar para ele?",
+        "answer": "O currículo 1741/-2 de Engenharia de Computação foi uma estrutura curricular que vigorou de 2009 a 2016. Ele está inativo e não há mais alunos matriculados nele, portanto, não é possível migrar para essa estrutura.\n\nÉ importante não confundi-lo com o currículo 1741/2, que é o vigente desde 2024.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_8bad3c7c054d_default",
+        "type": "styled"
+    },
+    {
+        "question": "Como completar a carga horária total exigida no curso de Engenharia de Computação?",
+        "answer": "Você integraliza a carga horária total do curso de Engenharia de Computação cumprindo os componentes obrigatórios, optativos e eletivos (módulo livre) definidos em sua estrutura curricular.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_2b0df089f359_default",
+        "type": "styled"
+    },
+    {
+        "question": "O que preciso fazer para zerar a carga horária optativa pendente em Engenharia de Computação?",
+        "answer": "Para zerar a carga horária optativa pendente, você precisa cursar e ser aprovado(a) em componentes curriculares optativos e/ou eletivos (módulo livre).\n\nA quantidade de horas optativas que ainda falta cumprir está indicada no quadro “Carga Horária Integralizada/Pendente” do seu histórico escolar.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_867e6d47fd0e_default",
+        "type": "styled"
+    },
+    {
+        "question": "Preciso cursar uma quantidade mínima de horas optativas em Engenharia de Computação?",
+        "answer": "Embora exista uma carga horária optativa total exigida para o curso (informada no seu histórico), a quantidade que você precisa cursar como 'optativa' pode variar. Isso porque a carga optativa pendente também diminui quando você cursa disciplinas eletivas (módulo livre) ou quando cumpre um componente por equivalência ao cursar outro da estrutura curricular.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_8154e583315c_default",
+        "type": "styled"
+    },
+    {
+        "question": "Sou obrigado a cursar um mínimo de horas eletivas (módulo livre) em Engenharia de Computação?",
+        "answer": "Não, não há uma exigência mínima de carga horária eletiva (módulo livre). No entanto, cursar componentes eletivos contribui para a integralização da carga horária total do curso, sendo que um máximo de 360 horas eletivas pode ser aproveitado para este fim.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_90c9fa29fdb4_default",
+        "type": "styled"
+    },
+    {
+        "question": "O que acontece se eu cursar mais de 360 horas de disciplinas eletivas em Engenharia de Computação?",
+        "answer": "Sim, você pode cursar até 900 horas de componentes eletivos. Porém, apenas 360 horas eletivas são consideradas para abater a carga horária total do curso e a carga optativa pendente.\n\nCaso você curse mais que 360 horas eletivas, todas as disciplinas aparecerão em seu histórico, mas as horas excedentes não serão contabilizadas para a integralização do curso.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_96d314cebd14_default",
+        "type": "styled"
+    },
+    {
+        "question": "Como posso identificar se uma disciplina é obrigatória, optativa ou eletiva para Engenharia de Computação?",
+        "answer": "Para saber a classificação de uma disciplina em Engenharia de Computação, consulte a estrutura curricular correspondente ao seu número de currículo (informado no seu histórico).\n\n*   **Obrigatórias e Optativas:** Estão listadas na sua estrutura curricular.\n*   **Eletivas (Módulo Livre):** São quaisquer disciplinas que *não* estão listadas na sua estrutura curricular como obrigatórias ou optativas.\n\nÉ fundamental verificar a lista específica do seu currículo, pois a classificação pode variar. Você pode visualizar as estruturas curriculares de Engenharia de Computação [nesta página](https://sigaa.unb.br/sigaa/public/curso/curriculo.jsf?lc=pt_BR&id=414610) (clique no ícone de caderno ao lado do seu currículo).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_7ec0a73633eb_default",
+        "type": "styled"
+    },
+    {
+        "question": "No meu histórico escolar, como identifico se uma disciplina foi contada como obrigatória, optativa ou eletiva?",
+        "answer": "Você pode identificar a classificação de um componente cursado no seu histórico escolar pelos símbolos ao lado do nome:\n\n*   **Eletivo (Módulo Livre):** Indicado por uma cerquilha (`#`).\n*   **Optativo:** Indicado por um asterisco (`*`), 'e' comercial (`&`), ou símbolo de parágrafo (`§`).\n*   **Obrigatório:** Geralmente não possui símbolo, mas pode aparecer com um 'e' minúsculo (`e`) ou uma arroba (`@`).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_b8d11efda785_default",
+        "type": "styled"
+    },
+    {
+        "question": "Onde verifico quais componentes obrigatórios ainda faltam para eu cursar em Engenharia de Computação?",
+        "answer": "Para saber quais componentes obrigatórios você ainda precisa cumprir, consulte seu histórico escolar. Ele apresenta uma lista denominada “componentes curriculares obrigatórios pendentes”.\n\nEssa seção também informa a carga horária pendente para cada cadeia de seletividade, se aplicável ao seu currículo (o currículo 1741/2 não possui cadeias de seletividade).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_1ad6b998ad4f_default",
+        "type": "styled"
+    },
+    {
+        "question": "Poderia me explicar o que é uma 'cadeia de seletividade' no contexto do currículo de Engenharia de Computação?",
+        "answer": "Uma 'cadeia de seletividade' é um grupo definido de componentes curriculares optativos, dentro do qual você deve cumprir uma carga horária mínima.\n\nPor exemplo, uma cadeia pode exigir 90 horas e conter quatro componentes de 30 horas cada. Nesse caso, você precisaria escolher e ser aprovado(a) em três desses quatro componentes para satisfazer a exigência da cadeia.\n\nVocê tem a liberdade de escolher quais componentes cursar dentro da cadeia e pode até cursar mais do que o mínimo exigido. Toda a carga horária cursada em componentes de uma cadeia de seletividade é contabilizada como carga horária optativa.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_0c1d5eddecbb_default",
+        "type": "styled"
+    },
+    {
+        "question": "Quais são as cadeias de seletividade específicas do currículo 1741/1 de Engenharia de Computação e quais disciplinas cursar nelas?",
+        "answer": "O currículo 1741/2 de Engenharia de Computação não possui cadeias de seletividade.\n\nPara o currículo **1741/1**, as orientações para as cadeias de seletividade, considerando disciplinas descontinuadas, são:\n\n*   **Cadeia 1:** Cursar ENE0066 Introdução aos Circuitos Elétricos e ENE0068 Sinais e Sistemas em Tempo Discreto (substituem CE2 e CEA).\n*   **Cadeia 2:** Cursar ENE0304 Circuitos Elétricos e ENE0282 Laboratório de Circuitos Elétricos (substituem CE1).\n*   **Cadeia 3:** Cursar ENE0039 Sistemas Digitais e ENE0040 Laboratório de Sistemas Digitais.\n*   **Cadeia 4:** Cursar ENE0045 Eletrônica e ENE0046 Laboratório de Eletrônica (substituem Dispositivos e Circuitos Eletrônicos).\n*   **Cadeia 5:** Cursar ENE0056 Sistemas Microprocessados e ENE0058 Laboratório de Sistemas Microprocessados (substituem Sistemas Digitais 2).\n*   **Cadeia 6:** Não aplicável ao currículo 1741/1.\n*   **Cadeia 7:** Cursar CIC0197 Técnicas de Programação 1 (substitui Programação Orientada a Objetos).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_fe8f3fc23598_default",
+        "type": "styled"
+    },
+    {
+        "question": "Onde encontro a fórmula ou explicação de como o IRA (Índice de Rendimento Acadêmico) é calculado?",
+        "answer": "A explicação detalhada sobre como o IRA é calculado, incluindo a fórmula utilizada pela UnB, pode ser encontrada no [\"Manual para estudantes\"](https://deg.unb.br/manualparaestudantes).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_32b665d5e626_default",
+        "type": "styled"
+    },
+    {
+        "question": "As notas das disciplinas que curso no período de Verão são consideradas no cálculo do meu IRA?",
+        "answer": "Sim, as menções obtidas nas disciplinas cursadas no período de Verão entram no cálculo do seu Índice de Rendimento Acadêmico (IRA).\n\nPara efeito de cálculo, elas são consideradas como se tivessem sido cursadas no último semestre regular do ano anterior. Por exemplo, disciplinas do Verão de 2024 (semestre 2023.4) entram no cálculo do IRA como se fossem do semestre 2023.2.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_d7a84a89399c_default",
+        "type": "styled"
+    },
+    {
+        "question": "Qual o procedimento para validar horas de atividades de extensão em Engenharia de Computação?",
+        "answer": "Para integralizar a carga horária de extensão em Engenharia de Computação, você precisa fazer a solicitação seguindo as orientações do edital específico, que é publicado a cada semestre.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_91e404e61014_default",
+        "type": "styled"
+    },
+    {
+        "question": "Preciso cumprir uma carga horária mínima de extensão em Engenharia de Computação?",
+        "answer": "Atualmente, os currículos 1741/1 e 1741/2 de Engenharia de Computação não exigem uma carga horária mínima em atividades de extensão.\n\nNo entanto, está em desenvolvimento um novo currículo que incluirá a obrigatoriedade de 10% da carga horária total em extensão. Essa exigência valerá apenas para os alunos que ingressarem nesse novo currículo ou que optarem por migrar para ele quando estiver vigente.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_699fe3d658c0_default",
+        "type": "styled"
+    },
+    {
+        "question": "Como faço para validar horas de atividades complementares em Engenharia de Computação?",
+        "answer": "A validação de horas de atividades complementares em Engenharia de Computação deve ser solicitada conforme as regras do edital específico, publicado semestralmente.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_80834aefb753_default",
+        "type": "styled"
+    },
+    {
+        "question": "O curso de Engenharia da Computação exige um mínimo de horas em atividades complementares?",
+        "answer": "Não, o curso de Engenharia de Computação não estabelece uma carga horária mínima obrigatória para atividades complementares.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_3323a3537eea_default",
+        "type": "styled"
+    },
+    {
+        "question": "Qual o procedimento para usar certificados de língua estrangeira para abater carga horária em Engenharia de Computação?",
+        "answer": "Para solicitar o aproveitamento de certificados de língua estrangeira como carga horária, você deve usar o [formulário de peticionamento eletrônico da SAA](https://www.saa.unb.br/sistemas/peticionamento-eletronico).\n\nConsulte este [manual](https://www.saa.unb.br/images/documentos/graduacao/manual_credito_lingua_estrangeira.pdf) para as orientações detalhadas. O acompanhamento do pedido pode ser feito pelo [acesso externo do SEI](https://sei.unb.br/sei/controlador_externo.php?acao=usuario_externo_logar&acao_origem=usuario_externo_enviar_cadastro&id_orgao_acesso_externo=0).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_70ada4cd27b2_default",
+        "type": "styled"
+    },
+    {
+        "question": "Qual o processo para conseguir participar de um projeto de iniciação científica (IC)?",
+        "answer": "Para participar de um projeto de Iniciação Científica (IC):\n1.  Converse com professores que pesquisam em áreas do seu interesse.\n2.  Você pode levar suas ideias ou perguntar sobre projetos existentes.\n3.  Procure os professores pessoalmente ou por e-mail.\n4.  **Timing:** É recomendado iniciar o contato no começo do ano (fevereiro/março), pois o edital geralmente é publicado em março/abril.\n5.  A inscrição no edital é feita pelo professor orientador.\n\nMais informações podem ser encontradas no site do [ProIC](https://proic.unb.br/).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_cb6a7815319e_default",
+        "type": "styled"
+    },
+    {
+        "question": "Fui aprovado em Circuitos Elétricos 1 (teoria e lab), mas reprovei em Circuitos Elétricos 2. O que devo fazer?",
+        "answer": "Nessa situação específica envolvendo as disciplinas de Circuitos Elétricos 1 e 2, você deve entrar em contato diretamente com o coordenador do curso de Engenharia de Computação para receber as orientações adequadas.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_4f48290f765e_default",
+        "type": "styled"
+    },
+    {
+        "question": "A disciplina Sinais e Sistemas em Tempo Discreto é classificada como obrigatória ou optativa em Engenharia de Computação?",
+        "answer": "A classificação da disciplina ENE0068 Sinais e Sistemas em Tempo Discreto depende do seu currículo em Engenharia de Computação:\n\n*   **Currículo 1741/2:** É uma disciplina **obrigatória**.\n*   **Currículo 1741/1:** Conta como **optativa**. No entanto, se você ainda não cumpriu a Cadeia 1 de seletividade, precisará cursá-la para completar a carga horária mínima dessa cadeia.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_f933d081969a_default",
+        "type": "styled"
+    },
+    {
+        "question": "Há equivalência entre as disciplinas CIC0229 Circuitos Lógicos e ENE0039 Sistemas Digitais para alunos de Engenharia de Computação?",
+        "answer": "Sim, existe equivalência entre CIC0229 Circuitos Lógicos e ENE0039 Sistemas Digitais, mas com restrições importantes:\n\n*   A equivalência é válida **apenas** para alunos da estrutura curricular **1741/2** de Engenharia de Computação.\n*   **Não** se aplica à estrutura 1741/1, pois ambas as disciplinas fazem parte dela, e a validação duplicaria a carga horária.\n*   **Não** é válida para alunos de outros cursos.\n*   **Importante:** Não há equivalência entre as disciplinas de laboratório (CIC0231 Lab. Circuitos Lógicos e ENE0040 Lab. Sistemas Digitais). Cursar uma não dispensa a outra.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_99699f6a5e0c_default",
+        "type": "styled"
+    },
+    {
+        "question": "A disciplina FGA0073 Teoria de Eletrônica Digital 1 é considerada equivalente a ENE0039 Sistemas Digitais para Engenharia de Computação?",
+        "answer": "Não, não existe equivalência entre FGA0073 Teoria de Eletrônica Digital 1 e ENE0039 Sistemas Digitais para o curso de Engenharia de Computação.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_bf1005f8fda4_default",
+        "type": "styled"
+    },
+    {
+        "question": "Para Engenharia de Computação, a disciplina CIC0124 Redes de Computadores tem equivalência com CIC0235 Teleinformática e Redes 1?",
+        "answer": "Não, não há equivalência entre CIC0124 Redes de Computadores (RC) e CIC0235 Teleinformática e Redes 1 (TR1) para Engenharia de Computação.\n\nA justificativa é que, embora haja alguma sobreposição, o conteúdo de RC (considerado suficiente para Ciência da Computação) não cobre a profundidade necessária de TR1 e TR2 para a formação em Engenharia de Computação. Alunos de Engenharia de Computação já veem todo o conteúdo de RC distribuído nas disciplinas obrigatórias TR1 e TR2.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_32d31172e725_default",
+        "type": "styled"
+    },
+    {
+        "question": "Posso solicitar matrícula em uma disciplina sem ter cumprido o pré-requisito dela?",
+        "answer": "Não, a matrícula sem cumprimento do pré-requisito não é permitida em nenhuma hipótese, conforme determina a [Circular DEG n° 5/2008](https://deg.unb.br/images/legislacao/5_2008.pdf).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_f3d16760c80d_default",
+        "type": "styled"
+    },
+    {
+        "question": "Quais estratégias posso usar para aumentar minhas chances de conseguir vaga em disciplinas concorridas de Engenharia de Computação?",
+        "answer": "Conseguir vaga em disciplinas concorridas envolve estratégia, especialmente nas fases de matrícula e rematrícula (onde a ordem de chegada não importa).\n\n**Dicas:**\n1.  **Analise as Vagas (SIGAA):** Verifique a capacidade da turma, o número de solicitações e, crucialmente, as vagas reservadas. Priorize turmas com mais vagas para 'demais alunos' do seu curso (o segundo número na notação X/Y, ex: 25/15 -> 15 vagas para não-ingressantes).\n2.  **Timing:** Não precisa solicitar no primeiro minuto. Acompanhar a demanda ao longo do período pode ajudar a escolher turmas menos disputadas.\n3.  **Informações do SIGAA:** Use dados como capacidade, nº de solicitações e reservas para tomar decisões. Se uma turma tem poucas vagas para você e muitas solicitações, considere outra.\n4.  **Localização:** Confirme o local da aula (FGA/FCTE=Gama, FCE/FCTS=Ceilândia, FUP=Planaltina).\n\nLembre-se que na matrícula extraordinária, a estratégia muda para 'ordem de chegada'.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_68175eb4d7d4_default",
+        "type": "styled"
+    },
+    {
+        "question": "Não obtive vaga nas fases de matrícula e rematrícula. Qual a minha alternativa?",
+        "answer": "Se não conseguiu vaga na matrícula ou rematrícula, sua próxima etapa é a **matrícula extraordinária**.\n\n*   **Vantagem:** As reservas de vagas por curso (exceto as de ingressantes) são liberadas, aumentando as chances.\n*   **Desvantagem:** A alocação é por **ordem de chegada** (primeiro a solicitar leva a vaga).\n*   **Estratégia:** Tente se matricular assim que a etapa iniciar e continue verificando o sistema frequentemente, pois vagas podem surgir devido a desistências.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_c5940d2ca84c_default",
+        "type": "styled"
+    },
+    {
+        "question": "Quais são os critérios de prioridade usados para classificar os alunos na matrícula e rematrícula em Engenharia de Computação?",
+        "answer": "Durante as fases de matrícula e rematrícula (processamento coletivo), a classificação dos alunos segue estes critérios de prioridade:\n1.  Condição de calouro.\n2.  Solicitação de disciplina obrigatória.\n3.  Solicitação de disciplina optativa.\n4.  Solicitação de disciplina módulo livre.\n\nEm caso de empate, os critérios de desempate são:\n1.  Estudante com cadastro aprovado na DACES (NEE).\n2.  Provável formando.\n3.  Aderência ao fluxo curricular sugerido.\n4.  Posição relativa no curso (proximidade da conclusão).\n5.  Índice de Rendimento Acadêmico (IRA).\n\nLembre-se que a ordem de solicitação não influencia o resultado nessas etapas.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_e399447a922e_default",
+        "type": "styled"
+    },
+    {
+        "question": "Poderia explicar o que significa 'vagas reservadas para ingressantes' no contexto da matrícula?",
+        "answer": "As 'vagas reservadas para ingressantes' são um número de vagas em certas turmas (especialmente de primeiro semestre) destinadas exclusivamente a alunos que acabaram de ingressar na UnB via Enem, PAS ou Vestibular (calouros).\n\nIsso pode dificultar a matrícula de alunos não-calouros nessas disciplinas. No SIGAA, a reserva é indicada por curso com dois números (X/Y), onde 'X' são as vagas para ingressantes e 'Y' para os demais alunos daquele curso (ex: 25/15 = 25 vagas para ingressantes, 15 para os demais).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_712227393e3a_default",
+        "type": "styled"
+    },
+    {
+        "question": "Como funciona a regra de co-requisito para disciplinas com parte teórica e laboratório (ex: Sistemas Digitais, Física 2)?",
+        "answer": "Para disciplinas do ENE (Sistemas Digitais, Sistemas Microprocessados, Circuitos Elétricos, Eletrônica) e também para Física 2/Experimental, a regra de co-requisito funciona assim:\n\n*   O **laboratório** exige que você esteja cursando (ou já tenha sido aprovado) a **teoria** no mesmo semestre.\n*   A **teoria** não tem o laboratório como co-requisito.\n\n**Implicações:**\n*   Você pode cursar só a teoria ou teoria+laboratório, mas não só o laboratório (a menos que já tenha aprovação na teoria).\n*   Se matriculado em ambas, você pode trancar ambas ou só o laboratório, mas não só a teoria (trancar a teoria exige trancar o laboratório junto).\n*   Se você já foi aprovado na teoria anteriormente, o laboratório pode ser cursado separadamente sem a restrição de co-requisito.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_0ce9cb8c4ef7_default",
+        "type": "styled"
+    },
+    {
+        "question": "Qual o limite máximo de carga horária que posso cursar por semestre em Engenharia de Computação?",
+        "answer": "A carga horária máxima permitida por semestre no curso de Engenharia de Computação varia conforme o currículo:\n\n*   **Currículo 1741/1:** 480 horas\n*   **Currículo 1741/2:** 450 horas",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_b7dfe69f3ffb_default",
+        "type": "styled"
+    },
+    {
+        "question": "Existe uma carga horária mínima obrigatória por semestre em Engenharia de Computação?",
+        "answer": "Embora o SIGAA possa indicar uma carga horária mínima (ex: 210h para os currículos 1741/1 e 1741/2), **não há uma exigência estrita** de cumprir esse mínimo a cada semestre para permanecer no curso.\n\n**No entanto, existe uma regra crucial para evitar o desligamento:** você precisa ser aprovado(a) em, no mínimo, **quatro componentes** (obrigatórios ou optativos, não contando eletivos) a cada **dois semestres consecutivos**. O não cumprimento desta condição pode levar ao desligamento.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_4c10abf547c1_default",
+        "type": "styled"
+    },
+    {
+        "question": "Qual o tempo máximo permitido para concluir o curso de Engenharia de Computação?",
+        "answer": "O prazo máximo para a conclusão do curso de Engenharia de Computação é de **18 semestres**, tanto para alunos do currículo 1741/1 quanto do 1741/2.\n\nCaso o aluno não consiga se formar dentro desse prazo, ele é desligado do curso. Se você perceber que pode exceder esse limite, converse com a coordenação do curso para verificar a possibilidade de solicitar uma prorrogação.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_906954f67e28_default",
+        "type": "styled"
+    },
+    {
+        "question": "Quais são as principais situações que podem levar ao desligamento do curso na UnB?",
+        "answer": "As causas mais frequentes de desligamento de um curso de graduação na UnB incluem:\n1.  Reprovar 3 vezes na mesma disciplina obrigatória.\n2.  Não obter aprovação em pelo menos 4 disciplinas (obrigatórias ou optativas) no total, somando dois semestres consecutivos.\n3.  Não realizar matrícula em disciplinas por dois semestres consecutivos (ou ser reprovado com SR - Sem Rendimento - em todas as disciplinas por dois semestres seguidos).\n4.  Não concluir o curso dentro do prazo máximo estabelecido.\n\nObservação: Para as regras 1 e 2, os semestres de 2020.1 a 2022.2 não foram considerados devido à pandemia. Disciplinas de cadeia de seletividade são optativas e não contam para a regra 1.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_14502f8631e0_default",
+        "type": "styled"
+    },
+    {
+        "question": "Se eu for reprovado em uma matéria obrigatória durante o curso de Verão, isso pode contar para o critério de desligamento por 3 reprovações?",
+        "answer": "Depende. Uma reprovação em disciplina obrigatória no Verão **será considerada** se a sua terceira reprovação nessa mesma disciplina ocorrer durante um semestre regular subsequente. Contudo, se a terceira reprovação ocorrer *durante* o próprio período de Verão, ela não resultará no desligamento imediato por essa regra.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_395d1db76024_default",
+        "type": "styled"
+    },
+    {
+        "question": "Fui desligado da UnB. Como funciona o processo para solicitar reintegração ao meu curso?",
+        "answer": "O processo de reintegração para alunos desligados da UnB é regulamentado pela [Resolução CEG n° 1/2023](https://deg.unb.br/images/legislacao/resolucao_ceg_001_2023_estabelece_procedimento_reintegracao.pdf).\n\nUma característica importante é que não há um edital específico com prazos definidos, o que significa que a solicitação pode ser feita a qualquer momento. Mais informações sobre os procedimentos estão disponíveis na [página do DEG sobre reintegração](http://deg.unb.br/reintegracao).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_f330fb9f7fac_default",
+        "type": "styled"
+    },
+    {
+        "question": "Qual o procedimento para solicitar o trancamento de uma disciplina específica?",
+        "answer": "O trancamento de uma disciplina específica (não justificado) é feito pelo próprio estudante através do SIGAA:\n*   **Caminho:** Portal do Discente > Aba Ensino > Trancamento de Matrícula > Trancar.\n\n**Informações importantes:**\n*   **Prazo:** Deve ser solicitado antes de se completarem 50% do período letivo (verifique o calendário acadêmico no site da SAA).\n*   **Limite:** Só é possível trancar cada disciplina uma vez (exceto trancamento justificado).\n*   **Impacto:** O trancamento não afeta seu IRA.\n*   **Restrições:** Não é permitido trancar todas as disciplinas do semestre (nesse caso, use o Trancamento Geral de Matrícula). Evite trancar disciplinas de primeiro semestre ou que sejam pré-requisitos importantes, pois isso pode atrasar seu curso.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_d1f521d63278_default",
+        "type": "styled"
+    },
+    {
+        "question": "Qual o procedimento para solicitar o Trancamento Geral de Matrícula (trancar o semestre)?",
+        "answer": "O Trancamento Geral de Matrícula (TGM) suspende todas as suas atividades acadêmicas no semestre, sem que você perca o vínculo com a UnB.\n\n**Como solicitar (TGM não justificado):**\n*   **Via SIGAA:** Portal do Discente > Aba Ensino > Suspensão de Programa > Suspensão Regular.\n\n**Regras importantes:**\n*   **Limite:** Você pode solicitar até dois TGM não justificados durante todo o curso (podem ser consecutivos ou não).\n*   **Prazo:** Deve ser solicitado antes de se completarem 75% do período letivo (consulte o calendário no site da SAA).\n*   **Renovação:** Se for solicitar TGM em semestres consecutivos, é preciso renovar o pedido a cada semestre.\n*   **Requisito:** É necessário ter sido aprovado em pelo menos um componente do seu curso na UnB (considerando seu ingresso atual).\n*   **Trancamento Justificado:** Não há limite para trancamentos justificados.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_85baceb8f098_default",
+        "type": "styled"
+    },
+    {
+        "question": "Como funciona o Trancamento Justificado (TJ ou TGMJ) e em quais situações posso solicitar?",
+        "answer": "O Trancamento Justificado permite trancar uma ou mais disciplinas (TJ) ou o semestre inteiro (TGMJ) a qualquer momento, mediante comprovação de um motivo válido.\n\n**Características:**\n*   **Prazo para Solicitar:** Até dois anos após o prazo original ou após o fim do motivo impeditivo.\n*   **Comprovação:** É essencial apresentar documentos que comprovem o motivo (ex: atestado médico).\n*   **Sem Limite:** Não há limite de quantos trancamentos justificados você pode solicitar.\n*   **Não Afeta TGM Automático:** Solicitar TJ/TGMJ não consome seus dois trancamentos gerais não justificados.\n*   **Sem Impacto no IRA:** O trancamento justificado não afeta seu índice de rendimento.\n*   **Renovação (TGMJ):** Se for um trancamento justificado do semestre inteiro, precisa ser renovado a cada semestre.\n\n**Motivos Previstos (Resolução CEPE n° 93/2018):** Incluem saúde (sua ou parente próximo), estudos no exterior, necessidade de serviço público, óbito de parente próximo, curso de formação, serviço militar, vulnerabilidade social/psicológica, entre outros.\n\n**Como Solicitar:**\n*   Via [peticionamento eletrônico no SEI](https://sei.unb.br/sei/controlador_externo.php?acao=usuario_externo_logar&acao_origem=usuario_externo_enviar_cadastro&id_orgao_acesso_externo=0).\n*   Consulte o [manual de trancamento](https://saa.unb.br/images/documentos/graduacao/peticionamento/manual_trancamento_05_03_23.pdf).\n*   Anexe todos os comprovantes.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_c59b570288b6_default",
+        "type": "styled"
+    },
+    {
+        "question": "Qual o procedimento para solicitar a revisão de uma menção final em uma disciplina?",
+        "answer": "Se você discorda da menção final atribuída pelo professor, pode solicitar uma revisão. O objetivo é corrigir **erros na avaliação**, não sendo aplicável para pedir novas chances ou justificar desempenho por motivos pessoais.\n\n**Procedimento Geral:**\n1.  **Fundamentação:** Seu pedido deve ser bem embasado, apontando os erros específicos na avaliação.\n2.  **Formulário:** Preencha o formulário de \"revisão de menção final em disciplina\" ([disponível aqui](https://saa.unb.br/graduacao/formularios)).\n3.  **Protocolo:** Dê entrada no processo na secretaria da unidade acadêmica responsável pela disciplina. Para disciplinas do CIC, use o [formulário interno](https://cic.unb.br/o-cic/fale-conosco); para o ENE, use [este link](http://www.ene.unb.br/index.php/component/breezingforms/ff_form/17/ff_page/1?ff_form=17&ff_page=1). Para outras, procure a secretaria correspondente.\n4.  **Prazo:** Verifique as datas limite no calendário acadêmico (site da SAA).\n5.  **Análise:** O pedido geralmente é analisado primeiro pelo próprio professor.\n6.  **Recurso:** Se indeferido, há possibilidade de recurso, que será analisado por uma comissão da unidade.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_52a92aab1e27_default",
+        "type": "styled"
+    },
+    {
+        "question": "Onde posso registrar uma reclamação geral sobre infraestrutura, ensino, atendimento ou outros procedimentos na UnB?",
+        "answer": "Para encaminhar reclamações gerais sobre infraestrutura, ensino, atendimento, procedimentos, etc., o canal adequado é a [Ouvidoria da UnB](https://ouvidoria.unb.br/).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_10b7f80b0659_default",
+        "type": "styled"
+    },
+    {
+        "question": "Qual o procedimento específico para obter as assinaturas nos documentos de estágio para Engenharia de Computação?",
+        "answer": "Para alunos de Engenharia de Computação, as assinaturas nos documentos de estágio são feitas pelos professores da comissão de estágio, com intermediação da secretaria do CIC.\n\n**Passos para novos estágios:**\n1.  Faça o [pré-cadastro do estágio no SIGAA](https://www.deg.unb.br/196-estrutura-administrativa/daia-diretoria-de-acompanhamento-e-integracao-semestre/cesg-coordenacao-de-estagios-da-graduacao/672-cadastro-de-estagio-no-sigaa-perguntas).\n2.  Envie o Termo de Compromisso (ou contrato) e o Plano de Atividades para o CIC via [formulário de atendimento interno](https://cic.unb.br/o-cic/fale-conosco).\n3.  Utilize os modelos de documentos disponíveis [aqui](https://www.cic.unb.br/informacoes/documentos).\n4.  No documento, indique como professor orientador um dos membros da comissão de estágio do CIC (Jan Mendonça Correa, Marcelo Ladeira ou Carla Denise Castanho).\n\nConsulte também o [manual de estágio do CIC](https://cic.unb.br/informacoes/documentos?download=39:cartilha-da-graduacao). Para mais dúvidas, procure a secretaria do CIC.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_bfdc67f67858_default",
+        "type": "styled"
+    },
+    {
+        "question": "Já trabalho na área de computação. Posso usar essa experiência para cumprir o estágio obrigatório de Engenharia de Computação?",
+        "answer": "Sim, o Projeto Pedagógico do Curso (PPC) de Engenharia de Computação permite que alunos que já atuam profissionalmente em áreas afins utilizem essa experiência para integralizar as horas de estágio obrigatório.\n\nPara entender o procedimento exato de validação e a documentação necessária, entre em contato com o coordenador do curso.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_3dfdfed2bde0_default",
+        "type": "styled"
+    },
+    {
+        "question": "Preciso cumprir algum requisito antes de iniciar o estágio obrigatório em Engenharia de Computação?",
+        "answer": "Sim. Para iniciar o estágio obrigatório no curso de Engenharia de Computação, é necessário ter integralizado, no mínimo, 60% da carga horária total do curso.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_b27649c046a8_default",
+        "type": "styled"
+    },
+    {
+        "question": "Como solicito a matrícula na disciplina de Estágio Supervisionado em Engenharia de Computação?",
+        "answer": "A matrícula em Estágio Supervisionado 1 ou 2 pode ser feita durante o semestre, não apenas no período oficial.\n\nApós ter seus documentos de estágio assinados pelo orientador, envie um e-mail à coordenação do curso de Engenharia de Computação solicitando a matrícula na atividade desejada (Estágio 1 ou 2). Lembre-se de informar no e-mail o número do processo SEI que contém sua documentação assinada (geralmente iniciado por 23106).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_18087f7d12f6_default",
+        "type": "styled"
+    },
+    {
+        "question": "Completei as 150 horas de estágio obrigatório em Engenharia de Computação. Qual o próximo passo para receber a menção?",
+        "answer": "Após completar as 150 horas de estágio (o que corresponde a cerca de 5 semanas em regime de 30h/sem ou 8 semanas em 20h/sem), você está apto(a) a receber a menção.\n\nPara isso, é preciso entregar o **Relatório de Atividades de Estágio**. Este relatório deve ser preenchido e assinado por você e pelo seu supervisor na empresa.\n\n*   Modelo: Disponível [aqui](https://cic.unb.br/informacoes/documentos) (procure por EST_Relatorio_de_Atividades).\n*   Entrega: Via [formulário de atendimento interno do CIC](https://cic.unb.br/o-cic/fale-conosco).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_9587ca0b9df5_default",
+        "type": "styled"
+    },
+    {
+        "question": "Posso cumprir e validar os componentes Estágio Supervisionado 1 e 2 no mesmo semestre em Engenharia de Computação?",
+        "answer": "Sim, é possível integralizar Estágio Supervisionado 1 e 2 no mesmo semestre.\n\nPara isso, seu relatório de estágio deve comprovar a realização de, no mínimo, 300 horas de atividades (equivalente a 10 semanas a 30h/sem ou 15 semanas a 20h/sem).\n\nApós enviar o relatório único que cobre essas 300 horas, você deve entrar em contato com o coordenador do curso informando seu desejo de usar esse mesmo relatório para validar ambos os componentes (Estágio 1 e Estágio 2).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_907255daa346_default",
+        "type": "styled"
+    },
+    {
+        "question": "Preciso cumprir algum requisito antes de iniciar o Projeto Final 1 em Engenharia de Computação?",
+        "answer": "Sim. Para poder se matricular na atividade de Projeto Final 1 em Engenharia de Computação, o aluno precisa ter integralizado, no mínimo, 70% da carga horária total do curso.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_5e2c7ac67941_default",
+        "type": "styled"
+    },
+    {
+        "question": "Como solicito a matrícula nas atividades de Projeto Final 1 ou 2 em Engenharia de Computação?",
+        "answer": "A matrícula em Projeto Final 1 ou 2 pode ser feita durante o semestre, não apenas no período oficial.\n\nO procedimento é solicitar ao seu professor orientador que encaminhe um processo via SEI para o coordenador de Engenharia de Computação. Esse processo deve conter a solicitação formal de matrícula, especificando seu nome, matrícula, a atividade desejada (PF1 ou PF2) e a confirmação da orientação pelo professor.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_8b433a8c6b65_default",
+        "type": "styled"
+    },
+    {
+        "question": "Qual a melhor forma de encontrar um professor orientador para o Projeto Final em Engenharia de Computação?",
+        "answer": "Para encontrar um orientador para seu Projeto Final:\n1.  Identifique professores cujas áreas de pesquisa ou disciplinas ministradas se alinham com seus interesses.\n2.  Entre em contato com eles (pessoalmente ou por e-mail).\n3.  Você pode apresentar suas próprias ideias de projeto ou perguntar sobre temas que eles possam ter disponíveis para orientação.\n4.  **Timing:** É recomendado iniciar essa busca no semestre anterior ao início do projeto ou logo nas primeiras semanas do semestre em que pretende começar.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_0cdcf4c65dde_default",
+        "type": "styled"
+    },
+    {
+        "question": "Posso ter um orientador de Projeto Final que não seja do CIC ou do ENE, sendo aluno de Engenharia de Computação?",
+        "answer": "Sim, você pode ter um orientador de outro departamento. No entanto, se o seu orientador principal não for professor do Departamento de Ciência da Computação (CIC) ou do Departamento de Engenharia Elétrica (ENE), você precisará obrigatoriamente ter um coorientador que pertença a um desses dois departamentos.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_08254cbc2202_default",
+        "type": "styled"
+    },
+    {
+        "question": "Posso fazer o Projeto Final de Engenharia de Computação em dupla com outro colega?",
+        "answer": "Sim, é permitido realizar o Projeto Final em dupla no curso de Engenharia de Computação.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_9c4c7be6e0a9_default",
+        "type": "styled"
+    },
+    {
+        "question": "Há algum modelo (template) oficial ou recomendado para formatar o relatório do Projeto Final?",
+        "answer": "Sim, existe um template disponível para LaTeX que pode ser usado como modelo para o relatório do Projeto Final. Você pode encontrá-lo neste repositório: [https://github.com/UnB-CIC/Monografia](https://github.com/UnB-CIC/Monografia).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_9b7ac933ab7f_default",
+        "type": "styled"
+    },
+    {
+        "question": "Qual o procedimento para agendar a banca de defesa do Projeto Final 2 em Engenharia de Computação?",
+        "answer": "O agendamento da banca de Projeto Final 2 (data, horário, membros) deve ser realizado pelo seu professor orientador.\n\nEle deve usar [este formulário online](https://forms.office.com/pages/responsepage.aspx?id=oZs17AtjK024M8jm1I-AWXcelI-NHv1AsFTptEzXf1lUOUcyQzU3NUxIVFhVVzFMMVpONTBIWjZGMy4u&route=shorturl) para cadastrar a banca. Em caso de dúvidas, a secretaria do CIC pode auxiliar.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_276559b63cd8_default",
+        "type": "styled"
+    },
+    {
+        "question": "Qual o tempo mínimo estabelecido para concluir o curso de Engenharia de Computação?",
+        "answer": "O prazo mínimo para conclusão varia conforme o currículo:\n*   **Currículo 1741/1:** 8 semestres (segundo o SIGAA).\n*   **Currículo 1741/2:** 10 semestres (segundo o SIGAA).\n\nEmbora o sistema permita a formatura em menos tempo, isso geralmente só ocorre em casos excepcionais, como o aproveitamento de muitas disciplinas cursadas anteriormente.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_56440beba89d_default",
+        "type": "styled"
+    },
+    {
+        "question": "Preciso fazer o Enade para me formar em Engenharia de Computação?",
+        "answer": "A obrigatoriedade do Enade para Engenharia de Computação depende do ano.\n\n*   O exame não é aplicado todo ano para este curso.\n*   Se houver Enade para Engenharia de Computação no ano em que você for se formar, **sim, você é obrigado(a) a fazer**.\n*   Se não houver Enade para o curso no seu ano de formatura, você será **automaticamente dispensado(a)**, e a pendência será removida do seu histórico.\n\nEspecificamente para o ano de **2024**, não haverá aplicação do Enade para os formandos de Engenharia de Computação da UnB.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_38c4be1d438d_default",
+        "type": "styled"
+    },
+    {
+        "question": "Estou perto de me formar em Engenharia de Computação. Posso solicitar a colação de grau antecipada?",
+        "answer": "A outorga antecipada de grau é concedida apenas em **casos excepcionais** e bem justificados, como:\n*   Aprovação em concurso público.\n*   Admissão em curso de pós-graduação.\n*   Oferta de emprego que exige o diploma.\n\n**Requisitos:**\n*   Apresentar comprovação do motivo excepcional.\n*   Ser formando no semestre atual ou provável formando no semestre seguinte.\n*   Ser aprovado em avaliações específicas para cada disciplina ainda pendente.\n\n**Importante:** Não há dispensa de estágio obrigatório ou da elaboração/apresentação do Projeto Final.\n\nConsulte as normas para mais detalhes: [Resolução CEG n° 2/2008](https://deg.unb.br/images/legislacao/ceg_2_2008.pdf) e [Resolução IE n° 35/2024](https://www.ene.unb.br/joaoluiz/resolucao_outorga_antecipada_IE_2024.pdf).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_4c98f32582f0_default",
+        "type": "styled"
+    },
+    {
+        "question": "Estou finalizando o curso. Onde busco informações sobre os procedimentos de formatura (burocracia, colação de grau)?",
+        "answer": "Para obter todas as instruções sobre os procedimentos burocráticos de formatura, colação de grau, etc., você deve procurar a secretaria do CIC.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_de3ca199ba59_default",
+        "type": "styled"
+    },
+    {
+        "question": "É possível validar na UnB disciplinas que já cursei em outra faculdade?",
+        "answer": "Sim, é possível solicitar o aproveitamento de disciplinas cursadas em outra Instituição de Ensino Superior (IES), desde que elas **não tenham sido cursadas ao mesmo tempo** em que você já estava matriculado(a) na UnB.\n\n*   Mais informações: [Perguntas Frequentes SAA](https://saa.unb.br/graduacao/perguntas-frequentes-grad#aproveitamento-de-disciplinas-de-outras-instituicoes-de-ensino-superior)\n*   Manual do processo: [Manual Ap. Estudos](https://saa.unb.br/images/documentos/graduacao/peticionamento/Manual_Ap_Estudos__v4.0.pdf)\n\nSe você é um aluno ingressante vindo de outra IES e precisa cursar disciplinas com pré-requisitos que você acredita já ter cumprido, procure o coordenador do seu curso.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_912e54ff3cb0_default",
+        "type": "styled"
+    },
+    {
+        "question": "Como funciona o processo para mudar de curso dentro da UnB ou para obter uma dupla diplomação?",
+        "answer": "Tanto a **mudança de curso** quanto a **dupla diplomação** são processos seletivos regidos por **editais específicos**, publicados semestralmente pela SAA/DEG. Você pode encontrar os editais e mais informações [aqui](https://saa.unb.br/graduacao/dupla-e-mudanca).\n\n*   **Mudança de Curso:** Permite alterar seu vínculo para outro curso (geralmente para ingressantes via PAS/Vestibular/ENEM). Requisitos e prazos estão no edital. A [Resolução CEPE UnB nº 053/2022](https://deg.unb.br/images/legislacao/resolucao_cepe_53_2022.pdf) detalha as regras.\n*   **Dupla Diplomação:** Permite iniciar um segundo curso após concluir o primeiro. Requisitos e prazos também estão no edital, baseados no Art. 8º da mesma resolução.\n*   **Alternativa:** A mudança de curso também pode ocorrer via novo ingresso (Vestibular, Vagas Remanescentes, etc. - veja [aqui](https://estudenaunb.unb.br/)).\n*   **Simulação:** Você pode pedir à SAA uma simulação de aproveitamento de créditos para um novo curso.\n\nO acompanhamento de ambos os processos (mudança e dupla) deve ser feito pelo site da SAA.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_758ab29e384b_default",
+        "type": "styled"
+    },
+    {
+        "question": "Onde encontro informações sobre bolsas de assistência estudantil e moradia na UnB?",
+        "answer": "Informações sobre os programas de assistência estudantil (incluindo bolsas) e moradia universitária podem ser encontradas nos seguintes links:\n\n*   [Portal de Serviços UnB - Assistência Estudantil](https://www.unb.br/servicos/assistencia-estudantil)\n*   [Diretoria de Desenvolvimento Social (DDS)](https://dds.dac.unb.br/)\n\nPara informações mais detalhadas e específicas, recomenda-se procurar diretamente a DDS.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_bf323362fa4d_default",
+        "type": "styled"
+    },
+    {
+        "question": "A UnB oferece suporte para estudantes com necessidades especiais (como TEA, TDAH) ou questões de saúde mental (depressão, ansiedade)?",
+        "answer": "Sim, a UnB oferece suporte especializado:\n\n*   **Necessidades Educacionais Especiais (NEE):** A Diretoria de Atenção à Saúde da Comunidade Universitária (DASU), por meio da Coordenação de Atenção Psicossocial (CAPsi) e da Coordenação de Atenção à Saúde e Bem-Estar (CASBEM), e a Diretoria da Diversidade (DIV) oferecem acolhimento e apoio. A DACES (Diretoria de Acessibilidade) também atua promovendo a acessibilidade. Mais informações sobre acessibilidade [aqui](http://www.acessibilidade.unb.br/).\n*   **Saúde Mental (Depressão, Ansiedade, etc.):** Recomenda-se procurar a Diretoria de Atenção à Saúde da Comunidade Universitária (DASU) para orientações e acolhimento. Mais informações [aqui](http://dasu.unb.br/).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_d9431c383d66_default",
+        "type": "styled"
+    },
+    {
+        "question": "Sofri uma situação de discriminação (machismo, racismo, homofobia, etc.) na UnB. Qual setor devo procurar para orientação e apoio?",
+        "answer": "Se você passou por alguma situação de discriminação ou violência (como machismo, racismo, homofobia, transfobia), a **Secretaria de Direitos Humanos (SDH)** da UnB é o órgão responsável por acolher e orientar estudantes nesses casos. Mais informações podem ser encontradas no [Portal da Diversidade da UnB](https://diversidade.unb.br/).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_c3359cb9c4f2_default",
+        "type": "styled"
+    },
+    {
+        "question": "Como faço para solicitar o uso do meu nome social nos registros da UnB?",
+        "answer": "Os procedimentos e informações sobre como solicitar o uso do nome social na Universidade de Brasília estão disponíveis nesta página do Portal da Diversidade: [https://diversidade.unb.br/index.php/nome-social](https://diversidade.unb.br/index.php/nome-social).",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_6d491947824b_default",
+        "type": "styled"
+    },
+    {
+        "question": "Qual o e-mail de contato da coordenação de Engenharia de Computação?",
+        "answer": "O e-mail para contato com a coordenação do curso de Engenharia de Computação é: engcomputacao@unb.br.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_66149a9fb7fb_related_0",
+        "type": "related"
+    },
+    {
+        "question": "Onde devo ir na UnB para solicitar a simulação de histórico para migração de currículo?",
+        "answer": "Você deve procurar a Secretaria de Administração Acadêmica (SAA), que atende no Centro de Vivência (prédio em frente à entrada sul do ICC), para solicitar uma simulação do seu histórico na nova estrutura curricular.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_93422342a1f3_related_0",
+        "type": "related"
+    },
+    {
+        "question": "Ao avaliar a migração entre os currículos 1741/1 e 1741/2, quais informações do histórico devo comparar prioritariamente?",
+        "answer": "A comparação mais importante deve ser feita entre a **carga horária total pendente** e a **lista de componentes curriculares pendentes** nos dois cenários (histórico atual no 1741/1 e simulação no 1741/2). Não se prenda apenas à comparação das cargas obrigatória e optativa isoladamente.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_93422342a1f3_related_1",
+        "type": "related"
+    },
+    {
+        "question": "Quais disciplinas devo cursar para cumprir a Cadeia 1 de seletividade do currículo 1741/1 de Engenharia de Computação?",
+        "answer": "Para a Cadeia 1 do currículo 1741/1, como as disciplinas originais não são mais ofertadas, você deve cursar ENE0066 Introdução aos Circuitos Elétricos e ENE0068 Sinais e Sistemas em Tempo Discreto.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_fe8f3fc23598_related_0",
+        "type": "related"
+    },
+    {
+        "question": "Qual disciplina substitui 'Programação Orientada a Objetos' na Cadeia 7 do currículo 1741/1 de Engenharia de Computação?",
+        "answer": "Para a Cadeia 7 do currículo 1741/1, como 'Programação Orientada a Objetos' não é mais ofertada, você deve cursar CIC0197 Técnicas de Programação 1.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_fe8f3fc23598_related_1",
+        "type": "related"
+    },
+    {
+        "question": "Reprovar 3 vezes na mesma disciplina optativa pode causar desligamento?",
+        "answer": "Não, a regra de desligamento por 3 reprovações aplica-se apenas a disciplinas **obrigatórias**. Reprovações em disciplinas optativas ou de cadeia de seletividade não entram nessa contagem.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_14502f8631e0_related_0",
+        "type": "related"
+    },
+    {
+        "question": "Quais são alguns exemplos de motivos válidos para solicitar um trancamento justificado?",
+        "answer": "Algumas das hipóteses previstas na [Resolução CEPE n° 93/2018](https://sig.unb.br/sigrh/downloadArquivo?idArquivo=2018090&key=7b5bbf8ffa41754075c478f548083f46) para trancamento justificado incluem: afastamento por motivo de saúde (do estudante ou parente próximo), estudos no exterior, necessidade imperiosa do serviço público, óbito de parente próximo, curso de formação, serviço militar obrigatório, ou situações de vulnerabilidade (psicológica/social). É necessário apresentar comprovantes.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_c59b570288b6_related_0",
+        "type": "related"
+    },
+    {
+        "question": "Se meu pedido de revisão de menção for negado pelo professor, existe alguma outra instância?",
+        "answer": "Sim. Caso o pedido inicial de revisão de menção seja indeferido pelo professor, existe a possibilidade de solicitar recurso. Este recurso é então analisado por uma comissão de professores da unidade acadêmica, e o parecer final é apreciado por um órgão colegiado.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_52a92aab1e27_related_0",
+        "type": "related"
+    },
+    {
+        "question": "Quem devo indicar como professor orientador nos documentos de estágio de Engenharia de Computação?",
+        "answer": "Ao preencher os documentos para estágio em Engenharia de Computação, você deve indicar como professor orientador um dos três professores que compõem a comissão de estágio do CIC: Jan Mendonça Correa, Marcelo Ladeira ou Carla Denise Castanho.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_bfdc67f67858_related_0",
+        "type": "related"
+    },
+    {
+        "question": "Quais são alguns exemplos de motivos que justificam um pedido de outorga antecipada de grau em Engenharia de Computação?",
+        "answer": "A outorga antecipada de grau só é admitida em casos excepcionais, devidamente comprovados. Alguns exemplos incluem: aprovação em concurso público, admissão em curso de pós-graduação, ou uma oferta de emprego que exija o diploma de graduação.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_4c98f32582f0_related_0",
+        "type": "related"
+    },
+    {
+        "question": "Se eu pedir outorga antecipada, preciso fazer alguma prova ou avaliação adicional para as disciplinas que faltam?",
+        "answer": "Sim. Para cada disciplina pendente, o aluno que solicita outorga antecipada de grau precisa ser aprovado em uma avaliação específica definida para essa finalidade.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_4c98f32582f0_related_1",
+        "type": "related"
+    },
+    {
+        "question": "Como funciona o processo de Mudança de Curso na UnB?",
+        "answer": "A Mudança de Curso permite que um estudante regular (geralmente ingressante por PAS, Vestibular ou ENEM) altere seu vínculo para outro curso. O processo é regido por um edital semestral publicado no [site da SAA](https://saa.unb.br/graduacao/dupla-e-mudanca), que define os requisitos, prazos e o formulário de solicitação. As regras gerais estão na [Resolução CEPE UnB nº 053/2022](https://deg.unb.br/images/legislacao/resolucao_cepe_53_2022.pdf). O acompanhamento das etapas é feito pelo site da SAA.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_758ab29e384b_related_0",
+        "type": "related"
+    },
+    {
+        "question": "Como funciona o processo de Dupla Diplomação na UnB?",
+        "answer": "A Dupla Diplomação permite que um aluno regular, após concluir seu curso de origem, inicie um segundo curso de graduação. Assim como a Mudança de Curso, é regida por um edital semestral publicado no [site da SAA](https://saa.unb.br/graduacao/dupla-e-mudanca), que detalha requisitos e prazos. As regras estão no Art. 8º da [Resolução CEPE UnB nº 053/2022](https://deg.unb.br/images/legislacao/resolucao_cepe_53_2022.pdf). A solicitação é feita por formulário eletrônico e o acompanhamento pelo site da SAA.",
+        "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+        "qa_pair_hash": "faq_758ab29e384b_related_1",
+        "type": "related"
+    }
+]

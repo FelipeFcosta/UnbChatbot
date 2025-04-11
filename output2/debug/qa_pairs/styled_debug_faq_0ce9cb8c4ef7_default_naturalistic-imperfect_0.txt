@@ -1,0 +1,10 @@
+Original Question: Como funciona a regra de co-requisito para disciplinas com parte teórica e laboratório (ex: Sistemas Digitais, Física 2)?
+Answer: Para disciplinas do ENE (Sistemas Digitais, Sistemas Microprocessados, Circuitos Elétricos, Eletrônica) e também para Física 2/Experimental, a regra de co-requisito funciona assim:
+
+*   O **laboratório** exige que você esteja cursando (ou já tenha sido aprovado) a **teoria** no mesmo semestre.
+*   A **teoria** não tem o laboratório como co-requisito.
+
+**Implicações:**
+*   Você pode cursar só a teoria ou teoria+laboratório, mas não só o laboratório (a menos que já tenha aprovação na teoria).
+*   Se matriculado em ambas, você pode trancar ambas ou só o laboratório, mas não só a teoria (trancar a teoria exige trancar o laboratório junto).
+*   Se você já foi aprovado na teoria anteriormente, o laboratório pode ser cursado separadamente sem a restrição de co-requisito.

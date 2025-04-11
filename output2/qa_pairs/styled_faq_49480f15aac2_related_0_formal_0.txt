@@ -1,0 +1,4 @@
+{
+  "question": "Poderia me confirmar se a norma que exige aprovação em quatro componentes curriculares a cada dois semestres está em aplicação no momento?",
+  "answer": "A norma que estabelece a exigência de aprovação em, no mínimo, quatro componentes curriculares a cada dois semestres letivos consecutivos existe e está, tecnicamente, em vigor na Universidade de Brasília. Contudo, informamos que sua aplicação não tem ocorrido de forma estrita nos últimos semestres. Apesar disso, recomendamos aos estudantes que se esforcem para cumprir esta exigência, a fim de evitar eventuais contratempos futuros."
+}

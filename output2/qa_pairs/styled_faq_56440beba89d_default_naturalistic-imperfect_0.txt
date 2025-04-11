@@ -1,0 +1,4 @@
+{
+  "question": "engenharia da computacao quanto tempo no minimo eu preciso pra terminar?",
+  "answer": "O prazo mínimo regulamentar para você concluir o curso de Engenharia de Computação depende do currículo:\n*   Para o **Currículo 1741/1**, o tempo mínimo estabelecido pelo SIGAA é de 8 semestres.\n*   Para o **Currículo 1741/2**, o tempo mínimo conforme o SIGAA é de 10 semestres.\n\nEmbora o sistema possa permitir a conclusão em menos tempo, isso representa uma situação excepcional, geralmente associada ao aproveitamento de um número elevado de disciplinas cursadas anteriormente."
+}

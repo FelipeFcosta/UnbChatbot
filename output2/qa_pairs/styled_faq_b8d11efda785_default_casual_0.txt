@@ -1,0 +1,4 @@
+{
+  "question": "Olhando lá no meu histórico, como eu sei se uma matéria que eu fiz contou como obrigatória, optativa ou eletiva?",
+  "answer": "No seu histórico escolar, você consegue identificar como uma matéria que você cursou foi contabilizada (obrigatória, optativa ou eletiva) observando os símbolos que aparecem ao lado do nome dela:\n\n*   O símbolo de cerquilha (`#`) indica que a disciplina contou como **Eletivo (Módulo Livre)**.\n*   Um asterisco (`*`), 'e' comercial (`&`), ou símbolo de parágrafo (`§`) indica que contou como **Optativo**.\n*   A ausência de símbolo geralmente indica que contou como **Obrigatório**. Em alguns casos, pode aparecer também com um 'e' minúsculo (`e`) ou uma arroba (`@`)."
+}

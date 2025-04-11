@@ -1,0 +1,4 @@
+{
+  "question": "Poderia me indicar onde posso localizar as informações referentes ao Projeto Final de Curso de Engenharia Mecatrônica?",
+  "answer": "Todas as informações pertinentes ao Projeto Final de Curso (PFC) de Engenharia Mecatrônica, o que inclui os regulamentos aplicáveis e os procedimentos operacionais, estão disponíveis para consulta no [site oficial do curso de Engenharia Mecatrônica](https://mecatronica.unb.br/index.php/pt/informacoes-academicas/pfc)."
+}

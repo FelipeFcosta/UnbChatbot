@@ -1,0 +1,4 @@
+{
+  "question": "Tem um minimo de horas de extensao que eu precisa cumprir em eng. de computacao?",
+  "answer": "Atualmente não, os currículos em vigor de Engenharia de Computação (1741/1 e 1741/2) não incluem a obrigatoriedade de uma carga horária mínima para atividades de extensão.\n\nEntretanto, informamos que um novo currículo está em processo de elaboração e este sim passará a exigir que 10% da carga horária total do curso seja cumprida em atividades de extensão. É importante ressaltar que essa nova regra será válida exclusivamente para os alunos que ingressarem já neste novo currículo ou para aqueles que optarem por migrar para ele quando for implementado."
+}

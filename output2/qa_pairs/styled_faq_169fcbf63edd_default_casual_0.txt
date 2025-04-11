@@ -1,0 +1,4 @@
+{
+  "question": "Tenho mesmo que fazer o Enade pra conseguir me formar?",
+  "answer": "A necessidade de realizar o Exame Nacional de Desempenho dos Estudantes (Enade) para se formar está condicionada à aplicação do exame para o seu curso específico no ano em que você estiver concluindo a graduação.\n\nO Enade não ocorre anualmente para todos os cursos. Assim, se houver aplicação para o seu curso no seu ano de conclusão, sim, a realização da prova será obrigatória. Caso contrário, se o seu curso não for avaliado naquele ano, você será automaticamente dispensado(a) da prova, e a indicação de pendência referente ao Enade será removida do seu histórico escolar."
+}

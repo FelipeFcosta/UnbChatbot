@@ -1,0 +1,4 @@
+{
+  "question": "Gostaria de saber se uma reprovação em disciplina obrigatória cursada no período de Verão pode ser contabilizada para o critério de desligamento por três reprovações.",
+  "answer": "Em resposta à sua questão, a contabilização de uma reprovação em disciplina obrigatória cursada no período de Verão para o critério de desligamento por três reprovações depende de quando ocorre a terceira reprovação.\n\nEspecificamente, a reprovação no Verão **será considerada** para este fim se a sua terceira reprovação nessa mesma disciplina ocorrer durante um semestre regular subsequente. Contudo, caso a terceira reprovação ocorra no próprio período de Verão, ela não acarretará o desligamento imediato com base nessa regra."
+}

@@ -1,0 +1,4 @@
+{
+  "question": "pra eu me formar é obrigatorio eu fazer a prova do enade?",
+  "answer": "A obrigatoriedade de realizar o Exame Nacional de Desempenho dos Estudantes (Enade) para poder se formar está vinculada à aplicação do exame ao seu curso específico, justamente no ano em que você está previsto(a) para concluir seus estudos.\n\nO Enade não é aplicado anualmente para todos os cursos da UnB. Desse modo, caso o seu curso seja incluído na avaliação do Enade no seu ano de conclusão, sim, a realização do exame será compulsória. Por outro lado, se não houver aplicação para o seu curso nesse ano, você será automaticamente considerado(a) dispensado(a), e a exigência referente ao Enade será baixada do seu histórico escolar."
+}

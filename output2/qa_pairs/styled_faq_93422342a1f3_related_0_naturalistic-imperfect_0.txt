@@ -1,0 +1,4 @@
+{
+  "question": "pra pedir simulacao de historico pra mudar de curriculo onde vou na unb?",
+  "answer": "Para pedir uma simulação do seu histórico visando a mudança de currículo, você deve se dirigir à Secretaria de Administração Acadêmica (SAA). O atendimento da SAA fica no Centro de Vivência, que é o prédio em frente à entrada sul do ICC."
+}

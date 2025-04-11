@@ -1,0 +1,4 @@
+{
+  "question": "Sendo um formando neste semestre, onde posso obter orientações sobre os trâmites administrativos e a cerimônia de colação de grau?",
+  "answer": "Como formando(a) neste semestre, para obter orientações sobre os trâmites administrativos finais e a cerimônia de colação de grau, recomendamos que consulte as seguintes fontes:\n\n1.  A página de perguntas frequentes da [Secretaria de Administração Acadêmica (SAA)](https://www.saa.unb.br/graduacao/perguntas-frequentes-grad#colacao-de-grau).\n2.  A página oficial do [Cerimonial da UnB](http://cerimonial.unb.br/index.php?option=com_content&view=article&id=26&Itemid=698).\n\nApós a consulta a essas páginas institucionais, sugerimos que entre em contato com a secretaria do seu departamento acadêmico (como a secretaria do CIC, por exemplo) para obter instruções mais específicas relativas ao seu curso e esclarecer eventuais dúvidas remanescentes."
+}

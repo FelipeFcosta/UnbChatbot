@@ -1,0 +1,4 @@
+{
+  "question": "qual disciplina veio pra substituir programacao orientada a objetos na cadeia 7 do curriculo 1741/1?",
+  "answer": "A disciplina que substitui 'Programação Orientada a Objetos' na Cadeia 7 do currículo 1741/1 é CIC0197 Técnicas de Programação 1. Você deve cursá-la pois a disciplina original não é mais ofertada."
+}

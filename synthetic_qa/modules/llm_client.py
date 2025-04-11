@@ -77,7 +77,8 @@ class LLMClient:
             if not GEMINI_AVAILABLE:
                 raise ImportError("genAI package not installed. Install it with 'pip install google-genai'")
             
-            api_key = os.environ.get("GEMINI_API_KEY")
+            # api_key = os.environ.get("GEMINI_API_KEY2")
+            api_key = "AIzaSyB7--wFQ92bX0NCjoNKgEnYv4yGyaHdn0w"
             if not api_key:
                 raise ValueError("GEMINI_API_KEY environment variable not set")
 
@@ -131,7 +132,7 @@ class LLMClient:
 
                     # Handle JSON output if requested
                     if json_output:
-                        return json_if_valid(result) or result
+                        return json_if_valid(result)
 
                     return result
 
@@ -159,17 +160,46 @@ class LLMClient:
                 current_prompt += "\n\nWhen you're finished, your final line should be only the word 'DONE'"
 
             max_tries = 2
+            response = None
 
             try:
                 while max_tries > 0:
                     # Send current prompt + accumulated response (context) for the model to continue
-                    response = self.client.models.generate_content(
-                        model=model,
-                        contents=current_prompt,
-                        config=generation_config
-                    )
+                    try:
+                        response = self.client.models.generate_content(
+                            model=model,
+                            contents=current_prompt,
+                            config=generation_config
+                        )
+                        full_response += response.text
+                    except Exception as e:
+                        logger.error(f"Gemini API error: {e}")
+                        logger.info(f"Retrying with openrouter API...")
+                        
+                        client = OpenAI(
+                            base_url="https://openrouter.ai/api/v1",
+                            api_key=os.environ.get("OPENROUTER_API_KEY2"),
+                        )
 
-                    full_response += response.text
+                        completion = client.chat.completions.create(
+                            extra_headers={},
+                            extra_body={},
+                            model="google/gemini-2.5-pro-exp-03-25:free",
+                            messages=[
+                                {
+                                "role": "user",
+                                "content": [
+                                    {
+                                    "type": "text",
+                                    "text": prompt
+                                    }
+                                ]
+                                }
+                            ],
+                            temperature=temperature if temperature is not None else self.config.get("temperature", 0.7)
+                        )
+                        full_response += completion.choices[0].message.content
+
 
                     if json_output:
                         # Clean up response for JSON parsing
@@ -215,6 +245,7 @@ class LLMClient:
             except Exception as e:
                 logger.error(f"Gemini API error: {e}")
                 return None
+
 
         # Unknown provider
         else:

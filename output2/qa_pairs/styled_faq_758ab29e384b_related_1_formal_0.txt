@@ -1,0 +1,4 @@
+{
+  "question": "Poderia detalhar como ocorre o processo para obter uma Dupla Diplomação na Universidade de Brasília?",
+  "answer": "O processo de Dupla Diplomação na Universidade de Brasília permite que um estudante regular, após a conclusão integral de seu curso de graduação de origem, ingresse em um segundo curso de graduação na UnB.\n\nAssim como a Mudança de Curso, a Dupla Diplomação é regida por um edital publicado a cada semestre no [site da Secretaria de Administração Acadêmica (SAA)](https://saa.unb.br/graduacao/dupla-e-mudanca), onde são especificados os requisitos e os prazos para a solicitação.\n\nAs regras específicas para a Dupla Diplomação estão contidas no Artigo 8º da [Resolução CEPE UnB nº 053/2022](https://deg.unb.br/images/legislacao/resolucao_cepe_53_2022.pdf).\n\nA solicitação é realizada por meio de um formulário eletrônico, e o andamento do processo deve ser acompanhado pelo candidato no site da SAA."
+}

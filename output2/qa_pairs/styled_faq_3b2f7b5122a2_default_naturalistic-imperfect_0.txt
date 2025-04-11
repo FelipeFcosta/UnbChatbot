@@ -1,0 +1,4 @@
+{
+  "question": "o q precisa pra conseguir me formar em engenharia de computacao?",
+  "answer": "Para conseguir se formar em Engenharia de Computação, você precisa atender a um conjunto de requisitos:\n\na)  Ter aprovação em todos os componentes curriculares classificados como obrigatórios na sua estrutura curricular.\nb)  Atender às exigências de todas as cadeias de seletividade, se houver essa exigência no seu currículo (o currículo 1741/2 não possui tais cadeias).\nc)  Completar integralmente a carga horária optativa, zerando as horas pendentes."
+}

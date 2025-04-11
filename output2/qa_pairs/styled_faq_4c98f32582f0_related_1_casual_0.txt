@@ -1,0 +1,4 @@
+{
+  "question": "Se eu quiser me formar antes, tenho que fazer alguma prova extra pras matérias que ainda não terminei?",
+  "answer": "Sim, correto. Ao solicitar a outorga antecipada de grau, você precisará passar por uma avaliação específica para cada disciplina que ainda não foi concluída em seu histórico. A aprovação nessas avaliações, elaboradas justamente para essa finalidade, é um requisito para a antecipação."
+}

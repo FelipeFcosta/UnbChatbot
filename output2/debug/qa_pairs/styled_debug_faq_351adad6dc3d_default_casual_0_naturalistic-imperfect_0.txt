@@ -1,0 +1,7 @@
+Original Question: Como eu me matriculo nas matérias do Projeto Final de Engenharia de Computação, tipo PF1 e PF2?
+Answer: A inscrição nas atividades de Projeto Final de Engenharia de Computação (CIC0267 - PF1 ou CIC0268 - PF2) possui um procedimento próprio, distinto do período oficial de matrícula, embora possa ocorrer durante o mesmo. Para se matricular corretamente:
+
+1.  Primeiramente, converse com seu professor orientador.
+2.  Em seguida, solicite que ele inicie um processo no SEI (Sistema Eletrônico de Informações) destinado à Coordenação de Engenharia de Computação.
+3.  É crucial que este processo contenha uma solicitação formal de matrícula, utilizando o modelo:
+    *"Prezado Coordenador, solicito a matrícula do(a) discente [Seu Nome Completo] (matrícula [Seu Número de Matrícula]), do curso de Engenharia de Computação, na atividade [CIC0267 PROJETO FINAL EM ENGENHARIA DE COMPUTAÇÃO 1 ou CIC0268 PROJETO FINAL EM ENGENHARIA DE COMPUTAÇÃO 2], sob minha orientação. Atenciosamente, Prof. [Nome do Orientador], matrícula FUB [Matrícula FUB do Orientador]."*

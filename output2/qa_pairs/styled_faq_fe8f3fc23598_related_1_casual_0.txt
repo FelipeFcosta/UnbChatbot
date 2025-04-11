@@ -1,0 +1,4 @@
+{
+  "question": "Qual matéria eu faço no lugar de 'Programação Orientada a Objetos' pra Cadeia 7 do currículo 1741/1?",
+  "answer": "A disciplina 'Programação Orientada a Objetos', que integra a Cadeia 7 do currículo 1741/1, não é mais ofertada. Para cumprir essa exigência curricular, você deve cursar a disciplina substituta, que é CIC0197 Técnicas de Programação 1."
+}

@@ -1,0 +1,6 @@
+Original Question: No meu histórico escolar, como identifico se uma disciplina foi contada como obrigatória, optativa ou eletiva?
+Answer: Você pode identificar a classificação de um componente cursado no seu histórico escolar pelos símbolos ao lado do nome:
+
+*   **Eletivo (Módulo Livre):** Indicado por uma cerquilha (`#`).
+*   **Optativo:** Indicado por um asterisco (`*`), 'e' comercial (`&`), ou símbolo de parágrafo (`§`).
+*   **Obrigatório:** Geralmente não possui símbolo, mas pode aparecer com um 'e' minúsculo (`e`) ou uma arroba (`@`).

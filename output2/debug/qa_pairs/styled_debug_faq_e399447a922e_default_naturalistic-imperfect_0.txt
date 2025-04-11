@@ -1,0 +1,15 @@
+Original Question: Quais são os critérios de prioridade usados para classificar os alunos na matrícula e rematrícula em Engenharia de Computação?
+Answer: Durante as fases de matrícula e rematrícula (processamento coletivo), a classificação dos alunos segue estes critérios de prioridade:
+1.  Condição de calouro.
+2.  Solicitação de disciplina obrigatória.
+3.  Solicitação de disciplina optativa.
+4.  Solicitação de disciplina módulo livre.
+
+Em caso de empate, os critérios de desempate são:
+1.  Estudante com cadastro aprovado na DACES (NEE).
+2.  Provável formando.
+3.  Aderência ao fluxo curricular sugerido.
+4.  Posição relativa no curso (proximidade da conclusão).
+5.  Índice de Rendimento Acadêmico (IRA).
+
+Lembre-se que a ordem de solicitação não influencia o resultado nessas etapas.

@@ -1,0 +1,4 @@
+{
+  "question": "Reprovar numa obrigatoria no verao, isso conta praquele desligamento de 3 reprovacoes?",
+  "answer": "Depende da situação. A reprovação em uma disciplina obrigatória cursada no período de Verão **pode sim contar** para o limite de três reprovações se a sua terceira reprovação nesta mesma disciplina ocorrer em um semestre regular posterior. No entanto, se a terceira reprovação acontecer *durante o próprio período de Verão*, essa reprovação específica não causa o desligamento imediato por essa regra naquele momento."
+}

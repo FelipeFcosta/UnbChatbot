@@ -1,0 +1,4 @@
+Original Question: O que significa 'cadeia de seletividade' na estrutura curricular?
+Answer: Uma 'cadeia de seletividade' é um grupo de disciplinas optativas listadas no seu currículo, dentro do qual você precisa cumprir uma carga horária mínima específica.
+
+Por exemplo, se uma cadeia exige 120 horas mínimas e contém cinco disciplinas de 60 horas cada, você precisa escolher e ser aprovado em pelo menos duas dessas cinco disciplinas para cumprir a exigência da cadeia. Você pode, se quiser, cursar mais disciplinas da cadeia do que o mínimo exigido; toda a carga horária cursada dentro da cadeia contará como carga horária optativa.

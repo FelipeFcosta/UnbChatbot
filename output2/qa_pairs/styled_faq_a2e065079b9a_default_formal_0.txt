@@ -1,0 +1,4 @@
+{
+  "question": "Em qual local posso encontrar a relação oficial das disciplinas programadas para serem ofertadas no semestre seguinte?",
+  "answer": "A relação oficial das disciplinas cuja oferta está programada para o semestre seguinte pode ser consultada diretamente no [Sistema Integrado de Gestão de Atividades Acadêmicas (SIGAA), através da funcionalidade de consulta pública de turmas](https://sig.unb.br/sigaa/public/turmas/listar.jsf?aba=p-ensino).\n\nPara visualizar a oferta de um departamento específico, como o de Ciência da Computação, basta selecionar o departamento correspondente no campo 'Unidade Responsável' (por exemplo, 'DEPTO CIÊNCIAS DA COMPUTAÇÃO - BRASÍLIA').\n\nA lista exibida corresponde à oferta aprovada pelo departamento no momento da consulta, mas é importante ressaltar que podem ocorrer alterações até a consolidação final da oferta semestral. Nessa mesma página, também é possível consultar a oferta de outras unidades acadêmicas da UnB."
+}

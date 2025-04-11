@@ -1,0 +1,8 @@
+Original Question: Quais são as principais situações que podem levar ao desligamento do curso na UnB?
+Answer: As causas mais frequentes de desligamento de um curso de graduação na UnB incluem:
+1.  Reprovar 3 vezes na mesma disciplina obrigatória.
+2.  Não obter aprovação em pelo menos 4 disciplinas (obrigatórias ou optativas) no total, somando dois semestres consecutivos.
+3.  Não realizar matrícula em disciplinas por dois semestres consecutivos (ou ser reprovado com SR - Sem Rendimento - em todas as disciplinas por dois semestres seguidos).
+4.  Não concluir o curso dentro do prazo máximo estabelecido.
+
+Observação: Para as regras 1 e 2, os semestres de 2020.1 a 2022.2 não foram considerados devido à pandemia. Disciplinas de cadeia de seletividade são optativas e não contam para a regra 1.

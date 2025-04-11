@@ -1,0 +1,4 @@
+{
+  "question": "Gostaria de saber se há exigências prévias para que eu possa começar o Projeto Final no curso de Engenharia de Computação.",
+  "answer": "Sim, existem exigências prévias para que um estudante possa iniciar o Projeto Final no curso de Engenharia de Computação. Dentre elas, está a necessidade de ter concluído uma porcentagem mínima da carga horária total do curso.\n\nRecomendamos fortemente a consulta ao Regulamento de Trabalho de Conclusão de Curso (TCC) específico do curso de Engenharia de Computação para verificar a totalidade das exigências e pré-requisitos aplicáveis."
+}

@@ -1,0 +1,4 @@
+{
+  "question": "Da pra pedir revisao de nota se meus problema pessoal atrapalho?",
+  "answer": "Não é possível solicitar revisão de menção (nota) com base em problemas pessoais que possam ter afetado seu desempenho. O procedimento de revisão de menção destina-se exclusivamente à correção de eventuais erros cometidos pelo professor durante o processo de avaliação.\n\nSe o seu rendimento acadêmico foi prejudicado por fatores externos à vida acadêmica, como questões pessoais, o mecanismo apropriado a ser considerado é o trancamento justificado de matrícula."
+}

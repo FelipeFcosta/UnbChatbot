@@ -1,0 +1,4 @@
+{
+  "question": "Gostaria de saber se é possível efetuar a matrícula em uma disciplina caso eu não tenha completado o pré-requisito exigido?",
+  "answer": "Respondendo à sua questão, informamos que não é possível realizar a matrícula em disciplinas sem a prévia conclusão dos pré-requisitos exigidos. Esta norma é inflexível e está fundamentada na [Circular DEG n° 5/2008](https://deg.unb.br/images/legislacao/5_2008.pdf), não havendo exceções permitidas."
+}

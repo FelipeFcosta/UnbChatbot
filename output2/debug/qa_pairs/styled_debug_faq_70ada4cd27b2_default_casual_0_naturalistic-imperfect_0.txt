@@ -1,0 +1,4 @@
+Original Question: Como eu posso usar um certificado de língua estrangeira pra contar como horas no curso de Engenharia de Computação?
+Answer: A solicitação para que certificados de língua estrangeira contem como carga horária em Engenharia de Computação é realizada através do [formulário de peticionamento eletrônico da SAA](https://www.saa.unb.br/sistemas/peticionamento-eletronico).
+
+Para instruções pormenorizadas, por favor, consulte o [manual](https://www.saa.unb.br/images/documentos/graduacao/manual_credito_lingua_estrangeira.pdf). O status do seu pedido pode ser monitorado via [acesso externo do SEI](https://sei.unb.br/sei/controlador_externo.php?acao=usuario_externo_logar&acao_origem=usuario_externo_enviar_cadastro&id_orgao_acesso_externo=0).

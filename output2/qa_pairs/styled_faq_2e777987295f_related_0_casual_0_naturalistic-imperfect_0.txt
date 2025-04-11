@@ -1,0 +1,4 @@
+{
+  "question": "O edital da Iniciação Científica costuma sair em que mes mais ou menos?",
+  "answer": "A publicação do edital de Iniciação Científica geralmente ocorre uma vez por ano, entre os meses de março e abril."
+}

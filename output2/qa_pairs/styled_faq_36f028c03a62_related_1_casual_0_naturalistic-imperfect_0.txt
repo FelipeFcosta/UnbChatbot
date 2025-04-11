@@ -1,0 +1,4 @@
+{
+  "question": "Pra pedir matricula do estagio obrigatorio por email, quais informacoes eu mando pra coordenacao?",
+  "answer": "Para solicitar a matrícula do estágio obrigatório por e-mail à coordenação, a informação essencial que você precisa enviar é o número do processo SEI no qual sua documentação de estágio assinada está registrada. Note que, como referência, é usual que esses processos comecem com o número 23106."
+}

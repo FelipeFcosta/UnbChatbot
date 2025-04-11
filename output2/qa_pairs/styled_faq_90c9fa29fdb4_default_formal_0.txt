@@ -1,0 +1,4 @@
+{
+  "question": "Há obrigatoriedade de cumprir uma carga horária mínima em componentes eletivos (módulo livre) para o curso de Engenharia de Computação?",
+  "answer": "Não, não existe uma obrigatoriedade de cumprir uma carga horária mínima específica em componentes eletivos (módulo livre) para o curso de Engenharia de Computação.\n\nContudo, é importante ressaltar que cursar componentes eletivos contribui para a integralização da carga horária total do curso. Um máximo de 360 horas cursadas em componentes eletivos pode ser aproveitado para abater da carga horária total exigida."
+}

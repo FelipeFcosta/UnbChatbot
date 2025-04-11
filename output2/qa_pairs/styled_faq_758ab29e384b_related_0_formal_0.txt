@@ -1,0 +1,4 @@
+{
+  "question": "Poderia me explicar os procedimentos envolvidos no processo de Mudança de Curso dentro da UnB?",
+  "answer": "O processo de Mudança de Curso na UnB possibilita que um estudante regularmente matriculado, geralmente admitido via PAS, Vestibular ou ENEM, altere seu vínculo para um curso de graduação diferente do original.\n\nEste procedimento é regulamentado por um edital específico, publicado semestralmente no [portal da Secretaria de Administração Acadêmica (SAA)](https://saa.unb.br/graduacao/dupla-e-mudanca). O edital detalha os requisitos, o cronograma e disponibiliza o formulário de solicitação.\n\nAs normas gerais que regem a Mudança de Curso estão estabelecidas na [Resolução CEPE UnB nº 053/2022](https://deg.unb.br/images/legislacao/resolucao_cepe_53_2022.pdf). Recomenda-se acompanhar todas as etapas do processo diretamente pelo site da SAA."
+}

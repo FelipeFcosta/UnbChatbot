@@ -1,0 +1,4 @@
+{
+  "question": "No caso específico da matrícula extraordinária, a sequência em que realizo o pedido de vaga possui alguma importância?",
+  "answer": "Sim, a sequência do seu pedido de vaga é determinante no caso específico da matrícula extraordinária. A alocação das vagas remanescentes disponíveis nessa etapa ocorre estritamente por ordem de solicitação, ou seja, quem solicita primeiro tem a vaga garantida."
+}

@@ -1,0 +1,4 @@
+{
+  "question": "Poderia me explicar como se diferenciam os termos 'atividade' e 'disciplina' conforme utilizados nas estruturas curriculares da UnB?",
+  "answer": "A diferença fundamental entre 'disciplina' e 'atividade', conforme utilizadas nas estruturas curriculares da UnB, reside na metodologia de ensino-aprendizagem empregada:\n\n*   **Disciplina:** Caracteriza-se por ser um conjunto de estudos com um programa formal (ementa) estabelecido, sendo ministrada por docentes por meio de aulas regulares e encontros presenciais ou virtuais, com uma carga horária semanal definida ao longo do semestre letivo.\n*   **Atividade:** Distingue-se por não ter as aulas formais como o principal veículo para o processo de ensino-aprendizagem. Exemplos comuns de atividades incluem o desenvolvimento de projetos, a realização de estágios supervisionados ou a elaboração de trabalhos de conclusão de curso."
+}

@@ -1,0 +1,4 @@
+{
+  "question": "É permitido submeter um pedido de revisão de menção quando o desempenho insatisfatório foi causado por circunstâncias pessoais adversas?",
+  "answer": "Não, não é permitido utilizar o pedido de revisão de menção para justificar desempenho insatisfatório decorrente de circunstâncias pessoais adversas. Este procedimento destina-se unicamente à correção de eventuais erros cometidos pelo professor durante o processo de avaliação. Para situações envolvendo questões extra-acadêmicas que impactaram o desempenho, o recurso apropriado é solicitar o trancamento justificado da disciplina ou do semestre."
+}

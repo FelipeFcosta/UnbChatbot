@@ -1,0 +1,8 @@
+Original Question: Qual o tempo mínimo que preciso para concluir meu curso de graduação?
+Answer: O prazo mínimo para conclusão do curso é definido pelo Projeto Pedagógico do Curso (PPC) e pode variar dependendo da sua estrutura curricular específica. Consulte a página oficial do seu curso para encontrar essa informação:
+- [Ciência da Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)
+- [Computação (Licenciatura)](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)
+- [Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)
+- [Engenharia Mecatrônica](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)
+
+Embora o sistema possa permitir a formatura em menos tempo, isso geralmente só ocorre em situações excepcionais, como quando o aluno aproveita muitas disciplinas cursadas anteriormente. Lembre-se que o prazo pode ser diferente para alunos de estruturas curriculares distintas dentro do mesmo curso.

@@ -1,0 +1,4 @@
+{
+  "question": "Como que funciona os criterios pra classificar os alunos na matricula e rematricula de engenharia da computacao?",
+  "answer": "A classificação dos estudantes nas fases de matrícula e rematrícula (que são processadas coletivamente) para Engenharia de Computação segue critérios de prioridade específicos, e não a ordem de solicitação. A ordem é:\n1.  Ser calouro.\n2.  Solicitar disciplina obrigatória.\n3.  Solicitar disciplina optativa.\n4.  Solicitar disciplina de módulo livre.\n\nSe houver empate entre estudantes na mesma categoria de prioridade, os critérios de desempate são aplicados nesta sequência:\n1.  Aluno com cadastro aprovado na DACES (NEE).\n2.  Ser provável formando.\n3.  Aderência ao fluxo curricular.\n4.  Posição relativa (proximidade da conclusão).\n5.  Índice de Rendimento Acadêmico (IRA)."
+}

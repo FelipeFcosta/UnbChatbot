@@ -1,0 +1,4 @@
+{
+  "question": "a matricula do estagio obrigatorio tem q ser feita no periodo certo de matricula?",
+  "answer": "Não, não é mandatório que a matrícula em Estágio Supervisionado ocorra durante o período oficial de matrícula, embora seja fortemente recomendado que assim o faça. Você poderá solicitar a matrícula depois que seus documentos de estágio estiverem devidamente assinados."
+}

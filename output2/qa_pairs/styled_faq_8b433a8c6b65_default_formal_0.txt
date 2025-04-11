@@ -1,0 +1,4 @@
+{
+  "question": "Gostaria de compreender qual é o processo para solicitar a matrícula nas atividades de Projeto Final 1 ou Projeto Final 2 no âmbito do curso de Engenharia de Computação.",
+  "answer": "O processo para solicitar a matrícula nas atividades de Projeto Final 1 ou Projeto Final 2 em Engenharia de Computação é realizado da seguinte forma: Primeiramente, informamos que a matrícula pode ser efetuada durante o semestre letivo, não estando restrita ao período oficial de matrículas.\n\nO procedimento consiste em solicitar ao seu professor orientador que inicie um processo via Sistema Eletrônico de Informações (SEI) e o encaminhe à coordenação do curso de Engenharia de Computação. Este processo SEI deve incluir:\n*   A solicitação formal de matrícula.\n*   Seu nome completo e número de matrícula.\n*   A especificação da atividade desejada (Projeto Final 1 ou Projeto Final 2).\n*   A confirmação formal da orientação por parte do professor responsável."
+}

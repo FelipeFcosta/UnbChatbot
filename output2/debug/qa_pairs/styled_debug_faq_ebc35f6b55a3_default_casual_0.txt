@@ -1,0 +1,14 @@
+Original Question: É possível solicitar a mudança para uma nova estrutura curricular do meu curso?
+Answer: Sim, geralmente é possível mudar para uma nova estrutura curricular, caso ela exista para o seu curso. No entanto, **é crucial avaliar essa decisão com muito cuidado**, pois a nova estrutura pode exigir que você curse componentes adicionais, potencialmente atrasando sua formatura.
+
+O processo recomendado é:
+1.  **Compare as Estruturas:** Analise as diferenças entre sua estrutura atual e a nova. Consulte as páginas dos cursos para encontrar as estruturas:
+    *   [Ciência da Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)
+    *   [Computação (Licenciatura)](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)
+    *   [Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)
+    *   [Engenharia Mecatrônica](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)
+2.  **Solicite Simulação:** Peça à Secretaria de Administração Acadêmica (SAA) uma simulação do seu histórico escolar na nova estrutura.
+3.  **Compare Históricos:** Analise cuidadosamente a simulação e seu histórico atual. **Concentre-se na carga horária TOTAL pendente e na lista de componentes curriculares PENDENTES.** Não compare apenas as cargas optativa e obrigatória isoladamente, pois a classificação de alguns componentes pode mudar entre as estruturas.
+4.  **Decida e Solicite:** Se, após a análise, decidir pela migração, envie a solicitação por e-mail à coordenação do seu curso.
+
+**Atenção:** A migração de estrutura curricular é um processo **irreversível**. Uma vez feita, não é possível retornar à estrutura anterior.

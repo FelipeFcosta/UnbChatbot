@@ -1,0 +1,4 @@
+{
+  "question": "Poderiam me informar, por favor, qual é o procedimento para solicitar a reintegração ao meu curso após ter sido desligado da UnB?",
+  "answer": "Para solicitar a reintegração ao seu curso após o desligamento da UnB, o procedimento a ser seguido está estabelecido na [Resolução CEG n° 1/2023](https://deg.unb.br/images/legislacao/resolucao_ceg_001_2023_estabelece_procedimento_reintegracao.pdf).\n\nÉ importante notar que não existe um edital com cronograma definido para este processo, permitindo que a solicitação seja realizada a qualquer momento. Informações complementares sobre os trâmites necessários podem ser encontradas na [página de reintegração do DEG](http://deg.unb.br/reintegracao)."
+}

@@ -1,0 +1,4 @@
+{
+  "question": "importa a ordem que eu peco a vaga na matricula extraordinaria?",
+  "answer": "Sim, a ordem do seu pedido é extremamente importante durante a matrícula extraordinária. Nessa fase específica, as vagas que sobraram (remanescentes) são distribuídas estritamente por ordem de solicitação, ou seja, os primeiros a solicitar têm prioridade na ocupação dessas vagas."
+}

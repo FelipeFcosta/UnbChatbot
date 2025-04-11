@@ -1,0 +1,6 @@
+Original Question: Você pode me explicar o que quer dizer 'cadeia de seletividade' aqui no curso de Engenharia de Computação?
+Answer: Uma 'cadeia de seletividade', no contexto do curso de Engenharia de Computação, significa um grupo pré-definido de disciplinas optativas, dentro do qual você precisa cumprir uma carga horária mínima específica.
+
+Como exemplo, imagine uma cadeia que exija 90 horas e liste quatro disciplinas optativas de 30 horas cada. Para cumprir a exigência dessa cadeia, você precisaria escolher e ser aprovado em três dessas quatro disciplinas.
+
+Você tem a liberdade de escolher quais componentes cursar dentro das opções da cadeia, podendo inclusive cursar mais que o mínimo exigido. Toda a carga horária obtida em componentes de uma cadeia de seletividade conta como carga horária optativa.

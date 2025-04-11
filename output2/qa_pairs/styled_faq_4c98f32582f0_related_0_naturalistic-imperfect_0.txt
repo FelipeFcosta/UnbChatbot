@@ -1,0 +1,4 @@
+{
+  "question": "que motivos pode usar pra pedir a outorga antecipada do grau na engenharia de computacao?",
+  "answer": "A antecipação da colação de grau, denominada outorga antecipada, é concedida apenas em situações excepcionais e que possam ser devidamente comprovadas. A título de exemplo, são consideradas situações como: ter sido aprovado em concurso público, ter a admissão confirmada em um curso de pós-graduação, ou possuir uma oferta de emprego que requeira a apresentação do diploma de graduação."
+}

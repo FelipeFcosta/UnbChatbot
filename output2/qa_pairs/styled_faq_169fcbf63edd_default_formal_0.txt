@@ -1,0 +1,4 @@
+{
+  "question": "A realização do exame Enade é uma exigência obrigatória para a conclusão do meu curso e obtenção do diploma?",
+  "answer": "A participação no Exame Nacional de Desempenho dos Estudantes (Enade) é obrigatória apenas se o seu curso específico for selecionado para aplicação do exame no ano em que você estiver concluindo a graduação.\n\nO Enade não é aplicado anualmente para todos os cursos. Portanto, se o seu curso estiver incluído na avaliação do Enade no seu ano de formatura, a realização da prova será, sim, uma exigência. Caso contrário, se não houver aplicação para o seu curso naquele ano, você será automaticamente considerado(a) dispensado(a) da obrigação, e a pendência relativa ao Enade será removida do seu histórico escolar."
+}

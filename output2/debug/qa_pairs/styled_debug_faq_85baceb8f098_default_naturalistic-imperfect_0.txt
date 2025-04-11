@@ -1,0 +1,12 @@
+Original Question: Qual o procedimento para solicitar o Trancamento Geral de Matrícula (trancar o semestre)?
+Answer: O Trancamento Geral de Matrícula (TGM) suspende todas as suas atividades acadêmicas no semestre, sem que você perca o vínculo com a UnB.
+
+**Como solicitar (TGM não justificado):**
+*   **Via SIGAA:** Portal do Discente > Aba Ensino > Suspensão de Programa > Suspensão Regular.
+
+**Regras importantes:**
+*   **Limite:** Você pode solicitar até dois TGM não justificados durante todo o curso (podem ser consecutivos ou não).
+*   **Prazo:** Deve ser solicitado antes de se completarem 75% do período letivo (consulte o calendário no site da SAA).
+*   **Renovação:** Se for solicitar TGM em semestres consecutivos, é preciso renovar o pedido a cada semestre.
+*   **Requisito:** É necessário ter sido aprovado em pelo menos um componente do seu curso na UnB (considerando seu ingresso atual).
+*   **Trancamento Justificado:** Não há limite para trancamentos justificados.

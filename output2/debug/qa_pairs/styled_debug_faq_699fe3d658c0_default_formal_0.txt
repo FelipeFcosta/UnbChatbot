@@ -1,0 +1,4 @@
+Original Question: Preciso cumprir uma carga horária mínima de extensão em Engenharia de Computação?
+Answer: Atualmente, os currículos 1741/1 e 1741/2 de Engenharia de Computação não exigem uma carga horária mínima em atividades de extensão.
+
+No entanto, está em desenvolvimento um novo currículo que incluirá a obrigatoriedade de 10% da carga horária total em extensão. Essa exigência valerá apenas para os alunos que ingressarem nesse novo currículo ou que optarem por migrar para ele quando estiver vigente.

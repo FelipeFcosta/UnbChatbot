@@ -1,0 +1,4 @@
+{
+  "question": "E tem como fazer o contrário, mudar do currículo 1741/2 para o 1741/1?",
+  "answer": "Não, para o curso de Engenharia de Computação, não é permitida a migração no sentido inverso, ou seja, do currículo 1741/2 para o currículo 1741/1."
+}

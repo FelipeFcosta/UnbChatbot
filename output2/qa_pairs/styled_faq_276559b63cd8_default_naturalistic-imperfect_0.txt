@@ -1,0 +1,4 @@
+{
+  "question": "Como que marca a banca de defesa do projeto final 2 pra engenharia de computacao?",
+  "answer": "A definição da banca de defesa do Projeto Final 2 (incluindo data, horário e membros participantes) deve ser feita pelo seu professor orientador.\n\nEle deverá utilizar [este formulário online](https://forms.office.com/pages/responsepage.aspx?id=oZs17AtjK024M8jm1I-AWXcelI-NHv1AsFTptEzXf1lUOUcyQzU3NUxIVFhVVzFMMVpONTBIWjZGMy4u&route=shorturl) para efetuar o cadastro da banca. Em caso de dúvidas sobre o preenchimento ou procedimento, a secretaria do CIC pode oferecer auxílio."
+}

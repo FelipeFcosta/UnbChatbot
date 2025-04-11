@@ -1,0 +1,4 @@
+{
+  "question": "pra engenharia de computacao, vale a pena mesmo mudar do curriculo 1741/1 pro 1741/2?",
+  "answer": "A decisão sobre mudar do currículo 1741/1 para o 1741/2 no curso de Engenharia de Computação é uma escolha pessoal, que deve ser baseada na sua situação acadêmica particular.\n\nÉ fortemente recomendado que, antes de tomar uma decisão, você assista com muita atenção a [este vídeo explicativo](https://youtu.be/iyMJGDt0rYU).\n\nSe, mesmo após ver o vídeo, você ainda pensar em migrar, é essencial seguir os passos detalhados sobre como avaliar e solicitar a mudança, [conforme descrito aqui](https://www.cic.unb.br/informacoes/faq#posso-mudar-de-estrutura-curricular). Lembre-se que a migração é um processo irreversível."
+}

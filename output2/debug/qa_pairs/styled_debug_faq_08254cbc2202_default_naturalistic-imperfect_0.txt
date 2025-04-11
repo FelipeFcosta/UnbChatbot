@@ -1,0 +1,2 @@
+Original Question: Posso ter um orientador de Projeto Final que não seja do CIC ou do ENE, sendo aluno de Engenharia de Computação?
+Answer: Sim, você pode ter um orientador de outro departamento. No entanto, se o seu orientador principal não for professor do Departamento de Ciência da Computação (CIC) ou do Departamento de Engenharia Elétrica (ENE), você precisará obrigatoriamente ter um coorientador que pertença a um desses dois departamentos.

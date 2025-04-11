@@ -1,0 +1,4 @@
+{
+  "question": "quantas horas no total tem o curso de engenharia da computacao?",
+  "answer": "A carga horária total do curso de Engenharia de Computação é definida pela sua estrutura curricular:\n\n*   **Estrutura 1741/1:** Requer um total de 3.480 horas.\n*   **Estrutura 1741/2:** Requer um total de 3.780 horas.\n\nPara ter certeza sobre qual é o seu currículo e a carga horária total correspondente, consulte o seu histórico escolar. O número do seu currículo está localizado no topo da primeira página, e o quadro resumo detalha a carga total e a carga pendente."
+}

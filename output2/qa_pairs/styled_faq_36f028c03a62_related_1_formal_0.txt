@@ -1,0 +1,4 @@
+{
+  "question": "Poderia me informar quais dados são necessários para enviar à coordenação ao requisitar a matrícula em estágio obrigatório via correio eletrônico?",
+  "answer": "Sim. Para requisitar a matrícula em Estágio Supervisionado via correio eletrônico à coordenação, o dado necessário a ser informado é o número do processo SEI que contém a sua documentação de estágio devidamente assinada. É útil notar que, geralmente, este número de processo inicia-se com 23106."
+}

@@ -1,0 +1,4 @@
+{
+  "question": "Tenho que fazer um mínimo de horas de matéria eletiva?",
+  "answer": "Não, fique tranquilo(a), pois não existe um número mínimo de horas exigido para as disciplinas eletivas, também conhecidas como 'módulo livre'.\n\nNo entanto, cursar essas disciplinas é uma forma de auxiliar na integralização da carga horária total necessária para a conclusão do seu curso. É importante saber que, para esse fim, um máximo de 360 horas de disciplinas eletivas poderá ser considerado no cálculo."
+}

@@ -1,0 +1,11 @@
+Original Question: Eu consigo pedir pra mudar meu currículo do 1741/1 para o 1741/2?
+Answer: Sim, a migração do currículo 1741/1 para o 1741/2 em Engenharia de Computação é possível, mas é fundamental que você analise essa decisão com muito cuidado, pois ela é **irreversível**.
+
+Recomendamos os seguintes passos antes de decidir:
+1.  Assista ao [vídeo com explicações](https://youtu.be/iyMJGDt0rYU).
+2.  Vá até a SAA (Secretaria de Administração Acadêmica, no Centro de Vivência) e solicite uma simulação do seu histórico na estrutura 1741/2.
+3.  **Compare atentamente** seu histórico atual (1741/1) com a simulação (1741/2). Concentre-se na **carga horária total que ainda falta cumprir** e na **lista de disciplinas pendentes**. Evite comparar apenas as cargas optativas/obrigatórias isoladamente, pois a classificação delas pode mudar.
+4.  Analise também as sugestões de fluxo ([1741/1](https://www.ene.unb.br/joaoluiz/engcomputacao_fluxo_sugerido_1741-1.pdf), [1741/2](https://www.ene.unb.br/joaoluiz/engcomputacao_fluxo_sugerido_1741-2.pdf)) e as listas de disciplinas de cada um ([neste link](https://sigaa.unb.br/sigaa/public/curso/curriculo.jsf?lc=pt_BR&id=414610), clicando nos ícones de caderno).
+5.  Se, após toda essa análise, você decidir pela migração, envie sua solicitação por e-mail à coordenação do curso.
+
+Se tiver dúvidas, procure a coordenação para esclarecimentos *antes* de solicitar a migração.

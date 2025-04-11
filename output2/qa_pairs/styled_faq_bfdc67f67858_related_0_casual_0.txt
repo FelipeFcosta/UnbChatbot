@@ -1,0 +1,4 @@
+{
+  "question": "Pra estágio de Engenharia de Computação, qual professor eu coloco como orientador nos papéis?",
+  "answer": "Nos documentos relativos ao estágio de Engenharia de Computação, você deve indicar um dos professores que integram a comissão de estágio do Departamento de Ciência da Computação (CIC) como seu orientador. Os professores responsáveis são: Jan Mendonça Correa, Marcelo Ladeira e Carla Denise Castanho."
+}

@@ -1,0 +1,4 @@
+{
+  "question": "aquela regra das 4 disciplinas em dois semestre ainda ta valendo?",
+  "answer": "Com relação à regra das 4 disciplinas em dois semestres, sim, essa normativa existe formalmente e está em vigor. No entanto, é relevante notar que sua aplicação rigorosa não tem sido a prática nos últimos períodos letivos. \n\nApesar disso, é fortemente aconselhável que você busque cumprir essa exigência para evitar surpresas ou possíveis impedimentos futuros."
+}

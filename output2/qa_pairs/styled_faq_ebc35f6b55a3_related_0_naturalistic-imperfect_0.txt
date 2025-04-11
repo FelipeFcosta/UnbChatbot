@@ -1,0 +1,4 @@
+{
+  "question": "na hora de comparar pra mudar a estrutura de eng comp o que tem mais peso?",
+  "answer": "Ao realizar a comparação entre sua estrutura curricular atual e uma estrutura nova (por meio da simulação da SAA), os elementos centrais para análise devem ser prioritariamente a carga horária total que falta cumprir e a lista específica dos componentes curriculares pendentes em cada uma das estruturas."
+}

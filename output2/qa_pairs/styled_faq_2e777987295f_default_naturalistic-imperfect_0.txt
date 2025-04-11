@@ -1,0 +1,4 @@
+{
+  "question": "pra participar de um projeto de iniciacao cientifica como que eu faço?",
+  "answer": "O primeiro passo para participar de um projeto de Iniciação Científica (IC) é procurar professores que atuem em áreas de pesquisa do seu interesse e conversar com eles. Nessa conversa, você pode apresentar suas ideias ou perguntar sobre projetos já existentes que possam lhe acolher.\n\nRecomendamos que o contato seja feito pessoalmente ou por e-mail, indicando já o tema de interesse. O ideal é iniciar essa busca no semestre anterior ao que pretende começar, ou bem no início do semestre (fevereiro ou março), pois o edital do ProIC costuma ser publicado em março/abril e a inscrição do estudante no projeto é feita pelo professor orientador.\n\nInformações gerais sobre o programa estão na [página do ProIC](https://proic.unb.br/index.php?option=com_content&view=article&id=649&Itemid=530)."
+}

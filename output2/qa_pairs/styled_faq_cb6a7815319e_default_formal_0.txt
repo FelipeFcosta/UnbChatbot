@@ -1,0 +1,4 @@
+{
+  "question": "Quais são os passos necessários para que eu possa ingressar em um projeto de iniciação científica (IC)?",
+  "answer": "Para ingressar em um projeto de iniciação científica (IC), siga os passos abaixo:\n1.  Inicie uma conversa com professores cujas áreas de pesquisa sejam de seu interesse.\n2.  Você pode apresentar suas próprias ideias de projeto ou indagar sobre projetos já existentes sob a orientação deles.\n3.  O contato pode ser feito pessoalmente ou por e-mail.\n4.  **Planejamento:** Recomenda-se iniciar esses contatos no começo do ano (fevereiro/março), uma vez que o edital para projetos de IC costuma ser publicado em março ou abril.\n5.  É importante notar que a inscrição formal no edital é realizada pelo professor orientador.\n\nPara informações adicionais, consulte o site do [Programa de Iniciação Científica (ProIC)](https://proic.unb.br/)."
+}

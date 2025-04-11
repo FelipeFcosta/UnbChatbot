@@ -1,0 +1,14 @@
+Original Question: Como sei se uma disciplina é obrigatória, optativa ou eletiva para o meu curso?
+Answer: Para saber a classificação de um componente curricular (disciplina ou atividade), você deve consultar a estrutura curricular do seu curso. O número do seu currículo está informado no topo do seu histórico escolar.
+
+A estrutura curricular lista todos os componentes **obrigatórios** e **optativos**. Componentes que **não** aparecem nessa lista são considerados **eletivos** (módulo livre) para você.
+
+É importante verificar a estrutura específica do *seu* currículo, pois a classificação de um componente pode variar entre diferentes currículos ou cursos.
+
+Consulte a página do seu curso para acessar a estrutura curricular:
+- [Ciência da Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)
+- [Computação (Licenciatura)](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)
+- [Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)
+- [Engenharia Mecatrônica](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)
+
+Informações adicionais sobre [componentes optativos](https://www.saa.unb.br/graduacao/perguntas-frequentes-grad#componentes-optativo) e [eletivos](https://www.saa.unb.br/graduacao/perguntas-frequentes-grad#componentes-eletivos) estão disponíveis na página da SAA.

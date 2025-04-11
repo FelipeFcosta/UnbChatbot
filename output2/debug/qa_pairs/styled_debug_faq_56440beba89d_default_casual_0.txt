@@ -1,0 +1,6 @@
+Original Question: Qual o tempo mínimo estabelecido para concluir o curso de Engenharia de Computação?
+Answer: O prazo mínimo para conclusão varia conforme o currículo:
+*   **Currículo 1741/1:** 8 semestres (segundo o SIGAA).
+*   **Currículo 1741/2:** 10 semestres (segundo o SIGAA).
+
+Embora o sistema permita a formatura em menos tempo, isso geralmente só ocorre em casos excepcionais, como o aproveitamento de muitas disciplinas cursadas anteriormente.

@@ -1,0 +1,4 @@
+{
+  "question": "no historico como eu faco pra saber se a disciplina contou como obrigatoria ou optativa ou eletiva?",
+  "answer": "Você consegue verificar no seu histórico escolar como uma disciplina cursada foi classificada (eletiva, optativa ou obrigatória) através dos símbolos que aparecem ao lado do nome do componente:\n\n*   Uma cerquilha (`#`) indica que a disciplina foi contabilizada como **Eletivo (Módulo Livre)**.\n*   Um asterisco (`*`), o 'e' comercial (`&`) ou o símbolo de parágrafo (`§`) indicam que foi contabilizada como **Optativo**.\n*   Normalmente, componentes **Obrigatórios** não possuem símbolo, embora possam, eventualmente, aparecer com um 'e' minúsculo (`e`) ou uma arroba (`@`)."
+}

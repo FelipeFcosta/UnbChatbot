@@ -1,0 +1,4 @@
+{
+  "question": "pra completar a carga horaria toda do curso, como eu faço?",
+  "answer": "Para completar a carga horária total do seu curso, é necessário que você obtenha aprovação nos componentes curriculares estabelecidos pela estrutura curricular do curso.\n\nIsso inclui ser aprovado(a) nos componentes obrigatórios, nos optativos e nos eletivos (também chamados de módulo livre)."
+}

@@ -1,0 +1,4 @@
+{
+  "question": "Eu já trabalho com algo parecido com engenharia da computação. Posso usar meu contrato pra validar as horas do estágio obrigatório?",
+  "answer": "Sim, caso sua atividade profissional seja em área compatível com a engenharia da computação, você pode usar seu contrato de trabalho (ou documento similar) em substituição ao Termo de Compromisso de Estágio (TCE). Este procedimento permite solicitar a validação de sua experiência profissional como estágio obrigatório."
+}

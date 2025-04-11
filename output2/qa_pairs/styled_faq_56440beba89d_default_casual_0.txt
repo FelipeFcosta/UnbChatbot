@@ -1,0 +1,4 @@
+{
+  "question": "Em quanto tempo, no mínimo, dá pra terminar o curso de Engenharia de Computação?",
+  "answer": "O tempo mínimo previsto para concluir o curso de Engenharia de Computação na UnB difere conforme o currículo vigente:\n\n*   **Currículo 1741/1:** A integralização mínima é de 8 semestres, de acordo com o registro no SIGAA.\n*   **Currículo 1741/2:** A integralização mínima é de 10 semestres, também conforme o SIGAA.\n\nÉ relevante mencionar que, apesar de o sistema acadêmico poder indicar a possibilidade de formatura em prazo inferior, essa ocorrência é atípica e geralmente vinculada a situações como o aproveitamento de um volume considerável de créditos de disciplinas cursadas previamente."
+}

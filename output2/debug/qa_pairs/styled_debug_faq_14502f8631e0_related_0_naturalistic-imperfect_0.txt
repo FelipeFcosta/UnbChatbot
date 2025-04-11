@@ -1,0 +1,2 @@
+Original Question: Reprovar 3 vezes na mesma disciplina optativa pode causar desligamento?
+Answer: Não, a regra de desligamento por 3 reprovações aplica-se apenas a disciplinas **obrigatórias**. Reprovações em disciplinas optativas ou de cadeia de seletividade não entram nessa contagem.

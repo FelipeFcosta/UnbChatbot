@@ -1,0 +1,17 @@
+Original Question: Como funciona o Trancamento Justificado (TJ ou TGMJ) e em quais situações posso solicitar?
+Answer: O Trancamento Justificado permite trancar uma ou mais disciplinas (TJ) ou o semestre inteiro (TGMJ) a qualquer momento, mediante comprovação de um motivo válido.
+
+**Características:**
+*   **Prazo para Solicitar:** Até dois anos após o prazo original ou após o fim do motivo impeditivo.
+*   **Comprovação:** É essencial apresentar documentos que comprovem o motivo (ex: atestado médico).
+*   **Sem Limite:** Não há limite de quantos trancamentos justificados você pode solicitar.
+*   **Não Afeta TGM Automático:** Solicitar TJ/TGMJ não consome seus dois trancamentos gerais não justificados.
+*   **Sem Impacto no IRA:** O trancamento justificado não afeta seu índice de rendimento.
+*   **Renovação (TGMJ):** Se for um trancamento justificado do semestre inteiro, precisa ser renovado a cada semestre.
+
+**Motivos Previstos (Resolução CEPE n° 93/2018):** Incluem saúde (sua ou parente próximo), estudos no exterior, necessidade de serviço público, óbito de parente próximo, curso de formação, serviço militar, vulnerabilidade social/psicológica, entre outros.
+
+**Como Solicitar:**
+*   Via [peticionamento eletrônico no SEI](https://sei.unb.br/sei/controlador_externo.php?acao=usuario_externo_logar&acao_origem=usuario_externo_enviar_cadastro&id_orgao_acesso_externo=0).
+*   Consulte o [manual de trancamento](https://saa.unb.br/images/documentos/graduacao/peticionamento/manual_trancamento_05_03_23.pdf).
+*   Anexe todos os comprovantes.

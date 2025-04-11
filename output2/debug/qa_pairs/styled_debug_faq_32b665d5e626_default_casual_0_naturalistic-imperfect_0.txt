@@ -1,0 +1,2 @@
+Original Question: Onde eu posso encontrar a explicação de como vocês calculam o IRA?
+Answer: Você pode encontrar a explicação detalhada de como o IRA (Índice de Rendimento Acadêmico) é calculado, incluindo a fórmula oficial utilizada pela UnB, consultando o documento chamado ["Manual para estudantes"](https://deg.unb.br/manualparaestudantes).

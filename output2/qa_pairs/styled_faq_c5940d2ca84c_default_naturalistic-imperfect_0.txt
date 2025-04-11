@@ -1,0 +1,4 @@
+{
+  "question": "Nao consegui vaga nem na matricula nem rematricula, qual a alternativa que tem pra mim?",
+  "answer": "Caso não tenha obtido a vaga desejada nas etapas de matrícula ou rematrícula, a alternativa disponível é a **matrícula extraordinária**.\n\nNesta fase:\n*   **Vantagem:** As reservas de vagas que existiam por curso (exceto as de calouros) são liberadas, o que pode aumentar suas possibilidades.\n*   **Critério:** A alocação das vagas ocorre por **ordem de chegada**, ou seja, quem solicita primeiro fica com a vaga.\n*   **Estratégia:** Recomenda-se tentar a matrícula assim que a etapa iniciar e verificar o sistema com frequência, pois vagas podem surgir a qualquer momento devido a desistências."
+}

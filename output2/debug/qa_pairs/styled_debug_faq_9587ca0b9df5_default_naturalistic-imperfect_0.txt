@@ -1,0 +1,7 @@
+Original Question: Completei as 150 horas de estágio obrigatório em Engenharia de Computação. Qual o próximo passo para receber a menção?
+Answer: Após completar as 150 horas de estágio (o que corresponde a cerca de 5 semanas em regime de 30h/sem ou 8 semanas em 20h/sem), você está apto(a) a receber a menção.
+
+Para isso, é preciso entregar o **Relatório de Atividades de Estágio**. Este relatório deve ser preenchido e assinado por você e pelo seu supervisor na empresa.
+
+*   Modelo: Disponível [aqui](https://cic.unb.br/informacoes/documentos) (procure por EST_Relatorio_de_Atividades).
+*   Entrega: Via [formulário de atendimento interno do CIC](https://cic.unb.br/o-cic/fale-conosco).

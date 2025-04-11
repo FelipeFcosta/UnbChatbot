@@ -1,0 +1,4 @@
+{
+  "question": "Gostaria de saber se a mudança de estrutura curricular é um processo reversível, permitindo o retorno à estrutura anterior posteriormente?",
+  "answer": "Não, a mudança de estrutura curricular não é um processo reversível. Uma vez que a migração entre estruturas curriculares é solicitada e efetivada pela administração acadêmica, trata-se de uma alteração definitiva, não sendo possível retornar à estrutura curricular anterior."
+}

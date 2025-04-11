@@ -1,0 +1,4 @@
+{
+  "question": "Existe uma exigência de cursar um número mínimo de horas em disciplinas optativas no curso de Engenharia de Computação?",
+  "answer": "Embora exista uma carga horária optativa total que é exigida para a conclusão do curso de Engenharia de Computação (informada em seu histórico escolar), a quantidade de horas que você efetivamente precisará cursar sob a classificação 'optativa' pode variar.\n\nIsso ocorre porque a carga horária optativa pendente também é reduzida quando você cursa e é aprovado(a) em disciplinas eletivas (módulo livre) ou quando um componente curricular é cumprido por meio de equivalência ao cursar outro componente da estrutura curricular."
+}

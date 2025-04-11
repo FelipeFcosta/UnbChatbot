@@ -1,0 +1,4 @@
+{
+  "question": "Qual o significado da notação numérica, como por exemplo 40/10, utilizada para indicar a reserva de vagas no sistema SIGAA?",
+  "answer": "A notação no formato 'X/Y', utilizada no sistema SIGAA para indicar a distribuição de vagas reservadas em uma turma, possui um significado específico. O número 'X' representa a quantidade de vagas asseguradas para os alunos que estão ingressando naquele curso específico. Já o número 'Y' indica a quantidade de vagas reservadas aos demais estudantes (não ingressantes) do mesmo curso."
+}

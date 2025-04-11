@@ -1,0 +1,4 @@
+{
+  "question": "reprovar materia obrigatoria no verao isso pode me desligar da unb?",
+  "answer": "Sim, a reprovação em disciplina obrigatória cursada no Verão pode, potencialmente, levar ao desligamento, mas isso depende de quando ocorre a sua terceira reprovação nessa mesma disciplina. Se a terceira reprovação (incluindo a do Verão) acontecer durante um semestre regular, você será desligado. Contudo, se a terceira reprovação ocorrer exatamente *no período* de Verão, você não será desligado por essa regra naquele momento."
+}

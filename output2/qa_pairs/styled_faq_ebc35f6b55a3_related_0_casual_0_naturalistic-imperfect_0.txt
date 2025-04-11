@@ -1,0 +1,4 @@
+{
+  "question": "O que eu olho primeiro pra decidir se vale a pena mudar de estrutura curricular em eng da computacao?",
+  "answer": "Para decidir se vale a pena mudar de estrutura curricular em Engenharia da Computação, ao usar a simulação da SAA, você deve observar prioritariamente dois pontos principais: primeiro, a carga horária total que ainda falta cumprir; segundo, a lista de disciplinas (componentes curriculares) pendentes em cada uma das estruturas (a atual e a nova). A sua decisão deve se basear principalmente nestes dois fatores comparativos."
+}

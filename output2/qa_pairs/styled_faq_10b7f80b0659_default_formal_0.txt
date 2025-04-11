@@ -1,0 +1,4 @@
+{
+  "question": "Gostaria de saber qual é o canal adequado para registrar uma reclamação geral referente a aspectos como infraestrutura, ensino, atendimento ou outros procedimentos na UnB.",
+  "answer": "O canal adequado para registrar reclamações gerais sobre aspectos como infraestrutura, ensino, atendimento, procedimentos ou outros assuntos na Universidade de Brasília (UnB) é a [Ouvidoria da UnB](https://ouvidoria.unb.br/)."
+}

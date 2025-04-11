@@ -1,0 +1,4 @@
+{
+  "question": "Poderia me informar sobre os critérios utilizados pela UnB para a classificação dos estudantes nos processos de matrícula e rematrícula?",
+  "answer": "Prezado(a) estudante,\n\nOs critérios de prioridade aplicados pela Universidade de Brasília (UnB) durante o processamento das solicitações nas etapas de matrícula e rematrícula estão disponíveis para consulta na [página oficial da Secretaria de Administração Acadêmica (SAA) sobre matrícula](https://www.saa.unb.br/matricula#quais-sao-os-criterios-de-prioridade).\n\nÉ importante ressaltar que, nessas etapas, a ordem cronológica em que a sua solicitação é realizada não interfere na sua classificação final."
+}

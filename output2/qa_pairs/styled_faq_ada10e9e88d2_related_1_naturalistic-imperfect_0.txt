@@ -1,0 +1,4 @@
+{
+  "question": "quem tem que assinar os papeis do estagio (tce e plano) se eu ja trabalho na area de comp?",
+  "answer": "Quando se utiliza a experiência profissional para validar o estágio, os documentos requeridos (Termo de Compromisso de Estágio ou contrato, e Plano de Atividades) devem ser assinados por você e também pelo seu supervisor direto na empresa. Nesses casos, o professor orientador para a validação pode ser o Coordenador de Graduação."
+}

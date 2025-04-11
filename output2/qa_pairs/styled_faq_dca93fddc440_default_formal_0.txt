@@ -1,0 +1,4 @@
+{
+  "question": "Qual o método para consultar e identificar a estrutura curricular à qual estou vinculado atualmente?",
+  "answer": "Para identificar a estrutura curricular à qual você está atualmente vinculado(a), o método consiste em verificar o número do currículo. Esta informação consta no cabeçalho, na primeira página do seu histórico escolar.\n\nPara informações adicionais sobre como interpretar as estruturas curriculares, consulte a [página de perguntas frequentes da Secretaria de Administração Acadêmica (SAA)](https://www.saa.unb.br/graduacao/perguntas-frequentes-grad#estrutura-curricular)."
+}

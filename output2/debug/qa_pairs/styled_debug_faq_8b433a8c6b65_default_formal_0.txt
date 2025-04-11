@@ -1,0 +1,4 @@
+Original Question: Como solicito a matrícula nas atividades de Projeto Final 1 ou 2 em Engenharia de Computação?
+Answer: A matrícula em Projeto Final 1 ou 2 pode ser feita durante o semestre, não apenas no período oficial.
+
+O procedimento é solicitar ao seu professor orientador que encaminhe um processo via SEI para o coordenador de Engenharia de Computação. Esse processo deve conter a solicitação formal de matrícula, especificando seu nome, matrícula, a atividade desejada (PF1 ou PF2) e a confirmação da orientação pelo professor.

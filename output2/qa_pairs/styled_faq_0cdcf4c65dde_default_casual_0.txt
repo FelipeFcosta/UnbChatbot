@@ -1,0 +1,4 @@
+{
+  "question": "Qual o jeito mais fácil de achar um professor pra me orientar no Projeto Final de Engenharia de Computação?",
+  "answer": "Para encontrar um professor orientador para seu Projeto Final em Engenharia de Computação, sugerimos os seguintes passos:\n1.  Pesquise professores cujas linhas de pesquisa ou disciplinas ministradas se relacionem com a área de seu interesse.\n2.  Procure esses professores (pessoalmente ou por e-mail) para conversar.\n3.  Você pode tanto propor uma ideia de projeto que já tenha, quanto perguntar se eles possuem temas de pesquisa disponíveis para orientação.\n4.  **Quando procurar:** É aconselhável iniciar essa busca com antecedência, seja no semestre anterior ao que pretende iniciar o projeto, ou logo no começo do semestre em questão."
+}

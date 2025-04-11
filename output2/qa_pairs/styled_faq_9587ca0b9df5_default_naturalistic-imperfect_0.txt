@@ -1,0 +1,4 @@
+{
+  "question": "Ja fiz as 150h do estagio obrigatorio de eng comp, e agora o que eu faço pra ganhar a mencao?",
+  "answer": "Após completar as 150 horas necessárias do estágio obrigatório (o que equivale a aproximadamente 5 semanas num regime de 30h/semana, ou 8 semanas num regime de 20h/semana), você estará apto(a) a obter a menção. \n\nPara isso, o procedimento necessário é a entrega do **Relatório de Atividades de Estágio**. Este documento precisa ser preenchido e assinado por você e também pelo seu supervisor na empresa.\n\n*   **Modelo do Relatório:** Você encontra o modelo (procure por EST_Relatorio_de_Atividades) na página de documentos do CIC: [https://cic.unb.br/informacoes/documentos](https://cic.unb.br/informacoes/documentos).\n*   **Como Entregar:** A submissão do relatório preenchido e assinado deve ser realizada através do [formulário de atendimento interno do CIC](https://cic.unb.br/o-cic/fale-conosco)."
+}

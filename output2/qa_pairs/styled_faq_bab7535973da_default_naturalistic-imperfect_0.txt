@@ -1,0 +1,4 @@
+{
+  "question": "o estagio nao obrigatorio em engenharia da computacao como que ele funciona quais as regra?",
+  "answer": "O estágio não obrigatório em Engenharia da Computação funciona de acordo com as seguintes regras e características:\n1.  Não é um componente curricular exigido para a sua formatura.\n2.  Precisa ser, obrigatoriamente, uma atividade **remunerada**.\n3.  A carga horária realizada pode ser utilizada para integralizar horas de [atividades complementares](https://www.cic.unb.br/informacoes/faq#atividades-complementares), de acordo com as normas específicas do seu curso."
+}
