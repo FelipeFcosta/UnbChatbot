@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
 Fine-tune the Gemma-3 LLM using Unsloth's LoRA approach with UNB Chatbot QA data.
-This script uses Modal to run the fine-tuning process on cloud A10G GPUs.
+This script uses Modal to run the fine-tuning process on cloud GPUs.
 Includes updated transformers version to address HybridCache error during evaluation.
+Saves comprehensive training summary including parameters and trainer state.
 """
 
 import argparse
@@ -10,9 +11,10 @@ import os
 import logging
 import signal
 import sys
+import json # Added for JSON saving
 from pathlib import Path
 import modal
-from datasets import load_dataset, DatasetDict # Ensure DatasetDict is imported
+from datasets import load_dataset, DatasetDict, concatenate_datasets # Ensure DatasetDict is imported
 
 # Set up logging
 logging.basicConfig(
@@ -22,39 +24,51 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-GPU = "T4"
+GPU = "A10G"
+VOLUME_NAME = "faq-unb-chatbot-gemma"
+SUMMARY_FILENAME = "training_summary.json" # Define summary filename
 
 # Define Modal app and resources
-app = modal.App("unb-chatbot-gemma4b-run4") # App name updated
+app = modal.App("unb-chatbot-gemma12b") # App name updated
 
 # Create a Modal image with dependencies
 image = (
     modal.Image.debian_slim(python_version="3.10")
-    .apt_install("git")
+    .apt_install("git") # Needed for git+https install
     .pip_install(
+        # Core ML / GPU
         "torch",
-        "unsloth",
-        "unsloth_zoo",
-        "datasets",
-        "xformers==0.0.29.post3",
-        "git+https://github.com/huggingface/transformers@v4.49.0-Gemma-3",
-        "trl==0.15.2",
-        "triton",
-        "cut_cross_entropy",
-        "huggingface_hub",
-        "bitsandbytes",
-        "accelerate",
-        "peft",
-        "sentencepiece",
-        "protobuf",
-        "hf_transfer",
-        "msgspec"
+        "bitsandbytes",      # From Colab extra install
+        "accelerate",        # From Colab extra install
+        "xformers==0.0.29.post3", # Pinned version from Colab extra install
+        "triton",            # From Colab extra install (often needed with Unsloth/Flash Attention)
+
+        # Unsloth specific
+        "unsloth",           # From Colab base install
+        "unsloth_zoo",       # From Colab extra install
+        "cut_cross_entropy", # From Colab extra install
+
+        # Hugging Face ecosystem
+        "git+https://github.com/huggingface/transformers@v4.49.0-Gemma-3", # Pinned version from Colab
+        "peft",              # From Colab extra install
+        "trl==0.15.2",       # Pinned version from Colab extra install
+        "datasets",          # From Colab extra install
+        "huggingface_hub",   # From Colab extra install
+        "hf_transfer",       # From Colab extra install
+
+        # Tokenization / Data handling
+        "sentencepiece",     # From Colab extra install
+        "protobuf",          # From Colab extra install
+
+        # Note: "vllm" related dependencies from the Colab setup are excluded
+        # as they weren't used in the core training/SFTTrainer part of the notebook.
+        # Note: "msgspec" was removed as it wasn't in the Colab install list.
     )
 )
 
-# Volume to store output models
+# Volume to store output models and summary
 output_volume = modal.Volume.from_name(
-    "unb-chatbot-gemma", create_if_missing=True
+    VOLUME_NAME, create_if_missing=True
 )
 
 huggingface_secret = modal.Secret.from_name("huggingface")
@@ -70,22 +84,26 @@ huggingface_secret = modal.Secret.from_name("huggingface")
 )
 def run_fine_tuning(
     hf_dataset: str,
-    output_dir: str = "unb_chatbot_gemma4b", # Updated default dir
-    base_model: str = "unsloth/gemma-3-4b-it-bnb-4bit",
-    epochs: int = 3,
+    epochs: int,
+    output_dir: str = "unb_chatbot_gemma4b",
+    base_model: str = "unsloth/gemma-3-12b-it",
+    load_in_4bit: bool = True,
+    load_in_8bit: bool = False,
     learning_rate: float = 2e-4,
-    batch_size: int = 2, # Starting batch size for A10G
-    lora_rank: int = 8,
-    lora_alpha: int = 8,
-    lora_dropout: float = 0.05,
-    max_seq_length: int = 2048,
-    warmup_ratio: float = 0.1,
+    batch_size: int = 2, # Actual per-device batch size
+    gradient_accumulation_steps: int = 8,
+    lora_rank: int = 32,
+    lora_alpha: int = 32,
+    lora_dropout: float = 0,
+    max_seq_length: int = 4096,
+    warmup_ratio: float = 0.1, # Note: warmup_steps might override this in SFTConfig
     weight_decay: float = 0.01,
-    resume_from_checkpoint: bool = True,
+    resume_from_checkpoint: bool = False,
     delete_output_dir: bool = False,
-    lr_scheduler_type: str = "linear"
+    lr_scheduler_type: str = "linear",
+    packing: bool = False
 ):
-    """Run fine-tuning on Modal with A10G GPU, evaluation enabled, with updated transformers."""
+    """Run fine-tuning on Modal, evaluation enabled, and save comprehensive summary."""
     # Import dependencies
     from unsloth import FastModel
     import torch
@@ -96,12 +114,32 @@ def run_fine_tuning(
     from transformers import TrainingArguments
     from huggingface_hub import login
     import shutil
-
     import accelerate.utils.operations as accel_ops
 
-    logger.info(f"Using Transformers version: {transformers.__version__}") # Log version
-
-    gradient_accumulation_steps = 4 if batch_size == 2 else 2 if batch_size == 4 else 8 if batch_size == 1 else 1
+    # Capture input parameters for saving later
+    # Note: Using locals() can capture more than needed, explicitly define parameters
+    training_params = {
+        "hf_dataset": hf_dataset,
+        "epochs": epochs,
+        "output_dir_name": output_dir, # Store the name used
+        "base_model": base_model,
+        "load_in_4bit": load_in_4bit,
+        "load_in_8bit": load_in_8bit,
+        "learning_rate": learning_rate,
+        "per_device_train_batch_size": batch_size, # Explicitly name it
+        "gradient_accumulation_steps": gradient_accumulation_steps,
+        "lora_rank": lora_rank,
+        "lora_alpha": lora_alpha,
+        "lora_dropout": lora_dropout,
+        "max_seq_length": max_seq_length,
+        "warmup_ratio": warmup_ratio,
+        "weight_decay": weight_decay,
+        "lr_scheduler_type": lr_scheduler_type,
+        "packing": packing,
+        # Derived/Info params
+        "effective_batch_size": batch_size * gradient_accumulation_steps * int(os.environ.get("MODAL_GPU_COUNT", 1)), # Approx
+        "gpu_type": GPU,
+    }
 
     def apply_chat_template(examples):
         texts = tokenizer.apply_chat_template(examples["messages"])
@@ -118,47 +156,60 @@ def run_fine_tuning(
     # Output to volume
     output_dir_path = f"/outputs/{output_dir}"
     os.makedirs(output_dir_path, exist_ok=True)
+    summary_file_path = os.path.join(output_dir_path, SUMMARY_FILENAME)
 
     # Delete output directory if requested
     if delete_output_dir and os.path.exists(output_dir_path):
         logger.info(f"Deleting existing output directory: {output_dir_path}")
         shutil.rmtree(output_dir_path)
         os.makedirs(output_dir_path, exist_ok=True)
-        
+
     logger.info(f"Starting fine-tuning process with the following settings:")
-    logger.info(f"  Base Model: {base_model}")
-    logger.info(f"  GPU Type: {GPU}")
-    logger.info(f"  Using Hugging Face dataset: {hf_dataset}")
-    logger.info(f"  Output Directory: {output_dir_path}")
-    logger.info(f"  Epochs: {epochs}")
-    logger.info(f"  Learning Rate: {learning_rate}")
-    logger.info(f"  Batch Size (per device): {batch_size}")
-    logger.info(f"  Gradient Accumulation Steps: {gradient_accumulation_steps}")
+    for key, value in training_params.items(): # Log captured params
+         logger.info(f"  {key}: {value}")
+    logger.info(f"  Output Directory (in volume): {output_dir_path}")
     logger.info(f"  Resume from checkpoint: {resume_from_checkpoint}")
+
+
+    if load_in_4bit and load_in_8bit:
+        raise ValueError("Cannot load model in both 4-bit and 8-bit mode. Please set one to True and the other to False.")
+    elif load_in_4bit:
+        logger.info("  Loading model with 4bit quantization")
+    else:
+        logger.info("  Loading model with 8bit quantization")
+
+    _orig_recursively_apply = accel_ops.recursively_apply
+
+    def patched_recursively_apply(func, data, test_type=lambda x: hasattr(x, "float") and isinstance(x, torch.Tensor), *args, **kwargs):
+        def safe_func(x):
+            if x.__class__.__name__ == "HybridCache":
+                return x  # Skip to avoid .float() call
+            return func(x)
+        return _orig_recursively_apply(safe_func, data, test_type=test_type, *args, **kwargs)
+
+    accel_ops.recursively_apply = patched_recursively_apply
 
     # Load the base model and tokenizer
     logger.info("Loading base model and tokenizer...")
     model, tokenizer = FastModel.from_pretrained(
         model_name=base_model,
         max_seq_length=max_seq_length,
-        load_in_4bit=False,
-        load_in_8bit=True,
+        load_in_4bit=load_in_4bit,
+        load_in_8bit=load_in_8bit,
         token=hf_token,
         full_finetuning=False
     )
 
     # Apply LoRA adapters to the model
     logger.info("Setting up LoRA adapters...")
-    model.config.text_config.use_cache = False
-
     model = FastModel.get_peft_model(
         model,
-        finetune_vision_layers     = False, # Turn off for just text!
-        finetune_language_layers   = True,  # Should leave on!
-        finetune_attention_modules = True,  # Attention good for GRPO
-        finetune_mlp_modules       = True,  # SHould leave on always!
-        r = lora_rank,           # Larger = higher accuracy, but might overfit
-        lora_alpha = lora_alpha,  # Recommended alpha == r at least
+        finetune_vision_layers     = False,
+        finetune_language_layers   = True,
+        finetune_attention_modules = True,
+        finetune_mlp_modules       = True,
+        r = lora_rank,
+        lora_alpha = lora_alpha,
         lora_dropout = lora_dropout,
         bias = "none",
         random_state = 3407,
@@ -167,25 +218,19 @@ def run_fine_tuning(
     logger.info(f"Applying chat template: gemma-3")
     tokenizer = get_chat_template(tokenizer, chat_template="gemma-3")
 
-
     # Load dataset from Hugging Face
     logger.info(f"Loading Hugging Face dataset: {hf_dataset}")
     try:
-        dataset = load_dataset(hf_dataset, token=hf_token)
+        train_dataset = load_dataset("liteofspace/unb-chatbot", split = "train")
+        eval_dataset = load_dataset("liteofspace/unb-chatbot", split = "validation")
 
-        # Get train split
-        train_dataset = dataset.get("train", dataset.get("training"))
-        if train_dataset is None:
-            raise ValueError(f"No 'train' or 'training' split found in dataset {hf_dataset}")
+        split_index = len(eval_dataset) // 2
+        eval_part_to_move = eval_dataset.select(range(split_index))
+        train_dataset = concatenate_datasets([train_dataset, eval_part_to_move])
+        eval_dataset = eval_dataset.select(range(split_index, len(eval_dataset)))
+
         logger.info(f"Loaded training dataset with {len(train_dataset)} examples")
-        
-        # Get validation split if it exists
-        eval_dataset = dataset.get("validation", dataset.get("val", dataset.get("dev", None)))
-        if eval_dataset is not None:
-            logger.info(f"Loaded validation dataset with {len(eval_dataset)} examples")
-        else:
-            logger.warning(f"No validation split found in dataset {hf_dataset}")
-            eval_dataset = None
+        logger.info(f"Loaded validation dataset with {len(eval_dataset)} examples")
     except Exception as e:
         logger.error(f"Error loading or splitting dataset: {e}")
         raise
@@ -200,27 +245,15 @@ def run_fine_tuning(
         batched=True,
         desc="Processing training dataset"
     )
-    
-    if eval_dataset:
-        eval_dataset = eval_dataset.map(
-            lambda ex: apply_chat_template(ex),
-            batched=True,
-            desc="Processing validation dataset"
-        )
 
-    print("train_dataset[5]['text']:", train_dataset[5]["text"])
-    model.config.text_config.use_cache = False
+    eval_dataset = eval_dataset.map(
+        lambda ex: apply_chat_template(ex),
+        batched=True,
+        desc="Processing validation dataset"
+    )
 
-    # solve bug with HybridCache
-    _orig_recursively_apply = accel_ops.recursively_apply
-    def patched_recursively_apply(func, data, test_type=lambda x: hasattr(x, "float") and isinstance(x, torch.Tensor), *args, **kwargs):
-        def safe_func(x):
-            if x.__class__.__name__ == "HybridCache":
-                return x
-            return func(x)
-        return _orig_recursively_apply(safe_func, data, test_type=test_type, *args, **kwargs)
-
-    accel_ops.recursively_apply = patched_recursively_apply
+    logger.info("Sample processed training text:")
+    logger.info(train_dataset[100]["text"][:500] + "...") # Log truncated sample
 
     # Check for existing checkpoint in the output directory
     resume_checkpoint = None
@@ -237,33 +270,34 @@ def run_fine_tuning(
         model = model,
         tokenizer = tokenizer,
         train_dataset = train_dataset,
-        eval_dataset = eval_dataset, # Can set up evaluation!
-        args = SFTConfig(
+        eval_dataset = eval_dataset,
+        packing = packing,
+        args = SFTConfig( # Use SFTConfig directly which inherits from TrainingArguments
             output_dir = output_dir_path,
             dataset_text_field = "text",
-            gradient_accumulation_steps=gradient_accumulation_steps, # Use GA to mimic batch size!
-            per_device_train_batch_size = 2,
-            warmup_ratio = warmup_ratio,
+            gradient_accumulation_steps=gradient_accumulation_steps,
+            per_device_train_batch_size = batch_size,
+            # warmup_ratio = warmup_ratio, # Using warmup_steps instead
+            warmup_steps = 5,
             num_train_epochs = epochs,
-            # max_steps = 50,
+            # max_steps = 10,
             learning_rate = learning_rate,
-            logging_steps = 1,
-            optim = "adamw_8bit",
+            logging_steps = 1, # Log frequently
+            optim = "adamw_8bit", # Unsloth recommended optimizer
             weight_decay=weight_decay,
             lr_scheduler_type = lr_scheduler_type,
             seed = 3407,
-            report_to = "none", # Use this for WandB etc
-            eval_strategy="steps",
-            eval_steps=40,
-            load_best_model_at_end=True,
-            metric_for_best_model="eval_loss",
-            save_steps=40,  # Save checkpoints
-            save_total_limit=3,  # checkpoints to keep
+            report_to = "none", # Disable default reporting (like wandb) unless configured
+            eval_strategy="steps", # Evaluate during training
+            eval_steps=20,         # How often to evaluate
+            # load_best_model_at_end=True, # Consider if you want the best model based on eval
+            # metric_for_best_model="eval_loss",
+            save_strategy="steps", # Save based on steps
+            save_steps=20,         # How often to save checkpoints
+            save_total_limit=3,    # Number of checkpoints to keep
+            max_seq_length=max_seq_length, # Pass max_seq_length here too
         ),
     )
-
-    trainer.model.config.use_cache = False
-    trainer.model.config.text_config.use_cache = False
 
     # Apply response-only training - Use Gemma templates
     logger.info("Configuring trainer to only compute loss on assistant responses (Gemma template)")
@@ -273,34 +307,98 @@ def run_fine_tuning(
         response_part = "<start_of_turn>model\n",
     )
 
+    # Initialize variables for summary
+    training_summary_stats = None
+    final_eval_metrics = None
+    final_log_history = None
+
     # Train the model
-    logger.info("Starting training (evaluation enabled)...")
     try:
-        trainer_stats = trainer.train(resume_from_checkpoint=resume_checkpoint)
-        logger.info(f"Training finished. Stats: {trainer_stats}")
+        logger.info("Starting training (evaluation enabled)...")
+        training_summary_stats = trainer.train(resume_from_checkpoint=resume_checkpoint)
+        logger.info(f"Training finished. Stats: {training_summary_stats}")
+
+        # Run final evaluation
+        logger.info("Running final evaluation...")
+        final_eval_metrics = trainer.evaluate()
+        logger.info(f"Final evaluation metrics: {final_eval_metrics}")
+
+        # Example generation (optional, keep for sanity check)
+        logger.info("Running example generation...")
+        tokenizer = get_chat_template(tokenizer, chat_template = "gemma-3")
+        messages = [{"role": "user", "content": [{"type" : "text", "text" : "O ENADE é obrigatório?"}]}]
+        text = tokenizer.apply_chat_template(messages, add_generation_prompt = True)
+        outputs = model.generate(
+            **tokenizer([text], return_tensors = "pt").to("cuda"),
+            max_new_tokens = 256, # Reduced length for quick test
+            temperature = 1.0, top_p = 0.95, top_k = 64,
+        )
+        logger.info("Example Generation Output:")
+        logger.info(tokenizer.batch_decode(outputs)[0]) # Decode and log
+
     except Exception as e:
-        logger.error(f"An unexpected error occurred during training: {e}")
+        logger.error(f"An unexpected error occurred during training: {e}", exc_info=True) # Log traceback
+        raise # Re-raise the exception after attempting to save
+    finally:
+        # Always try to save model, state, and summary, even on error
         try:
-            logger.warning("Attempting to save model state due to error...")
+            logger.warning("Attempting to save final model/adapters and state...")
             trainer.save_model(output_dir_path)
-            trainer.processing_class.save_pretrained(output_dir_path)
+            # Save tokenizer config etc. Needed for loading later.
+            if hasattr(trainer, 'processing_class') and trainer.processing_class is not None:
+                 trainer.processing_class.save_pretrained(output_dir_path)
+            elif hasattr(trainer, 'tokenizer') and trainer.tokenizer is not None:
+                 trainer.tokenizer.save_pretrained(output_dir_path)
+            else:
+                 logger.warning("Could not find tokenizer/processing class on trainer to save.")
+
+            # Get final state
+            final_log_history = trainer.state.log_history if trainer.state else None
+
+            logger.info(f"Final model/adapters saved to {output_dir_path}")
+
+            # --- Create and Save the Summary JSON ---
+            logger.info(f"Saving comprehensive training summary to {summary_file_path}...")
+            summary_data = {
+                "run_model": output_dir, # Use the output dir name as the run identifier
+                "parameters": training_params,
+                "training_summary_stats": training_summary_stats.metrics if training_summary_stats else None,
+                "final_evaluation_metrics": final_eval_metrics,
+                "trainer_log_history": final_log_history, # Store the log history specifically
+                "qa": [] # Placeholder for QA pairs if added later via the web app
+            }
+
+            # Ensure state is serializable (convert tensors, etc.) - trainer.state.to_dict() usually handles this
+            try:
+                with open(summary_file_path, "w") as f:
+                    json.dump(summary_data, f, indent=2)
+                logger.info("Training summary JSON saved successfully.")
+            except TypeError as json_err:
+                logger.error(f"Could not serialize summary data to JSON: {json_err}")
+                logger.error("Attempting to save partial summary without trainer_state...")
+                summary_data.pop("trainer_state", None) # Remove problematic part
+                try:
+                    with open(summary_file_path.replace(".json", "_partial.json"), "w") as f:
+                        json.dump(summary_data, f, indent=2)
+                    logger.warning("Saved partial summary (without trainer state).")
+                except Exception as partial_save_err:
+                    logger.error(f"Failed to save even partial summary: {partial_save_err}")
+            except Exception as save_err:
+                 logger.error(f"Failed to save summary JSON: {save_err}")
+
+            logger.info("Committing changes to volume...")
             output_volume.commit()
-            logger.info(f"Model state partially saved to {output_dir_path}")
-        except Exception as save_e:
-            logger.error(f"Failed to save model state after error: {save_e}")
-        raise
+            logger.info("Volume commit successful.")
 
-    final_eval_metrics = trainer.evaluate()
-    logger.info(f"Final evaluation: {final_eval_metrics}")
+        except Exception as final_save_e:
+            logger.error(f"Critical error during final saving steps: {final_save_e}", exc_info=True)
+            # Don't re-raise here if the original error was the training failure
 
-    # Save the final fine-tuned LoRA adapters
-    logger.info(f"Saving final fine-tuned LoRA adapters to {output_dir_path}...")
-    trainer.save_model(output_dir_path)
-    trainer.processing_class.save_pretrained(output_dir_path)
-
-    logger.info("Fine-tuning complete! LoRA adapters saved successfully to volume.")
-    output_volume.commit()
-    return f"Model adapters saved to {output_dir_path}"
+    # Construct return message based on success
+    if training_summary_stats and final_log_history:
+        return f"Fine-tuning complete! Model adapters and summary ({SUMMARY_FILENAME}) saved to {output_dir_path} in volume."
+    else:
+        return f"Fine-tuning process ended (potentially with errors). Attempted to save state to {output_dir_path}. Check logs and {SUMMARY_FILENAME}."
 
 
 @app.local_entrypoint()
@@ -323,5 +421,9 @@ def main(
     )
 
     print(result)
-    print("\nTo download the model adapters, run:")
-    print(f"  modal volume get unb-chatbot-models {output_dir} ./local_model_dir_{output_dir.replace('/', '_')}")
+    print("\n--- Download Instructions ---")
+    print(f"To download the entire output directory (including adapters, checkpoints, and summary):")
+    print(f"  modal volume get {VOLUME_NAME} {output_dir} ./local_{output_dir.replace('/', '_')}")
+    print(f"\nTo download only the training summary file:")
+    print(f"  modal volume get {VOLUME_NAME} {output_dir}/{SUMMARY_FILENAME} ./{SUMMARY_FILENAME}")
+    print("-" * 27)
