@@ -1,6 +1,6 @@
 .vscode/
-**/output/debug
-**/output/qa_pairs
+**/debug
+**/qa_pairs
 **/__pycache__/
 .venv/
 fine_tuning/*.md

@@ -76,7 +76,7 @@ huggingface_secret = modal.Secret.from_name("huggingface")
 @app.function(
     image=image,
     gpu=GPU, # Target A10G (24GB VRAM)
-    timeout=60 * 60 * 4,
+    timeout = 60*60*4,
     volumes={"/outputs": output_volume},
     cpu=2,
     memory=24576,
@@ -91,17 +91,19 @@ def run_fine_tuning(
     load_in_8bit: bool = False,
     learning_rate: float = 2e-4,
     batch_size: int = 2, # Actual per-device batch size
-    gradient_accumulation_steps: int = 8,
-    lora_rank: int = 32,
-    lora_alpha: int = 32,
+    gradient_accumulation_steps: int = 4,
+    lora_rank: int = 64,
+    lora_alpha: int = 64,
     lora_dropout: float = 0,
     max_seq_length: int = 4096,
-    warmup_ratio: float = 0.1, # Note: warmup_steps might override this in SFTConfig
+    warmup_ratio: float = 0.03,
     weight_decay: float = 0.01,
     resume_from_checkpoint: bool = False,
     delete_output_dir: bool = False,
-    lr_scheduler_type: str = "linear",
-    packing: bool = False
+    lr_scheduler_type: str = "cosine",
+    num_cycles: int = None,
+    packing: bool = False,
+    data_seed: int = None
 ):
     """Run fine-tuning on Modal, evaluation enabled, and save comprehensive summary."""
     # Import dependencies
@@ -135,6 +137,8 @@ def run_fine_tuning(
         "warmup_ratio": warmup_ratio,
         "weight_decay": weight_decay,
         "lr_scheduler_type": lr_scheduler_type,
+        "num_cycles": num_cycles,
+        "data_shuffle_seed": data_seed,
         "packing": packing,
         # Derived/Info params
         "effective_batch_size": batch_size * gradient_accumulation_steps * int(os.environ.get("MODAL_GPU_COUNT", 1)), # Approx
@@ -224,13 +228,12 @@ def run_fine_tuning(
         train_dataset = load_dataset("liteofspace/unb-chatbot", split = "train")
         eval_dataset = load_dataset("liteofspace/unb-chatbot", split = "validation")
 
-        split_index = len(eval_dataset) // 2
-        eval_part_to_move = eval_dataset.select(range(split_index))
-        train_dataset = concatenate_datasets([train_dataset, eval_part_to_move])
-        eval_dataset = eval_dataset.select(range(split_index, len(eval_dataset)))
-
         logger.info(f"Loaded training dataset with {len(train_dataset)} examples")
         logger.info(f"Loaded validation dataset with {len(eval_dataset)} examples")
+
+        if data_seed:
+            logger.info(f"Shuffling training dataset with seed {data_seed}...")
+            train_dataset = train_dataset.shuffle(seed=data_seed)
     except Exception as e:
         logger.error(f"Error loading or splitting dataset: {e}")
         raise
@@ -277,21 +280,22 @@ def run_fine_tuning(
             dataset_text_field = "text",
             gradient_accumulation_steps=gradient_accumulation_steps,
             per_device_train_batch_size = batch_size,
-            # warmup_ratio = warmup_ratio, # Using warmup_steps instead
-            warmup_steps = 5,
+            warmup_ratio = warmup_ratio,
+            # warmup_steps = 5,
             num_train_epochs = epochs,
-            # max_steps = 10,
+            # max_steps = 36,
             learning_rate = learning_rate,
             logging_steps = 1, # Log frequently
             optim = "adamw_8bit", # Unsloth recommended optimizer
             weight_decay=weight_decay,
-            lr_scheduler_type = lr_scheduler_type,
-            seed = 3407,
-            report_to = "none", # Disable default reporting (like wandb) unless configured
+            lr_scheduler_type=lr_scheduler_type,
+            lr_scheduler_kwargs={"num_cycles": num_cycles} if num_cycles is not None else {},
+            seed=3407,
+            report_to="none",  # Disable default reporting (like wandb) unless configured
             eval_strategy="steps", # Evaluate during training
             eval_steps=20,         # How often to evaluate
-            # load_best_model_at_end=True, # Consider if you want the best model based on eval
-            # metric_for_best_model="eval_loss",
+            load_best_model_at_end=True, # Consider if you want the best model based on eval
+            metric_for_best_model="eval_loss",
             save_strategy="steps", # Save based on steps
             save_steps=20,         # How often to save checkpoints
             save_total_limit=3,    # Number of checkpoints to keep
@@ -407,7 +411,8 @@ def main(
     output_dir: str = "unb_chatbot_gemma4b", # Match default
     epochs: int = 3, # Match default
     batch_size: int = 2, # Match default
-    resume: bool = True,
+    resume: bool = False,
+    data_seed: int = None,
     delete_output_dir: bool = False # Whether to delete existing output directory
 ):
     # Call the remote function
@@ -417,7 +422,8 @@ def main(
         epochs=epochs,
         batch_size=batch_size,
         resume_from_checkpoint=resume,
-        delete_output_dir=delete_output_dir
+        delete_output_dir=delete_output_dir,
+        data_seed=data_seed
     )
 
     print(result)
