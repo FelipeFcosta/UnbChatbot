@@ -5,7 +5,8 @@
     "topics": [
       "Atividades Complementares"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_72102d51670d"
   },
   {
     "faq_q": "Como integralizo carga horária referente a certificados de língua estrangeira?",
@@ -13,7 +14,8 @@
     "topics": [
       "Atividades Complementares"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_35b586c7ea6b"
   },
   {
     "faq_q": "Existe carga horária mínima de atividades complementares?",
@@ -21,7 +23,17 @@
     "topics": [
       "Atividades Complementares"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_42b16f6caf3b"
+  },
+  {
+    "faq_q": "Iniciação Científica?",
+    "faq_a": "Veja a [página do ProIC](https://proic.unb.br/index.php?option=com_content&view=article&id=649&Itemid=530).\n\nPara participar de um projeto, converse com professores que lecionam disciplinas e/ou desenvolvem pesquisa em áreas de conhecimento que você tem afinidade. Você pode levar suas próprias ideias de projeto ao professor ou pode perguntá-lo sobre possíveis temas de projeto. Procure-os pessoalmente ou envie e-mails. O edital normalmente é publicado em março ou abril e a inscrição é feita pelo professor orientador. Assim, recomenda-se conversar com os professores no início do ano em que se deseja iniciar o projeto (fevereiro ou março).",
+    "topics": [
+      "Atividades Complementares"
+    ],
+    "course": null,
+    "qa_pair_hash": "faq_2e777987295f"
   },
   {
     "faq_q": "Como encaminho reclamação sobre infraestrutura, ensino, atendimento, procedimentos, etc.?",
@@ -29,7 +41,8 @@
     "topics": [
       "Coordenação"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_bcb2c61aec15"
   },
   {
     "faq_q": "Quem é e como falo com a coordenadção do curso?",
@@ -37,7 +50,8 @@
     "topics": [
       "Coordenação"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_ce3fd3b4eb23"
   },
   {
     "faq_q": "Reprovação em componente obrigatório durante o período de Verão conta para o desligamento?",
@@ -45,7 +59,8 @@
     "topics": [
       "Desligamento"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_34071d8cbec2"
   },
   {
     "faq_q": "Preciso ser aprovado em, no mínimo, 4 componentes curriculares obrigatórios ou optativos do curso em dois semestres consecutivos,?",
@@ -53,55 +68,62 @@
     "topics": [
       "Desligamento"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_49480f15aac2"
   },
   {
-    "faq_q": "Como lido com estágio não obrigatório?",
+    "faq_q": "Como lido com estágio não obrigatório em engenharia da computação?",
     "faq_a": "O estágio não obrigatório 1) não é requisito para a conclusão do curso, 2) deve ser **remunerado** e 3) pode ser integralizado como [atividade complementar](https://www.cic.unb.br/informacoes/faq#atividades-complementares).",
     "topics": [
-      "Estágio em Engenharia de Computação"
+      "Estágio"
     ],
-    "course": "Engenharia de Computação"
+    "course": "Engenharia da Computação",
+    "qa_pair_hash": "faq_bab7535973da"
   },
   {
-    "faq_q": "Como faço matrícula em estágio obrigatório?",
+    "faq_q": "Como faço matrícula em estágio obrigatório em Engenharia da Computação?",
     "faq_a": "A matrícula em [Estágio Supervisionado](https://sigaa.unb.br/sigaa/public/departamento/componentes.jsf?id=508) não precisa ser feita durante o [período oficial de matrícula](https://saa.unb.br/graduacao/calendario-academico), embora seja recomendado que o seja. Após ter seus documentos de estágio obrigatório assinados pelo seu professor orientador de estágio, envie um e-mail à coordenação do curso solicitando a matrícula na atividade. Não deixe de informar o número do processo [SEI](https://sei.unb.br/) onde se encontra sua documentação assinada (dica: começa com 23106).",
     "topics": [
-      "Estágio em Engenharia de Computação"
+      "Estágio"
     ],
-    "course": "Engenharia de Computação"
+    "course": "Engenharia da Computação",
+    "qa_pair_hash": "faq_36f028c03a62"
   },
   {
-    "faq_q": "Como faço para ter meus documentos de estágio assinados?",
+    "faq_q": "Como faço para ter meus documentos de estágio em Engenharia da Computação assinados?",
     "faq_a": "Os documentos devem ser encaminhados via [SEI](https://sei.unb.br/) para a Comissão de Estágio via a secretaria do CIC. Para novos estágios, você deve fazer o [pré-cadastro do estágio no SIGAA](https://www.deg.unb.br/196-estrutura-administrativa/daia-diretoria-de-acompanhamento-e-integracao-semestre/cesg-coordenacao-de-estagios-da-graduacao/672-cadastro-de-estagio-no-sigaa-perguntas) e enviar o seu Termo de Compromisso de Estágio (ou seu contrato de estágio) e seu Plano de Atividades para o CIC usando o [formulário de atendimento interno](https://www.cic.unb.br/o-cic/fale-conosco). Os modelos destes documentos estão disponíveis [aqui](https://www.cic.unb.br/informacoes/documentos). O professor orientador de estágio deve ser um dos membros da Comissão de Estágio. Se precisar de mais alguma informação, procure a Secretaria do CIC.",
     "topics": [
-      "Estágio em Engenharia de Computação"
+      "Estágio"
     ],
-    "course": "Engenharia de Computação"
+    "course": "Engenharia da Computação",
+    "qa_pair_hash": "faq_401f2f17f2b6"
   },
   {
-    "faq_q": "Eu trabalho na área de computação, preciso fazer estágio obrigatório?",
+    "faq_q": "Eu trabalho na área de computação, preciso fazer estágio obrigatório de engenharia da computação?",
     "faq_a": "Sim, é \"estágio obrigatório\", mas o Regulamento de Estágio prevê que um discente que atua profissionalmente em área afim da engenharia de computação possa usar essa experiência para integralizar as horas.\n\nPara solicitar, envie o Termo de Compromisso de Estágio (TCE) e o Plano de Atividades ([modelos aqui](https://www.cic.unb.br/informacoes/documentos)). Ambos devem estar assinados por aluno e supervisor no trabalho, o professor orientador pode ser o [Coordenador de Graduação](https://www.cic.unb.br/informacoes/faq#como-falo-com-o-coordenador-do-curso). O texto do TCE pode ser ajustado por não se tratar de um estágio, e a data de contratação deve ser usada como data de início da atividade. O TCE pode ser substituído por um contrato de trabalho ou similar.",
     "topics": [
-      "Estágio em Engenharia de Computação"
+      "Estágio"
     ],
-    "course": "Engenharia de Computação"
+    "course": "Engenharia da Computação",
+    "qa_pair_hash": "faq_ada10e9e88d2"
   },
   {
-    "faq_q": "Existem restrições para começar o estágio obrigatório?",
-    "faq_a": "Sim, por exemplo a integralização de carga horária mínima no curso. Veja o Regulamento de Estágio para mais informações.",
+    "faq_q": "Existem restrições para começar o estágio obrigatório em Engenharia de Computação?",
+    "faq_a": "Sim, por exemplo a integralização de carga horária mínima no curso. Veja o [Regulamento de Estágio do curso de Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/documentos.jsf?lc=pt_BR&id=414610&idTipo=1) para mais informações.",
     "topics": [
-      "Estágio em Engenharia de Computação"
+      "Estágio"
     ],
-    "course": "Engenharia de Computação"
+    "course": "Engenharia da Computação",
+    "qa_pair_hash": "faq_bb7532e0fd99"
   },
   {
-    "faq_q": "Já concluí a carga horária de estágio obrigatório, como recebo a menção?",
-    "faq_a": "Conforme o Regulamento, é necessária a entrega do Relatório de Atividades de Estágio (modelo disponível [aqui](https://www.cic.unb.br/informacoes/documentos)), devidamente preenchido e assinado por você e pelo seu supervisor de estágio na empresa, via o [formulário de atendimento interno do CIC](https://www.cic.unb.br/o-cic/fale-conosco).",
+    "faq_q": "Já concluí a carga horária de estágio obrigatório de engenharia de computação, como recebo a menção?",
+    "faq_a": "Conforme o [Regulamento de Estágio do curso de Engenharia de Computação](https://sigaa.unb.br/sigaa/public/curso/documentos.jsf?lc=pt_BR&id=414610&idTipo=1), é necessária a entrega do Relatório de Atividades de Estágio (modelo disponível [aqui](https://www.cic.unb.br/informacoes/documentos)), devidamente preenchido e assinado por você e pelo seu supervisor de estágio na empresa, via o [formulário de atendimento interno do CIC](https://www.cic.unb.br/o-cic/fale-conosco).",
     "topics": [
-      "Estágio em Engenharia de Computação"
+      "Estágio"
     ],
-    "course": "Engenharia de Computação"
+    "course": "Engenharia da Computação",
+    "qa_pair_hash": "faq_48b439bd308f"
   },
   {
     "faq_q": "Componentes do período de Verão afetam o IRA?",
@@ -109,7 +131,8 @@
     "topics": [
       "Estrutura Curricular"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_328187852344"
   },
   {
     "faq_q": "Aproveitamento / Dispensa de componentes?",
@@ -117,7 +140,8 @@
     "topics": [
       "Estrutura Curricular"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_45982cdba35c"
   },
   {
     "faq_q": "Atividade / Disciplina?",
@@ -125,7 +149,8 @@
     "topics": [
       "Estrutura Curricular"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_2d1696cf5031"
   },
   {
     "faq_q": "Cadeia de seletividade?",
@@ -133,7 +158,8 @@
     "topics": [
       "Estrutura Curricular"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_dbb23c5da02d"
   },
   {
     "faq_q": "Como integralizo a carga horária total do curso?",
@@ -142,7 +168,8 @@
       "Estrutura Curricular",
       "Carga horária"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_af2942db834c"
   },
   {
     "faq_q": "Existe carga horária optativa mínima?",
@@ -151,7 +178,8 @@
       "Estrutura Curricular",
       "Carga horária"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_d3cf0c167ca5"
   },
   {
     "faq_q": "Existe carga horária eletiva mínima?",
@@ -160,7 +188,8 @@
       "Estrutura Curricular",
       "Carga horária"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_f48d52191c02"
   },
   {
     "faq_q": "Posso cursar mais que 360 horas de carga horária eletiva?",
@@ -169,7 +198,8 @@
       "Estrutura Curricular",
       "Carga horária"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_389e4c0c960a"
   },
   {
     "faq_q": "Componente obrigatório, optativo ou eletivo?",
@@ -177,7 +207,8 @@
     "topics": [
       "Estrutura Curricular"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_689da125eafd"
   },
   {
     "faq_q": "Posso mudar de estrutura curricular?",
@@ -185,7 +216,8 @@
     "topics": [
       "Estrutura Curricular"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_ebc35f6b55a3"
   },
   {
     "faq_q": "Qual a minha estrutura curricular?",
@@ -193,7 +225,8 @@
     "topics": [
       "Estrutura Curricular"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_dca93fddc440"
   },
   {
     "faq_q": "Estrutura(s) da Engenharia de Computação",
@@ -201,15 +234,18 @@
     "topics": [
       "Estrutura Curricular"
     ],
-    "course": "Engenharia de Computação"
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_288ad7fc8898"
   },
   {
     "faq_q": "Devo migrar do do currículo 1741/1 para o currículo 1741/2?",
     "faq_a": "Depende. Primeiro, veja [este vídeo](https://youtu.be/iyMJGDt0rYU) com muita atenção. Se ainda tiver interesse, siga os passos [descritos aqui](https://www.cic.unb.br/informacoes/faq#posso-mudar-de-estrutura-curricular).",
     "topics": [
-      "Estrutura Curricular"
+      "Estrutura Curricular",
+      "Estrutura(s) da Engenharia de Computação"
     ],
-    "course": "Engenharia de Computação"
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_d88f9412a472"
   },
   {
     "faq_q": "Componentes curriculares obrigatórios?",
@@ -217,7 +253,8 @@
     "topics": [
       "Extensão"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_13e0764460cf"
   },
   {
     "faq_q": "O que é extensão universitária?",
@@ -225,7 +262,8 @@
     "topics": [
       "Extensão"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_bf78a65527f2"
   },
   {
     "faq_q": "Quais as ações de Extensão da UnB?",
@@ -233,7 +271,8 @@
     "topics": [
       "Extensão"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_6f9c8cfa3ae4"
   },
   {
     "faq_q": "O que eu preciso fazer para me formar?",
@@ -241,15 +280,17 @@
     "topics": [
       "Formatura"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_f1d45854fbd0"
   },
   {
     "faq_q": "Qual é o prazo mínimo para conclusão do curso?",
-    "faq_a": "O prazo mínimo é definido pelo PPC e está disponível na- ▾página do curso.\n- [Ciência da Computação.](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)\n- [Computação (Licenciatura).](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)\n- [Engenharia de Computação.](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)\n- [Engenharia Mecatrônica.](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)O sistema permite que oaluno se forme em menos tempo, mas só em casos excepcionais (como ter aproveitado disciplinas cursadas anteriormente). Atenção! O prazo é específico para cada estrutura curricular, ou seja, é possível que dois alunos de um mesmo curso mas de estruturas diferentes tenham prazos distintos.",
+    "faq_a": "O prazo mínimo é definido pelo PPC e está disponível na- ▾página do curso.\n- [Ciência da Computação.](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414599&lc=pt_BR&nivel=G)\n- [Computação (Licenciatura).](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414608&lc=pt_BR&nivel=G)\n- [Engenharia de Computação.](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414610&lc=pt_BR&nivel=G)\n- [Engenharia Mecatrônica.](https://sigaa.unb.br/sigaa/public/curso/portal.jsf?id=414333&lc=pt_BR&nivel=G)O sistema permite que o aluno se forme em menos tempo, mas só em casos excepcionais (como ter aproveitado disciplinas cursadas anteriormente). Atenção! O prazo é específico para cada estrutura curricular, ou seja, é possível que dois alunos de um mesmo curso mas de estruturas diferentes tenham prazos distintos.",
     "topics": [
       "Formatura"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_ffcb86a4915d"
   },
   {
     "faq_q": "Sou obrigado a fazer o Enade?",
@@ -257,7 +298,8 @@
     "topics": [
       "Formatura"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_169fcbf63edd"
   },
   {
     "faq_q": "Posso pedir outorga antecipada de grau?",
@@ -265,7 +307,8 @@
     "topics": [
       "Formatura"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_69eb59261850"
   },
   {
     "faq_q": "Sou formando, qual a burocracia envolvida?",
@@ -273,7 +316,8 @@
     "topics": [
       "Formatura"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_5ccf33733cc8"
   },
   {
     "faq_q": "Etapas da matrícula",
@@ -281,15 +325,17 @@
     "topics": [
       "Matrícula"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_6f2100edfc24"
   },
   {
     "faq_q": "Como consigo vaga em uma turma?",
-    "faq_a": "Durante a matrícula e a rematrícula, o processamento é coletivo e só ocorre ao final do prazo portanto, escolha suas turmas com calma. Como você só pode tentar uma turma de cada disciplina, é importante avaliar em qual das turmas você tem maior chance de conseguir vaga.\n\nConsiderações para maximizar suas chances de sucesso nas primeiras duas etapas:\n\n1. Olhe a reserva de vagas da turma. Evite pedir turmas com muitas vagas reservadas para outros cursos ou reservadas para ingressantes. Priorize turmas com muitas vagas reservadas para alunos não-ingressantes do seu curso.\n\n2. Você não precisa fazer sua matrícula no primeiro dia. Pode ser uma boa estratégia aguardar para ter mais informações sobre quais turmas estão sendo mais ou menos requisitadas.\n\n3. Peça várias disciplinas (o máximo que couber na sua grade de horários). Caso consiga mais disciplinas do que quer cursar, poderá retirar depois.\n\n4. Salve o resultado da matrícula. O sistema exige várias etapas de confirmação e é comum o aluno achar que terminou a matrícula sem que haja registro. O atestado de matrícula é seu comprovante (um simples print da tela não serve).\n\n5. Os coordenadores podem alterar as reservas de vagas ou aumentar o número de vagas das turmas no período entre matrícula e rematrícula. Se não conseguiu alguma turma nessas etapas, confira estas informações para avaliar se vale a pena tentar a mesma turma de novo, ou se é melhor tentar outra turma que tenha mais vagas disponíveis.\n\n6. Confira as informações do SIGAA. Capacidade da turma; número de solicitações realizadas na matrícula; número de solicitações realizadas na rematrícula; vagas reservadas para ingressantes de cada curso; e vagas reservadas para demais alunos de cada curso são relevantes na sua escolha. As vagas reservadas, por exemplo, aparecem listadas por curso e são mostrados dois números separados por uma barra (exemplos: 40/0; 40/10; 0/30; etc.), sendo o primeiro o número de vagas reservadas para ingressantes daquele curso, e o segundo o número de vagas reservadas para demais alunos daquele curso.\n\n7. Confira o local da turma! FCE é Ceilândia, FCTE é Gama e FUP é Planaltina. Os demais locais são no campus da Asa Norte.",
+    "faq_a": "Durante a matrícula e a rematrícula, o processamento é coletivo e só ocorre ao final do prazo portanto, escolha suas turmas com calma. Como você só pode tentar uma turma de cada disciplina, é importante avaliar em qual das turmas você tem maior chance de conseguir vaga.\n\nConsiderações para maximizar suas chances de sucesso nas primeiras duas etapas:\n\n1. Olhe a reserva de vagas da turma. Evite pedir turmas com muitas vagas reservadas para outros cursos ou reservadas para ingressantes. Priorize turmas com muitas vagas reservadas para alunos não-ingressantes do seu curso.\n\n2. Você não precisa fazer sua matrícula no primeiro dia. Pode ser uma boa estratégia aguardar para ter mais informações sobre quais turmas estão sendo mais ou menos requisitadas.\n\n3. Peça várias disciplinas (o máximo que couber na sua grade de horários). Caso consiga mais disciplinas do que quer cursar, poderá retirar depois.\n\n4. Salve o resultado da matrícula. O sistema exige várias etapas de confirmação e é comum o aluno achar que terminou a matrícula sem que haja registro. O atestado de matrícula é seu comprovante (um simples print da tela não serve).\n\n5. Os coordenadores podem alterar as reservas de vagas ou aumentar o número de vagas das turmas no período entre matrícula e rematrícula. Se não conseguiu alguma turma nessas etapas, confira estas informações para avaliar se vale a pena tentar a mesma turma de novo, ou se é melhor tentar outra turma que tenha mais vagas disponíveis.\n\n6. Confira as informações do SIGAA. Capacidade da turma; número de solicitações realizadas na matrícula; número de solicitações realizadas na rematrícula; vagas reservadas para ingressantes de cada curso; e vagas reservadas para demais alunos de cada curso são relevantes na sua escolha. As vagas reservadas, por exemplo, aparecem listadas por curso e são mostrados dois números separados por uma barra (exemplos: 40/0; 40/10; 0/30; etc.), sendo o primeiro o número de vagas reservadas para ingressantes daquele curso, e o segundo o númeroo de vagas reservadas para demais alunos daquele curso.\n\n7. Confira o local da turma! FCE é Ceilândia, FCTE é Gama e FUP é Planaltina. Os demais locais são no campus da Asa Norte.",
     "topics": [
       "Matrícula"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_ab9a4fb5eb67"
   },
   {
     "faq_q": "Não consegui vaga na matrícula nem na rematrícula. E agora?",
@@ -297,7 +343,8 @@
     "topics": [
       "Matrícula"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_e097ed69c9a4"
   },
   {
     "faq_q": "Quais as componentes devo cursar?",
@@ -305,7 +352,8 @@
     "topics": [
       "Matrícula"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_465df67f35cf"
   },
   {
     "faq_q": "Quais as disciplinas ofertadas?",
@@ -313,7 +361,8 @@
     "topics": [
       "Matrícula"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_a2e065079b9a"
   },
   {
     "faq_q": "Quais são os critérios de classificação durante a matrícula e rematrícula?",
@@ -321,7 +370,8 @@
     "topics": [
       "Matrícula"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_5d0d4b15c209"
   },
   {
     "faq_q": "Revisão de Menção",
@@ -329,38 +379,56 @@
     "topics": [
       "Revisão de Menção"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_405fb410c9f5"
   },
   {
     "faq_q": "Como encontro um orientador de Projeto Final?",
-    "faq_a": "Converse com professores que lecionam disciplinas e/ou desenvolvem pesquisa em áreas de conhecimento que você tem afinidade. Você pode levar suas próprias ideias de projeto ao professor ou pode perguntá-lo sobre possíveis temas de projeto. Procure-os pessoalmente ou envie e-mails (preferencialmente, já direcionados quanto ao tema de pesquisa). Recomenda-se muito fortemente conversar com os professores no semestre anterior ao início do trabalho.",
+    "faq_a": "Converse com professores que lecionam disciplinas e/ou desenvolvem pesquisa em áreas de conhecimento que você tem afinidade. Você pode levar suas próprias ideias de projeto ao professor ou pode perguntar sobre possíveis temas de projeto. Procure-os pessoalmente ou envie e-mails (preferencialmente, já direcionados quanto ao tema de pesquisa). Recomenda-se muito fortemente conversar com os professores no semestre anterior ao início do trabalho.",
     "topics": [
       "Trabalho de Conclusão de Curso"
     ],
-    "course": null
+    "course": null,
+    "qa_pair_hash": "faq_554c833a1aa1"
   },
   {
     "faq_q": "Existem restrições para começar o Projeto Final?",
     "faq_a": "Sim, por exemplo a integralização de carga horária mínima no curso. Veja o Regulamento de TCC para mais informações.",
     "topics": [
+      "Trabalho de Conclusão de Curso",
       "TCC em Engenharia de Computação"
     ],
-    "course": "Engenharia de Computação"
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_2a0e871a6385"
   },
   {
     "faq_q": "Como faço matrícula nas atividades de Projeto Final?",
     "faq_a": "A matrícula não precisa ser feita durante o período oficial de matrícula, embora isso seja recomendado. Peça a seu orientador para encaminhar um processo via SEI à Coordenação de Engenharia de Computação, com a seguinte solicitação: *\"Prezado Coordenador, solicito a matrícula do(a) discente Fulano de Tal (matrícula 12345678), do curso de Engenharia de Computação, na atividade CIC0267 PROJETO FINAL EM ENGENHARIA DE COMPUTAÇÃO 1 (ou CIC0268 PROJETO FINAL EM ENGENHARIA DE COMPUTAÇÃO 2), sob minha orientação. Atenciosamente, Prof. Beltrano da Silva, matrícula FUB 123456.\"*",
     "topics": [
+      "Trabalho de Conclusão de Curso",
       "TCC em Engenharia de Computação"
     ],
-    "course": "Engenharia de Computação"
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_351adad6dc3d"
   },
   {
     "faq_q": "Como agendar a defesa pública do Projeto Final 2",
     "faq_a": "A data, horário e local da sessão devem ser agendados pelo professor orientador, via o [formulário de atendimento interno](https://www.cic.unb.br/o-cic/fale-conosco). Em caso de dúvidas, procure a Secretaria do CIC.",
     "topics": [
+      "Trabalho de Conclusão de Curso",
       "TCC em Engenharia de Computação"
     ],
-    "course": "Engenharia de Computação"
+    "course": "Engenharia de Computação",
+    "qa_pair_hash": "faq_b8750bb14486"
+  },
+  {
+    "faq_q": "TCC em Engenharia Mecatrônica",
+    "faq_a": "Veja o [sítio da Engenharia Mecatrônica](https://mecatronica.unb.br/index.php/pt/informacoes-academicas/pfc).",
+    "topics": [
+      "Trabalho de Conclusão de Curso",
+      "TCC em Engenharia Mecatrônica"
+    ],
+    "course": "Engenharia Mecatrônica",
+    "qa_pair_hash": "faq_90a51840a667"
   }
 ]

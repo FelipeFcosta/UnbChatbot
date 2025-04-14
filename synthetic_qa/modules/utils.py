@@ -64,7 +64,8 @@ def sanitize_json_string(json_string: str) -> str:
     # First attempt: Try direct parsing
     try:
         return json.dumps(json.loads(json_string), indent=2)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.warning(f"Failed to sanitize JSON string: {e}")
         pass
 
     # Handle the content directly as text
@@ -111,7 +112,7 @@ def json_if_valid(text: str) -> Optional[Union[Dict[str, Any], List[Any]]]:
 
     # Check if there's more than one JSON object in the text
     if len(re.findall(json_pattern, text)) > 1:
-        return None
+        return None  
     
     json_text = json_match.group(1)
 

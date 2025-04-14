@@ -77,9 +77,10 @@ def filter_institutional_qa(qa_pairs: List[Dict[str, Any]]) -> List[Dict[str, An
     logger.info(f"Kept {len(filtered_pairs)}/{len(qa_pairs)} QA pairs")
     return filtered_pairs
 
+
 def convert_qa_to_training_format(qa_pairs: List[Dict[str, Any]], 
                                  output_file: Path,
-                                 validation_split: float = 0.1,
+                                 validation_split: float = 0.50,
                                  create_validation: bool = True) -> None:
     """
     Convert synthetic QA pairs to the format required for Unsloth training.
@@ -96,9 +97,6 @@ def convert_qa_to_training_format(qa_pairs: List[Dict[str, Any]],
     
     # Create training data in the required format
     all_examples = []
-    
-    # Keep track of unique question-answer combinations to avoid duplicates
-    seen_pairs = set()
     
     # Extract and format all valid examples
     for pair in qa_pairs:
@@ -156,31 +154,61 @@ def convert_qa_to_training_format(qa_pairs: List[Dict[str, Any]],
     val_data = []
     
     logger.info(f"Distributing examples from {len(examples_by_origin)} distinct origins")
-    
+
     for origin_hash, examples in examples_by_origin.items():
         # Shuffle examples for this origin
         random.shuffle(examples)
-        
+
         if create_validation and validation_split > 0:
-            # Calculate how many examples should go to validation
-            val_count = max(1, int(len(examples) * validation_split))
-            
-            # Ensure we don't put ALL examples in validation
-            if val_count >= len(examples):
-                if len(examples) > 1:
-                    val_count = len(examples) - 1
-                else:
-                    # If we only have 1 example, put it in training
-                    val_count = 0
-            
-            # Log the distribution for debugging
-            train_count = len(examples) - val_count
-            logger.info(f"Origin {origin_hash}: {train_count} to train, {val_count} to validation")
-            
-            # Add to respective sets
-            train_data.extend(examples[:-val_count] if val_count > 0 else examples)
+            num_examples = len(examples)
+            if num_examples == 0:
+                continue # Skip empty origins
+
+            # Calculate the ideal floating-point number of validation examples
+            ideal_val_count_float = num_examples * validation_split
+
+            # Determine the base number of validation examples (integer part)
+            base_val_count = int(ideal_val_count_float)
+
+            # Determine the fractional part
+            fractional_part = ideal_val_count_float - base_val_count
+
+            # Probabilistically decide whether to add one more based on the fraction
+            extra_val_count = 0
+            if random.random() < fractional_part:
+                extra_val_count = 1
+
+            # Calculate the total desired validation count for this origin
+            potential_val_count = base_val_count + extra_val_count
+
+            # --- Apply Constraints ---
+            # 1. Limit by available examples
+            val_count = min(potential_val_count, num_examples)
+
+            # 2. Ensure we don't put ALL examples in validation (if > 1 example exists)
+            if val_count >= num_examples and num_examples > 1:
+                val_count = num_examples - 1
+
+            # 3. If we have only 1 example, it must go to training
+            if num_examples == 1:
+                val_count = 0
+                
+            # --- Final Calculation and Logging ---
+            train_count = num_examples - val_count
+            prob_text = f"Prob={fractional_part:.2f}" if fractional_part > 0 else ""
+            logger.info(
+                f"Origin {origin_hash}: Ideal={ideal_val_count_float:.2f} "
+                f"(Base={base_val_count}, {prob_text}). "
+                f"Rolled extra: {'Yes' if extra_val_count == 1 else 'No'}. "
+                f"Taking {train_count} train, {val_count} val"
+            )
+
+            # --- Add to respective sets ---
+            # Ensure slicing is correct even if val_count is 0
+            train_data.extend(examples[:train_count]) # Take first train_count examples
             if val_count > 0:
-                val_data.extend(examples[-val_count:])
+                val_data.extend(examples[train_count:]) # Take remaining val_count examples
+
         else:
             # Add all to training if no validation
             train_data.extend(examples)
@@ -223,11 +251,11 @@ def main():
     parser = argparse.ArgumentParser(description="Convert synthetic QA data to training format")
     parser.add_argument("--input", required=True, help="Path to synthetic_qa_data.json")
     parser.add_argument("--output", default="training_data", help="Base name for output files")
-    parser.add_argument("--validation-split", type=float, default=0.1, 
+    parser.add_argument("--validation-split", type=float, default=0.10, 
                         help="Percentage of data to use for validation (0.0-1.0)")
     parser.add_argument("--skip-validation", action="store_true", 
                         help="Skip creating a validation set")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+    parser.add_argument("--seed", type=int, default=3407, help="Random seed for reproducibility")
     args = parser.parse_args()
     
     # Set random seed for reproducibility
@@ -251,6 +279,7 @@ def main():
     
     logger.info(f"Loaded {len(qa_data)} QA pairs from {input_path}")
     
+
     # Convert and save in the required format
     output_path = Path(args.output)
     convert_qa_to_training_format(

@@ -2,6 +2,7 @@
 """
 Fine-tune the Gemma-3 LLM using Unsloth's LoRA approach with UNB Chatbot QA data.
 This script uses Modal to run the fine-tuning process on cloud GPUs.
+This script uses Modal to run the fine-tuning process on cloud GPUs.
 Includes updated transformers version to address HybridCache error during evaluation.
 Saves comprehensive training summary including parameters and trainer state.
 """
@@ -68,6 +69,7 @@ image = (
 
 # Volume to store output models and summary
 output_volume = modal.Volume.from_name(
+    VOLUME_NAME, create_if_missing=True
     VOLUME_NAME, create_if_missing=True
 )
 
@@ -198,6 +200,8 @@ def run_fine_tuning(
     model, tokenizer = FastModel.from_pretrained(
         model_name=base_model,
         max_seq_length=max_seq_length,
+        load_in_4bit=load_in_4bit,
+        load_in_8bit=load_in_8bit,
         load_in_4bit=load_in_4bit,
         load_in_8bit=load_in_8bit,
         token=hf_token,

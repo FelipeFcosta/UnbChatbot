@@ -129,7 +129,7 @@ class SyntheticQADataGenerator:
                 except Exception as e:
                     logger.error(f"Error processing FAQ file {faq_path}: {e}")
         
-        # Now process the remaining non-FAQ files based on factual mode
+        # Now process the remaining non-FAQ files
         non_faq_qa_pairs = []
         
         if self.factual_mode and non_faq_files:

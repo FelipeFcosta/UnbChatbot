@@ -20,6 +20,8 @@ logger = logging.getLogger(__name__)
 
 
 class FAQProcessor:
+    STYLE_DEFAULT_FAQS = True
+
     """Handles specialized processing for FAQ documents."""
     
     @staticmethod
@@ -60,7 +62,13 @@ class FAQProcessor:
             return True
             
         return False
-    
+
+
+    @staticmethod
+    def create_qa_hash(file_path: Path, question: str):
+        return f"faq_{hashlib.sha256((str(file_path) + question).encode()).hexdigest()[:12]}"
+
+
     @staticmethod
     def extract_faq(soup: BeautifulSoup, file_path: Path, llm_client: LLMClient) -> List[Dict[str, Any]]:
         """
@@ -77,8 +85,24 @@ class FAQProcessor:
         from .file_processor import FileProcessor
         
         try:
-            # Extract text with preserved structure
-            structured_text = FileProcessor.extract_text_from_html(soup, file_path, llm_client)
+            structured_text_dir = file_path.parent / "structured_text"
+
+            # check if already present in file
+            if structured_text_dir.exists():
+                structured_text_path = structured_text_dir / f"{file_path.stem}_structured.txt"
+                if structured_text_path.exists():
+                    logger.info(f"Structured text already exists for {file_path}")
+                    with open(structured_text_path, 'r', encoding='utf-8') as f:
+                        structured_text = f.read()
+            else:
+                # Extract text with preserved structure
+                structured_text = FileProcessor.extract_text_from_html(soup, file_path, llm_client)
+                # save it
+                structured_text_dir.mkdir(parents=True, exist_ok=True)
+                structured_text_path = structured_text_dir / f"{file_path.stem}_structured.txt"
+                with open(structured_text_path, 'w', encoding='utf-8') as f:
+                    f.write(structured_text)
+            
 
             domain, _, _ = FileProcessor.extract_domain_and_path(file_path)
 
@@ -94,8 +118,8 @@ class FAQProcessor:
             {{
             "qa_pairs": [
                 {{
-                "faq_q": FAQ question,
-                "faq_a": FAQ answer,
+                "question": FAQ question,
+                "answer": FAQ answer,
                 "topics": ["Topic1, Topic2, ..."],
                 "course": "specific course"
                 }},
@@ -104,7 +128,7 @@ class FAQProcessor:
             }}
 
             2. **Critical requirements**:
-            - Both "faq_q" and "faq_a" fields **can never be null**
+            - Both "question" and "answer" fields **can never be null**
             - **"topics" are EXPLICITLY PRESENT in the FAQ AS titles/headers above a QA pair or a number of QA pairs** (can be null if no topics).
             - **include all nested topics as just a flat array**
             - "course" can be null or be a specific course
@@ -143,8 +167,8 @@ class FAQProcessor:
                 + json.dumps(response, ensure_ascii=False, indent=2)
                 + "\nRewrite your output (json only). Do any of these corrections for every pair where mistakes were made:\n"
                 "- Remove any questions in the 'topics' field.\n"
-                "- Remove any answer in the 'faq_q' field.\n"
-                "- Remove any question in the 'faq_a' field.\n"
+                "- Remove any answer in the 'question' field.\n"
+                "- Remove any question in the 'answer' field.\n"
                 "- Add/remove a course if it was forgotten/misplaced.\n"
                 "- Remove any text that is not verbatim to the original FAQ.\n"
                 "- Delete any QA pair that doesn't make sense.\n"
@@ -165,17 +189,18 @@ class FAQProcessor:
                 qa_pairs = []
 
                 for item in response.get("qa_pairs", []):
-                    question = item.get("faq_q", "")
-                    answer = item.get("faq_a", "")
+                    question = item.get("question", "")
+                    answer = item.get("answer", "")
                     topics = item.get("topics", [])
                     course = item.get("course", "")
 
                     if question and answer:
                         qa_pairs.append({
-                            "faq_q": question.strip(),
-                            "faq_a": answer.strip(),
+                            "question": question.strip(),
+                            "answer": answer.strip(),
                             "topics": topics if topics else None,
-                            "course": course.strip() if course else None
+                            "course": course.strip() if course else None,
+                            "qa_pair_hash": FAQProcessor.create_qa_hash(file_path, question)
                         })
 
                 logger.info(f"Successfully extracted {len(qa_pairs)} QA pairs using LLM")
@@ -190,400 +215,246 @@ class FAQProcessor:
             logger.error(f"Error extracting QA pairs from HTML: {e}")
             return []
 
-    @staticmethod
-    def create_context_chunks(faq: List[Dict[str, Any]], context_size: int = 2) -> List[Tuple[str, str, List[str], str, str]]:
-        """
-        Create chunks with surrounding questions for context.
-        
-        Args:
-            faq: List of dictionaries with faq_q, faq_a, topics, course
-            context_size: Number of neighboring QA pairs to include as context
-            
-        Returns:
-            List of tuples (question, answer, topics, course, context)
-        """
-        contextual_chunks = []
-        
-        for i, qa_pair in enumerate(faq):
-            question = qa_pair['faq_q']
-            answer = qa_pair['faq_a']
-            topics = qa_pair['topics']
-            course = qa_pair['course']
-
-            # Get neighboring questions for context
-            start_idx = max(0, i - context_size)
-            end_idx = min(len(faq), i + context_size + 1)
-
-            has_added_context_header = False
-            context = ""
-            for j in range(start_idx, end_idx):
-                if j != i:
-                    q = faq[j]['faq_q']
-                    a = faq[j]['faq_a']
-                    ts = faq[j]['topics']
-
-                    # Only include context questions with matching topics
-                    if set(t.lower() for t in topics) == set(t.lower() for t in ts):
-                        if not has_added_context_header:
-                            context += f"Context Questions:\n"
-                            has_added_context_header = True
-                        context += f"q: {q}\na: {a}\n\n"
-            
-            contextual_chunks.append((question, answer, topics, course, context))
-        
-        return contextual_chunks
 
     @staticmethod
-    def determine_generation_parameters(question: str, answer: str) -> Dict[str, Any]:
-        """
-        Determine how many styles, rephrases, and related questions to generate
-        based on the length of the QA pair.
-        
-        Args:
-            question: The question text
-            answer: The answer text
-            available_styles: List of all available writing styles
-            
-        Returns:
-            Dictionary with generation parameters
-        """
-        combined_words = len(question.split()) + len(answer.split())
-        
-        if combined_words <= 100:
-            return {
-                "rephrased_count": 1,
-                "related_count": 0,
-                "styles_count": 3
-            }
-        elif combined_words <= 200:
-            return {
-                "rephrased_count": 2,
-                "related_count": 1,
-                "styles_count": 5
-            }
-        elif combined_words <= 300:
-            return {
-                "rephrased_count": 3,
-                "related_count": 2,
-                "styles_count": 5
-            }
-        else:
-            return {
-                "rephrased_count": 3,
-                "related_count": 3,
-                "styles_count": 5
-            }
+    def generate_styled_qa(
+        questions: List[str],
+        answers: List[str],
+        previous_answers_batch: List[List[str]],
+        previous_questions_batch: List[List[str]],
+        writing_style: Dict[str, str],
+        llm_client: LLMClient
+    ) -> List[Dict[str, str]]:
 
-    @staticmethod
-    def generate_styled_qa(full_faq: str, original_qa: Dict[str, Any], context: str, writing_style: Dict[str, str], 
-                          llm_client: LLMClient, source_info: Dict[str, str]) -> Dict[str, str]:
         """
-        Generate a styled version of a question and answer pair based on a specified writing style.
-        
+        Generate styled versions of question and answer pairs in batch based on a specified writing style.
+
         Args:
-            original_qa: Dictionary with faq_q, faq_a, topics, and course
-            context: The context including neighboring QA pairs
-            writing_style: Dictionary with writing style name and description
-            llm_client: LLM client for generation
-            source_info: Dictionary with domain, institution, url info
-            
+            questions: List of original questions.
+            answers: List of original answers, corresponding to the questions.
+            previous_answers_batch: List of lists of previous answers to avoid repeating answers for that specific question.
+            previous_questions_batch: List of lists of previous questions.
+            writing_style: Dictionary with writing style name and description.
+            llm_client: LLM client for generation.
+
         Returns:
-            Dictionary with styled question and answer
+            List of dictionaries, each containing a styled question and answer pair.
+            Items where generation failed for either question or answer are omitted.
         """
-        # Extract domain and institution info for better context
-        domain = source_info.get("domain", "")
-        url = source_info.get("url", "")
-        institution = source_info.get("institution", domain)
-        faq_title = source_info.get('faq_title', '')
-        
+
+        batch_size = len(questions)
+        if batch_size == 0:
+            return []
+      
         # Get writing style information
-        writing_style_name = writing_style.get("name", "Default")
-        writing_style_desc = writing_style.get("description", "")
-        
-        # Generate alternative question
-        course_prompt = ""
-        if original_qa['course']:
-            course_prompt = f"\nIMPORTANT: You MUST specify the {original_qa['course']} course in the question."
-
-        styled_question_prompt = f"""
-        {full_faq}
-        -----------------
-        Given this university FAQ, create an alternative FAQ question from {institution}.
-        The specific original question is:
-
-        {original_qa['faq_q']}
-
-        and the answer is:
-
-        {original_qa['faq_q']}
-
-        Additional Context:
-        * FAQ title: {faq_title}
-        * FAQ url: {url}
-        * Question Topic: "{' | '.join(original_qa['topics'])}"
-
-        **WRITING STYLE**: {writing_style_desc}
-
-        (ps: the user knows they are talking to an assistant chatbot)
-
-        Rewrite *only the question*, while **preserving all the original meaning and intent**. **DO NOT ADD ANY NEW INFORMATION**
-        {course_prompt}
-
-        **Follow the specified writing style and question type closely.**
-        Return ONLY the alternative question IN PORTUGUESE with no additional text.
-        """                        
-
-        styled_question = llm_client.generate_text(textwrap.dedent(styled_question_prompt).lstrip(), temperature=0.8)
-
-        # Generate alternative answer based on the alternative question
-        styled_answer_prompt = f"""
-        You are creating an alternative FAQ answer. The original question is:
-        
-        {styled_question}
-
-        and the original (canonical) answer is:
-
-        {original_qa['faq_a']}
-        
-        Additional Context:
-        * Question writing style: "{writing_style_name}"
-        * Questions Topic: "{' | '.join(original_qa['topics'])}"
-        * "{context}"
-
-        Rewrite the original answer, while **preserving all the exact original information in a clear, helpful format**.
-        
-        You should try to understand and somewhat match the original question writing style, but always be a formal, modern, serious, polite, expert assistant for a brazilian university (UnB - Universidade de Brasília).
-        
-        Preserve all markdown formatting and links, but change the structure so it's clearer, more structured, and more suited for someone who needs to act on the instructions.
-
-        You should first answer the question directly to then add a very brief context answer 
-
-        **CRITICAL: NEVER ADD INFORMATION THAT IS NOT IN THE ORIGINAL ANSWER. DO NOT OVER INTERPRET QUESTIONS OR MAKE ASSUMPTIONS ABOUT THE ANSWER.**
-        **Your rewrite must have the exact same meaning as the original - use only information explicitly present in the original answer or context questions.**
-        **DO NOT add affirmative/negative statements, confirmations, or interpretations if they're not explicitly in the original.**
-        **Every factual information should be preserved, none added**
-
-        Context QA rules:
-        - Use the context QA to write a more thorough answer, summarizing (keep only relevant text) other responses that potentially address other students' questions proactively.
-        - No need to summarize every other context QA, the most generic/basic context answers should be chosen.
-        - Separate the main answer from the additional answer (the focus should be on the main answer)
-        - The additional summarized answer should indicate a logical next step for the student or something the user should be aware of
-        - *The transition between the main and additional answer should be **smooth***, logical and explained
-        - If the context QA is not relevant (doesn't add a logical next step or awareneess), just ignore it and write the answer based on just the original question and answer
-
-        Return ONLY the alternative answer IN PORTUGUESE with no additional text.
-
-        IMPORTANT: If the question mentions a specific university course, include that course in the answer.
-        **DON'T MAKE ASSUMPTIONS** if original answer isn't clear (always preserve meaning)**
-        """
-
-        styled_answer = llm_client.generate_text(textwrap.dedent(styled_answer_prompt).lstrip(), temperature=1.0)
-
-        if styled_question and styled_answer:
-            logger.info(f"Generated {writing_style_name} styled QA pair")
-            return {"question": styled_question, "answer": styled_answer}
-        return None
-
-
-    @staticmethod
-    def generate_rephrased_qa(qa: Dict[str, str], num_pairs: int, llm_client: LLMClient, 
-                             writing_style: Dict[str, str], source_info: Dict[str, str]) -> List[Dict[str, str]]:
-        """
-        Generate multiple rephrased versions of the original question and answer.
-        
-        Args:
-            qa: Dictionary with question and answer
-            num_pairs: Number of rephrased pairs to generate
-            llm_client: LLM client for generation
-            writing_style: Dictionary with writing style name and description
-            source_info: Dictionary with domain, institution, url info
-            
-        Returns:
-            List of dictionaries with rephrased questions and answers
-        """
-        # Extract domain and institution info for better context
-        domain = source_info.get("domain", "")
-        url = source_info.get("url", "")
-        institution = source_info.get("institution", domain)
-        faq_title = source_info.get('faq_title', '')
-
-        writing_style_name = writing_style.get("name", "Default")
+        writing_style_name = writing_style.get("name", "")
+        writing_style_goal = writing_style.get("goal", "")
         writing_style_desc = writing_style.get("description", "")
 
-        prompt = f"""
-        Please help me rephrase this question/answer from a FAQ ({faq_title}) in {num_pairs} different ways. 
-        
-        ORIGINAL QUESTION:
-        {qa['question']}
-        
-        ORIGINAL ANSWER:
-        {qa['answer']}
+        # --- 1. Generate ALL Styled Questions in One Call ---
+        logger.info(f"Generating {batch_size} styled questions in a single batch prompt...")
 
-        The versions must be distinct from each other (if more than one) and they should:
-        1. Keep same or slightly less information (in questions and answers)
-        2. Vary in LENGTH, STRUCTURE, and WORDING (with same meaning! **absolute synonyms**)
-        3. Include both direct and indirect question forms
-        4. Use different vocabulary while maintaining the SAME MEANING AND INTENT
-        5. Preserve all markdown formatting and links
+        previous_questions_prompt_template = ""
+        # check if any pair has a previous question
+        if any(previous_questions_batch):
+            previous_questions_prompt_template = "The new question should be distinct from the previous styled questions (do different phrasings, coherent reorderings, etc)."
 
-        The question was written in a **{writing_style_name}** style.
-        - Described as {writing_style_desc}.
-        **Be sure to keep this same style while rephrasing**.
-        The answer was slighted adjusted for that, but it's always from a formal, modern, serious, polite, expert assistant for a brazilian university (UnB - Universidade de Brasília).
-        
-        Both question and answer should follow the same above rules one at a time.
+        question_prompt_parts = [
+            f"""You are an LLM Generator that will create synthetic data from original FAQ pairs to fine tune a specialist chatbot model.
 
-        **CRITICAL: NEVER ADD INFORMATION THAT IS NOT IN THE ORIGINAL ANSWER. DO NOT OVER INTERPRET QUESTIONS OR MAKE ASSUMPTIONS ABOUT THE ANSWER.**
-        **DO NOT add affirmative/negative statements, confirmations, or interpretations if they're not explicitly in the original.**
+Create an alternative FAQ question for EACH of the original pairs listed below.
+**WRITING STYLE**: {writing_style_name}
+- Description: {writing_style_desc}
+- Goal: {writing_style_goal}
 
-        Generate exactly {num_pairs} coherent and distinct QA variations (NO TWO QUESTIONS OR ANSWERS SHOULD BE SIMILAR) IN PORTUGUESE.
-        FOLLOW THIS STRICTLY: Return ONLY the rephrased questions and answers in json.
+Instructions for EACH question:
+- Rewrite *only the question*, while **preserving all the original meaning and intent**.
+- **DO NOT ADD ANY NEW INFORMATION**.
+- **Follow the specified writing style closely.**
+- The user knows they are talking to an assistant chatbot.
+- Output must be IN PORTUGUESE.
+- Avoid repeated patterns between generated questions.
 
-        {{
-            "qa_pairs": [
-            {{"q": ..., "a": ...}},
-            ...
-            ]
-        }}
-        """
+{previous_questions_prompt_template}
 
-        response = llm_client.generate_text(textwrap.dedent(prompt).lstrip(), json_output=True, temperature=0.7)
-        if not response:
+Original Pairs:"""
+        ]
+
+        for i, (q, a) in enumerate(zip(questions, answers)):
+            # previous questions list for this item
+            previous_questions_str = ""
+            if previous_questions_batch[i]:
+                formatted_prev_questions = "\n".join([f"- {pq}" for pq in previous_questions_batch[i]])
+                previous_questions_str = f"Previous Styled Questions for this item:\n{formatted_prev_questions}"
+            question_prompt_parts.append(
+                f"Item #{i+1}:\n"
+                f"Original Question: {q}\n"
+                f"Original Answer: {a}\n"
+                f"{previous_questions_prompt_template}\n"
+                f"{previous_questions_str}"
+            )
+
+        question_prompt_parts.append(f"""
+**Output Format:**
+Return ONLY the {batch_size} generated alternative questions **in order**, IN PORTUGUESE.
+Each generated question should be on a new line.
+[Generated Question for Pair #1]
+[Generated Question for Pair #2]
+...
+Do not include ANY other text, numbering, or explanations before or after the generated questions.""")
+
+        styled_question_prompt = "\n".join(question_prompt_parts)
+        llm_question_response = llm_client.generate_text(styled_question_prompt.lstrip(), temperature=0.7)
+
+        # ** MODIFIED PARSING LOGIC **
+        styled_questions = []
+        if llm_question_response:
+            lines = [line.strip() for line in llm_question_response.splitlines() if line.strip()]
+            if len(lines) == batch_size:
+                styled_questions = lines
+            else:
+                logger.error(f"Question generation parsing error: Expected {batch_size} lines, but received {len(lines)} non-empty lines.")
+                logger.debug(f"LLM Response (Questions):\n{llm_question_response}")
+                return []
+        else:
+            if not styled_questions:
+                # This condition is technically covered above, but kept for clarity
+                logger.error("Failed to generate or parse styled questions for the batch. Aborting.")
+                return []
+
+        # --- 2. Generate ALL Styled Answers in One Call ---
+        logger.info(f"Generating {batch_size} styled answers...")
+
+        previous_answers_prompt_template = ""
+        # check if any pair has a previous answer
+        if any(previous_answers_batch):
+            previous_answers_prompt_template = "The new answer should be distinct from the previous answers for a specific answer (different phrasings, structures and coherent reorderings)."
+
+
+        answer_prompt_parts = [
+             f"""You are an LLM Generator that will create synthetic data from original FAQ pairs to fine tune a specialist chatbot model.
+
+You are creating alternative FAQ answers IN PORTUGUESE for the items listed below.
+General Instructions for EACH answer:
+- Rewrite the 'Original Answer' provided for the item.
+- Use the corresponding 'Styled Question' as context for the rewrite.
+- **Preserve ALL the exact original information** from the 'Original Answer'.
+- Format the answer in a clear, helpful way. Preserve markdown/links but restructure if helpful.
+- **CRITICAL: NEVER ADD INFORMATION THAT IS NOT IN THE ORIGINAL ANSWER.** Do not infer, assume, or add confirmations unless explicitly present. Exact same meaning is required.
+- Try to understand and somewhat match the question's writing style ("{writing_style_name}"), BUT always maintain the persona of a formal, modern, serious, polite, expert assistant for a brazilian university (UnB - Universidade de Brasília).
+- Always answer the question directly first.
+
+{previous_answers_prompt_template}.
+
+- Every factual information should be preserved, none added.
+Original pairs:"""
+        ]
+
+        for i, (styled_q, orig_a, prev_ans_list) in enumerate(zip(styled_questions, answers, previous_answers_batch)):
+            previous_answers_str = ""
+            if prev_ans_list:
+                formatted_prev_answers = "\n".join([f"- {pa}" for pa in prev_ans_list])
+                previous_answers_str = f"Previous Answers for this item:\n{formatted_prev_answers}"
+
+            answer_prompt_parts.append(
+                f"Item #{i+1}:\n"
+                f"Styled Question: {styled_q}\n"
+                f"Original Answer: {orig_a}\n"
+                f"{previous_answers_str}"
+            )
+
+        answer_prompt_parts.append(f"""
+**Output Format:**
+Return ONLY the {batch_size} generated alternative answers, IN PORTUGUESE.
+The strings can contain newline characters (\\n) for multi-line answers. Ensure correct JSON string escaping.
+{{
+  "styled_answers": [
+    {{"a": "Generated Answer for Item #1."}},
+    {{"a": "Generated Answer for Item #2."}},
+    ...
+  ]
+}}
+
+Ensure the order of your generated answers matches the order of the Input Items above.
+The entire response should be just the JSON array.
+**DON'T MAKE ASSUMPTIONS** if original answer isn't clear (always preserve meaning).""")
+
+
+        styled_answer_prompt = "\n".join(answer_prompt_parts)
+        llm_answer_response = llm_client.generate_text(styled_answer_prompt.lstrip(), temperature=1.0, json_output=True)
+        if not llm_answer_response:
             return []
         
         try:
             # Extract the QA pairs
-            rephrased_pairs = []
-            for pair in response.get("qa_pairs", []):
-                q = pair.get("q", "").strip()
-                a = pair.get("a", "").strip()
-                
-                if q and a:  # Ensure both question and answer exist
-                    rephrased_pairs.append({"question": q, "answer": a})
-            
-            logger.info(f"Generated {len(rephrased_pairs)} rephrased QA pairs")
-            return rephrased_pairs
+            styled_answers = []
+            for pair in llm_answer_response.get("styled_answers", []):
+                a = pair["a"].strip()
+                styled_answers.append(a)
+            logger.info(f"Generated {len(styled_answers)} styled answers")
             
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse rephrased QA response as JSON: {e}")
             return []
 
+        # styled_answers = None
+        # if isinstance(llm_answer_response, list) and len(llm_answer_response) == batch_size:
+        #      # Optional: Add check if all items are strings if needed
+        #      styled_answers = llm_answer_response
 
-    @staticmethod
-    def generate_related_questions(styled_question: str, answer:str, num_pairs: int, context: str, 
-                                  llm_client: LLMClient, writing_style: Dict[str, str], source_info: Dict[str, str]) -> List[Dict[str, str]]:
-        """
-        Generate additional questions that can be answered by the same content.
-        
-        Args:
-            question: The original question
-            answer: The original answer
-            num_pairs: Number of related pairs to generate
-            context: The context including neighboring QA pairs
-            llm_client: LLM client for generation
-            writing_style: Dictionary with writing style name and description
-            source_info: Dictionary with domain, institution, url info
-            
-        Returns:
-            List of dictionaries with related questions and answers
-        """
-        if not num_pairs:
-            logger.info(f"Generated 0 related QA pairs (num_pairs=0)")
+        if not styled_answers:
+            logger.error("Aborting batch due to failure in generating/receiving styled answers.")
+            return []
+        logger.info(f"Successfully received {len(styled_answers)} styled answers.")
+
+
+        # --- 3. Combine Results ---
+        generated_pairs = []
+        # This check should always pass if we reached here due to prior checks, but good practice
+        if len(styled_questions) == batch_size and len(styled_answers) == batch_size:
+             for q, a in zip(styled_questions, styled_answers):
+                 generated_pairs.append({"question": q, "answer": a})
+        else:
+            # Should not happen if logic above is correct
             return []
 
-        # Extract domain and institution info for better context
-        domain = source_info.get("domain", "")
-        url = source_info.get("url", "")
-        institution = source_info.get("institution", domain)
-        
-        writing_style_name = writing_style.get("name")
-        writing_style_desc = writing_style.get("description", "")
-
-        prompt = f"""
-        I'm creating training data for an institutional chatbot for {institution}. Based on this question and answer pair:
-        
-        ORIGINAL QUESTION (**{writing_style_name}** style):
-        {styled_question}
-
-        question style description: {writing_style_desc}
-        
-        ORIGINAL ANSWER:
-        "{answer}"
-
-        {context}
-        The new questions should not be similar to the other context questions
-
-        Generate {num_pairs} additional questions and answers that could also be answered by this same answer. Consider:
-        1. Questions about different background aspects present in the answer **but not addressed in the original question**
-        3. Questions seeking the same information but focusing on different parts of the *original answer*
-        4. *Reorganize each new answer* so that it reflects the *new focus of the question*.
-        5. The generated related questions should be **different** from each other (if more than one) and **completely different from the original question**
-        6. Preserve all markdown formatting and links, but change the structure so it's clearer, more structured, and more suited for someone who needs to act on the instructions.
-        7. **The new answer should be shorter and not add any new information**, but should address the new question like an assistant
-
-        **DO NOT ADD ANY NEW INFORMATION**
-        **Keep the same style of the original question**
-
-        IMPORTANT:
-        - Use the context QA *only* to avoid repeating the same questions in the dataset.
-        
-        These should be NEW questions, not rephrases of the original question.
-        They must be fully answerable with ONLY the information in the provided *original answer*.
-        The assistant should reorder and rephrase the new answer so it first directly answer this user's new question (and possible misunderstandings)
-        
-        Generate exactly {num_pairs} new pairs.
-        
-        FOLLOW THIS STRICTLY: Return ONLY the related questions and answers in json.
-
-        {{
-            "qa_pairs": [
-            {{"q": "...", "a": "..."}},
-            ...
-            ]
-        }}
-        """
-        
-        response = llm_client.generate_text(textwrap.dedent(prompt).lstrip(), json_output=True, temperature=0.6)
-        if not response:
-            logger.warning(f"Failed to generate related QA response.")
-            return []
-
-        try:
-            # Extract the QA pairs
-            related_pairs = []
-            for pair in response.get("qa_pairs", []):
-                q = pair.get("q", "").strip()
-                a = pair.get("a", "").strip()
-                
-                if q and a:
-                    related_pairs.append({"question": q, "answer": a})
-            
-            logger.info(f"Generated {len(related_pairs)} related QA pairs")
-            return related_pairs
-            
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse related QA response as JSON: {e}")
-            return []
+        return generated_pairs
 
 
     @staticmethod
     def process_faq_document(soup: BeautifulSoup, file_path: Path, output_dir: Path, config: Dict[str, Any]) -> List[Dict[str, str]]:
         """
         Process an HTML document as an FAQ to generate comprehensive training data.
-        
+        (Includes indefinite retries for generation)
+
         Args:
             soup: BeautifulSoup object of the document
             file_path: Path to the HTML file
             output_dir: Directory to save output files
             config: Configuration dictionary
-            
+
         Returns:
             List of QA pairs with variations
         """
-        from .llm_client import LLMClient
-        from .qa_generator import QAGenerator
+        # --- Imports ---
         import json
+        import os
+        import hashlib
+        import time # <--- Import time module for sleep
+        from pathlib import Path
+        from typing import List, Dict, Any
+        from bs4 import BeautifulSoup
         from slugify import slugify
+        # Assuming these imports are relative to the file containing this method
+        from .qa_generator import QAGenerator
+        from .file_processor import FileProcessor # Assuming FileProcessor is available
+        from .faq_processor import FAQProcessor # Assuming FAQProcessor is available
+        from .llm_client import LLMClient # Assuming LLMClient is available
+
+        # Setup logger if not already configured at module level
+        import logging
+        logger = logging.getLogger(__name__)
+        # --- End Imports ---
 
         try:
             # Detect if this is an FAQ document
@@ -591,262 +462,304 @@ class FAQProcessor:
             if not is_faq:
                 logger.info(f"{file_path} does not appear to be a FAQ document")
                 return []
-            
+
             logger.info(f"Processing {file_path} as a FAQ document")
 
             # Extract domain and path information
             domain, path, url = FileProcessor.extract_domain_and_path(file_path)
             institution = FileProcessor.get_institution_name(domain)
-            courses = FileProcessor.get_institution_courses(domain)
-            
-            # Construct the base URL for link resolution
-            base_url = f"https://{domain}"
-            if path:
-                # Get directory part of the path for base URL
-                path_parts = path.split('/')
-                if '.' in path_parts[-1]:  # If last part looks like a file
-                    path_parts = path_parts[:-1]
-                if path_parts:
-                    base_url = f"{base_url}/{'/'.join(path_parts)}"
-            
-            # Store in source info dictionary used throughout the processing
-            faq_config = config.get("providers", {}).get("faq_extraction", {})
-            faq_title = soup.title.get_text() if soup.title else institution
+            courses = FileProcessor.get_institution_courses(domain) # Assuming this method exists
 
-            source_info = {
-                "domain": domain,
-                "path": path,
-                "url": url,
-                "institution": institution,
-                "courses": courses,
-                "file_path": str(file_path),
-                "base_url": base_url,
-                "faq_title": faq_title
-            }
+            faq_config_provider = config.get("providers", {}).get("faq_extraction", {})
+            faq_title = soup.title.get_text(strip=True) if soup.title else institution
+            safe_title_slug = slugify(faq_title) if faq_title else "untitled-faq"
 
             # Create directories for output
             extracted_faq_dir = output_dir / "extracted_faq"
             extracted_faq_dir.mkdir(parents=True, exist_ok=True)
             debug_dir = output_dir / "debug" / "qa_pairs"
             debug_dir.mkdir(parents=True, exist_ok=True)
+            qa_dir = output_dir / "qa_pairs"
+            qa_dir.mkdir(parents=True, exist_ok=True)
 
-            extracted_faq_hash = hashlib.sha256(f"{file_path}_{faq_config.get('model')}".encode()).hexdigest()[:12]
-            extracted_faq_path = extracted_faq_dir / f"{slugify(faq_title)}_{extracted_faq_hash}.json"
+
+            extracted_faq_hash = hashlib.sha256(f"{file_path}_{faq_config_provider.get('model')}".encode()).hexdigest()[:12]
+            extracted_faq_path = extracted_faq_dir / f"{safe_title_slug}_{extracted_faq_hash}.json"
 
             # Load or extract FAQ data
+            extracted_faq = []
             if os.path.exists(extracted_faq_path):
                 try:
                     with open(extracted_faq_path, 'r', encoding='utf-8') as f:
                         extracted_faq = json.load(f)
                     logger.info(f"Loaded {len(extracted_faq)} existing extracted QA pairs for {file_path}")
                 except Exception as e:
-                    logger.error(f"Error loading existing extracted FAQ: {e}")
+                    logger.error(f"Error loading existing extracted FAQ from {extracted_faq_path}: {e}")
                     extracted_faq = []
-            else:
-                extract_faq_llm_client = LLMClient(faq_config)
+
+            if not extracted_faq:
+                logger.info(f"Extracting FAQ pairs for {file_path} using LLM.")
+                extract_faq_llm_client = LLMClient(faq_config_provider)
                 extracted_faq = FAQProcessor.extract_faq(soup, file_path, extract_faq_llm_client)
 
-                try:
-                    with open(extracted_faq_path, 'w', encoding='utf-8') as f:
-                        json.dump(extracted_faq, f, ensure_ascii=False, indent=2)
-                except Exception as e:
-                    logger.error(f"Error saving extracted FAQ: {e}")
+                if extracted_faq:
+                    try:
+                        with open(extracted_faq_path, 'w', encoding='utf-8') as f:
+                            json.dump(extracted_faq, f, ensure_ascii=False, indent=2)
+                        logger.info(f"Saved {len(extracted_faq)} extracted FAQ pairs to {extracted_faq_path}")
+                    except Exception as e:
+                        logger.error(f"Error saving extracted FAQ to {extracted_faq_path}: {e}")
+                else:
+                     logger.warning(f"FAQ extraction yielded no results for {file_path}. Cannot proceed.")
+                     return []
 
-            # Get FAQ specific configuration
-            faq_config = config.get("processing", {}).get("faq", {})
-            context_size = faq_config.get("context_size", 2)
-            
-            # Get number of iterations for FAQ documents
-            total_iterations = config.get("iterations", {}).get("faq_document", 1)
-            
-            # Get writing styles
+            # --- Prepare for processing ---
             qa_generator = QAGenerator(config)
-            writing_styles = qa_generator.writing_styles if qa_generator.writing_styles else [{"name": "Default", "description": ""}]
-            
-            # Create context chunks with neighboring questions
-            contextual_chunks = FAQProcessor.create_context_chunks(extracted_faq, context_size)
-                
-            # Create directories for output
-            qa_dir = output_dir / "qa_pairs"
-            qa_dir.mkdir(parents=True, exist_ok=True)
-            debug_dir.mkdir(parents=True, exist_ok=True)
-            
-            # Generate training examples with variations and related questions
+            writing_styles = qa_generator.writing_styles
+            if not writing_styles:
+                 writing_styles = [{"name": "Default", "iterations": 1, "description": ""}]
+
+            # Calculate the maximum number of iterations needed based on style definitions
+            max_iterations_overall = 0
+            if writing_styles:
+                 max_iterations_overall = max(style.get('iterations', 1) for style in writing_styles)
+            logger.info(f"Determined max iterations needed across all styles: {max_iterations_overall}")
+
+            batch_size = config.get("processing").get("faq").get("batch_size", 1)
+            styled_q_provider_config = config.get("providers", {}).get("styled_question", {})
+            rate_limit_rpm = styled_q_provider_config.get("rate_limit_rpm", 4)
+            retry_delay_seconds = 60 / rate_limit_rpm if rate_limit_rpm > 0 else 15
+
             all_training_examples = []
 
-            for i, (question, answer, topics, course, context) in enumerate(contextual_chunks):
-                generation_params = FAQProcessor.determine_generation_parameters(question, answer)
-
-                # Create a unique identifier for this QA pair
-                qa_pair_hash = f"faq_{hashlib.sha256((str(file_path) + question).encode()).hexdigest()[:12]}"
-
-                logger.info(f"{len(all_training_examples)} training examples generated so far")
-                logger.info(f"Processing QA pair ({qa_pair_hash}): {i + 1} of {len(contextual_chunks)}")
-                
-                # Keep original verbatim but add domain attribution
-                verbatim_question = question
-                verbatim_answer = answer
-
+            # Add original FAQ to list first
+            for i, faq_item in enumerate(extracted_faq):
+                if not isinstance(faq_item, dict) or "question" not in faq_item or "answer" not in faq_item or "qa_pair_hash" not in faq_item:
+                    logger.warning(f"Skipping invalid extracted FAQ item at index {i} in {file_path}: {faq_item}")
+                    continue
                 original_example = {
-                    "question": verbatim_question,
-                    "answer": verbatim_answer,
-                    "source": str(file_path),
+                    "question": faq_item["question"],
+                    "answer": faq_item["answer"],
                     "url": url,
-                    "domain": domain,
-                    "institution": institution,
-                    "qa_pair_hash": qa_pair_hash,
+                    "qa_pair_hash": faq_item["qa_pair_hash"],
                     "type": "original_verbatim"
                 }
                 all_training_examples.append(original_example)
-                            
-                styles_count = generation_params["styles_count"]
-                # For each iteration, generate all alternate writing styles
-                for iteration in range(total_iterations):
-                    for writing_style in writing_styles[:styles_count]:
-                        writing_style_name = writing_style.get("name")
-                        style_hash = f"{writing_style_name}_{iteration}"
 
-                        llm_client_styled = LLMClient(config.get("providers", {}).get("styled_question", {}))
-                        related_llm_client = LLMClient(config.get("providers", {}).get("related_question", {}))
-                        rephrase_llm_client = LLMClient(config.get("providers", {}).get("rephrased_question", {}))
+            # --- Check for existing style files and identify styles needing processing ---
+            # Store styles to process along with their safe names
+            styles_to_process_map = {} # Maps safe_name -> style_dict
+            style_to_examples = {} # Maps safe_name -> list of examples
 
-                        original_qa = {
-                            "faq_q": verbatim_question,
-                            "faq_a": verbatim_answer,
-                            "topics": topics,
-                            "course": course
-                        }
+            default_faq = []
 
-                        styled_qa_hash = f"{qa_pair_hash}_{style_hash}"
+            for writing_style in writing_styles:
+                writing_style_name = writing_style.get("name")
+                if not writing_style_name: continue # Skip styles without names
 
-                        styled_path = qa_dir / f"styled_{styled_qa_hash}.txt"
-                        styled_debug_path = debug_dir / f"styled_debug_{styled_qa_hash}.txt"
+                # Generate safe name once
+                safe_style_name = slugify(writing_style_name.lower())
+                if not safe_style_name:
+                    safe_style_name = f"style_{hashlib.md5(writing_style_name.encode()).hexdigest()[:6]}"
 
-                        styled_pair = None
+                style_file_path = qa_dir / f"{safe_title_slug}_{safe_style_name}_examples.json"
 
-                        while not styled_pair:
-                            # Generate or load styled QA pair
+                if style_file_path.exists():
+                    logger.info(f"File for style '{writing_style_name}' exists: {style_file_path}. Loading existing examples.")
+                    try:
+                        with open(style_file_path, 'r', encoding='utf-8') as f:
+                            existing_examples_for_style = json.load(f)
+                            all_training_examples.extend(existing_examples_for_style)
+                            style_to_examples[safe_style_name] = existing_examples_for_style
+                            if 'default' in writing_style_name.lower():
+                                default_faq = existing_examples_for_style
+
+                        logger.info(f"Loaded {len(existing_examples_for_style)} examples for style '{writing_style_name}'")
+                    except Exception as e:
+                        logger.error(f"Error loading style file {style_file_path}: {e}")
+                        # If loading fails, we might still want to process it
+                        styles_to_process_map[safe_style_name] = writing_style
+                        style_to_examples[safe_style_name] = [] # Initialize empty if loading failed
+                else:
+                    # Needs processing
+                    styles_to_process_map[safe_style_name] = writing_style
+                    style_to_examples[safe_style_name] = []
+
+            if not styles_to_process_map:
+                logger.info(f"All styles already processed or no styles defined/left for {file_path}.")
+                return all_training_examples
+
+            faq_to_process = extracted_faq
+
+            if FAQProcessor.STYLE_DEFAULT_FAQS and default_faq:
+                faq_to_process = default_faq
+
+            # --- Batch Processing Loop ---
+            for i in range(0, len(faq_to_process), batch_size):
+                batch_items = faq_to_process[i:i+batch_size]
+                batch_items = [item for item in batch_items if isinstance(item, dict) and "question" in item and "answer" in item and "qa_pair_hash" in item]
+                if not batch_items: continue
+
+                batch_questions = [item["question"] for item in batch_items]
+                batch_answers = [item["answer"] for item in batch_items]
+                batch_hashes = [item["qa_pair_hash"] for item in batch_items]
+                previous_answers_batches = [[] for _ in range(len(batch_items))]
+                previous_questions_batches = [{} for _ in range(len(batch_items))]
+
+                # add default answers to previous answers
+                for idx, styled_pair in enumerate(batch_items):
+                    if 'answer' in styled_pair and styled_pair['answer'] not in previous_answers_batches[idx]:
+                        previous_answers_batches[idx].append(styled_pair['answer'])
+                
+                # --- Iteration Loop (up to max needed) ---
+                for iteration in range(max_iterations_overall):
+                    logger.info(f"Current total examples collected: {len(all_training_examples)}")
+                    logger.info(f"Starting Iteration {iteration + 1}/{max_iterations_overall} for batch {i//batch_size + 1}, processing pairs {i} to {min(i + batch_size, len(faq_to_process))} of {len(faq_to_process)} total.")
+
+                    # --- Style Loop (check styles needing processing) ---
+                    for safe_style_name, writing_style in styles_to_process_map.items():
+                        writing_style_name = writing_style.get("name") # Get original name for logging etc.
+
+                        # *** Check if this style needs this iteration ***
+                        style_iterations_defined = writing_style.get('iterations', 1)
+                        if iteration >= style_iterations_defined: # iteration is 0-indexed
+                            # logger.debug(f"Skipping style '{writing_style_name}' for iteration {iteration + 1} (max: {style_iterations_defined})")
+                            continue
+
+                        # Style needs processing for this iteration
+                        logger.info(f"Processing style '{writing_style_name}' for iteration {iteration + 1}")
+                        style_iteration_hash_suffix = f"{safe_style_name}_{iteration}" # Use 0-based index
+
+                        styled_qa_hashes = [f"{qa_hash}_{style_iteration_hash_suffix}" for qa_hash in batch_hashes]
+                        styled_paths = [qa_dir / f"styled_{styled_qa_hash}.txt" for styled_qa_hash in styled_qa_hashes]
+                        styled_debug_paths = [debug_dir / f"styled_debug_{styled_qa_hash}.txt" for styled_qa_hash in styled_qa_hashes]
+
+                        existing_pairs_for_style_iteration = [None] * len(batch_items)
+                        indices_to_generate = []
+                        for idx, styled_path in enumerate(styled_paths):
                             if styled_path.exists():
+                                previous_questions_batches[idx][writing_style_name] = []
                                 try:
-                                    with open(styled_path, 'r', encoding='utf-8') as f:
-                                        styled_pair = json.load(f)
-                                    logger.info(f"Loaded existing styled QA pair for {styled_qa_hash}")
-                                except Exception as e:
-                                    logger.error(f"Error loading existing styled QA pair: {e}")
-                                    styled_pair = FAQProcessor.generate_styled_qa(str(extracted_faq), original_qa, context, writing_style, llm_client_styled, source_info)
-                            else:
-                                styled_pair = FAQProcessor.generate_styled_qa(str(extracted_faq), original_qa, context, writing_style, llm_client_styled, source_info)
+                                    with open(styled_path, 'r', encoding='utf-8') as f: styled_pair = json.load(f)
+                                    if isinstance(styled_pair, dict) and 'question' in styled_pair and 'answer' in styled_pair:
+                                        existing_pairs_for_style_iteration[idx] = styled_pair
+                                        logger.info(f"Loaded existing styled pair for {styled_path}")
+                                        if styled_pair.get('answer') not in previous_answers_batches[idx]:
+                                            previous_answers_batches[idx].append(styled_pair['answer'])
+                                        if styled_pair.get('question') not in previous_questions_batches[idx].get(writing_style_name):
+                                            previous_questions_batches[idx][writing_style_name].append(styled_pair['question'])
+                                    else: indices_to_generate.append(idx)
+                                except Exception: indices_to_generate.append(idx)
+                            else: indices_to_generate.append(idx)
 
+                        if indices_to_generate:
+                            logger.info(f"Attempting generation for {len(indices_to_generate)} pairs (Style: '{writing_style_name}', Iteration: {iteration+1}).")
+                            batch_questions_gen = [batch_questions[idx] for idx in indices_to_generate]
+                            batch_answers_gen = [batch_answers[idx] for idx in indices_to_generate]
+                            batch_previous_gen = [previous_answers_batches[idx] for idx in indices_to_generate]
+                            batch_previous_q_gen = [previous_questions_batches[idx].get(writing_style_name) for idx in indices_to_generate]
+                            llm_client_styled = LLMClient(styled_q_provider_config)
+                            generated_pairs = None
+                            attempt_count = 0
+
+                            # --- Indefinite Retry Loop ---
+                            while True:
+                                attempt_count += 1
+                                try:
+                                    current_attempt_pairs = FAQProcessor.generate_styled_qa(
+                                        batch_questions_gen, batch_answers_gen, batch_previous_gen,
+                                        batch_previous_q_gen, writing_style, llm_client_styled
+                                    )
+                                    if current_attempt_pairs and isinstance(current_attempt_pairs, list) and len(current_attempt_pairs) == len(indices_to_generate):
+                                         all_valid = all(isinstance(p, dict) and 'question' in p and 'answer' in p for p in current_attempt_pairs)
+                                         if all_valid:
+                                            generated_pairs = current_attempt_pairs
+                                            logger.info(f"Generation successful on attempt {attempt_count}.")
+                                            break # Exit retry loop
+                                         else: logger.warning(f"Attempt {attempt_count} returned pairs with invalid format.")
+                                    else: logger.warning(f"Attempt {attempt_count} failed or returned unexpected result (Expected {len(indices_to_generate)}, Got: {len(current_attempt_pairs) if isinstance(current_attempt_pairs, list) else 'None/Invalid'}).")
+                                except Exception as e: logger.error(f"Exception on attempt {attempt_count} (Style: '{writing_style_name}'): {type(e).__name__}", exc_info=False)
+
+                                logger.info(f"Waiting {retry_delay_seconds:.2f}s before next attempt...")
+                                time.sleep(retry_delay_seconds)
+                            # --- End Indefinite Retry Loop ---
+
+                            # Process successful generation
+                            for gen_idx, orig_idx in enumerate(indices_to_generate):
+                                styled_pair = generated_pairs[gen_idx]
+                                existing_pairs_for_style_iteration[orig_idx] = styled_pair
+                                if styled_pair.get('answer') and styled_pair.get('answer') not in previous_answers_batches[orig_idx]:
+                                    previous_answers_batches[orig_idx].append(styled_pair['answer'])
+                                if styled_pair.get('question') and styled_pair.get('question') not in previous_questions_batches[orig_idx].get(writing_style_name):
+                                    previous_questions_batches[orig_idx][writing_style_name].append(styled_pair['question'])
+                                # Save individual pair
+                                try:
+                                    with open(styled_paths[orig_idx], 'w', encoding='utf-8') as f: json.dump(styled_pair, f, ensure_ascii=False, indent=2)
+                                except Exception as e: logger.error(f"Error saving pair {styled_paths[orig_idx]}: {e}")
+                                # Save debug info
+                                try:
+                                  with open(styled_debug_paths[orig_idx], 'w', encoding='utf-8') as f:
+                                      f.write(f"Orig Q: {batch_questions[orig_idx]}\nOrig A: {batch_answers[orig_idx]}\n---\n")
+                                      f.write(f"Gen for Style: {writing_style_name}, Iter: {iteration+1}, Attempt: {attempt_count}\n")
+                                      f.write(f"Style Conf: {json.dumps(writing_style, indent=2, ensure_ascii=False)}\n")
+                                      f.write(f"Prev Ans: {json.dumps(batch_previous_gen[gen_idx], indent=2, ensure_ascii=False)}\n---\n")
+                                      f.write(f"Styled Q: {styled_pair.get('question', 'N/A')}\nStyled A: {styled_pair.get('answer', 'N/A')}\n")
+                                except Exception as e: logger.error(f"Error saving debug {styled_debug_paths[orig_idx]}: {e}")
+                        # End if indices_to_generate
+
+                        # Add successful pairs (loaded or generated) to lists
+                        for idx, styled_pair in enumerate(existing_pairs_for_style_iteration):
                             if styled_pair:
                                 styled_example = {
                                     "question": styled_pair['question'],
                                     "answer": styled_pair['answer'],
-                                    "source": str(file_path),
                                     "url": url,
-                                    "domain": domain,
-                                    "institution": institution,
-                                    "qa_pair_hash": styled_qa_hash,
-                                    "type": "styled", 
-                                    "writing_style": writing_style_name,
-                                    "iteration": iteration
+                                    "qa_pair_hash": styled_qa_hashes[idx],
+                                    "original_qa_pair_hash": batch_hashes[idx],
+                                    "type": f"styled_{safe_style_name}",
+                                    "iteration": iteration # 0-based iteration index
                                 }
-                                all_training_examples.append(styled_example)
+                                # Append to the list for this specific style (for final saving)
+                                style_to_examples[safe_style_name].append(styled_example)
+                                # Append to the overall list being returned
+                                # Avoid duplicates if reprocessing occurred due to load errors
+                                if styled_example not in all_training_examples:
+                                     all_training_examples.append(styled_example)
 
-                                try:
-                                    with open(styled_path, 'w', encoding='utf-8') as f:
-                                        json.dump(styled_pair, f, ensure_ascii=False, indent=2)
-                                except Exception as e:
-                                    logger.error(f"Error saving style QA pair: {e}")
-                                
-                                with open(styled_debug_path, 'w', encoding='utf-8') as f:
-                                    f.write(f"Original Question: {question}\nAnswer: {answer}\n")
+                    # End Style Loop for this iteration
+                # End Iteration Loop for this batch
+            # End Batch Processing Loop
 
-                                # Generate or load rephrased QA pairs
-                                rephrased_path = qa_dir / f"rephrased_{styled_qa_hash}.txt"
-                                rephrased_debug_path = debug_dir / f"rephrased_debug_{styled_qa_hash}.txt"
-                                
-                                if rephrased_path.exists():
-                                    try:
-                                        with open(rephrased_path, 'r', encoding='utf-8') as f:
-                                            rephrased_qa_pairs = json.load(f)
-                                        logger.info(f"Loaded {len(rephrased_qa_pairs)} existing rephrased QA pairs for {styled_qa_hash}")
-                                    except Exception as e:
-                                        logger.error(f"Error loading existing rephrased QA pairs: {e}")
-                                        rephrased_qa_pairs = FAQProcessor.generate_rephrased_qa(
-                                            styled_pair, generation_params['rephrased_count'], rephrase_llm_client, writing_style, source_info)
-                                else:
-                                    rephrased_qa_pairs = FAQProcessor.generate_rephrased_qa(
-                                        styled_pair, generation_params['rephrased_count'], rephrase_llm_client, writing_style, source_info)
+            # --- Save examples grouped by writing style ---
+            for safe_style_name, examples in style_to_examples.items():
+                 if safe_style_name in styles_to_process_map: # Only save styles processed in this run
+                     if examples:
+                        style_file_path = qa_dir / f"{safe_title_slug}_{safe_style_name}_examples.json"
+                        # Ensure we only save examples matching this type from the collected list
+                        # (Mitigates potential issues if examples were mixed up, though unlikely with current logic)
+                        filtered_examples = [ex for ex in examples if ex.get("type") == f"styled_{safe_style_name}"]
+                        if filtered_examples:
+                             try:
+                                 with open(style_file_path, 'w', encoding='utf-8') as f:
+                                     json.dump(filtered_examples, f, ensure_ascii=False, indent=2)
+                                 logger.info(f"Saved {len(filtered_examples)} examples for style '{styles_to_process_map[safe_style_name].get('name')}' to {style_file_path}")
+                             except Exception as e:
+                                 logger.error(f"Error saving final examples for style '{safe_style_name}': {e}")
+                        else:
+                            logger.info(f"No examples of type 'styled_{safe_style_name}' collected for saving.")
+                     else:
+                         logger.info(f"No examples generated/collected for style '{styles_to_process_map[safe_style_name].get('name')}' during this run.")
 
-                                    # Save rephrased QA pairs and debug info
-                                    if rephrased_qa_pairs:
-                                        try:
-                                            with open(rephrased_path, 'w', encoding='utf-8') as f:
-                                                json.dump(rephrased_qa_pairs, f, ensure_ascii=False, indent=2)
-                                        except Exception as e:
-                                            logger.error(f"Error saving rephrased QA pairs: {e}")
-                                        
-                                        with open(rephrased_debug_path, 'w', encoding='utf-8') as f:
-                                            f.write(f"Original Question: {styled_pair.get('question', '')}\nAnswer: {styled_pair.get('answer', '')}")
 
-                                # Add rephrased qa to the training examples
-                                for j, rephrased_pair in enumerate(rephrased_qa_pairs):
-                                    all_training_examples.append({
-                                        "question": rephrased_pair['question'],
-                                        "answer": rephrased_pair['answer'],
-                                        "source": str(file_path),
-                                        "url": url,
-                                        "domain": domain,
-                                        "institution": institution,
-                                        "qa_pair_hash": f"{styled_qa_hash}_rephrased_{j}",
-                                        "type": "rephrased"
-                                    })
-                        
-                                # Generate or load related questions
-                                related_path = qa_dir / f"related_{styled_qa_hash}.txt"
-                                related_debug_path = debug_dir / f"related_debug_{styled_qa_hash}.txt"
-                            
-                                if related_path.exists():
-                                    try:
-                                        with open(related_path, 'r', encoding='utf-8') as f:
-                                            related_qa_pairs = json.load(f)
-                                        logger.info(f"Loaded {len(related_qa_pairs)} existing related questions for {styled_qa_hash}")
-                                    except Exception as e:
-                                        logger.error(f"Error loading existing related QA pairs: {e}")
-                                        related_qa_pairs = FAQProcessor.generate_related_questions(styled_pair['question'], answer,
-                                            generation_params['related_count'], context, related_llm_client, writing_style, source_info)
-                                else:
-                                    related_qa_pairs = FAQProcessor.generate_related_questions(styled_pair['question'], answer,
-                                        generation_params['related_count'], context, related_llm_client, writing_style, source_info)
+            logger.info(f"Finished processing {file_path}. Total training examples generated/loaded: {len(all_training_examples)}")
+            # Deduplicate final list based on the unique styled hash
+            final_examples_dict = {ex['qa_pair_hash']: ex for ex in all_training_examples}
+            final_examples = list(final_examples_dict.values())
+            if len(final_examples) < len(all_training_examples):
+                logger.info(f"Deduplicated final examples from {len(all_training_examples)} to {len(final_examples)}.")
 
-                                    # Save related QA pairs and debug info
-                                    if related_qa_pairs:
-                                        try:
-                                            with open(related_path, 'w', encoding='utf-8') as f:
-                                                json.dump(related_qa_pairs, f, ensure_ascii=False, indent=2)
-                                        except Exception as e:
-                                            logger.error(f"Error saving related QA pairs: {e}")
-                                        
-                                        with open(related_debug_path, 'w', encoding='utf-8') as f:
-                                            f.write(f"Original Question: {styled_pair.get('question', '')}\nAnswer: {styled_pair.get('answer', '')}")
-                            
-                                # Add related questions to the training examples
-                                for k, related_pair in enumerate(related_qa_pairs):
-                                    all_training_examples.append({
-                                        "question": related_pair['question'],
-                                        "answer": related_pair['answer'],
-                                        "source": str(file_path),
-                                        "url": url,
-                                        "institution": institution,
-                                        "qa_pair_hash": f"{styled_qa_hash}_related_{k}",
-                                        "type": "related"
-                                    })
-                            else:
-                                logger.error(f"Failed to generate styled QA pair for {styled_qa_hash}. Retrying...")
+            return final_examples
 
-            
-            return all_training_examples
-        
         except Exception as e:
-            logger.error(f"Error processing FAQ document {file_path}: {e}")
+            logger.exception(f"Critical error processing FAQ document {file_path}: {e}", exc_info=True)
             return []
