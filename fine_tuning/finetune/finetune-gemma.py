@@ -2,9 +2,9 @@
 """
 Fine-tune the Gemma-3 LLM using Unsloth's LoRA approach with UNB Chatbot QA data.
 This script uses Modal to run the fine-tuning process on cloud GPUs.
-This script uses Modal to run the fine-tuning process on cloud GPUs.
 Includes updated transformers version to address HybridCache error during evaluation.
 Saves comprehensive training summary including parameters and trainer state.
+Added functionality to merge models and export to GGUF format.
 """
 
 import argparse
@@ -30,7 +30,7 @@ VOLUME_NAME = "faq-unb-chatbot-gemma"
 SUMMARY_FILENAME = "training_summary.json" # Define summary filename
 
 # Define Modal app and resources
-app = modal.App("unb-chatbot-gemma12b") # App name updated
+app = modal.App("unb-chatbot-gemma4b-merge") # App name updated
 
 # Create a Modal image with dependencies
 image = (
@@ -70,7 +70,6 @@ image = (
 # Volume to store output models and summary
 output_volume = modal.Volume.from_name(
     VOLUME_NAME, create_if_missing=True
-    VOLUME_NAME, create_if_missing=True
 )
 
 huggingface_secret = modal.Secret.from_name("huggingface")
@@ -88,24 +87,29 @@ def run_fine_tuning(
     hf_dataset: str,
     epochs: int,
     output_dir: str = "unb_chatbot_gemma4b",
-    base_model: str = "unsloth/gemma-3-12b-it",
+    base_model: str = "unsloth/gemma-3-4b-it-bnb-4bit",
     load_in_4bit: bool = True,
     load_in_8bit: bool = False,
     learning_rate: float = 2e-4,
     batch_size: int = 2, # Actual per-device batch size
-    gradient_accumulation_steps: int = 4,
+    gradient_accumulation_steps: int = 8,
     lora_rank: int = 64,
-    lora_alpha: int = 64,
+    lora_alpha: int = 128,
     lora_dropout: float = 0,
     max_seq_length: int = 4096,
-    warmup_ratio: float = 0.03,
+    warmup_ratio: float = 0.1,
+    warmup_steps: int = 5,
     weight_decay: float = 0.01,
     resume_from_checkpoint: bool = False,
     delete_output_dir: bool = False,
-    lr_scheduler_type: str = "cosine",
+    lr_scheduler_type: str = "linear",
     num_cycles: int = None,
     packing: bool = False,
-    data_seed: int = None
+    data_seed: int = None,
+    merge_and_export: bool = False,
+    export_quantization_type: str = "Q8_0",
+    push_to_hub: bool = False,
+    hf_repo_id: str = None
 ):
     """Run fine-tuning on Modal, evaluation enabled, and save comprehensive summary."""
     # Import dependencies
@@ -137,11 +141,16 @@ def run_fine_tuning(
         "lora_dropout": lora_dropout,
         "max_seq_length": max_seq_length,
         "warmup_ratio": warmup_ratio,
+        "warmup_steps": warmup_steps,
         "weight_decay": weight_decay,
         "lr_scheduler_type": lr_scheduler_type,
         "num_cycles": num_cycles,
         "data_shuffle_seed": data_seed,
         "packing": packing,
+        "merge_and_export": merge_and_export,
+        "export_quantization_type": export_quantization_type,
+        "push_to_hub": push_to_hub,
+        "hf_repo_id": hf_repo_id,
         # Derived/Info params
         "effective_batch_size": batch_size * gradient_accumulation_steps * int(os.environ.get("MODAL_GPU_COUNT", 1)), # Approx
         "gpu_type": GPU,
@@ -158,6 +167,30 @@ def run_fine_tuning(
 
     logger.info(f"Logging in to Hugging Face Hub with provided token")
     login(token=hf_token)
+
+
+    def system_prompt_format(example):
+        """
+        Prepends system instruction to the first user message content
+        and applies the chat template.
+        """
+        SYSTEM_INSTRUCTION = "Você é um assistente especializado que responde perguntas *estritamente* com base nos dados de FAQ da UnB fornecidos no contexto. Seja preciso e factual de acordo com o material de origem. Não invente informações.\n\n"
+
+        messages_copy = [msg.copy() for msg in example["messages"]]
+
+        # Assume the first message is 'user' and prepend instruction
+        if messages_copy and messages_copy[0].get("role") == "user":
+            original_content = messages_copy[0].get("content", "")
+            messages_copy[0]["content"] = f"{SYSTEM_INSTRUCTION}{original_content}"
+
+        # Apply chat template
+        formatted_text = tokenizer.apply_chat_template(
+            messages_copy,
+            tokenize=False,
+            add_generation_prompt=False
+        )
+        return {"text": formatted_text}
+
 
     # Output to volume
     output_dir_path = f"/outputs/{output_dir}"
@@ -202,8 +235,6 @@ def run_fine_tuning(
         max_seq_length=max_seq_length,
         load_in_4bit=load_in_4bit,
         load_in_8bit=load_in_8bit,
-        load_in_4bit=load_in_4bit,
-        load_in_8bit=load_in_8bit,
         token=hf_token,
         full_finetuning=False
     )
@@ -246,17 +277,16 @@ def run_fine_tuning(
     eval_dataset = standardize_data_formats(eval_dataset)
 
     # Process datasets using the chat template formatting function
-    logger.info("Processing datasets with the chat template...")
+    logger.info("Adding system instructions to first user turn and applying chat template (simplified)...")
     train_dataset = train_dataset.map(
-        lambda ex: apply_chat_template(ex),
-        batched=True,
-        desc="Processing training dataset"
+        system_prompt_format,
+        batched=False,       # Keep processing individually
+        desc="Formatting train data"
     )
-
     eval_dataset = eval_dataset.map(
-        lambda ex: apply_chat_template(ex),
-        batched=True,
-        desc="Processing validation dataset"
+        system_prompt_format,
+        batched=False,       # Keep processing individually
+        desc="Formatting eval data"
     )
 
     logger.info("Sample processed training text:")
@@ -284,10 +314,10 @@ def run_fine_tuning(
             dataset_text_field = "text",
             gradient_accumulation_steps=gradient_accumulation_steps,
             per_device_train_batch_size = batch_size,
-            warmup_ratio = warmup_ratio,
-            # warmup_steps = 5,
-            num_train_epochs = epochs,
-            # max_steps = 36,
+            # warmup_ratio = warmup_ratio,
+            warmup_steps = warmup_steps,
+            # num_train_epochs = epochs,
+            max_steps = 1,
             learning_rate = learning_rate,
             logging_steps = 1, # Log frequently
             optim = "adamw_8bit", # Unsloth recommended optimizer
@@ -326,23 +356,99 @@ def run_fine_tuning(
         training_summary_stats = trainer.train(resume_from_checkpoint=resume_checkpoint)
         logger.info(f"Training finished. Stats: {training_summary_stats}")
 
-        # Run final evaluation
-        logger.info("Running final evaluation...")
-        final_eval_metrics = trainer.evaluate()
-        logger.info(f"Final evaluation metrics: {final_eval_metrics}")
+        # # Run final evaluation
+        # logger.info("Running final evaluation...")
+        # final_eval_metrics = trainer.evaluate()
+        # logger.info(f"Final evaluation metrics: {final_eval_metrics}")
 
         # Example generation (optional, keep for sanity check)
-        logger.info("Running example generation...")
-        tokenizer = get_chat_template(tokenizer, chat_template = "gemma-3")
-        messages = [{"role": "user", "content": [{"type" : "text", "text" : "O ENADE é obrigatório?"}]}]
-        text = tokenizer.apply_chat_template(messages, add_generation_prompt = True)
-        outputs = model.generate(
-            **tokenizer([text], return_tensors = "pt").to("cuda"),
-            max_new_tokens = 256, # Reduced length for quick test
-            temperature = 1.0, top_p = 0.95, top_k = 64,
-        )
-        logger.info("Example Generation Output:")
-        logger.info(tokenizer.batch_decode(outputs)[0]) # Decode and log
+        # logger.info("Running example generation...")
+        # tokenizer = get_chat_template(tokenizer, chat_template = "gemma-3")
+        # messages = [{"role": "user", "content": [{"type" : "text", "text" : "O ENADE é obrigatório?"}]}]
+        # text = tokenizer.apply_chat_template(messages, add_generation_prompt = True)
+        # outputs = model.generate(
+        #     **tokenizer([text], return_tensors = "pt").to("cuda"),
+        #     max_new_tokens = 256, # Reduced length for quick test
+        #     temperature = 1.0, top_p = 0.95, top_k = 64,
+        # )
+        # logger.info("Example Generation Output:")
+        # logger.info(tokenizer.batch_decode(outputs)[0]) # Decode and log
+
+        # Add model merging and GGUF export if enabled
+        if merge_and_export:
+            logger.info("Checking for existing merged model and GGUF file...")
+            
+            # Define directories
+            merged_model_dir = os.path.join(output_dir_path, "merged_model")
+            gguf_dir = output_dir_path
+            
+            # Check if merged model exists
+            merged_model_exists = os.path.exists(merged_model_dir) and os.path.exists(os.path.join(merged_model_dir, "config.json"))
+            
+            # Check if GGUF file exists (assuming just one file)
+            gguf_files = [os.path.join(gguf_dir, f) for f in os.listdir(gguf_dir) if f.endswith('.gguf')] if os.path.exists(gguf_dir) else []
+            gguf_file_exists = len(gguf_files) > 0
+            
+            # Generate merged model if needed
+            if not merged_model_exists:
+                logger.info("Merged model not found. Creating merged model...")
+                os.makedirs(merged_model_dir, exist_ok=True)
+                logger.info(f"Saving merged model to {merged_model_dir}...")
+                model.save_pretrained_merged(merged_model_dir, tokenizer)
+                logger.info("Merged model saved successfully")
+            else:
+                logger.info(f"Merged model already exists at {merged_model_dir}")
+            
+            # Generate GGUF file if needed
+            if not gguf_file_exists:
+                logger.info(f"GGUF file not found. Exporting merged model to GGUF format with {export_quantization_type} quantization...")
+                os.makedirs(gguf_dir, exist_ok=True)
+                model.save_pretrained_gguf(
+                    merged_model_dir,
+                    quantization_type=export_quantization_type,
+                )
+                logger.info(f"GGUF export completed successfully")
+                # Refresh the list of GGUF files after creation
+                gguf_files = [os.path.join(gguf_dir, f) for f in os.listdir(gguf_dir) if f.endswith('.gguf')]
+            else:
+                logger.info(f"GGUF file already exists at {gguf_files[0]}")
+            
+            # Push to Hugging Face Hub if requested
+            if push_to_hub and hf_repo_id:
+                if gguf_files:
+                    logger.info(f"Pushing GGUF model to Hugging Face Hub repo: {hf_repo_id}")
+                    try:
+                        from huggingface_hub import HfApi
+                        
+                        # Initialize the Hugging Face API
+                        api = HfApi(token=hf_token)
+                        
+                        # Create the repository if it doesn't exist
+                        api.create_repo(repo_id=hf_repo_id, exist_ok=True)
+                        
+                        # Upload the GGUF file
+                        gguf_file = gguf_files[0]  # Just take the first one
+                        logger.info(f"Uploading {os.path.basename(gguf_file)} to {hf_repo_id}...")
+                        api.upload_file(
+                            path_or_fileobj=gguf_file,
+                            path_in_repo=os.path.basename(gguf_file),
+                            repo_id=hf_repo_id,
+                        )
+                        
+                        # Upload model card if it exists
+                        model_card_path = os.path.join(merged_model_dir, "README.md")
+                        if os.path.exists(model_card_path):
+                            api.upload_file(
+                                path_or_fileobj=model_card_path,
+                                path_in_repo="README.md",
+                                repo_id=hf_repo_id,
+                            )
+                        
+                        logger.info("GGUF model pushed to Hugging Face Hub successfully")
+                    except Exception as e:
+                        logger.error(f"Error pushing to Hugging Face Hub: {e}")
+                else:
+                    logger.error("No GGUF file found to push to Hugging Face Hub")
 
     except Exception as e:
         logger.error(f"An unexpected error occurred during training: {e}", exc_info=True) # Log traceback
@@ -404,7 +510,12 @@ def run_fine_tuning(
 
     # Construct return message based on success
     if training_summary_stats and final_log_history:
-        return f"Fine-tuning complete! Model adapters and summary ({SUMMARY_FILENAME}) saved to {output_dir_path} in volume."
+        success_message = f"Fine-tuning complete! Model adapters and summary ({SUMMARY_FILENAME}) saved to {output_dir_path} in volume."
+        if merge_and_export:
+            success_message += f" Model merged and exported to GGUF format with {export_quantization_type} quantization."
+            if push_to_hub and hf_repo_id:
+                success_message += f" GGUF model pushed to Hugging Face Hub repo: {hf_repo_id}."
+        return success_message
     else:
         return f"Fine-tuning process ended (potentially with errors). Attempted to save state to {output_dir_path}. Check logs and {SUMMARY_FILENAME}."
 
@@ -414,26 +525,33 @@ def main(
     hf_dataset: str = 'liteofspace/unb-chatbot',
     output_dir: str = "unb_chatbot_gemma4b", # Match default
     epochs: int = 3, # Match default
-    batch_size: int = 2, # Match default
     resume: bool = False,
     data_seed: int = None,
-    delete_output_dir: bool = False # Whether to delete existing output directory
+    delete_output_dir: bool = False, # Whether to delete existing output directory
+    merge_and_export: bool = True, # Enable model merging and GGUF export
+    export_quantization_type: str = "Q8_0", # Quantization type for GGUF export
+    push_to_hub: bool = True, # Push to Hugging Face Hub
+    hf_repo_id: str = "liteofspace/unb-chatbot-gguf" # Repository ID for HF Hub
 ):
     # Call the remote function
     result = run_fine_tuning.remote(
         hf_dataset=hf_dataset,
         output_dir=output_dir,
         epochs=epochs,
-        batch_size=batch_size,
         resume_from_checkpoint=resume,
         delete_output_dir=delete_output_dir,
-        data_seed=data_seed
+        data_seed=data_seed,
+        merge_and_export=merge_and_export,
+        export_quantization_type=export_quantization_type,
+        push_to_hub=push_to_hub,
+        hf_repo_id=hf_repo_id
     )
 
     print(result)
-    print("\n--- Download Instructions ---")
-    print(f"To download the entire output directory (including adapters, checkpoints, and summary):")
-    print(f"  modal volume get {VOLUME_NAME} {output_dir} ./local_{output_dir.replace('/', '_')}")
-    print(f"\nTo download only the training summary file:")
-    print(f"  modal volume get {VOLUME_NAME} {output_dir}/{SUMMARY_FILENAME} ./{SUMMARY_FILENAME}")
-    print("-" * 27)
+    print("\nTo download the model adapters, run:")
+    print(f"  modal volume get {VOLUME_NAME} {output_dir} ./local_model_dir_{output_dir.replace('/', '_')}")
+    
+    if merge_and_export:
+        print("\nTo download the merged model and GGUF files, run:")
+        print(f"  modal volume get {VOLUME_NAME} {output_dir}/merged_model ./local_merged_model_{output_dir.replace('/', '_')}")
+        print(f"  modal volume get {VOLUME_NAME} {output_dir}/gguf_model ./local_gguf_model_{output_dir.replace('/', '_')}")

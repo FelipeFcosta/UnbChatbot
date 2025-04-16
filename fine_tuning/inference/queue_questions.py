@@ -8,14 +8,19 @@ HEADERS = {"Content-Type": "application/json"}
 # Increased timeout since requests are sequential now and one long request could block others
 REQUEST_TIMEOUT = 60 * 4  # Timeout in seconds (e.g., 4 minutes)
 
+SYSTEM_INSTRUCTION = "Você é um assistente especializado que responde perguntas *estritamente* com base nos dados de FAQ da UnB fornecidos no contexto. Seja preciso e factual de acordo com o material de origem. Não invente informações.\n\n"
+# SYSTEM_INSTRUCTION = ""
+SYSTEM_INSTRUCTION_LEN = len(SYSTEM_INSTRUCTION)
+
 # --- List of Questions ---
 questions = [
-    "ENADE é obrigatório pra quem está se formando?",
-    "Quais os currículos de Engenharia de Computação?",
-    "o que é a cadeia de seletividade no currículo 1741/2? ela existe nesse currículo?",
-    "O que significa os números 25/15 na hora de fazer a matrícula no SIGAA?",
-    "Eu trabalhei muito nesse semestre, o equivalente ao dobro de horas da disciplina de estágio de engenharia de computação, posso integralizar as disciplinas de Estágio 1 e Estágio 2 em um único semestre?",
-    "Quantos porcento da carga horária do curso eu preciso integralizar para começar o TCC em engenharia de computação?"
+    f"{SYSTEM_INSTRUCTION}ENADE é obrigatório pra quem está se formando?",
+    f"{SYSTEM_INSTRUCTION}Quais os currículos de Engenharia de Computação?",
+    f"{SYSTEM_INSTRUCTION}É possível migrar do currículo 1741/1 para o currículo 1741/2?",
+    f"{SYSTEM_INSTRUCTION}o que é a cadeia de seletividade no currículo 1741/2? ela existe nesse currículo?",
+    f"{SYSTEM_INSTRUCTION}O que significa os números 25/15 na hora de fazer a matrícula no SIGAA?",
+    f"{SYSTEM_INSTRUCTION}Eu trabalhei muito nesse semestre, o equivalente ao dobro de horas da disciplina de estágio de engenharia de computação, posso integralizar as disciplinas de Estágio 1 e Estágio 2 em um único semestre?",
+    f"{SYSTEM_INSTRUCTION}Quantos porcento da carga horária do curso eu preciso integralizar para começar o TCC em engenharia de computação?"
 ]
 # --- --- --- --- --- ---
 
@@ -23,7 +28,7 @@ def fetch_answer(question):
     """Sends a single question to the API and returns the response."""
     payload = json.dumps({"prompt": question})
     try:
-        print(f"   Sending request for: '{question[:50]}...'") # Indicate which request is being sent
+        print(f"   Sending request for: '{question[SYSTEM_INSTRUCTION_LEN:SYSTEM_INSTRUCTION_LEN+50]}...'") # Indicate which request is being sent
         response = requests.post(API_URL, headers=HEADERS, data=payload, timeout=REQUEST_TIMEOUT)
         response.raise_for_status() # Raise an exception for bad status codes (4xx or 5xx)
 
@@ -57,7 +62,7 @@ if __name__ == "__main__":
     for i, question in enumerate(questions):
         print("-" * 40)
         print(f"Processing question {i+1}/{len(questions)}...")
-        print(f"❓ Question:\n{question}")
+        print(f"❓ Question:\n{question[SYSTEM_INSTRUCTION_LEN:]}")
 
         start_time = time.time()
         answer = fetch_answer(question)
