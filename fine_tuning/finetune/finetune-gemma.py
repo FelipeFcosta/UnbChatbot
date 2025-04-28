@@ -46,7 +46,7 @@ image = (
 
         # Unsloth specific
         "unsloth",           # From Colab base install
-        "unsloth_zoo",       # From Colab extra install
+        "git+https://github.com/FelipeFcosta/unsloth-zoo-unb-chatbot@main", # Pinned version from Colab
         "cut_cross_entropy", # From Colab extra install
 
         # Hugging Face ecosystem
@@ -64,7 +64,7 @@ image = (
         # Note: "vllm" related dependencies from the Colab setup are excluded
         # as they weren't used in the core training/SFTTrainer part of the notebook.
         # Note: "msgspec" was removed as it wasn't in the Colab install list.
-    )
+    force_build=True)
 )
 
 # Volume to store output models and summary
@@ -380,7 +380,7 @@ def run_fine_tuning(
             
             # Define directories
             merged_model_dir = os.path.join(output_dir_path, "merged_model")
-            gguf_dir = output_dir_path
+            gguf_dir = os.path.join(output_dir_path, "gguf_model")
             
             # Check if merged model exists
             merged_model_exists = os.path.exists(merged_model_dir) and os.path.exists(os.path.join(merged_model_dir, "config.json"))

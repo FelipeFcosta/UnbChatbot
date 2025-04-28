@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Run inference using a GGUF LLM model stored in a Modal Volume,
-exposed as a persistent web endpoint using llama-cpp-python.
+exposed as a persistent web endpoint using llama-cpp-python with CUDA support.
 """
 
 import modal
@@ -11,13 +11,20 @@ from pathlib import Path
 
 # --- Configuration ---
 APP_NAME = "unb-chatbot-gguf-web-endpoint"
-MODEL_DIR_IN_VOLUME = "faq_gemma4b_run9"
+MODEL_DIR_IN_VOLUME = "faq_gemma4b_dpo_run4"
 GGUF_FILENAME = "merged_model.Q8_0.gguf"
-VOLUME_NAME = "faq-unb-chatbot-gemma"       # Name of the Modal Volume used during training
-GPU_CONFIG = "A10G" # Or A10G() if T4 is insufficient VRAM modal.gpu.A10G()
-MODEL_MOUNT_PATH = "/model_files"         # Where the volume will be mounted inside the container
-CONTEXT_SIZE = 4096                      # Context size used during training/model capacity
-SYSTEM_PROMPT = "Você é um assistente especializado que responde perguntas *estritamente* com base nos dados de FAQ da UnB fornecidos no contexto. Seja preciso e factual de acordo com o material de origem. Não invente informações.\n\n"# ---------------------
+VOLUME_NAME = "unb-chatbot-gemma3-dpo"
+GPU_CONFIG = "A10G"
+MODEL_MOUNT_PATH = "/model_files"
+CONTEXT_SIZE = 4096
+SYSTEM_PROMPT = "Você é um assistente especializado que responde perguntas *estritamente* com base nos dados de FAQ da UnB fornecidos no contexto. Seja preciso e factual de acordo com o material de origem. Não invente informações.\n\n"
+# SYSTEM_PROMPT = ""
+
+# Default generation parameters
+DEFAULT_MAX_TOKENS = 1024
+DEFAULT_TEMPERATURE = 0.6
+DEFAULT_TOP_P = 0.9
+MINUTES = 60
 
 logging.basicConfig(
     level=logging.INFO,
@@ -26,123 +33,153 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Define Modal app and resources
 app = modal.App(APP_NAME)
 
-# Image definition - Installs llama-cpp-python with potential GPU support
-# Modal's base CUDA images usually handle the compilation details well.
+# IMPORTANT: Build custom image with CUDA support properly configured
+cuda_version = "12.1.0"  # Match with Modal's CUDA version
+flavor = "devel"
+operating_sys = "ubuntu22.04"
+tag = f"{cuda_version}-{flavor}-{operating_sys}"
+
 image = (
-    modal.Image.debian_slim(python_version="3.10") # Match python version if needed
+    modal.Image.from_registry(f"nvidia/cuda:{tag}", add_python="3.10")
     .apt_install(
-        "git"  # <--- ADD THIS LINE TO INSTALL GIT
+        "git",
+        "build-essential", 
+        "cmake",
+        "curl",
+        "libcurl4-openssl-dev",
+        "libopenblas-dev",
+        "libomp-dev",
+        "clang",
+        "gcc-11",
+        "g++-11"
     )
+    # Install Python dependencies
     .pip_install(
         "modal-client",
         "fastapi[standard]",
-        # Installs llama-cpp-python; Modal's build process often handles BLAS/CUDA correctly.
-        # Add extras if needed, e.g., "[server]" if using its server features elsewhere.
-        "llama-cpp-python",
-        "huggingface_hub", # Good practice, sometimes used by llama-cpp for metadata
+        "huggingface_hub",
+        "ninja",
+        "wheel",
+        "packaging"
     )
+    # Build llama-cpp-python with CUDA support
+    .run_commands(
+        'CMAKE_ARGS="-DGGML_CUDA=on -DCMAKE_CUDA_ARCHITECTURES=75" pip install --no-cache-dir llama-cpp-python',
+        gpu="A10G"
+    )
+    .entrypoint([])  # remove NVIDIA base container entrypoint
 )
 
-# Access the Volume where the GGUF model is stored
+# Access the Volume where model is stored
 model_volume = modal.Volume.from_name(VOLUME_NAME)
 
-# --- Global cache for the Llama object ---
-model_cache = {}
-
-def load_llama_model(model_path_in_container: str):
-    """Loads the Llama model using llama-cpp-python, caching it."""
-    from llama_cpp import Llama
-
-    if model_path_in_container in model_cache:
-        logger.info(f"Using cached Llama model for {model_path_in_container}")
-        return model_cache[model_path_in_container]
-
-    logger.info(f"Loading Llama model from {model_path_in_container}...")
-    try:
-        # n_gpu_layers=-1 means offload all possible layers to GPU
-        # Check llama-cpp-python docs for optimal settings for your GPU type if needed
-        llm = Llama(
-           model_path=model_path_in_container,
-           n_gpu_layers=-1,
-           n_ctx=CONTEXT_SIZE,
-           verbose=True, # Log llama.cpp details
-           # chat_format="gemma-3" # specify chat format if supported by llama-cpp version or format manually. Gemma template might be auto-detected.
-        )
-        model_cache[model_path_in_container] = llm
-        logger.info(f"Successfully loaded and cached Llama model.")
-        return llm
-    except Exception as e:
-        logger.error(f"!!! Failed to load Llama model from {model_path_in_container} !!!")
-        logger.exception(e)
-        raise # Re-raise the exception to signal failure
-
-@app.function(
+@app.cls(
     image=image,
     gpu=GPU_CONFIG,
     volumes={MODEL_MOUNT_PATH: model_volume},
-    timeout=60 * 3,            # 3 minutes timeout
-    allow_concurrent_inputs=5,  # Adjust based on expected load and GPU memory
-    min_containers=1,          # Keep at least one container warm
-    # keep_warm=1, # Alternative to min_containers=1
+    timeout=60*6,
+    allow_concurrent_inputs=3,  # Reduced for A10G VRAM
+    min_containers=2
 )
-@modal.fastapi_endpoint(method="POST")
-async def generate_web(request_data: dict):
-    """Generates a response using the GGUF model via a web endpoint."""
-    from fastapi import HTTPException
-
-    gguf_file_path_in_container = str(Path(MODEL_MOUNT_PATH) / MODEL_DIR_IN_VOLUME / GGUF_FILENAME)
-
-    if not os.path.exists(gguf_file_path_in_container):
-        error_msg = f"GGUF model file not found at {gguf_file_path_in_container}."
-        logger.error(error_msg)
-        raise HTTPException(status_code=500, detail=error_msg)
-
-    user_prompt = request_data.get("prompt")
-    if not user_prompt:
-        raise HTTPException(status_code=400, detail="Missing 'prompt' in request JSON body.")
-
-    logger.info(f"Received prompt: {user_prompt[:100]}...")
-
-    try:
-        llm = load_llama_model(gguf_file_path_in_container)
-    except Exception as e:
-        logger.error(f"Failed to load GGUF model: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to load GGUF model: {e}")
-
-    # fine-tuning script used "gemma-3" template. llama-cpp might detect it.
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": user_prompt}
-    ]
-
-    logger.info("Generating response...")
-    try:
-        output = llm.create_chat_completion(
-           messages=messages,
-           max_tokens=1024,        # Max tokens to generate *in the response*
-           temperature=0.6,       # Adjust creativity/determinism
-           top_p=0.9,             # Nucleus sampling
-           stop=["<end_of_turn>"], # Explicitly stop at Gemma's EOT token if needed
-           # stream=False, # Set to True if you want streaming output (requires client changes)
+class ModelEndpoint:
+    def __init__(self):
+        self.gguf_file_path_in_container = str(
+            Path(MODEL_MOUNT_PATH) / MODEL_DIR_IN_VOLUME / GGUF_FILENAME
         )
+        self.llm = None
 
-        # --- Extract the response ---
-        if output and output.get('choices') and len(output['choices']) > 0:
-           response_text = output['choices'][0]['message']['content']
-           if usage := output.get('usage'):
-               logger.info(f"Token usage: {usage}")
-        else:
-           logger.warning("No response generated or unexpected output format.")
-           response_text = "" # Or an error message
+    @modal.enter()
+    def load_model(self):
+        """Load the GGUF model when container starts."""
+        from llama_cpp import Llama
 
-    except Exception as e:
-        logger.error(f"Error during Llama generation: {e}")
-        raise HTTPException(status_code=500, detail=f"Error during generation: {e}")
+        logger.info("Container starting up...")
+        logger.info(f"Attempting to load Llama model from {self.gguf_file_path_in_container}...")
 
-    logger.info("Generation complete.")
+        if not os.path.exists(self.gguf_file_path_in_container):
+            error_msg = f"GGUF model file not found at {self.gguf_file_path_in_container}."
+            logger.error(error_msg)
+            raise RuntimeError(error_msg)
 
-    # --- Return JSON response ---
-    return {"response": response_text.strip()}
+        try:
+            # Configure for optimal GPU usage
+            self.llm = Llama(
+                model_path=self.gguf_file_path_in_container,
+                n_gpu_layers=-1,  # Use all possible GPU layers
+                n_ctx=CONTEXT_SIZE,
+                n_batch=512,       # Larger batch size for better throughput
+                f16_kv=True,       # Use half precision for key/value cache
+                verbose=True,
+                seed=42,           # Deterministic output for testing
+                offload_kqv=True,  # Offload key/query/value tensors to GPU
+                use_mlock=True     # Lock memory to prevent swapping
+            )
+            logger.info("Successfully loaded Llama model into container.")
+        except Exception as e:
+            logger.error(f"Failed to load Llama model during container startup: {str(e)}")
+            logger.exception(e)
+            raise
+
+    @modal.fastapi_endpoint(method="POST")
+    async def generate_web(self, request_data: dict):
+        """Handle inference requests."""
+        from fastapi import HTTPException
+
+        if self.llm is None:
+            logger.error("Model was not loaded successfully during startup.")
+            raise HTTPException(status_code=503, detail="Model not ready.")
+
+        user_prompt = request_data.get("prompt")
+        if not user_prompt:
+            raise HTTPException(status_code=400, detail="Missing 'prompt' in request.")
+
+        # Get generation parameters
+        max_tokens = request_data.get("max_tokens", DEFAULT_MAX_TOKENS)
+        temperature = request_data.get("temperature", DEFAULT_TEMPERATURE)
+        top_p = request_data.get("top_p", DEFAULT_TOP_P)
+
+        logger.info(f"Received prompt: { SYSTEM_PROMPT + user_prompt}...")
+        logger.info(f"Generation parameters: max_tokens={max_tokens}, temperature={temperature}, top_p={top_p}")
+
+        text = SYSTEM_PROMPT + user_prompt
+
+        messages = [
+            {"role": "user", "content": text}
+        ]
+
+        logger.info("Generating response...")
+        try:
+            output = self.llm.create_chat_completion(
+                messages=messages,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                top_p=top_p,
+                stop=["<end_of_turn>"],
+                repeat_penalty=1.1
+            )
+
+            # Extract response
+            if output and output.get('choices') and len(output['choices']) > 0:
+                response_text = output['choices'][0]['message']['content']
+                if usage := output.get('usage'):
+                    logger.info(f"Token usage: {usage}")
+            else:
+                logger.warning("No response generated or unexpected output format.")
+                response_text = ""
+
+        except Exception as e:
+            logger.error(f"Error during generation: {e}")
+            logger.exception(e)
+            raise HTTPException(status_code=500, detail=f"Error during generation: {str(e)}")
+
+        logger.info("Generation complete.")
+        return {"response": response_text.strip()}
+
+# Optional local entrypoint for testing
+@app.local_entrypoint()
+def main(prompt: str = "Como funciona o processo de matrícula na UnB?"):
+    """Test the endpoint locally"""
+    response = ModelEndpoint().generate_web.remote({"prompt": prompt})
+    print(f"Response: {response['response']}")
