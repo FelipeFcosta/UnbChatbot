@@ -628,5 +628,96 @@
     ],
     "course": null,
     "qa_pair_hash": "faq_6d491947824b"
+  },
+  {
+    "question": "Qual o e-mail de contato da coordenação de Engenharia de Computação?",
+    "answer": "O e-mail para contato com a coordenação do curso de Engenharia de Computação é: engcomputacao@unb.br.",
+    "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+    "qa_pair_hash": "faq_66149a9fb7fb_related_0",
+    "type": "related"
+  },
+  {
+    "question": "Onde devo ir na UnB para solicitar a simulação de histórico para migração de currículo?",
+    "answer": "Você deve procurar a Secretaria de Administração Acadêmica (SAA), que atende no Centro de Vivência (prédio em frente à entrada sul do ICC), para solicitar uma simulação do seu histórico na nova estrutura curricular.",
+    "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+    "qa_pair_hash": "faq_93422342a1f3_related_0",
+    "type": "related"
+  },
+  {
+    "question": "Ao avaliar a migração entre os currículos 1741/1 e 1741/2, quais informações do histórico devo comparar prioritariamente?",
+    "answer": "A comparação mais importante deve ser feita entre a **carga horária total pendente** e a **lista de componentes curriculares pendentes** nos dois cenários (histórico atual no 1741/1 e simulação no 1741/2). Não se prenda apenas à comparação das cargas obrigatória e optativa isoladamente.",
+    "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+    "qa_pair_hash": "faq_93422342a1f3_related_1",
+    "type": "related"
+  },
+  {
+    "question": "Quais disciplinas devo cursar para cumprir a Cadeia 1 de seletividade do currículo 1741/1 de Engenharia de Computação?",
+    "answer": "Para a Cadeia 1 do currículo 1741/1, como as disciplinas originais não são mais ofertadas, você deve cursar ENE0066 Introdução aos Circuitos Elétricos e ENE0068 Sinais e Sistemas em Tempo Discreto.",
+    "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+    "qa_pair_hash": "faq_fe8f3fc23598_related_0",
+    "type": "related"
+  },
+  {
+    "question": "Qual disciplina substitui 'Programação Orientada a Objetos' na Cadeia 7 do currículo 1741/1 de Engenharia de Computação?",
+    "answer": "Para a Cadeia 7 do currículo 1741/1, como 'Programação Orientada a Objetos' não é mais ofertada, você deve cursar CIC0197 Técnicas de Programação 1.",
+    "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+    "qa_pair_hash": "faq_fe8f3fc23598_related_1",
+    "type": "related"
+  },
+  {
+    "question": "Reprovar 3 vezes na mesma disciplina optativa pode causar desligamento?",
+    "answer": "Não, a regra de desligamento por 3 reprovações aplica-se apenas a disciplinas **obrigatórias**. Reprovações em disciplinas optativas ou de cadeia de seletividade não entram nessa contagem.",
+    "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+    "qa_pair_hash": "faq_14502f8631e0_related_0",
+    "type": "related"
+  },
+  {
+    "question": "Quais são alguns exemplos de motivos válidos para solicitar um trancamento justificado?",
+    "answer": "Algumas das hipóteses previstas na [Resolução CEPE n° 93/2018](https://sig.unb.br/sigrh/downloadArquivo?idArquivo=2018090&key=7b5bbf8ffa41754075c478f548083f46) para trancamento justificado incluem: afastamento por motivo de saúde (do estudante ou parente próximo), estudos no exterior, necessidade imperiosa do serviço público, óbito de parente próximo, curso de formação, serviço militar obrigatório, ou situações de vulnerabilidade (psicológica/social). É necessário apresentar comprovantes.",
+    "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+    "qa_pair_hash": "faq_c59b570288b6_related_0",
+    "type": "related"
+  },
+  {
+    "question": "Se meu pedido de revisão de menção for negado pelo professor, existe alguma outra instância?",
+    "answer": "Sim. Caso o pedido inicial de revisão de menção seja indeferido pelo professor, existe a possibilidade de solicitar recurso. Este recurso é então analisado por uma comissão de professores da unidade acadêmica, e o parecer final é apreciado por um órgão colegiado.",
+    "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+    "qa_pair_hash": "faq_52a92aab1e27_related_0",
+    "type": "related"
+  },
+  {
+    "question": "Quem devo indicar como professor orientador nos documentos de estágio de Engenharia de Computação?",
+    "answer": "Ao preencher os documentos para estágio em Engenharia de Computação, você deve indicar como professor orientador um dos três professores que compõem a comissão de estágio do CIC: Jan Mendonça Correa, Marcelo Ladeira ou Carla Denise Castanho.",
+    "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+    "qa_pair_hash": "faq_bfdc67f67858_related_0",
+    "type": "related"
+  },
+  {
+    "question": "Quais são alguns exemplos de motivos que justificam um pedido de outorga antecipada de grau em Engenharia de Computação?",
+    "answer": "A outorga antecipada de grau só é admitida em casos excepcionais, devidamente comprovados. Alguns exemplos incluem: aprovação em concurso público, admissão em curso de pós-graduação, ou uma oferta de emprego que exija o diploma de graduação.",
+    "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+    "qa_pair_hash": "faq_4c98f32582f0_related_0",
+    "type": "related"
+  },
+  {
+    "question": "Se eu pedir outorga antecipada, preciso fazer alguma prova ou avaliação adicional para as disciplinas que faltam?",
+    "answer": "Sim. Para cada disciplina pendente, o aluno que solicita outorga antecipada de grau precisa ser aprovado em uma avaliação específica definida para essa finalidade.",
+    "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+    "qa_pair_hash": "faq_4c98f32582f0_related_1",
+    "type": "related"
+  },
+  {
+    "question": "Como funciona o processo de Mudança de Curso na UnB?",
+    "answer": "A Mudança de Curso permite que um estudante regular (geralmente ingressante por PAS, Vestibular ou ENEM) altere seu vínculo para outro curso. O processo é regido por um edital semestral publicado no [site da SAA](https://saa.unb.br/graduacao/dupla-e-mudanca), que define os requisitos, prazos e o formulário de solicitação. As regras gerais estão na [Resolução CEPE UnB nº 053/2022](https://deg.unb.br/images/legislacao/resolucao_cepe_53_2022.pdf). O acompanhamento das etapas é feito pelo site da SAA.",
+    "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+    "qa_pair_hash": "faq_758ab29e384b_related_0",
+    "type": "related"
+  },
+  {
+    "question": "Como funciona o processo de Dupla Diplomação na UnB?",
+    "answer": "A Dupla Diplomação permite que um aluno regular, após concluir seu curso de origem, inicie um segundo curso de graduação. Assim como a Mudança de Curso, é regida por um edital semestral publicado no [site da SAA](https://saa.unb.br/graduacao/dupla-e-mudanca), que detalha requisitos e prazos. As regras estão no Art. 8º da [Resolução CEPE UnB nº 053/2022](https://deg.unb.br/images/legislacao/resolucao_cepe_53_2022.pdf). A solicitação é feita por formulário eletrônico e o acompanhamento pelo site da SAA.",
+    "url": "www.ene.unb.br/joaoluiz/engcomputacao",
+    "qa_pair_hash": "faq_758ab29e384b_related_1",
+    "type": "related"
   }
 ]

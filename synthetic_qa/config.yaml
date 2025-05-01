@@ -24,6 +24,11 @@ processing:
     context_size: 3
     batch_size: 10
 
+  raft:
+    num_distractors: 3
+    p_golden_include: 0.8
+
+
 
 # Iterations by document type
 iterations:
@@ -74,11 +79,19 @@ providers:
     max_tokens: 65000
 
   styled_question:
-    provider: genai # openai
+    provider: genai
     model: gemini-2.5-pro-exp-03-25
     rate_limit_rpm: 4
     temperature: 0.4
     max_tokens: 8192
+
+  cot_answer:
+    provider: genai
+    model: gemini-2.5-flash-preview-04-17
+    rate_limit_rpm: 4
+    temperature: 0.4
+    max_tokens: 8192
+    thinking_budget: 512
 
   related_question:
     provider: genai # openai
