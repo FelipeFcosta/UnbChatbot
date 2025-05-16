@@ -133,7 +133,10 @@ def convert_qa_to_training_format(qa_pairs: List[Dict[str, Any]],
         # Example: from "faq_bb7532e0fd99_Direct_0" extract "faq_bb7532e0fd99"
         origin_parts = pair_hash.split('_')
         if len(origin_parts) >= 2:
-            origin_hash = f"{origin_parts[0]}_{origin_parts[1]}"  # e.g., "faq_bb7532e0fd99"
+            if not is_raft:
+                origin_hash = f"{origin_parts[0]}_{origin_parts[1]}"  # e.g., "faq_bb7532e0fd99"
+            else:
+                origin_hash = f"{origin_parts[0]}_{origin_parts[1]}_{origin_parts[2]}"  # e.g., "raft_faq_bb7532e0fd99"
         else:
             origin_hash = pair_hash
             

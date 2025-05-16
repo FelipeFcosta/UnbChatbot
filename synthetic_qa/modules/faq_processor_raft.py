@@ -274,10 +274,17 @@ class FAQProcessorRAFT:
 
         # Prepare data pools
 
-        all_original_qas = [
-            f'Q:"{faq["question"]}", A:"{faq["answer"]}"' 
-            for faq in final_extracted_faq
-        ]
+        # Create formatted strings of all original Q&A pairs for use as potential documents
+        all_original_qas = []
+        for faq in final_extracted_faq:
+            # Format each QA pair with consistent structure
+            topics_str = f'Topics: "{faq.get("topics", "")}"'
+            formatted_qa = (
+            f'Q: "{faq["question"]}", '
+            f'A: "{faq["answer"]}", '
+            f'{topics_str}'
+            )
+            all_original_qas.append(formatted_qa)
         all_training_examples = []
         previous_questions_cache = {faq["qa_pair_hash"]: [] for faq in final_extracted_faq} # Cache previously generated questions per original pair
 
@@ -290,7 +297,8 @@ class FAQProcessorRAFT:
             original_q = original_faq["question"]
             original_a = original_faq["answer"] # Golden document (D*)
             qa_hash = original_faq["qa_pair_hash"]
-            golden_document = f'Q:"{original_q}", A:"{original_a}"'
+            topics_str = f'Topics: "{original_faq.get("topics", "")}"'
+            golden_document = f'Q:"{original_q}", A:"{original_a}", {topics_str}'
             
             for iteration in range(max_iterations_overall):
                 # --- Loop through Writing Styles to generate Questions (Q) and Answers (A*) ---
