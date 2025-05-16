@@ -13,8 +13,8 @@ import re   # Import re for regex to extract response
 
 # --- Configuration ---
 APP_NAME = "unb-chatbot-gemma4b-inference"
-DEFAULT_MODEL_DIR_NAME = "faq_gemma4b_run1" # Directory *inside* the volume
-VOLUME_NAME = "faq-unb-chatbot-gemma"       # Name of the Modal Volume
+DEFAULT_MODEL_DIR_NAME = "faq_gemma4b_dpo_run3" # Directory *inside* the volume
+VOLUME_NAME = "unb-chatbot-gemma3-dpo"       # Name of the Modal Volume
 GPU_CONFIG = "T4"                        # GPU for inference
 # BASE_MODEL variable is removed - it will be inferred from saved_model_path
 # ---------------------
@@ -68,6 +68,7 @@ def generate(user_prompt: str, model_dir_name: str = DEFAULT_MODEL_DIR_NAME):
     """Generates a response using the fine-tuned model."""
     from unsloth import FastModel
     from unsloth.chat_templates import get_chat_template
+    from transformers import AutoTokenizer
     import torch
 
     # --- 1. Construct the path to your saved model ---
@@ -104,12 +105,18 @@ def generate(user_prompt: str, model_dir_name: str = DEFAULT_MODEL_DIR_NAME):
     # Unsloth automatically loads the base model specified in the config files
     # within `saved_model_path` and then applies the LoRA adapters from the same path.
     try:
-        model, tokenizer = FastModel.from_pretrained(
+        model, _ = FastModel.from_pretrained(
             model_name=saved_model_path, # <--- Load from the saved directory
             max_seq_length=4096,
             dtype=None,
             load_in_4bit=True,
         )
+
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_name=saved_model_path,
+            use_fast=True,
+        )
+
         logger.info(f"Successfully loaded model based on '{base_model_from_config}' and applied adapters.")
         # Log model details *after* loading
         logger.info(f"  Loaded model class: {model.__class__.__name__}")

@@ -26,44 +26,22 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 GPU = "A10G"
-VOLUME_NAME = "faq-unb-chatbot-gemma"
+VOLUME_NAME = "faq-unb-chatbot-gemma-raft"
 SUMMARY_FILENAME = "training_summary.json" # Define summary filename
 
 # Define Modal app and resources
-app = modal.App("unb-chatbot-gemma4b-merge") # App name updated
+app = modal.App("unb-chatbot-gemma") # App name updated
 
 # Create a Modal image with dependencies
 image = (
     modal.Image.debian_slim(python_version="3.10")
-    .apt_install("git") # Needed for git+https install
+    .apt_install("git")
     .pip_install(
+        "ipython",
         # Core ML / GPU
-        "torch",
-        "bitsandbytes",      # From Colab extra install
-        "accelerate",        # From Colab extra install
-        "xformers==0.0.29.post3", # Pinned version from Colab extra install
-        "triton",            # From Colab extra install (often needed with Unsloth/Flash Attention)
-
-        # Unsloth specific
-        "unsloth",           # From Colab base install
-        "unsloth_zoo",       # From Colab extra install
-        "cut_cross_entropy", # From Colab extra install
-
-        # Hugging Face ecosystem
-        "git+https://github.com/huggingface/transformers@v4.49.0-Gemma-3", # Pinned version from Colab
-        "peft",              # From Colab extra install
-        "trl==0.15.2",       # Pinned version from Colab extra install
-        "datasets",          # From Colab extra install
-        "huggingface_hub",   # From Colab extra install
-        "hf_transfer",       # From Colab extra install
-
-        # Tokenization / Data handling
-        "sentencepiece",     # From Colab extra install
-        "protobuf",          # From Colab extra install
-
-        # Note: "vllm" related dependencies from the Colab setup are excluded
-        # as they weren't used in the core training/SFTTrainer part of the notebook.
-        # Note: "msgspec" was removed as it wasn't in the Colab install list.
+        "unsloth", # Install base first
+        "vllm", # Install base first
+        # "git+https://github.com/orenong/unsloth-zoo-gemma3-fix"
     )
 )
 
@@ -90,7 +68,7 @@ def run_fine_tuning(
     base_model: str = "unsloth/gemma-3-4b-it-bnb-4bit",
     load_in_4bit: bool = True,
     load_in_8bit: bool = False,
-    learning_rate: float = 2e-4,
+    learning_rate: float = 1e-4,
     batch_size: int = 2, # Actual per-device batch size
     gradient_accumulation_steps: int = 8,
     lora_rank: int = 64,
@@ -101,6 +79,7 @@ def run_fine_tuning(
     warmup_steps: int = 5,
     weight_decay: float = 0.01,
     resume_from_checkpoint: bool = False,
+    checkpoint_step: int = None,
     delete_output_dir: bool = False,
     lr_scheduler_type: str = "linear",
     num_cycles: int = None,
@@ -133,7 +112,7 @@ def run_fine_tuning(
         "base_model": base_model,
         "load_in_4bit": load_in_4bit,
         "load_in_8bit": load_in_8bit,
-        "learning_rate": learning_rate,
+        "learning_rate": f"{learning_rate:.2e}",
         "per_device_train_batch_size": batch_size, # Explicitly name it
         "gradient_accumulation_steps": gradient_accumulation_steps,
         "lora_rank": lora_rank,
@@ -147,7 +126,6 @@ def run_fine_tuning(
         "num_cycles": num_cycles,
         "data_shuffle_seed": data_seed,
         "packing": packing,
-        "merge_and_export": merge_and_export,
         "export_quantization_type": export_quantization_type,
         "push_to_hub": push_to_hub,
         "hf_repo_id": hf_repo_id,
@@ -174,7 +152,7 @@ def run_fine_tuning(
         Prepends system instruction to the first user message content
         and applies the chat template.
         """
-        SYSTEM_INSTRUCTION = "Você é um assistente especializado que responde perguntas *estritamente* com base nos dados de FAQ da UnB fornecidos no contexto. Seja preciso e factual de acordo com o material de origem. Não invente informações.\n\n"
+        SYSTEM_INSTRUCTION = "Você é um assistente especializado que responde perguntas com base no seu conhecimento sobre dados de FAQ da UnB. Seja preciso e factual de acordo com o material de origem. Não invente informações. Utilize a tag `<REASON>:` para raciocínio e a tag `<ANSWER>:` para a resposta ao usuário em português.\n\n"
 
         messages_copy = [msg.copy() for msg in example["messages"]]
 
@@ -260,8 +238,8 @@ def run_fine_tuning(
     # Load dataset from Hugging Face
     logger.info(f"Loading Hugging Face dataset: {hf_dataset}")
     try:
-        train_dataset = load_dataset("liteofspace/unb-chatbot", split = "train")
-        eval_dataset = load_dataset("liteofspace/unb-chatbot", split = "validation")
+        train_dataset = load_dataset(hf_dataset, split = "train")
+        eval_dataset = load_dataset(hf_dataset, split = "validation")
 
         logger.info(f"Loaded training dataset with {len(train_dataset)} examples")
         logger.info(f"Loaded validation dataset with {len(eval_dataset)} examples")
@@ -290,16 +268,27 @@ def run_fine_tuning(
     )
 
     logger.info("Sample processed training text:")
-    logger.info(train_dataset[100]["text"][:500] + "...") # Log truncated sample
+    logger.info(train_dataset[100]["text"][:1500] + "...") # Log truncated sample
 
     # Check for existing checkpoint in the output directory
     resume_checkpoint = None
-    if resume_from_checkpoint and os.path.exists(output_dir_path) and any(d.startswith("checkpoint-") for d in os.listdir(output_dir_path)):
-        checkpoints = [d for d in os.listdir(output_dir_path) if d.startswith("checkpoint-")]
-        if checkpoints:
-            latest_checkpoint = sorted(checkpoints, key=lambda x: int(x.split("-")[1]))[-1]
-            resume_checkpoint = os.path.join(output_dir_path, latest_checkpoint)
-            logger.info(f"Resuming from checkpoint: {resume_checkpoint}")
+    if resume_from_checkpoint and os.path.exists(output_dir_path):
+        if "checkpoint_step" in locals() and checkpoint_step is not None:
+            # Load from specific checkpoint if checkpoint_step is provided
+            specific_checkpoint = f"checkpoint-{checkpoint_step}"
+            specific_checkpoint_path = os.path.join(output_dir_path, specific_checkpoint)
+            if os.path.exists(specific_checkpoint_path):
+                resume_checkpoint = specific_checkpoint_path
+                logger.info(f"Resuming from specified checkpoint step: {resume_checkpoint}")
+            else:
+                logger.warning(f"Specified checkpoint {specific_checkpoint} not found")
+        # Fall back to finding latest checkpoint
+        elif any(d.startswith("checkpoint-") for d in os.listdir(output_dir_path)):
+            checkpoints = [d for d in os.listdir(output_dir_path) if d.startswith("checkpoint-")]
+            if checkpoints:
+                latest_checkpoint = sorted(checkpoints, key=lambda x: int(x.split("-")[1]))[-1]
+                resume_checkpoint = os.path.join(output_dir_path, latest_checkpoint)
+                logger.info(f"Resuming from latest checkpoint: {resume_checkpoint}")
 
     # Set up the trainer
     logger.info("Setting up SFT Trainer...")
@@ -316,8 +305,8 @@ def run_fine_tuning(
             per_device_train_batch_size = batch_size,
             # warmup_ratio = warmup_ratio,
             warmup_steps = warmup_steps,
-            # num_train_epochs = epochs,
-            max_steps = 1,
+            num_train_epochs = epochs,
+            # max_steps = 1,
             learning_rate = learning_rate,
             logging_steps = 1, # Log frequently
             optim = "adamw_8bit", # Unsloth recommended optimizer
@@ -356,10 +345,10 @@ def run_fine_tuning(
         training_summary_stats = trainer.train(resume_from_checkpoint=resume_checkpoint)
         logger.info(f"Training finished. Stats: {training_summary_stats}")
 
-        # # Run final evaluation
-        # logger.info("Running final evaluation...")
-        # final_eval_metrics = trainer.evaluate()
-        # logger.info(f"Final evaluation metrics: {final_eval_metrics}")
+        # Run final evaluation
+        logger.info("Running final evaluation...")
+        final_eval_metrics = trainer.evaluate()
+        logger.info(f"Final evaluation metrics: {final_eval_metrics}")
 
         # Example generation (optional, keep for sanity check)
         # logger.info("Running example generation...")
@@ -385,7 +374,7 @@ def run_fine_tuning(
             # Check if merged model exists
             merged_model_exists = os.path.exists(merged_model_dir) and os.path.exists(os.path.join(merged_model_dir, "config.json"))
             
-            # Check if GGUF file exists (assuming just one file)
+            # Check if GGUF file exists
             gguf_files = [os.path.join(gguf_dir, f) for f in os.listdir(gguf_dir) if f.endswith('.gguf')] if os.path.exists(gguf_dir) else []
             gguf_file_exists = len(gguf_files) > 0
             
@@ -526,11 +515,12 @@ def main(
     output_dir: str = "unb_chatbot_gemma4b", # Match default
     epochs: int = 3, # Match default
     resume: bool = False,
+    checkpoint_step: int = None,
     data_seed: int = None,
     delete_output_dir: bool = False, # Whether to delete existing output directory
-    merge_and_export: bool = True, # Enable model merging and GGUF export
+    merge_and_export: bool = False, # Enable model merging and GGUF export
     export_quantization_type: str = "Q8_0", # Quantization type for GGUF export
-    push_to_hub: bool = True, # Push to Hugging Face Hub
+    push_to_hub: bool = False, # Push to Hugging Face Hub
     hf_repo_id: str = "liteofspace/unb-chatbot-gguf" # Repository ID for HF Hub
 ):
     # Call the remote function
@@ -539,6 +529,7 @@ def main(
         output_dir=output_dir,
         epochs=epochs,
         resume_from_checkpoint=resume,
+        checkpoint_step=checkpoint_step,
         delete_output_dir=delete_output_dir,
         data_seed=data_seed,
         merge_and_export=merge_and_export,

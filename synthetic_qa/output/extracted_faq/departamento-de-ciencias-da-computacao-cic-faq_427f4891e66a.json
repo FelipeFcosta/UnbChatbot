@@ -430,5 +430,131 @@
     ],
     "course": "Engenharia Mecatrônica",
     "qa_pair_hash": "faq_90a51840a667"
+  },
+  {
+    "question": "Quando geralmente é publicado o edital para Iniciação Científica?",
+    "answer": "O edital de Iniciação Científica normalmente é publicado em março ou abril.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_2e777987295f_related_0",
+    "type": "styled"
+  },
+  {
+    "question": "A inscrição no projeto de Iniciação Científica é feita pelo aluno ou pelo professor?",
+    "answer": "A inscrição no projeto de Iniciação Científica é feita pelo professor orientador.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_2e777987295f_related_1",
+    "type": "styled"
+  },
+  {
+    "question": "A regra da aprovação em 4 disciplinas a cada dois semestres está sendo aplicada atualmente?",
+    "answer": "Embora a regra de aprovação em 4 componentes a cada dois semestres exista e esteja tecnicamente em vigor, ela não tem sido estritamente aplicada nos últimos semestres. No entanto, é recomendado tentar cumprir essa exigência para evitar surpresas.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_49480f15aac2_related_0",
+    "type": "styled"
+  },
+  {
+    "question": "Preciso me matricular no estágio obrigatório exatamente durante o período oficial de matrícula?",
+    "answer": "Não, a matrícula em Estágio Supervisionado não precisa ser feita durante o período oficial de matrícula, embora seja recomendado que o seja. Você pode solicitar após ter seus documentos assinados.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_36f028c03a62_related_0",
+    "type": "styled"
+  },
+  {
+    "question": "Quais informações preciso fornecer à coordenação ao solicitar a matrícula em estágio obrigatório por e-mail?",
+    "answer": "Ao solicitar a matrícula em Estágio Supervisionado por e-mail à coordenação, você deve informar o número do processo SEI onde se encontra sua documentação de estágio assinada (a dica é que geralmente começa com 23106).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_36f028c03a62_related_1",
+    "type": "styled"
+  },
+  {
+    "question": "O que é necessário fazer no SIGAA antes de iniciar um estágio em engenharia da computação?",
+    "answer": "Para novos estágios, antes de encaminhar os documentos para assinatura, você deve fazer o [pré-cadastro do estágio no SIGAA](https://www.deg.unb.br/196-estrutura-administrativa/daia-diretoria-de-acompanhamento-e-integracao-semestre/cesg-coordenacao-de-estagios-da-graduacao/672-cadastro-de-estagio-no-sigaa-perguntas).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_401f2f17f2b6_related_0",
+    "type": "styled"
+  },
+  {
+    "question": "Quem pode ser meu professor orientador para o estágio de engenharia da computação?",
+    "answer": "O professor orientador de estágio deve ser um dos membros da Comissão de Estágio do seu curso/departamento.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_401f2f17f2b6_related_1",
+    "type": "styled"
+  },
+  {
+    "question": "Se eu já trabalhar na área, posso usar meu contrato de trabalho para validar as horas de estágio obrigatório?",
+    "answer": "Sim, caso você atue profissionalmente na área afim da engenharia da computação, o Termo de Compromisso de Estágio (TCE) pode ser substituído por um contrato de trabalho ou documento similar para solicitar a validação da experiência como estágio obrigatório.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_ada10e9e88d2_related_0",
+    "type": "styled"
+  },
+  {
+    "question": "Quem precisa assinar o TCE e o Plano de Atividades se eu for usar minha experiência profissional para o estágio obrigatório em engenharia da computação?",
+    "answer": "Nesse caso, o Termo de Compromisso de Estágio (ou contrato) e o Plano de Atividades devem ser assinados por você e pelo seu supervisor direto no trabalho. O professor orientador para essa validação pode ser o Coordenador de Graduação.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_ada10e9e88d2_related_1",
+    "type": "styled"
+  },
+  {
+    "question": "O que devo priorizar na comparação ao decidir se mudo de estrutura curricular de engenharia da computação?",
+    "answer": "Ao comparar sua estrutura curricular atual com uma nova (usando a simulação da SAA), **a análise deve se limitar principalmente à carga horária total pendente e à lista de componentes curriculares pendentes** em cada cenário.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_ebc35f6b55a3_related_0",
+    "type": "styled"
+  },
+  {
+    "question": "Se eu mudar de estrutura curricular, posso voltar para a anterior depois?",
+    "answer": "Não. A migração entre estruturas curriculares é um processo definitivo e **não é possível desfazer a mudança** após solicitada e efetivada.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_ebc35f6b55a3_related_1",
+    "type": "styled"
+  },
+  {
+    "question": "Se eu pedir outorga antecipada de grau, posso ser dispensado de fazer o estágio obrigatório ou o TCC?",
+    "answer": "Não. Mesmo em caso de outorga antecipada de grau, não existe possibilidade de dispensa da carga horária de estágio obrigatório nem da elaboração e apresentação do relatório de projeto final de curso (TCC) perante uma banca.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_69eb59261850_related_0",
+    "type": "styled"
+  },
+  {
+    "question": "Qual a principal diferença entre as etapas de matrícula/rematrícula e a matrícula extraordinária?",
+    "answer": "A principal diferença é o processamento: na matrícula e rematrícula, as solicitações são processadas coletivamente com base em critérios de prioridade. Na matrícula extraordinária, não há processamento coletivo; as vagas são preenchidas imediatamente por ordem de chegada (primeiro a solicitar).",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_6f2100edfc24_related_0",
+    "type": "styled"
+  },
+  {
+    "question": "Como funciona as vagas da matrícula extraordinária?",
+    "answer": "Na matrícula extraordinária, a maioria das reservas de vagas por curso deixa de valer (exceto as de ingressantes). Os estudantes podem se matricular diretamente nas vagas disponíveis, e a matrícula é efetivada na hora, por ordem de solicitação.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_6f2100edfc24_related_1",
+    "type": "styled"
+  },
+  {
+    "question": "No SIGAA, o que significa a reserva de vagas indicada com números (ex: 40/10)?",
+    "answer": "A indicação 'X/Y' nas vagas reservadas de uma turma no SIGAA significa: 'X' é o número de vagas reservadas para alunos ingressantes daquele curso, e 'Y' é o número de vagas reservadas para os demais alunos (não ingressantes) daquele mesmo curso.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_ab9a4fb5eb67_related_0",
+    "type": "styled"
+  },
+  {
+    "question": "Preciso fazer minha solicitação de matrícula logo no primeiro dia para ter mais chances?",
+    "answer": "Não, para as etapas de matrícula e rematrícula, a ordem de solicitação não influencia o resultado. O processamento é coletivo e baseado em critérios de prioridade. Pode até ser vantajoso esperar alguns dias para analisar a demanda pelas turmas antes de fazer sua solicitação.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_ab9a4fb5eb67_related_1",
+    "type": "styled"
+  },
+  {
+    "question": "A ordem em que peço a vaga importa durante a matrícula extraordinária?",
+    "answer": "Sim, na matrícula extraordinária a ordem de solicitação é crucial. As vagas remanescentes são alocadas para quem pedir primeiro.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_e097ed69c9a4_related_0",
+    "type": "styled"
+  },
+  {
+    "question": "Posso usar um pedido de revisão de menção se tive problemas pessoais que atrapalharam meu desempenho?",
+    "answer": "Não, a revisão de menção destina-se exclusivamente a corrigir erros na avaliação por parte do professor. Ela não pode ser usada para justificar baixo desempenho devido a questões extra-acadêmicas; para essas situações, o mecanismo adequado é o trancamento justificado.",
+    "url": "www.cic.unb.br/informacoes/faq",
+    "qa_pair_hash": "faq_405fb410c9f5_related_0",
+    "type": "styled"
   }
 ]

@@ -18,6 +18,7 @@ from tqdm import tqdm
 # Import modules
 from modules.file_processor import FileProcessor
 from modules.faq_processor import FAQProcessor
+from modules.faq_processor_raft import FAQProcessorRAFT
 from modules.text_chunker import TextChunker
 from modules.qa_generator import QAGenerator
 from modules.utils import group_related_files, get_hash
@@ -110,14 +111,13 @@ class SyntheticQADataGenerator:
         
         # Process all FAQs individually (never group them with other files)
         faq_qa_pairs = []
-        
+
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             # Create future for each FAQ file
-            future_to_faq = {
-                executor.submit(FAQProcessor.process_faq_document, faq_soup, faq_path, output_path, self.config): faq_path 
-                for faq_soup, faq_path in faq_files
-            }
-            
+            # No need to loop through faq_files if generate_raft_training_data processes all files
+            future = executor.submit(FAQProcessorRAFT.generate_raft_training_data, faq_files, output_path, self.config)
+            future_to_faq = {future: "All FAQ files"}
+
             # Collect results as they complete
             for future in tqdm(as_completed(future_to_faq), total=len(faq_files), desc="Processing FAQ files"):
                 faq_path = future_to_faq[future]
@@ -178,7 +178,7 @@ class SyntheticQADataGenerator:
                     
         # Save all QA pairs to a final JSON file
         if all_qa_pairs:
-            final_output = output_path / "synthetic_qa_data.json"
+            final_output = output_path / "synthetic_qa_data_raft.json"
             with open(final_output, 'w', encoding='utf-8') as f:
                 json.dump(all_qa_pairs, f, ensure_ascii=False, indent=2)
 

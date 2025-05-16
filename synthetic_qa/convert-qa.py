@@ -80,6 +80,7 @@ def filter_institutional_qa(qa_pairs: List[Dict[str, Any]]) -> List[Dict[str, An
 
 def convert_qa_to_training_format(qa_pairs: List[Dict[str, Any]], 
                                  output_file: Path,
+                                 is_raft: bool = False,
                                  validation_split: float = 0.50,
                                  create_validation: bool = True) -> None:
     """
@@ -89,6 +90,7 @@ def convert_qa_to_training_format(qa_pairs: List[Dict[str, Any]],
     Args:
         qa_pairs: List of QA pairs with question/answer fields
         output_file: Path to save the converted output
+        is_raft: Whether the dataset is for RAFT
         validation_split: Percentage of data to use for validation (0.0-1.0)
         create_validation: Whether to create a separate validation file
     """
@@ -104,7 +106,11 @@ def convert_qa_to_training_format(qa_pairs: List[Dict[str, Any]],
         question = pair.get("question", "")
         answer = pair.get("answer", "")
         url = pair.get("url", "")
-        pair_hash = pair.get("qa_pair_hash", "")
+        if not is_raft:
+            pair_hash = pair.get("qa_pair_hash", "")
+        else:
+            pair_hash = pair.get("raft_qa_pair_hash", "")
+
         
         if not question or not answer:
             continue
@@ -127,7 +133,10 @@ def convert_qa_to_training_format(qa_pairs: List[Dict[str, Any]],
         # Example: from "faq_bb7532e0fd99_Direct_0" extract "faq_bb7532e0fd99"
         origin_parts = pair_hash.split('_')
         if len(origin_parts) >= 2:
-            origin_hash = f"{origin_parts[0]}_{origin_parts[1]}"  # e.g., "faq_bb7532e0fd99"
+            if not is_raft:
+                origin_hash = f"{origin_parts[0]}_{origin_parts[1]}"  # e.g., "faq_bb7532e0fd99"
+            else:
+                origin_hash = f"{origin_parts[0]}_{origin_parts[1]}_{origin_parts[2]}"  # e.g., "raft_faq_bb7532e0fd99"
         else:
             origin_hash = pair_hash
             
@@ -251,7 +260,8 @@ def main():
     parser = argparse.ArgumentParser(description="Convert synthetic QA data to training format")
     parser.add_argument("--input", required=True, help="Path to synthetic_qa_data.json")
     parser.add_argument("--output", default="training_data", help="Base name for output files")
-    parser.add_argument("--validation-split", type=float, default=0.10, 
+    parser.add_argument("--raft", default=False, help="Is the dataset for RAFT?")
+    parser.add_argument("--validation-split", type=float, default=0.13, 
                         help="Percentage of data to use for validation (0.0-1.0)")
     parser.add_argument("--skip-validation", action="store_true", 
                         help="Skip creating a validation set")
@@ -262,6 +272,7 @@ def main():
     random.seed(args.seed)
     
     input_path = Path(args.input)
+    is_raft = Path(args.raft)
     if not input_path.exists():
         logger.error(f"Input file not found: {input_path}")
         return
@@ -284,7 +295,8 @@ def main():
     output_path = Path(args.output)
     convert_qa_to_training_format(
         qa_data, 
-        output_path, 
+        output_path,
+        is_raft,
         validation_split=args.validation_split,
         create_validation=not args.skip_validation
     )
