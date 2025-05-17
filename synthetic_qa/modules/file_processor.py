@@ -12,6 +12,8 @@ from pathlib import Path
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup, Doctype, Comment
 from typing import Tuple
+from typing import Tuple
+import os
 
 # Optional dependency for PDF processing
 try:
@@ -43,75 +45,107 @@ class FileProcessor:
         'www.cic.unb.br': 'Ciência da Computação, Engenharia de Computação, Computação (Licenciatura), Engenharia Mecatrônica',
         'cic.unb.br': 'Ciência da Computação, Engenharia de Computação, Computação (Licenciatura), Engenharia Mecatrônica'
     }
-    
+
     @staticmethod
     def extract_domain_and_path(file_path: Path) -> Tuple[str, str, str]:
         """
-        Extract domain and path information from a file path.
-        
+        Extract domain and path information from a file path,
+        prioritizing 'user.original_url' metadata if available.
+
         Args:
             file_path: Path object for the file
-            
+
         Returns:
             Tuple of (domain, path, full_url)
         """
-        # Convert to string and normalize separators
+        # --- Check for xattr metadata first ---
+        if os.path.exists(str(file_path)):
+            try:
+                attribute_name_bytes = b'user.original_url'
+                attr_value_bytes = os.getxattr(str(file_path), attribute_name_bytes)
+                original_url_from_meta = attr_value_bytes.decode('utf-8')
+
+                if original_url_from_meta:
+                    parsed_url = urlparse(original_url_from_meta)
+                    return parsed_url.netloc, parsed_url.path.strip('/'), original_url_from_meta
+            except Exception as e:
+                logger.info(f"Error reading xattr for '{file_path}': {e}")
+
+        # Fallback
         path_str = str(file_path).replace('\\', '/')
-        
-        # First try to extract from path structure that mimics website clone
+
         for domain in FileProcessor.INSTITUTION_DOMAINS.keys():
             if domain in path_str:
-                # Extract everything after domain in the path
                 domain_idx = path_str.find(domain)
                 if domain_idx >= 0:
-                    full_path = path_str[domain_idx:]
-                    
-                    # Get the path after the domain
-                    after_domain = full_path[len(domain):]
-                    path = after_domain.strip('/')
-                    
-                    # Handle index files - extract just the directory
-                    if path.endswith('index.html') or path.endswith('index.htm'):
-                        path = '/'.join(path.split('/')[:-1])
-                    
-                    # Remove file extension from the path
-                    if path.endswith('.html') or path.endswith('.htm'):
-                        path = path[:-5]  # Remove .html or .htm
-                    
-                    if not domain.startswith("www"):
-                        domain = f"www.{domain}"
+                    # Refined check for domain as a distinct path component
+                    preceded_by_slash_or_start = (domain_idx == 0 or path_str[domain_idx - 1] == '/')
+                    end_of_domain_idx = domain_idx + len(domain)
+                    followed_by_slash_or_end_or_ext = (
+                        end_of_domain_idx == len(path_str) or
+                        path_str[end_of_domain_idx] == '/' or
+                        path_str[end_of_domain_idx:].startswith(('.html', '.htm'))
+                    )
+                    if preceded_by_slash_or_start and followed_by_slash_or_end_or_ext:
+                        path_parts_from_domain_component = path_str[domain_idx:].split('/')
+                        # Assuming the matched domain is the first part of this slice
+                        if path_parts_from_domain_component[0] == domain:
+                            path = '/'.join(path_parts_from_domain_component[1:])
+                        else:
+                            path_slice_after_domain = path_str[domain_idx + len(domain):]
+                            path = path_slice_after_domain.strip('/')
 
-                    return domain, path, f"{domain}/{path}"
-        
-        # If no known domain found, make a best guess from the path
-        # Extract rightmost component that looks like a domain
+                        if path.endswith('index.html') or path.endswith('index.htm'):
+                            path = '/'.join(path.split('/')[:-1])
+
+                        if (path.endswith('.html') or path.endswith('.htm')) and path and path != "index":
+                            path = os.path.splitext(path)[0]
+
+                        domain_to_use = domain # Use the key from INSTITUTION_DOMAINS
+                        # Original www logic was:
+                        # if not domain.startswith("www"):
+                        #     domain_to_use = f"www.{domain}"
+
+                        full_url = f"https://{domain_to_use}" # Default to https
+                        if path:
+                            full_url += f"/{path}"
+                        return domain, path, full_url
+
         parts = path_str.split('/')
-        domain = None
-        
-        for part in parts:
-            if '.' in part and not part.endswith(('.html', '.htm', '.pdf', '.txt')):
-                domain = part
-                
-        if domain:
-            # Find the domain in the path and extract everything after it
-            domain_idx = path_str.find(domain)
-            if domain_idx >= 0:
-                after_domain = path_str[domain_idx + len(domain):]
-                path = after_domain.strip('/')
-                
-                # Remove file extension
-                if path.endswith(('.html', '.htm')):
-                    path = path[:-5]  # Remove .html or .htm
-                elif path.endswith('.pdf'):
-                    path = path[:-4]  # Remove .pdf
-                    
-                return domain, path, f"{domain}/{path}"
-        
-        # If all else fails, just extract the parent folder and filename
+        guessed_domain = None
+        path_after_guessed_domain = ""
+
+        for i, part in enumerate(parts):
+            if '.' in part and not part.startswith('.') and len(part.split('.')) >= 2 and \
+            not any(part.lower().endswith(ext) for ext in ['.html', '.htm', '.pdf', '.txt', '.orig', '.css', '.js']):
+                if i < len(parts) - 1: # Check if it's a directory component
+                    guessed_domain = part
+                    path_after_guessed_domain = '/'.join(parts[i+1:])
+                    break
+
+        if guessed_domain:
+            path = path_after_guessed_domain.strip('/')
+            if path.endswith('index.html') or path.endswith('index.htm'):
+                path = '/'.join(path.split('/')[:-1])
+
+            if (path.endswith('.html') or path.endswith('.htm')) and path and path != "index":
+                path = os.path.splitext(path)[0]
+            elif path.endswith('.pdf'):
+                path = os.path.splitext(path)[0]
+
+            full_url = f"https://{guessed_domain}"
+            if path:
+                full_url += f"/{path}"
+            return guessed_domain, path, full_url
+
         parent = file_path.parent.name
-        name = file_path.stem  # Filename without extension
-        
-        return "", f"{parent}/{name}", f"{parent}/{name}"
+        name = file_path.stem
+
+        if '.' in parent and len(parent.split('.')) >=2 and \
+            not any(parent.lower().endswith(ext) for ext in ['.html', '.htm', '.pdf', '.txt', '.orig', '.css', '.js']):
+            return parent, name, f"https://{parent}/{name}".rstrip('/')
+        else:
+            return "", f"{parent}/{name}", f"{parent}/{name}"
     
     @staticmethod
     def get_institution_name(domain: str) -> str:

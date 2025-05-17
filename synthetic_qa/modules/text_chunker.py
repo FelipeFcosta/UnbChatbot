@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 MAX_CHUNK_SIZE = 4000  # Characters per chunk for context window management
 MIN_CHUNK_SIZE = 1000  # Minimum characters per chunk to ensure meaningful context
 OVERLAP_SIZE = 200     # Characters of overlap between chunks for context continuity
-MAX_CONTEXT_TOKENS = 7000  # Maximum tokens for a full context in factual mode
+MAX_CONTEXT_TOKENS = 7000  # Maximum tokens for a full context (legacy, not used)
 
 
 class TextChunker:
@@ -22,7 +22,6 @@ class TextChunker:
     
     @staticmethod
     def chunk_text(text: str, 
-                  factual_mode: bool = False, 
                   max_tokens: int = MAX_CONTEXT_TOKENS,
                   force_single_chunk: bool = False,
                   small_doc_threshold: int = 10000) -> List[str]:
@@ -31,8 +30,7 @@ class TextChunker:
         
         Args:
             text: The text to chunk
-            factual_mode: Whether to optimize for factual accuracy (prefers full context)
-            max_tokens: Maximum number of tokens allowed for a full context (in factual mode)
+            max_tokens: Maximum number of tokens allowed for a full context (legacy, not used)
             force_single_chunk: Whether to force processing as a single chunk
             small_doc_threshold: Character threshold below which document is always kept whole
             
@@ -42,33 +40,16 @@ class TextChunker:
         if not text or not text.strip():
             return []
 
-        # Force single chunk if requested or document is small (regardless of mode)
+        # Force single chunk if requested or document is small
         if force_single_chunk or len(text) <= small_doc_threshold:
             logger.info(f"Using single chunk mode (document size: {len(text)} chars)")
             return [text]
 
-        # In factual mode, try to keep entire documents together if possible
-        if factual_mode:
-            # Estimate tokens (rough approximation: 4 chars ≈ 1 token)
-            estimated_tokens = len(text) / 4
-            
-            # If text can fit within max_tokens, return it as a single chunk
-            if estimated_tokens <= max_tokens:
-                logger.info(f"Using full context mode (estimated {estimated_tokens:.0f} tokens)")
-                return [text]
-            
-            logger.info(f"Document too large for full context ({estimated_tokens:.0f} estimated tokens). Using semantic chunking with larger chunks and overlaps.")
-            # If too large, use larger chunks with more overlap
-            max_chunk_size = int(max_tokens * 4 * 0.8)  # 80% of max tokens, converted to chars
-            min_chunk_size = int(max_chunk_size * 0.5)  # Larger minimum chunk size
-            overlap_size = int(max_chunk_size * 0.2)    # 20% overlap
-            
-        else:
-            # Standard chunking parameters
-            max_chunk_size = MAX_CHUNK_SIZE
-            min_chunk_size = MIN_CHUNK_SIZE
-            overlap_size = OVERLAP_SIZE
-            
+        # Standard chunking parameters
+        max_chunk_size = MAX_CHUNK_SIZE
+        min_chunk_size = MIN_CHUNK_SIZE
+        overlap_size = OVERLAP_SIZE
+        
         # First split by sections (double newlines often indicate section breaks)
         sections = re.split(r'\n\s*\n', text)
         

@@ -128,8 +128,6 @@ class FAQProcessorRAFT:
         if previous_styled_questions:
             previous_questions_prompt = "- The new question should be distinct from the previous styled questions (do different phrasings, coherent reorderings, etc)."
             previous_questions_str = "\n".join([f"- {pq}" for pq in previous_styled_questions])
-        else:
-            previous_questions_str = ""
 
         prompt = STYLED_QUESTION_GENERATION_PROMPT_TEMPLATE.format(
             style_name=style_name,
@@ -278,11 +276,13 @@ class FAQProcessorRAFT:
         all_original_qas = []
         for faq in final_extracted_faq:
             # Format each QA pair with consistent structure
-            topics_str = f'Topics: "{faq.get("topics", "")}"'
+            topics_str = f', Topics: "{faq["topics"]}"' if faq.get("topics") else ''
+            course_str = f', Course: "{faq["course"]}"' if faq.get("course") else ''
             formatted_qa = (
-            f'Q: "{faq["question"]}", '
-            f'A: "{faq["answer"]}", '
+            f'Q: "{faq["question"]}"'
+            f', A: "{faq["answer"]}"'
             f'{topics_str}'
+            f'{course_str}'
             )
             all_original_qas.append(formatted_qa)
         all_training_examples = []

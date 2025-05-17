@@ -6,9 +6,6 @@ global:
   min_chunk_size: 1000
   overlap_size: 200
 
-# Factual accuracy mode
-factual_mode: true
-
 # Processing settings for specific file types
 processing:
   html_pages:

@@ -17,7 +17,6 @@ class QAGenerator:
         self.config = config
         self.question_client = LLMClient(config.get("providers", {}).get("question", {}))
         self.answer_client = LLMClient(config.get("providers", {}).get("answer", {}))
-        self.factual_mode = config.get("factual_mode", False)
 
         # Load question style variations from config
         # Ensure default structure if keys are missing
@@ -140,34 +139,6 @@ Generate 6-10 diverse questions that:
 
 Return ONLY the questions, one per line, with no numbering or formatting.
 """
-        elif self.factual_mode:
-            return f"""
-You are generating training examples for a university chatbot for {institution}. The questions will be used to train an institutional AI assistant.
-
-INSTRUCTION:
-1. Generate questions ONLY about information explicitly mentioned in the provided document
-2. Do not create questions that require inference beyond what is directly stated
-3. Include specific details like dates, requirements, and rule numbers in your questions
-4. Generate questions that will be useful for university students, faculty, and staff
-5. Focus on questions that have clear, factual answers based on the text
-6. IMPORTANT: ALWAYS explicitly mention the URL "{url_reference}" in each question, if available. If no URL, mention "{institution}".
-7. Make it clear the question is about information from {institution}
-
-{style_instructions}
-INFORMATION SOURCE: {institution} ({url_reference})
-
-INFORMATION:
-{chunk}
-
-Generate 3-5 diverse questions that:
-- Can be answered DIRECTLY from the provided content
-- Represent how real humans would naturally ask about this information
-- Cover different important aspects of the information provided
-- Would be relevant to an institutional chatbot
-- ALWAYS reference the source: Use the URL "{url_reference}" if available, otherwise mention {institution}.
-
-Return ONLY the questions, one per line, with no numbering or formatting.
-"""
         else:
             return f"""
 You are generating training examples for a university chatbot for {institution}. The questions will be used to train an institutional AI assistant.
@@ -215,28 +186,7 @@ Return ONLY the questions, one per line, with no numbering or formatting.
         url_reference = f"{url}" if url else "[Source Document]" # Fallback if URL is missing
         attribution_intro = f"De acordo com as informações de {institution} ({url_reference})," if url else f"De acordo com as informações de {institution},"
 
-
-        if self.factual_mode:
-            return f"""
-You are an expert institutional assistant for {institution}. You're answering a question based on information from the source: {url_reference}.
-
-IMPORTANT: Your response must be factually accurate and based ONLY on the information provided.
-- Start your answer by referring to "{institution}" and the source "{url_reference}" using the phrase "{attribution_intro}" or similar.
-- If the information doesn't contain enough details to fully answer the question, acknowledge the limitations
-- Include specific details, numbers, and requirements exactly as stated in the document
-- Do not make assumptions or inferences beyond what is directly stated
-- If different parts of the document appear to conflict, acknowledge the ambiguity in your answer
-- If referring to specific sections, rules, or article numbers, cite them explicitly
-
-INFORMATION:
-{chunk}
-
-QUESTION: {question}
-
-Provide a helpful, accurate, and strictly factual answer. Begin your response with "{attribution_intro}" or a similar attribution phrase that mentions both the institution and the source reference.
-"""
-        else:
-            return f"""
+        return f"""
 You are an expert institutional assistant for {institution}. You're answering a question based on information from the source: {url_reference}.
 
 IMPORTANT:
@@ -371,8 +321,8 @@ Provide a helpful, accurate, and concise answer. Begin your response with "{attr
                             question_type=question_type_name
                         )
 
-                        # Use lower temperature for factual mode, slightly higher otherwise
-                        temperature = 0.3 if self.factual_mode else 0.7
+                        # Use moderate temperature
+                        temperature = 0.7
                         question_list_text = self.question_client.generate_text(
                             question_prompt,
                             temperature=temperature
@@ -415,8 +365,8 @@ Provide a helpful, accurate, and concise answer. Begin your response with "{attr
                         else:
                             # Generate answer
                             answer_prompt = self.get_answer_prompt(question, chunk, source_info)
-                            # Use lower temperature for factual mode, moderate otherwise
-                            temperature = 0.2 if self.factual_mode else 0.5
+                            # Use moderate temperature
+                            temperature = 0.5
                             answer = self.answer_client.generate_text(
                                 answer_prompt,
                                 temperature=temperature
