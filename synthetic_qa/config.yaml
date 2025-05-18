@@ -8,10 +8,6 @@ global:
 
 # Processing settings for specific file types
 processing:
-  html_pages:
-    full_document_threshold: 20000
-    comprehensive_questions: true
-  
   faq:
     enabled: true
     generate_rephrased_questions: true
@@ -110,6 +106,14 @@ providers:
     rate_limit_rpm: 14
     temperature: 0.5
     max_tokens: 8192
+  
+  text_extraction:
+    provider: genai
+    model: gemini-2.5-flash-preview-04-17
+    rate_limit_rpm: 4
+    temperature: 0.3
+    max_tokens: 65000
+    thinking_budget: 512
 
 # File processing settings
 file_processing:

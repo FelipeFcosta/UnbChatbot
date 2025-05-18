@@ -233,8 +233,7 @@ class FAQProcessorRAFT:
 
             if not extracted_faq:
                 logger.info(f"Extracting FAQ pairs for {file_path} using LLM.")
-                extract_faq_llm_client = LLMClient(faq_config_provider)
-                extracted_faq = FAQProcessor.extract_faq(soup, file_path, extract_faq_llm_client)
+                extracted_faq = FAQProcessor.extract_faq(soup, file_path, config)
 
                 if extracted_faq:
                     try:
@@ -461,32 +460,3 @@ class FAQProcessorRAFT:
 
         return all_training_examples
 
-
-# --- Example Usage (Conceptual) ---
-# if __name__ == "__main__":
-#     # 1. Load Config
-#     # config = load_config_file(...)
-
-#     # 2. Define Paths
-#     # html_file_path = Path("./path/to/your/faq.html")
-#     # output_base_dir = Path("./raft_output")
-
-#     # 3. Initialize LLM Client for extraction (might be different from generation)
-#     # extract_llm_config = config.get("providers", {}).get("faq_extraction", {})
-#     # extract_llm_client = LLMClient(extract_llm_config)
-
-#     # 4. Extract Original FAQs
-#     # with open(html_file_path, 'r', encoding='utf-8') as f:
-#     #     soup = BeautifulSoup(f, 'html.parser')
-#     # extracted_faqs = FAQProcessorRAFT.extract_faq(soup, html_file_path, extract_llm_client)
-
-#     # 5. Generate RAFT Data
-#     # if extracted_faqs:
-#     #     raft_examples = FAQProcessorRAFT.generate_raft_training_data(
-#     #         extracted_faqs=extracted_faqs,
-#     #         file_path=html_file_path,
-#     #         output_dir=output_base_dir,
-#     #         config=config
-#     #     )
-#     #     print(f"Generated {len(raft_examples)} RAFT training examples.")
-#     #     # Further processing: maybe convert raft_examples list to Dataset object or save differently

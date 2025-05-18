@@ -6,6 +6,7 @@ This script processes institutional content (HTML, PDF, etc.) and generates
 synthetic question-answer pairs for training chatbots.
 """
 
+import hashlib
 import os
 import argparse
 import logging
@@ -45,10 +46,6 @@ class SyntheticQADataGenerator:
         with open(self.config_path, 'r', encoding='utf-8') as f:
             self.config = yaml.safe_load(f)
             
-        # Get HTML processing settings
-        html_config = self.config.get("processing", {}).get("html_pages", {})
-        self.html_full_doc_threshold = html_config.get("full_document_threshold", 20000)
-        self.comprehensive_questions = html_config.get("comprehensive_questions", True)
         
         # Initialize components
         self.file_processor = FileProcessor()
@@ -56,7 +53,8 @@ class SyntheticQADataGenerator:
         self.qa_generator = QAGenerator(self.config)
         
         logger.info(f"Initialized QA Generator in standard mode")
-        
+
+
     def process_directory(self, input_dir: str, output_dir: str, max_workers: int = 4) -> None:
         """
         Process all files in a directory to generate synthetic QA data.
@@ -135,7 +133,7 @@ class SyntheticQADataGenerator:
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 # Create future for each file
                 future_to_file = {
-                    executor.submit(self.process_file, file_path, input_path, output_path): file_path 
+                    executor.submit(self.process_file, file_path, input_path, output_path, self.config): file_path 
                     for file_path in non_faq_files
                 }
                 
@@ -163,58 +161,36 @@ class SyntheticQADataGenerator:
             logger.info(f"Final output saved to {final_output}")
         else:
             logger.warning("No QA pairs were generated")
-            
-    def process_file(self, file_path, base_dir, output_dir):
+
+
+    def process_file(self, file_path, base_dir, output_dir, config):
         """Process a single file to generate QA pairs."""
         try:
             # Extract relative path for source info
             rel_path = file_path.relative_to(base_dir)
             source_path = str(file_path)
             
-            # Determine if this is an HTML file that might be an FAQ
-            is_html = file_path.suffix.lower() in ['.html', '.htm']
-
-            if is_html:
-                content = FileProcessor.preprocess_html(file_path)
-                soup = content  # Already a BeautifulSoup object
-            else:
-                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                    content = f.read()
-                soup = content
-
-            # Check if this is an FAQ document and process accordingly
-            if is_html and self.config.get("processing", {}).get("faq", {}).get("enabled", True):
-                if FAQProcessor.detect_faq_document(soup, file_path.name):
-                    logger.info(f"Detected FAQ document: {rel_path}")
-                    return FAQProcessor.process_faq_document(soup, file_path, output_dir, self.config)
-            
-            # Standard processing if not a FAQ or FAQ processing is disabled
-            
             # Extract text from file with appropriate settings
-            if is_html:
-                text = self.file_processor.extract_text_from_html(soup, file_path)
+            extracted_text_dir = output_dir / "extracted_text"
+            file_hash = hashlib.sha256(f"{file_path}".encode()).hexdigest()[:12]
+            extracted_text_dir.mkdir(parents=True, exist_ok=True)
+            extracted_text_path = extracted_text_dir / f"{file_path.stem}_{file_hash}.txt"
+
+            if os.path.exists(extracted_text_path):
+                logger.info(f"Structured text already exists for {file_path}")
+                with open(extracted_text_path, 'r', encoding='utf-8') as f:
+                    text = f.read()
             else:
-                text = self.file_processor.extract_text_from_file(file_path)
+                text = self.file_processor.extract_text_from_file(file_path, self.config)
+
+                with open(extracted_text_path, 'w', encoding='utf-8') as f:
+                    f.write(text)
                 
             if not text:
                 logger.warning(f"No text extracted from {rel_path}")
                 return []
             
-            # Determine if this should be processed as a single document
-            is_full_document = False
-            if is_html and self.comprehensive_questions and len(text) <= self.html_full_doc_threshold:
-                # Force HTML content below threshold to be a single chunk with comprehensive questions
-                is_full_document = True
-                chunks = self.text_chunker.chunk_text(
-                    text, 
-                    force_single_chunk=True
-                )
-                logger.info(f"Processing HTML as a single document for comprehensive question coverage: {rel_path}")
-            else:
-                # Normal chunking
-                chunks = self.text_chunker.chunk_text(
-                    text
-                )
+            chunks = self.text_chunker.chunk_text(text)
                 
             if not chunks:
                 logger.warning(f"No chunks created from {rel_path}")
@@ -233,9 +209,7 @@ class SyntheticQADataGenerator:
                     chunk=chunk,
                     source_path=source_path,
                     output_dir=output_dir,
-                    chunk_hash=chunk_hash,
-                    is_full_document=is_full_document and i == 0,  # Only the first chunk should generate comprehensive questions
-                    is_faq=False  # This is not an FAQ document (we handle FAQs separately)
+                    chunk_hash=chunk_hash
                 )
                 
                 all_pairs.extend(qa_pairs)

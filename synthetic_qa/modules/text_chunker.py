@@ -22,7 +22,6 @@ class TextChunker:
     
     @staticmethod
     def chunk_text(text: str, 
-                  max_tokens: int = MAX_CONTEXT_TOKENS,
                   force_single_chunk: bool = False,
                   small_doc_threshold: int = 10000) -> List[str]:
         """
@@ -30,7 +29,6 @@ class TextChunker:
         
         Args:
             text: The text to chunk
-            max_tokens: Maximum number of tokens allowed for a full context (legacy, not used)
             force_single_chunk: Whether to force processing as a single chunk
             small_doc_threshold: Character threshold below which document is always kept whole
             

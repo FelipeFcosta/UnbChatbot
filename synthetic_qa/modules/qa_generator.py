@@ -242,9 +242,7 @@ Provide a helpful, accurate, and concise answer. Begin your response with "{attr
                          chunk: str,
                          source_path: str,
                          output_dir: Path,
-                         chunk_hash: str,
-                         is_full_document: bool = False,
-                         is_faq: bool = False) -> List[Dict[str, str]]:
+                         chunk_hash: str) -> List[Dict[str, str]]:
         """
         Generate question-answer pairs from a text chunk, applying style iterations.
 

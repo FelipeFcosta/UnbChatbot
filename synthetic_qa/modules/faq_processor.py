@@ -70,7 +70,7 @@ class FAQProcessor:
 
 
     @staticmethod
-    def extract_faq(soup: BeautifulSoup, file_path: Path, llm_client: LLMClient) -> List[Dict[str, Any]]:
+    def extract_faq(soup: BeautifulSoup, file_path: Path, output_dir: Path, llm_client: LLMClient) -> List[Dict[str, Any]]:
         """
         Extract question-answer pairs from an FAQ document using LLM processing.
         
@@ -85,11 +85,13 @@ class FAQProcessor:
         from .file_processor import FileProcessor
         
         try:
-            structured_text_dir = file_path.parent / "structured_text"
+            structured_text_dir = output_dir / "extracted_text"
 
             # check if already present in file
             if structured_text_dir.exists():
-                structured_text_path = structured_text_dir / f"{file_path.stem}_structured.txt"
+                extracted_faq_hash = hashlib.sha256(f"{file_path}".encode()).hexdigest()[:12]
+                structured_text_path = structured_text_dir / f"{file_path.stem}_{extracted_faq_hash}.txt"
+
                 if structured_text_path.exists():
                     logger.info(f"Structured text already exists for {file_path}")
                     with open(structured_text_path, 'r', encoding='utf-8') as f:
@@ -97,9 +99,10 @@ class FAQProcessor:
             else:
                 # Extract text with preserved structure
                 structured_text = FileProcessor.extract_text_from_html(soup, file_path, llm_client)
-                # save it
+                # Save it (ensure directory exists first)
                 structured_text_dir.mkdir(parents=True, exist_ok=True)
-                structured_text_path = structured_text_dir / f"{file_path.stem}_structured.txt"
+                extracted_faq_hash = hashlib.sha256(f"{file_path}".encode()).hexdigest()[:12]
+                structured_text_path = structured_text_dir / f"{file_path.stem}_{extracted_faq_hash}.txt"
                 with open(structured_text_path, 'w', encoding='utf-8') as f:
                     f.write(structured_text)
             
@@ -499,8 +502,7 @@ The entire response should be just the JSON array.
 
             if not extracted_faq:
                 logger.info(f"Extracting FAQ pairs for {file_path} using LLM.")
-                extract_faq_llm_client = LLMClient(faq_config_provider)
-                extracted_faq = FAQProcessor.extract_faq(soup, file_path, extract_faq_llm_client)
+                extracted_faq = FAQProcessor.extract_faq(soup, file_path, output_dir, config)
 
                 if extracted_faq:
                     try:

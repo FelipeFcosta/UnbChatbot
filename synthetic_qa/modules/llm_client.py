@@ -13,14 +13,6 @@ from .utils import json_if_valid, RateLimiter
 
 logger = logging.getLogger(__name__)
 
-# Import OpenAI if available
-try:
-    from openai import OpenAI
-    OPENAI_AVAILABLE = True
-except ImportError:
-    OPENAI_AVAILABLE = False
-    logger.warning("OpenAI package not installed; openai provider will not work.")
-
 # Import Google Gemini if available
 try:
     from google import genai
@@ -30,6 +22,13 @@ except ImportError:
     GEMINI_AVAILABLE = False
     logger.warning("genAI package not installed; Gemini will not work.")
 
+# Import OpenAI for OpenRouter fallback only
+try:
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+    logger.warning("OpenAI package not installed; OpenRouter fallback will not work.")
 
 class LLMClient:
     """Handles communication with LLM APIs for question and answer generation."""
@@ -62,19 +61,8 @@ class LLMClient:
             self._rate_limiters[model_key] = RateLimiter(rate_limit_rpm, model_name)
         self._rate_limiter = self._rate_limiters[model_key]
         
-        # Initialize OpenAI client if needed
-        if config.get("provider", "").lower() == "openai":
-            if not OPENAI_AVAILABLE:
-                raise ImportError("OpenAI package not installed. Install it with 'pip install openai'")
-            
-            api_key = os.environ.get("OPENAI_API_KEY2")
-            if not api_key:
-                raise ValueError("OPENAI_API_KEY environment variable not set")
-                
-            self.client = OpenAI(api_key=api_key)
-        
         # Initialize Gemini client if needed
-        elif config.get("provider", "").lower() == "genai":
+        if config.get("provider", "").lower() == "genai":
             if not GEMINI_AVAILABLE:
                 raise ImportError("genAI package not installed. Install it with 'pip install google-genai'")
             
@@ -84,14 +72,13 @@ class LLMClient:
 
             self.client = genai.Client(api_key=api_key)
 
-    def generate_text(self, prompt: str, max_retries: int = 5, temperature: Optional[float] = None, 
+    def generate_text(self, prompt: str, temperature: Optional[float] = None, 
                      json_output: bool = False, long_output: bool = False) -> Union[str, Dict[str, Any], None]:
         """
         Generate text from the LLM based on the given prompt.
         
         Args:
             prompt: The prompt to send to the LLM
-            max_retries: Maximum number of retries on failure
             temperature: Override the default temperature if provided
             json_output: If True, request and return JSON output
             long_output: If True, handle generating longer outputs
@@ -109,45 +96,8 @@ class LLMClient:
             logger.error("Provider or model not specified in config")
             return None
             
-        backoff_factor = 1  # Base backoff time in seconds
-        
-        # Handle OpenAI API
-        if provider == "openai":
-            if not self.client:
-                logger.error("OpenAI client is not initialized")
-                return None
-                
-            attempt = 0
-            while attempt <= max_retries:
-                try:
-                    # Using the OpenAI client to generate text
-                    response = self.client.chat.completions.create(
-                        messages=[{"role": "user", "content": prompt}],
-                        model=model,
-                        temperature=temperature if temperature is not None else self.config.get("temperature", 0.7),
-                        max_tokens=self.config.get("max_tokens", 2048)
-                    )
-
-                    result = response.choices[0].message.content
-
-                    # Handle JSON output if requested
-                    if json_output:
-                        return json_if_valid(result)
-
-                    return result
-
-                except Exception as e:
-                    logger.error(f"OpenAI API error on attempt {attempt+1}/{max_retries}: {e}")
-                    if attempt == max_retries:
-                        return None
-
-                    sleep_time = backoff_factor * (2 ** attempt) + random.uniform(0, 1)
-                    logger.info(f"Retrying OpenAI API call in {sleep_time:.2f} seconds...")
-                    time.sleep(sleep_time)
-                    attempt += 1
-
         # Handle Gemini API
-        elif provider == "genai":
+        if provider == "genai":
             thinking_config = None
             if "2.5-flash" in model:
                 thinking_config=types.ThinkingConfig(thinking_budget=self.config.get("thinking_budget", 1024))
@@ -178,33 +128,13 @@ class LLMClient:
                         full_response += response.text
                     except Exception as e:
                         logger.error(f"Gemini API error: {e}")
-                        return None
-                        logger.info(f"Retrying with openrouter API...")
-                        
-                        client = OpenAI(
-                            base_url="https://openrouter.ai/api/v1",
-                            api_key=os.environ.get("OPENROUTER_API_KEY2"),
-                        )
-
-                        completion = client.chat.completions.create(
-                            extra_headers={},
-                            extra_body={},
-                            model="google/gemini-2.5-pro-exp-03-25:free",
-                            messages=[
-                                {
-                                "role": "user",
-                                "content": [
-                                    {
-                                    "type": "text",
-                                    "text": prompt
-                                    }
-                                ]
-                                }
-                            ],
-                            temperature=temperature if temperature is not None else self.config.get("temperature", 0.7)
-                        )
-                        full_response += completion.choices[0].message.content
-
+                        # OpenRouter fallback
+                        return None # TODO: remove this
+                        openrouter_response = self._openrouter_fallback(prompt, temperature)
+                        if openrouter_response:
+                            full_response += openrouter_response
+                        else:
+                            return None
 
                     if json_output:
                         # Clean up response for JSON parsing
@@ -251,8 +181,45 @@ class LLMClient:
                 logger.error(f"Gemini API error: {e}")
                 return None
 
-
         # Unknown provider
         else:
             logger.error(f"Unknown provider: {provider}")
+            return None
+
+    def _openrouter_fallback(self, prompt: str, temperature: Optional[float] = None) -> Optional[str]:
+        """
+        Fallback to OpenRouter API using OpenAI client if Gemini API fails.
+        Args:
+            prompt: The prompt to send to OpenRouter
+            temperature: Sampling temperature
+        Returns:
+            The response text from OpenRouter, or None on failure
+        """
+        if not (OPENAI_AVAILABLE and os.environ.get("OPENROUTER_API_KEY")):
+            return None
+        try:
+            client = OpenAI(
+                base_url="https://openrouter.ai/api/v1",
+                api_key=os.environ.get("OPENROUTER_API_KEY2"),
+            )
+            completion = client.chat.completions.create(
+                extra_headers={},
+                extra_body={},
+                model="google/gemini-2.5-pro-exp-03-25:free",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": prompt
+                            }
+                        ]
+                    }
+                ],
+                temperature=temperature if temperature is not None else self.config.get("temperature", 0.7)
+            )
+            return completion.choices[0].message.content
+        except Exception as e:
+            logger.error(f"OpenRouter API error: {e}")
             return None

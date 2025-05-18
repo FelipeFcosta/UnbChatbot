@@ -11,9 +11,10 @@ import re
 from pathlib import Path
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup, Doctype, Comment
-from typing import Tuple
+from typing import Any, Dict, Tuple
 from typing import Tuple
 import os
+from .utils import extract_html_from_pdf
 
 # Optional dependency for PDF processing
 try:
@@ -360,7 +361,7 @@ class FileProcessor:
         return content_soup
 
     @staticmethod
-    def extract_text_from_html(soup: BeautifulSoup, file_path: Path, llm_client=None) -> str:
+    def extract_text_from_html(soup: BeautifulSoup, file_path: Path, config=None) -> str:
         """
         Extract readable text content from HTML files with improved structure preservation.
         
@@ -513,6 +514,9 @@ class FileProcessor:
                 text = re.sub(r'\n{3,}', '\n\n', text)
 
             # Use LLM to correct markdown if available
+            if config is not None:
+                from .llm_client import LLMClient
+                llm_client = LLMClient(config.get("providers", {}).get("text_extraction", {}))
             if llm_client:
                 prompt = f"{text}\n\n-----\nCorrect the hierarchy of the headers and/or headers in this markdown " \
                     "where you see fit, consider it's a FAQ that may have topics that will include one or more qa pairs. " \
@@ -531,31 +535,45 @@ class FileProcessor:
             return ""
     
     @staticmethod
-    def extract_text_from_pdf(file_path: Path) -> str:
+    def extract_text_from_pdf(file_path: Path, config=None) -> str:
         """
-        Extract text content from PDF files.
-        
+        Extract text content from PDF files and convert to markdown using LLM, preserving links and hierarchy.
+
         Args:
             file_path: Path to the PDF file
-            
+            config: Optional configuration dictionary for LLMClient
+
         Returns:
-            Extracted text from the PDF
+            Extracted markdown text from the PDF
         """
         if not PDF_AVAILABLE:
             logger.error("PyMuPDF (fitz) not available. Cannot extract text from PDF.")
             return ""
-            
-        try:
-            text = ""
-            with fitz.open(file_path) as doc:
-                for page in doc:
-                    text += page.get_text()
-            return text
-        except Exception as e:
-            logger.error(f"Error extracting text from PDF {file_path}: {e}")
+        text = extract_html_from_pdf(file_path)
+        if not text:
             return ""
+        llm_client = None
+        if config is not None:
+            from .llm_client import LLMClient
+            llm_client = LLMClient(config.get("providers", {}).get("text_extraction", {}))
+        if llm_client:
+            prompt = (
+                f"{text}\n\n-----\n"
+                "Convert this html pdf text into markdown format, "
+                "preserving all links (convert them to markdown links), "
+                "and preserving hierarchy of headers and topics as needed.\n"
+                "Do NOT add/remove or alter any text content.\n"
+                "Preserve all styling and formatting you find in the text. "
+                "Fix any inline links that don't seem to be in the correct place.\n"
+                "If you don't find any errors, keep the way it is. "
+                "Output only the new markdown text."
+            )
+            response = llm_client.generate_text(prompt)
+            if response:
+                text = response
+        return text
     
-    def extract_text_from_file(self, file_path: Path) -> str:
+    def extract_text_from_file(self, file_path: Path, config=Dict[str, Any]) -> str:
         """
         Extract text from a file based on its extension.
         
@@ -575,7 +593,7 @@ class FileProcessor:
             soup = FileProcessor.preprocess_html(file_path)
             return FileProcessor.extract_text_from_html(soup, file_path)
         elif file_extension == '.pdf':
-            return FileProcessor.extract_text_from_pdf(file_path)
+            return FileProcessor.extract_text_from_pdf(file_path, config)
         elif file_extension in ['.txt', '.md', '.csv', '.json']:
             try:
                 return file_path.read_text(encoding='utf-8', errors='ignore')

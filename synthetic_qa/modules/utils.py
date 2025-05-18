@@ -9,7 +9,15 @@ import re
 import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Union
+import html # Added for html.escape
 
+# PDF extraction utility
+try:
+    import fitz  # PyMuPDF for PDF processing
+    PDF_AVAILABLE = True
+except ImportError:
+    PDF_AVAILABLE = False
+    logging.warning("PyMuPDF not available. PDF processing will be disabled.")
 
 def get_hash(text: str) -> str:
     """
@@ -204,3 +212,103 @@ class RateLimiter:
         self._request_timestamps.append(current_time)
         
         return 0.0
+
+
+def extract_html_from_pdf(file_path: Path) -> str:
+    """
+    Extract styled HTML content from a PDF file, preserving text styling,
+    basic structure (paragraphs), and inline links as <a> tags.
+    Args:
+        file_path: Path to the PDF file
+    Returns:
+        Extracted HTML content as a string
+    """
+    if not PDF_AVAILABLE:
+        logger.error("PyMuPDF (fitz) not available. PDF processing will be disabled.")
+        return ""
+    try:
+        all_pages_html_parts = []
+        with fitz.open(file_path) as doc:
+            for page_num, page in enumerate(doc):
+                all_pages_html_parts.append(f"<!-- Page {page_num + 1} -->\n")
+                page_links = page.get_links()  # Get links once per page for efficiency
+                
+                current_link_uri_on_page = None # Stores the URI of the currently open <a> tag on this page
+
+                def get_uri_for_span_bbox(span_bbox_rect):
+                    """Checks if a given span's bounding box intersects with any link on the page."""
+                    for link_info in page_links:
+                        if "uri" in link_info:
+                            link_rect_on_page = fitz.Rect(link_info["from"])
+                            if link_rect_on_page.intersects(span_bbox_rect):
+                                return link_info["uri"]
+                    return None
+
+                blocks = page.get_text("dict", sort=True)["blocks"]
+                for block in blocks:
+                    if block["type"] == 0:  # Text block
+                        # Start a paragraph for each text block
+                        block_html_content = "<p>"
+                        for line in block["lines"]:
+                            for span in line["spans"]:
+                                span_text_content = span["text"]
+                                span_bbox = fitz.Rect(span["bbox"])
+                                
+                                # Determine link status for this span
+                                uri_for_current_span = get_uri_for_span_bbox(span_bbox)
+                                
+                                # Manage link state: open or close <a> tags
+                                if uri_for_current_span:
+                                    if current_link_uri_on_page != uri_for_current_span:  # New link or different link
+                                        if current_link_uri_on_page is not None:
+                                            block_html_content += "</a>"  # Close previous link
+                                        block_html_content += f'<a href="{html.escape(uri_for_current_span, quote=True)}">'
+                                        current_link_uri_on_page = uri_for_current_span
+                                # Else (still in the same link), do nothing regarding <a> tag opening
+                                else:  # Current span is not part of any link
+                                    if current_link_uri_on_page is not None:
+                                        block_html_content += "</a>"  # Close active link
+                                        current_link_uri_on_page = None
+                                
+                                # Apply styling for the span
+                                styles = []
+                                font_name = span['font']
+                                styles.append(f"font-family:'{html.escape(font_name)}'")
+                                styles.append(f"font-size:{span['size']:.1f}pt") # Using pt for font size
+                                
+                                srgb_color = span['color']
+                                r_val, g_val, b_val = (srgb_color >> 16) & 0xff, (srgb_color >> 8) & 0xff, srgb_color & 0xff
+                                styles.append(f"color:#{r_val:02x}{g_val:02x}{b_val:02x}")
+
+                                if span['flags'] & 16:  # Bold
+                                    styles.append("font-weight:bold")
+                                if span['flags'] & 2:  # Italic
+                                    styles.append("font-style:italic")
+                                # Note: PyMuPDF flags: Bit 0: Superscript, Bit 1: Italic, Bit 2: Serif, Bit 3: Monospaced, Bit 4: Bold
+                                
+                                escaped_text = html.escape(span_text_content)
+                                
+                                block_html_content += f'<span style="{"; ".join(styles)}">{escaped_text}</span>'
+                            # Spans within a line and lines within a block flow together in the <p>
+                            # If explicit line breaks are needed within a <p>, add <br> after line loop.
+
+                        # Close link if it's open at the end of a text block
+                        if current_link_uri_on_page is not None:
+                            block_html_content += "</a>"
+                            current_link_uri_on_page = None # Reset for the next block
+                        
+                        block_html_content += "</p>\n"
+                        all_pages_html_parts.append(block_html_content)
+                    # elif block["type"] == 1: # Image block
+                        # Placeholder for image handling if needed in the future
+                        # e.g., extract image, save to a file, and embed as <img> tag.
+
+                # Close link if it's still open at the end of a page
+                if current_link_uri_on_page is not None:
+                    all_pages_html_parts.append("</a>")
+                    # current_link_uri_on_page is implicitly reset at the start of the next page loop
+            
+        return "".join(all_pages_html_parts)
+    except Exception as e:
+        logger.error(f"Error extracting styled HTML from PDF {file_path}: {e}")
+        return ""
