@@ -32,8 +32,8 @@ iterations:
 question_styles:
   writing_styles:
     - name: 'Default'
-      goal: 'Establish a clean, well-formed baseline; correct poorly phrased originals (especially abrupt ones); represent clear, unambiguous queries.'
-      description: 'Generate a clear, straightforward question using complete sentences. Avoid excessive formality or informality. Focus on accurately representing the core query of the original question. **Crucially: If the original answer was very short (like "Sim.", "Não."), ensure this question naturally elicits the expanded, polite answer generated for the Default pair.** The question should sound like a typical, clear query a student might ask an assistant.'
+      goal: 'Establish a clean, well-formed baseline; represent clear, unambiguous queries.'
+      description: 'Generate a clear, straightforward question using complete sentences. Avoid excessive formality or informality. Focus on accurately representing the core content of the original question/chunk. **Crucially: If the original answer/chunk was very short (like "Sim.", "Não."), ensure this question naturally elicits the expanded, polite answer generated for the Default pair.** The question should sound like a typical, clear query a student might ask an assistant.'
       iterations: 1
     
     - name: 'Formal'
@@ -50,6 +50,7 @@ question_styles:
       goal: 'Capture realistic, quickly typed/spoken inputs that use full sentences but contain common grammatical errors, unconventional word order, or minor typos, without losing the core meaning. Improve robustness to non-standard but understandable inputs.'
       description: 'Generate a question as a student might type quickly into a chat. Use full sentences but **intentionally introduce common, realistic grammatical errors (e.g., verb conjugation, concordance), slightly unconventional word order, or minor typos.** The core meaning and intent **must remain clear and easily understandable**, but the sentence structure should not be perfectly polished. Avoid slang or keyword-only fragments. Examples: "eu queria saber como faz pra trancar a materia", "se eu reprovar no verao conta pro desligamento?", "qual o prazo minimo engenharia da computacao pra formar?".'
       iterations: 2
+
 
     # - name: 'Direct'
     #   goal: 'Ensure the Final LLM understands and responds correctly to minimal, keyword-based, or fragmented queries, similar to search engine inputs.'
@@ -70,6 +71,20 @@ providers:
     model: gemini-2.0-flash
     temperature: 0.4
     max_tokens: 65000
+
+  default_question:
+    provider: genai
+    model: gemini-2.5-pro-exp-03-25
+    rate_limit_rpm: 4
+    temperature: 0.4
+    max_tokens: 8192
+
+  default_answer:
+    provider: genai
+    model: gemini-2.5-pro-exp-03-25
+    rate_limit_rpm: 4
+    temperature: 0.4
+    max_tokens: 8192
 
   styled_question:
     provider: genai
@@ -113,7 +128,15 @@ providers:
     rate_limit_rpm: 4
     temperature: 0.3
     max_tokens: 65000
-    thinking_budget: 512
+    thinking_budget: 4096
+
+  text_chunking:
+    provider: genai
+    model: gemini-2.5-flash-preview-04-17
+    rate_limit_rpm: 4
+    temperature: 0.2
+    max_tokens: 65000
+    thinking_budget: 4096
 
 # File processing settings
 file_processing:

@@ -6,7 +6,6 @@ This script processes institutional content (HTML, PDF, etc.) and generates
 synthetic question-answer pairs for training chatbots.
 """
 
-import hashlib
 import os
 import argparse
 import logging
@@ -22,7 +21,7 @@ from modules.faq_processor import FAQProcessor
 from modules.faq_processor_raft import FAQProcessorRAFT
 from modules.text_chunker import TextChunker
 from modules.qa_generator import QAGenerator
-from modules.utils import group_related_files, get_hash
+from modules.utils import get_hash
 
 # Logging setup
 logging.basicConfig(
@@ -49,7 +48,7 @@ class SyntheticQADataGenerator:
         
         # Initialize components
         self.file_processor = FileProcessor()
-        self.text_chunker = TextChunker()
+        self.text_chunker = TextChunker(self.config)
         self.qa_generator = QAGenerator(self.config)
         
         logger.info(f"Initialized QA Generator in standard mode")
@@ -172,7 +171,7 @@ class SyntheticQADataGenerator:
             
             # Extract text from file with appropriate settings
             extracted_text_dir = output_dir / "extracted_text"
-            file_hash = hashlib.sha256(f"{file_path}".encode()).hexdigest()[:12]
+            file_hash = get_hash(str(file_path))
             extracted_text_dir.mkdir(parents=True, exist_ok=True)
             extracted_text_path = extracted_text_dir / f"{file_path.stem}_{file_hash}.txt"
 
@@ -190,31 +189,35 @@ class SyntheticQADataGenerator:
                 logger.warning(f"No text extracted from {rel_path}")
                 return []
             
-            chunks = self.text_chunker.chunk_text(text)
+            # Try to load chunks from file if it exists, otherwise generate and save
+            extracted_chunks_dir = output_dir / "extracted_chunks"
+            extracted_chunks_dir.mkdir(parents=True, exist_ok=True)
+            extracted_chunks_path = extracted_chunks_dir / f"{file_path.stem}_{file_hash}.json"
+
+            if os.path.exists(extracted_chunks_path):
+                logger.info(f"Chunks already exist for {file_path}")
+                with open(extracted_chunks_path, 'r', encoding='utf-8') as f:
+                    chunks = json.load(f)
+            else:
+                chunks = self.text_chunker.chunk_text(text, file_path)
+                with open(extracted_chunks_path, 'w', encoding='utf-8') as f:
+                    json.dump(chunks, f, ensure_ascii=False, indent=2)
                 
             if not chunks:
-                logger.warning(f"No chunks created from {rel_path}")
+                logger.info(f"No chunks created from {rel_path}")
                 return []
                 
             logger.info(f"Created {len(chunks)} chunks from {rel_path}")
             
-            # Generate QA pairs for each chunk
-            all_pairs = []
-            for i, chunk in enumerate(chunks):
-                # Generate a hash for this chunk
-                chunk_hash = f"{get_hash(str(rel_path))}_{i}"
-                
-                # Generate QA pairs, indicating if this is a full document for comprehensive questions
-                qa_pairs = self.qa_generator.generate_qa_pairs(
-                    chunk=chunk,
-                    source_path=source_path,
-                    output_dir=output_dir,
-                    chunk_hash=chunk_hash
-                )
-                
-                all_pairs.extend(qa_pairs)
-                
-            return all_pairs
+            qa_pairs = self.qa_generator.generate_qa_pairs(
+                chunks=chunks,
+                source_path=source_path,
+                output_dir=output_dir,
+                full_document_text=text,
+                batch_size=5
+            )
+
+            return qa_pairs
             
         except Exception as e:
             logger.error(f"Error processing file {file_path}: {e}")

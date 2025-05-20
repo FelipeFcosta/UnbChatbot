@@ -1,401 +1,214 @@
-import re
 import logging
+import json
+import re
+import hashlib
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
+from slugify import slugify
+
 from .llm_client import LLMClient
 from .file_processor import FileProcessor
+from modules.utils import get_hash
 
 logger = logging.getLogger(__name__)
 
 
 class QAGenerator:
-    """Handles generation of questions and answers from text chunks."""
+    """Generate baseline (\"default\") question-answer pairs from text chunks.
+
+    This class purposefully keeps things simple: it creates *only* the initial
+    examples that will later be expanded by FAQProcessorRAFT (or other
+    processors).  Each source document receives a single file named
+    `<slug>_default_examples.json` containing the accumulated seed pairs.
+    """
 
     def __init__(self, config: Dict[str, Any]):
-        """Initialize with provided configuration."""
-        self.config = config
-        self.question_client = LLMClient(config.get("providers", {}).get("question", {}))
-        self.answer_client = LLMClient(config.get("providers", {}).get("answer", {}))
+        self.config = config or {}
 
-        # Load question style variations from config
-        # Ensure default structure if keys are missing
-        question_styles_config = config.get("question_styles", {})
-        self.writing_styles = question_styles_config.get("writing_styles", [])
-        self.question_types = question_styles_config.get("question_types", [])
+        providers_config = self.config.get("providers", {})
 
-        # Add default styles if none are provided to ensure at least one run
-        if not self.writing_styles:
-             self.writing_styles = [{"name": "Default", "description": "", "iterations": 1}]
-        if not self.question_types:
-             self.question_types = [{"name": "Default", "description": ""}] # Iterations typically driven by writing style
+        # Robust fallback chain for question generation provider
+        question_config = providers_config.get("default_question")
+
+        answer_config = providers_config.get("default_answer", {})
+
+        self.question_client = LLMClient(question_config)
+        self.answer_client = LLMClient(answer_config)
+
+        # Cache the 'Default' writing style details for prompt use
+        ws = self.config.get("question_styles", {}).get("writing_styles", [])
+        self.default_style = next((s for s in ws if s.get("name").lower() == "default"), None) 
 
 
-    def _get_style_prompt(self, style_type: str = None, style_name: str = None) -> str:
+    def _build_question_prompt(self, chunks_batch: List[str], full_document: str, source_info: Dict[str, str]) -> str:
+        """Prompt for generating baseline questions from a batch of chunks.
+
+        If *full_document* is provided it is supplied inside <FULL_DOCUMENT> tags so the
+        model has additional context for phrasing while still being instructed to
+        ask ONLY about content present in the chunks.
         """
-        Get a prompt fragment for a specific writing style or question type.
 
-        Args:
-            style_type: 'writing_styles' or 'question_types'
-            style_name: Name of the specific style or type
+        institution = source_info.get("institution", source_info.get("domain", ""))
 
-        Returns:
-            Style instruction string or empty string if not found
-        """
-        if not style_type or not style_name or style_name == "Default": # Don't add prompt for default
+        full_doc_prompt_section = f"\n<FULL_DOCUMENT>\n{full_document}\n</FULL_DOCUMENT>"
+
+        style_section = self._default_style_section() if self.default_style else ""
+
+        chunk_prompts = []
+        for i, single_chunk in enumerate(chunks_batch):
+            chunk_prompts.append(f"<CHUNK_{i+1}>\n{single_chunk}\n</CHUNK_{i+1}>\n")
+        all_chunks_str = "\n".join(chunk_prompts)
+
+        return (
+            "You are an LLM Generator creating synthetic data for a university chatbot.\n"
+            f"The chatbot serves the institution: {institution}.\n\n"
+            f"You will receive a batch of {len(chunks_batch)} text excerpts from a larger document (provided as <FULL_DOCUMENT>). " \
+            "For each excerpt <CHUNK_N>, your task is to craft ONE natural question in Portuguese that students, faculty, or staff might ask. " \
+            "Each question MUST be answerable using ONLY the information contained in its corresponding <CHUNK_N>. " \
+            "Use the full document only to understand context and improve wording; do NOT include information that appears exclusively outside the chunk.\n\n"
+            f"Generate exactly {len(chunks_batch)} questions, one per line, in the same order as the input <CHUNK_N>s. " \
+            "Return ONLY the questions, one per line, with no numbering or other text.\n\n"
+            f"{style_section}"
+            f"{all_chunks_str}"
+            f"{full_doc_prompt_section}"
+        )
+
+    def _default_style_section(self) -> str:
+        """Return formatted style instructions for the Default writing style."""
+        style = self.default_style
+        if not style:
             return ""
+        name = style.get("name", "")
+        desc = style.get("description", "")
+        goal = style.get("goal", "")
+        return (
+            f"WRITING STYLE: {name}\n"
+            f"Description: {desc}\n"
+            f"Goal: {goal}\n\n"
+        )
 
-        styles = self.config.get("question_styles", {}).get(style_type, [])
+    def _build_answer_prompt(self, questions_batch: List[str], chunks_for_answers_batch: List[str], source_info: Dict[str, str]) -> str:
+        """Prompt for generating answers for a given batch of questions."""
 
-        for style in styles:
-            if style.get("name") == style_name:
-                # Return description if available, otherwise empty string
-                return style.get("description", "")
+        institution = source_info.get("institution", source_info.get("domain", ""))
+        style_section = self._default_style_section() if self.default_style else ""
 
-        logger.warning(f"Style '{style_name}' of type '{style_type}' not found in config.")
-        return ""
+        qa_prompts_parts = []
+        for i, (question, chunk) in enumerate(zip(questions_batch, chunks_for_answers_batch)):
+            qa_prompts_parts.append(
+                f"<ITEM_{i+1}>\n"
+                f"<QUESTION_{i+1}>\n{question}\n</QUESTION_{i+1}>\n"
+                f"<CONTEXT_{i+1}>\n{chunk}\n</CONTEXT_{i+1}>\n"
+                f"</ITEM_{i+1}>"
+            )
+        all_qa_items_str = "\n\n".join(qa_prompts_parts)
 
-    def get_question_prompt(self,
-                           chunk: str,
-                           source_info: Dict[str, str],
-                           is_full_document: bool = False,
-                           writing_style: Optional[str] = None,
-                           question_type: Optional[str] = None) -> str:
-        """
-        Create a prompt for generating questions from a text chunk.
+        return (
+            "You are an assistant helping to create high-quality FAQ answers for a university chatbot.\n\n"
+            f"INSTITUTION: {institution}\n\n"
+            f"{style_section}"
+            f"You will receive a batch of {len(questions_batch)} question-context items, each enclosed in <ITEM_N> tags. "
+            "For each item, answer the <QUESTION_N> using ONLY the information in its corresponding <CONTEXT_N>. "
+            "If a specific context does not provide enough information, reply for that item with \"Não possuo informações suficientes para responder a essa pergunta.\"\n\n"
+            f"{all_qa_items_str}\n\n"
+            f"Generate exactly {len(questions_batch)} answers, one per line, in the same order as the input items. "
+            "Return ONLY the answers, one per line, with no numbering or other text."
+        )
 
-        Args:
-            chunk: The text chunk to generate questions from
-            source_info: Dictionary with domain, path, url, institution info
-            is_full_document: Whether this chunk represents a complete document with multiple sections
-            writing_style: Optional writing style name
-            question_type: Optional question type name
+    
+    def generate_qa_pairs(
+        self,
+        chunks: List[str],
+        source_path: str,
+        output_dir: Path,
+        full_document_text: str,
+        batch_size: int = 1,
+    ) -> List[Dict[str, str]]:
+        """Generate one baseline QA pair for each chunk provided, processing in batches."""
 
-        Returns:
-            A formatted prompt string
-        """
-        # Get style-specific instructions
-        writing_style_prompt = self._get_style_prompt("writing_styles", writing_style)
-        question_type_prompt = self._get_style_prompt("question_types", question_type)
-
-        # Combine style prompts
-        style_instructions = ""
-        if writing_style_prompt:
-            # Use the 'goal' field if present and description is missing/empty
-            # Find the style dict again to get the goal
-            style_dict = next((s for s in self.writing_styles if s.get("name") == writing_style), None)
-            style_desc = writing_style_prompt # Already fetched description
-            style_goal = style_dict.get("goal", "") if style_dict else ""
-            # Prioritize description, fallback to goal
-            prompt_content = style_desc if style_desc else style_goal
-            if prompt_content:
-                 style_instructions += f"WRITING STYLE ({writing_style}): {prompt_content}\n\n"
-
-        if question_type_prompt:
-            style_dict = next((s for s in self.question_types if s.get("name") == question_type), None)
-            style_desc = question_type_prompt # Already fetched description
-            style_goal = style_dict.get("goal", "") if style_dict else ""
-            # Prioritize description, fallback to goal
-            prompt_content = style_desc if style_desc else style_goal
-            if prompt_content:
-                style_instructions += f"QUESTION TYPE ({question_type}): {prompt_content}\n\n"
-
-        # Construct domain and URL information
-        domain = source_info.get("domain", "")
-        # path = source_info.get("path", "") # Path not directly used in prompt
-        url = source_info.get("url", "")
-        institution = source_info.get("institution", domain)
-
-        # Construct URL reference for prompts
-        url_reference = f"{url}" if url else "[Source Document]" # Fallback if URL is missing
-
-        if is_full_document:
-            # Special prompt for full documents with multiple sections
-            return f"""
-You are generating training examples for a university chatbot for {institution}. The questions will be used to train an institutional AI assistant.
-
-INSTRUCTION:
-1. Generate questions ONLY about information explicitly mentioned in the provided document
-2. Create diverse questions covering DIFFERENT SECTIONS of the document
-3. Include specific details mentioned in various sections
-4. Include at least one question about each major section or topic
-5. Generate questions that will be useful for university students, faculty, and staff
-6. Focus on questions that have clear, factual answers based on the text
-7. IMPORTANT: ALWAYS explicitly mention the URL "{url_reference}" in each question, if available. If no URL, mention "{institution}".
-8. Make it clear the question is about information from {institution}
-
-{style_instructions}
-INFORMATION SOURCE: {institution} ({url_reference})
-
-INFORMATION:
-{chunk}
-
-Generate 6-10 diverse questions that:
-- Can be answered DIRECTLY from the provided content
-- Represent how real humans would naturally ask about this information
-- Cover different sections and aspects throughout the ENTIRE document
-- Would be relevant to an institutional chatbot
-- ALWAYS reference the source: Use the URL "{url_reference}" if available, otherwise mention {institution}.
-
-Return ONLY the questions, one per line, with no numbering or formatting.
-"""
-        else:
-            return f"""
-You are generating training examples for a university chatbot for {institution}. The questions will be used to train an institutional AI assistant.
-
-INSTRUCTION:
-1. Generate questions about the following information from {institution}
-2. Ensure the questions are relevant to students, faculty, or visitors
-3. Generate questions that someone might actually ask about this content
-4. IMPORTANT: ALWAYS explicitly mention the URL "{url_reference}" in each question, if available. If no URL, mention "{institution}".
-5. Make it clear the question is about information from {institution}
-
-{style_instructions}
-INFORMATION SOURCE: {institution} ({url_reference})
-
-INFORMATION:
-{chunk}
-
-Generate 3-5 diverse questions that:
-- Cover different aspects of the information provided
-- Range from factual to conceptual understanding
-- Represent how real humans would naturally ask about this information
-- Are specific enough to be answerable from the provided information
-- ALWAYS reference the source: Use the URL "{url_reference}" if available, otherwise mention {institution}.
-
-Return ONLY the questions, one per line, with no numbering or formatting.
-"""
-
-    def get_answer_prompt(self, question: str, chunk: str, source_info: Dict[str, str]) -> str:
-        """
-        Create a prompt for generating an answer to a question from a text chunk.
-
-        Args:
-            question: The question to answer
-            chunk: The text chunk containing information to answer the question
-            source_info: Dictionary with domain, path, url, institution info
-
-        Returns:
-            A formatted prompt string
-        """
-        # Extract domain and institution info
-        domain = source_info.get("domain", "")
-        # path = source_info.get("path", "") # Path not directly used in prompt
-        url = source_info.get("url", "")
-        institution = source_info.get("institution", domain)
-        url_reference = f"{url}" if url else "[Source Document]" # Fallback if URL is missing
-        attribution_intro = f"De acordo com as informações de {institution} ({url_reference})," if url else f"De acordo com as informações de {institution},"
-
-        return f"""
-You are an expert institutional assistant for {institution}. You're answering a question based on information from the source: {url_reference}.
-
-IMPORTANT:
-- Start your answer by referring to "{institution}" and the source "{url_reference}" using the phrase "{attribution_intro}" or similar.
-- Base your answer ONLY on the information provided in the context below
-- If the information doesn't contain enough details to fully answer the question, acknowledge the limitations
-
-INFORMATION:
-{chunk}
-
-QUESTION: {question}
-
-Provide a helpful, accurate, and concise answer. Begin your response with "{attribution_intro}" or a similar attribution phrase that mentions both the institution and the source reference.
-"""
-
-    def parse_questions(self, question_text: str) -> List[str]:
-        """
-        Parse generated questions text into a list of individual questions.
-
-        Args:
-            question_text: The text containing multiple questions
-
-        Returns:
-            A list of individual questions
-        """
-        if not question_text:
-            return []
-
-        questions = []
-        for line in question_text.splitlines():
-            line = line.strip()
-            if not line:
-                continue
-
-            # Remove any leading numbering/bullet points/markdown
-            line = re.sub(r'^[\s]*[\d\.\-\*]+\s*', '', line)
-            line = re.sub(r'\*+', '', line) # Remove markdown bold/italics etc.
-
-            # Basic check for question format (ends with ?, contains words)
-            if line.endswith('?') and len(line.split()) > 2:
-                questions.append(line)
-            elif len(line) > 15: # Keep longer lines even without '?' just in case
-                 logger.debug(f"Keeping line without '?' due to length: {line}")
-                 # Append '?' if missing and seems like a question based on common starts
-                 if line.lower().startswith(('qual', 'como', 'onde', 'quando', 'quem', 'por que', 'o que', 'será que', 'existe', 'é possível', 'poderia', 'gostaria de saber')):
-                      if not line.endswith('?'): line += '?'
-                 questions.append(line)
-
-
-        return questions
-
-    def generate_qa_pairs(self,
-                         chunk: str,
-                         source_path: str,
-                         output_dir: Path,
-                         chunk_hash: str) -> List[Dict[str, str]]:
-        """
-        Generate question-answer pairs from a text chunk, applying style iterations.
-
-        Args:
-            chunk: The text chunk to generate QA pairs from
-            source_path: File path of the source content
-            output_dir: Directory to save generated questions and answers
-            chunk_hash: A hash of the chunk for file naming
-            is_full_document: Whether this chunk represents a complete document
-            is_faq: Whether this chunk is from an FAQ document (might influence LLM behavior indirectly via prompts)
-
-        Returns:
-            A list of dictionaries containing questions and answers
-        """
-        # Extract domain and path information
         file_path = Path(source_path)
-        domain, path, url = FileProcessor.extract_domain_and_path(file_path)
+        domain, rel_path, url = FileProcessor.extract_domain_and_path(file_path)
         institution = FileProcessor.get_institution_name(domain)
-
-        source_info = {
+        source_info = { # Common source_info for all chunks from this file
             "domain": domain,
-            "path": path,
+            "path": rel_path,
             "url": url,
             "institution": institution,
-            "file_path": str(file_path) # Ensure string for dict
         }
 
-        # Create output directories if they don't exist
+        all_qa_pairs: List[Dict[str, str]] = []
+
         qa_dir = output_dir / "qa_pairs"
-        debug_dir = output_dir / "debug"
-        qa_dir.mkdir(parents=True, exist_ok=True)
-        debug_dir.mkdir(parents=True, exist_ok=True)
+        qa_dir.mkdir(parents=True, exist_ok=True) # Ensure directory exists early
+        default_file_name = f"{slugify(file_path.stem)}_default_examples.json"
+        default_file_path = qa_dir / default_file_name
 
-        all_qa_pairs = []
+        try:
+            logger.info(f"Attempting to load existing default examples from: {default_file_path}")
+            with open(default_file_path, 'r', encoding='utf-8') as f:
+                existing_data = json.load(f)
+            loaded_count = len(existing_data)
+            logger.info(f"Successfully loaded {loaded_count} items from {default_file_path}. Skipping generation.")
+            return existing_data
+        except Exception as e:
+            logger.info(f"Could not load existing default examples from {default_file_path}. Regenerating.")
 
-        # Use default styles if config is empty
-        writing_styles_to_run = self.writing_styles if self.writing_styles else [{"name": "Default", "description": "", "iterations": 1}]
-        question_types_to_run = self.question_types if self.question_types else [{"name": "Default", "description": ""}]
+        for i in range(0, len(chunks), batch_size):
+            current_batch_chunks = chunks[i:i + batch_size]
+            if not current_batch_chunks:
+                continue
 
-        # Iterate through each writing style
-        for writing_style in writing_styles_to_run:
-            writing_style_name = writing_style.get("name", "UnknownStyle")
-            # Get the number of iterations for this specific style, default to 1
-            num_iterations = writing_style.get("iterations", 1)
+            # 1. Generate questions for the current batch of chunks
+            question_batch_prompt = self._build_question_prompt(current_batch_chunks, full_document_text, source_info)
+            raw_questions_str = self.question_client.generate_text(question_batch_prompt, temperature=0.7)
 
-            logger.info(f"Processing Writing Style: '{writing_style_name}' for {num_iterations} iterations.")
+            if not raw_questions_str:
+                logger.warning(f"No questions generated for batch starting at chunk {i} of {file_path}")
+                continue
 
-            # Run the specified number of iterations for this writing style
-            for iteration in range(num_iterations):
-                # Iterate through each question type for the current writing style iteration
-                for question_type in question_types_to_run:
-                    question_type_name = question_type.get("name", "UnknownType")
+            generated_questions = [q.strip() for q in raw_questions_str.strip().splitlines() if q.strip()]
 
-                    # Unique identifier for this specific combination and iteration
-                    style_iteration_hash = f"{writing_style_name}_{question_type_name}_iter{iteration}"
-                    base_filename = f"{chunk_hash}_{style_iteration_hash}"
+            if len(generated_questions) != len(current_batch_chunks):
+                logger.info(f"Question count mismatch: {len(generated_questions)} vs {len(current_batch_chunks)}. Skipping batch.")
+                logger.info(f"LLM Raw questions: {raw_questions_str}")
+                continue
 
-                    questions_path = qa_dir / f"questions_{base_filename}.txt"
-                    q_debug_path = debug_dir / f"q_debug_{base_filename}.txt"
+            # 2. Generate answers for the batch of questions and their original chunks
+            answer_batch_prompt = self._build_answer_prompt(generated_questions, current_batch_chunks, source_info)
+            raw_answers_str = self.answer_client.generate_text(answer_batch_prompt, temperature=0.5)
 
-                    logger.debug(f"Generating for: Chunk={chunk_hash}, Style={writing_style_name}, Type={question_type_name}, Iteration={iteration}")
+            if not raw_answers_str:
+                logger.warning(f"No answers generated for batch starting at chunk {i} of {file_path}")
+                continue
 
-                    # Generate or load questions for this style combination and iteration
-                    if questions_path.exists():
-                        logger.info(f"Using existing questions file: {questions_path}")
-                        question_list_text = questions_path.read_text(encoding="utf-8")
-                    else:
-                        # Generate questions with this style
-                        question_prompt = self.get_question_prompt(
-                            chunk,
-                            source_info,
-                            is_full_document=is_full_document,
-                            writing_style=writing_style_name,
-                            question_type=question_type_name
-                        )
+            generated_answers = [a.strip() for a in raw_answers_str.strip().splitlines() if a.strip()]
 
-                        # Use moderate temperature
-                        temperature = 0.7
-                        question_list_text = self.question_client.generate_text(
-                            question_prompt,
-                            temperature=temperature
-                        )
+            if len(generated_answers) != len(generated_questions):
+                logger.info(f"Answer count mismatch: {len(generated_answers)} vs {len(generated_questions)}. Skipping batch.")
+                logger.info(f"LLM Raw answers: {raw_answers_str}")
+                continue
 
-                        if not question_list_text:
-                            logger.error(f"Failed to generate questions for chunk {chunk_hash} with style combo {style_iteration_hash}")
-                            continue # Skip to next style/iteration
+            # 3. Combine questions, original chunks, and answers into QA pairs
+            for idx_in_batch in range(len(generated_questions)):
+                question = generated_questions[idx_in_batch]
+                answer = generated_answers[idx_in_batch]
 
-                        # Save outputs
-                        try:
-                            questions_path.write_text(question_list_text, encoding="utf-8")
-                            q_debug_path.write_text(question_prompt, encoding="utf-8")
-                        except IOError as e:
-                             logger.error(f"Error writing question files for {base_filename}: {e}")
-                             continue # Skip if cannot write files
+                all_qa_pairs.append({
+                    "question": question,
+                    "answer": answer,
+                    "url": url,
+                    "qa_pair_hash": f"default_{get_hash(str(file_path) + question)}"
+                })
 
+        if not all_qa_pairs:
+            return []
 
-                    # Parse questions
-                    questions = self.parse_questions(question_list_text)
-                    if not questions:
-                        logger.warning(f"No valid questions parsed from output for chunk {chunk_hash} with style combo {style_iteration_hash}. Raw text:\n{question_list_text[:500]}...")
-                        # Optionally save the raw text that failed parsing for debugging
-                        failed_q_parse_path = debug_dir / f"failed_q_parse_{base_filename}.txt"
-                        try:
-                           failed_q_parse_path.write_text(f"---PROMPT---\n{question_prompt}\n\n---RESPONSE---\n{question_list_text}", encoding='utf-8')
-                        except IOError as e:
-                           logger.error(f"Could not write failed parse debug file {failed_q_parse_path}: {e}")
-                        continue # Skip to next style/iteration
+        try:
+            with open(default_file_path, 'w', encoding='utf-8') as f:
+                json.dump(all_qa_pairs, f, ensure_ascii=False, indent=2)
+            logger.info(f"Created new default examples file with {len(all_qa_pairs)} QA pairs: {default_file_path}")
+        except Exception as e:
+            logger.error(f"Failed to write new default examples file {default_file_path}: {e}")
 
-                    # Generate answers for each question
-                    for i, question in enumerate(questions, 1):
-                        q_index = f"q{i}"
-                        answer_path = qa_dir / f"answer_{base_filename}_{q_index}.txt"
-                        a_debug_path = debug_dir / f"a_debug_{base_filename}_{q_index}.txt"
-
-                        if answer_path.exists():
-                            logger.info(f"Using existing answer file: {answer_path}")
-                            answer = answer_path.read_text(encoding="utf-8")
-                        else:
-                            # Generate answer
-                            answer_prompt = self.get_answer_prompt(question, chunk, source_info)
-                            # Use moderate temperature
-                            temperature = 0.5
-                            answer = self.answer_client.generate_text(
-                                answer_prompt,
-                                temperature=temperature
-                            )
-
-                            if not answer:
-                                logger.error(f"Failed to generate answer for question {i} ({question[:50]}...) in chunk {chunk_hash} with style combo {style_iteration_hash}")
-                                continue # Skip this question
-
-                            # Save outputs
-                            try:
-                                answer_path.write_text(answer, encoding="utf-8")
-                                a_debug_path.write_text(answer_prompt, encoding="utf-8")
-                            except IOError as e:
-                                logger.error(f"Error writing answer files for {base_filename}_{q_index}: {e}")
-                                continue # Skip this QA pair if cannot write files
-
-                        # Add to QA pairs list
-                        qa_pair = {
-                            "question": question,
-                            "answer": answer,
-                            "source": source_path,
-                            "url": url,
-                            "domain": domain,
-                            "institution": institution,
-                            "chunk_hash": f"{chunk_hash}_{style_iteration_hash}_{q_index}", # More specific hash
-                            "writing_style": writing_style_name,
-                            "question_type": question_type_name,
-                            "iteration": iteration # Record the iteration number for this style
-                        }
-                        all_qa_pairs.append(qa_pair)
-
-        logger.info(f"Generated {len(all_qa_pairs)} QA pairs for chunk {chunk_hash} across all styles and iterations.")
         return all_qa_pairs

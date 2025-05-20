@@ -29,7 +29,7 @@ def get_hash(text: str) -> str:
     Returns:
         A short hash string
     """
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
 
 
 def group_related_files(files: List[Path], base_dir: Path) -> List[List[Path]]:

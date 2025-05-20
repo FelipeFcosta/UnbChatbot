@@ -4,99 +4,142 @@ Text chunking module for the Synthetic QA Generator.
 This module handles dividing text into semantically meaningful chunks for processing.
 """
 
-import re
 import logging
-from typing import List, Optional
+from typing import List, Dict, Any, Optional
+from pathlib import Path
+# Local imports
+from .llm_client import LLMClient
+from .utils import get_hash
 
 logger = logging.getLogger(__name__)
 
-# Constants for chunking
-MAX_CHUNK_SIZE = 4000  # Characters per chunk for context window management
-MIN_CHUNK_SIZE = 1000  # Minimum characters per chunk to ensure meaningful context
-OVERLAP_SIZE = 200     # Characters of overlap between chunks for context continuity
-MAX_CONTEXT_TOKENS = 7000  # Maximum tokens for a full context (legacy, not used)
-
 
 class TextChunker:
-    """Handles chunking of text into manageable segments for LLM processing."""
-    
-    @staticmethod
-    def chunk_text(text: str, 
-                  force_single_chunk: bool = False,
-                  small_doc_threshold: int = 10000) -> List[str]:
+    """LLM-powered text chunker.
+
+    This new implementation delegates the segmentation task to a Large Language
+    Model (LLM).  It builds an instruction-rich prompt (in *Portuguese*, as
+    required by downstream components) describing exactly how the text should be
+    split and expects a JSON array where each element has the shape
+
+        {"chunk": "...", "topic": "..."}
+
+    Only the *chunk* value is used by the rest of the pipeline at the moment.
+    The *topic* is preserved in the raw LLM response so it can be surfaced later
+    if needed.
+    """
+
+    DEFAULT_PROVIDER_CONFIG: Dict[str, Any] = {
+        "provider": "genai",
+        "model": "gemini-1.5-flash",
+        "temperature": 0.2,
+        "max_tokens": 8192,
+        "rate_limit_rpm": 4,
+    }
+
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """Create a new :class:`TextChunker`.
+
+        Parameters
+        ----------
+        config : dict, optional
+            The full application configuration.  The provider settings for the
+            *text chunking* step are expected under
+
+                config["providers"]["text_chunking"]
+
+            If that section is missing, a sensible default pointing at Gemini
+            1.5-flash will be used.
         """
-        Split text into semantically meaningful chunks.
-        
-        Args:
-            text: The text to chunk
-            force_single_chunk: Whether to force processing as a single chunk
-            small_doc_threshold: Character threshold below which document is always kept whole
-            
-        Returns:
-            List of text chunks
+
+        self.config = config or {}
+
+        provider_cfg = (
+            self.config.get("providers", {}).get("text_chunking")
+            or self.DEFAULT_PROVIDER_CONFIG
+        )
+
+        # Merge defaults with explicit values (explicit wins)
+        merged_cfg = {**self.DEFAULT_PROVIDER_CONFIG, **provider_cfg}
+        try:
+            self.llm_client = LLMClient(merged_cfg)
+        except Exception as e:
+            logger.error(f"Falha ao inicializar LLMClient para chunking (usando fallback heurístico): {e}")
+            self.llm_client = None
+
+
+    def chunk_text(self, text: str, file_path: Path) -> List[str]:
+        """Split *text* into semantically coherent chunks using an LLM.
+
+        The LLM is instructed (in Portuguese) to strictly return a JSON array of
+        objects containing *chunk* and *topic* keys.  In case the LLM returns an
+        invalid payload or the call fails, the method falls back to a basic
+        heuristic chunking strategy so that the overall pipeline can still
+        proceed.
         """
+
         if not text or not text.strip():
             return []
 
-        # Force single chunk if requested or document is small
-        if force_single_chunk or len(text) <= small_doc_threshold:
-            logger.info(f"Using single chunk mode (document size: {len(text)} chars)")
-            return [text]
+        # If the LLM client is available attempt LLM-based chunking first
+        response = None
+        if self.llm_client:
+            prompt = self._build_prompt(text)
 
-        # Standard chunking parameters
-        max_chunk_size = MAX_CHUNK_SIZE
-        min_chunk_size = MIN_CHUNK_SIZE
-        overlap_size = OVERLAP_SIZE
-        
-        # First split by sections (double newlines often indicate section breaks)
-        sections = re.split(r'\n\s*\n', text)
-        
-        chunks = []
-        current_chunk = ""
-        
-        for section in sections:
-            # If section is very short, just add it to the current chunk
-            if len(section) < 200:
-                if current_chunk and len(current_chunk) + len(section) + 2 <= max_chunk_size:
-                    current_chunk += "\n\n" + section
-                else:
-                    if current_chunk:
-                        chunks.append(current_chunk)
-                    current_chunk = section
-                continue
-                
-            # Split larger sections by sentences
-            sentences = re.split(r'(?<=[.!?])\s+', section)
-            
-            for sentence in sentences:
-                if not sentence.strip():
-                    continue
-                    
-                # If adding this sentence exceeds max chunk size, start a new chunk
-                if current_chunk and len(current_chunk) + len(sentence) + 1 > max_chunk_size:
-                    chunks.append(current_chunk)
-                    current_chunk = sentence
-                else:
-                    if current_chunk:
-                        current_chunk += " " + sentence
-                    else:
-                        current_chunk = sentence
-        
-        # Add the last chunk if it exists
-        if current_chunk:
-            chunks.append(current_chunk)
-            
-        # Filter out chunks that are too small to be meaningful
-        chunks = [chunk for chunk in chunks if len(chunk) >= min_chunk_size]
-        
-        # Add overlap between chunks for context continuity
-        overlapped_chunks = []
-        for i, chunk in enumerate(chunks):
-            if i > 0:
-                # Add ending of previous chunk to the beginning of current
-                prev_end = chunks[i-1][-overlap_size:] if len(chunks[i-1]) > overlap_size else chunks[i-1]
-                chunk = prev_end + "\n...\n" + chunk
-            
-            overlapped_chunks.append(chunk)
-            
-        return overlapped_chunks
+            logger.info("Requesting LLM-based chunking...")
+            try:
+                response = self.llm_client.generate_text(
+                    prompt,
+                    json_output=True,
+                    temperature=self.llm_client.config.get("temperature", 0.2),
+                )
+            except Exception as e:
+                logger.error(f"LLM chunking failed: {e}")
+
+        if response:
+            # get the "chunks" field which will contain the list
+            response = response["chunks"]
+            if isinstance(response, list):
+                file_hash = get_hash(str(file_path))
+                chunks = [
+                    {
+                        "chunk": item["chunk"].strip(),
+                        "topic": item.get("topic", "").strip(),
+                        "chunk_hash": f"chunk_{file_hash}_{idx}"
+                    }
+                    for idx, item in enumerate(response)
+                    if "chunk" in item and "topic" in item
+                ]
+                if chunks:
+                    logger.info(f"LLM returned {len(chunks)} chunks.")
+                    return chunks
+            else:
+                logger.warning("Unexpected JSON structure returned by LLM; falling back to heuristic chunking.")
+        else:
+            logger.warning("No response or invalid JSON from LLM; falling back to heuristic chunking.")
+
+        # Invalid or empty response – return empty list so caller can decide.
+        return []
+
+
+    def _build_prompt(self, text: str) -> str:
+        """Construct the instruction prompt (in Portuguese)."""
+
+        instructions = (
+            "You are an expert Text Analyst and Content Chunking specialist. Your primary goal is to segment the provided text into meaningful, self-contained informational units. These units, or 'chunks', will later be used as the basis for generating question-answer pairs and as context documents for a retrieval-augmented generation (RAG) system.\n\n"
+            "Therefore, each chunk must adhere to the following critical criteria:\n"
+            "1. Semantic Cohesion & Completeness: Each chunk should focus on a single, distinct topic, concept, rule, process, or piece of information. It must be internally complete, presenting a full idea without requiring immediate reference to another chunk. Avoid splitting sentences or tightly knit ideas across chunks.\n"
+            "2. Answerability: A chunk must contain sufficient information to comprehensively answer one or more specific, plausible questions about its content. Imagine someone reading only that chunk; they should be able to extract a clear answer to a relevant question concerning the chunk's main subject.\n"
+            "3. Appropriate Length:\n"
+            "   - Avoid Overly Short Chunks: Do not create chunks that are just a few words or a single trivial sentence, UNLESS that very short segment represents a complete, atomic, and significant piece of information (e.g., a formal definition).\n"
+            "   - Aim for Substantiality: Chunks should generally span one to several paragraphs if those paragraphs together cover a single, answerable topic.\n"
+            "   - Avoid Overly Long Chunks: If a section of text covers multiple distinct answerable topics, break it down further.\n"
+            "4. Context Preservation: While breaking down the text, strive to maintain the natural flow and relationships between ideas within each chunk. The chunk should make sense in isolation.\n"
+            "5. Preserve **all** original markdown formatting (headings, lists, bold/italic, links) inside each chunk exactly as it appears in the source text.\n\n"
+            "Your task:\n"
+            "Given the text below, divide it into such chunks. Focus on the quality and utility of each chunk for future Q&A and RAG purposes.\n\n"
+            "Return ONLY a JSON object in the following format (IN PORTUGUESE):\n"
+            "{\n  \"chunks\": [\n    {\"chunk\": \"...\", \"topic\": \"...\"},\n    ...\n  ]\n}\n\n"
+            "TEXT:\n" + text.strip()
+        )
+        return instructions

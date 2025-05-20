@@ -562,9 +562,10 @@ class FileProcessor:
                 "Convert this html pdf text into markdown format, "
                 "preserving all links (convert them to markdown links), "
                 "and preserving hierarchy of headers and topics as needed.\n"
-                "Do NOT add/remove or alter any text content.\n"
+                "Do NOT add/remove or alter any word.\n"
                 "Preserve all styling and formatting you find in the text. "
                 "Fix any inline links that don't seem to be in the correct place.\n"
+                "Remove ALL mid-sentence out-of-place line breaks (\\n) present in the text if present.\n"
                 "If you don't find any errors, keep the way it is. "
                 "Output only the new markdown text."
             )
