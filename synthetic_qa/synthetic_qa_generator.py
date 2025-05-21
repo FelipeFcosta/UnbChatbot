@@ -14,6 +14,7 @@ import yaml
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
+from slugify import slugify
 
 # Import modules
 from modules.file_processor import FileProcessor
@@ -84,7 +85,7 @@ class SyntheticQADataGenerator:
         
         # First identify potential FAQ files (only HTML files can be FAQs)
         faq_files = []
-        non_faq_files = []
+        regular_files = []
         
         for file_path in all_files:
             if file_path.suffix.lower() in ['.html', '.htm']:
@@ -94,61 +95,67 @@ class SyntheticQADataGenerator:
                         logger.info(f"Detected FAQ document: {file_path.relative_to(input_path)}")
                         faq_files.append((soup, file_path))
                     else:
-                        non_faq_files.append(file_path)
+                        regular_files.append(file_path)
                 except Exception as e:
                     logger.error(f"Error checking if {file_path} is FAQ: {e}")
-                    non_faq_files.append(file_path)
+                    regular_files.append(file_path)
             else:
-                non_faq_files.append(file_path)
+                regular_files.append(file_path)
         
-        logger.info(f"Identified {len(faq_files)} FAQ files and {len(non_faq_files)} non-FAQ files")
+        files_process_batches = []
+
+        if len(faq_files) > 0:
+            logger.info(f"Identified {len(faq_files)} FAQ files and {len(regular_files)} non-FAQ files")
+            files_process_batches.append(("faq", faq_files))
         
-        # Process all FAQs individually (never group them with other files)
         faq_qa_pairs = []
-        faq_files = [] # TODO: delete this 
+        regular_qa_pairs = []
 
-        if faq_files:
+        if regular_files:
+            processed_regular_files = []
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                # Create future for each FAQ file
-                # No need to loop through faq_files if generate_raft_training_data processes all files
-                future = executor.submit(FAQProcessorRAFT.generate_raft_training_data, faq_files, output_path, self.config)
-                future_to_faq = {future: "All FAQ files"}
-
-                # Collect results as they complete
-                for future in tqdm(as_completed(future_to_faq), total=len(faq_files), desc="Processing FAQ files"):
-                    faq_path = future_to_faq[future]
-                    try:
-                        qa_pairs = future.result()
-                        if qa_pairs:
-                            faq_qa_pairs.extend(qa_pairs)
-                            logger.info(f"Generated {len(qa_pairs)} QA pairs from FAQ {faq_path.relative_to(input_path)}")
-                    except Exception as e:
-                        logger.error(f"Error processing FAQ file {faq_path}: {e}")
-        
-        # Now process the remaining non-FAQ files
-        non_faq_qa_pairs = []
-        
-        if non_faq_files:
-            with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                # Create future for each file
                 future_to_file = {
                     executor.submit(self.process_file, file_path, input_path, output_path, self.config): file_path 
-                    for file_path in non_faq_files
+                    for file_path in regular_files
                 }
-                
-                # Collect results as they complete
-                for future in tqdm(as_completed(future_to_file), total=len(non_faq_files), desc="Processing non-FAQ files"):
+                for future in tqdm(as_completed(future_to_file), total=len(regular_files), desc="Processing non-FAQ files"):
                     file_path = future_to_file[future]
                     try:
                         qa_pairs = future.result()
                         if qa_pairs:
-                            non_faq_qa_pairs.extend(qa_pairs)
+                            # no soup for regular files
+                            processed_regular_files.append((None, file_path))
                             logger.info(f"Generated {len(qa_pairs)} QA pairs from {file_path.relative_to(input_path)}")
                     except Exception as e:
                         logger.error(f"Error processing file {file_path}: {e}")
-        
+            if processed_regular_files:
+                files_process_batches.append(("regular", processed_regular_files))
+
+
+        for batch_type, files_to_process in files_process_batches:
+            is_faq = batch_type == "faq"
+            # TODO: remove this
+            if is_faq:
+                continue 
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                future = executor.submit(FAQProcessorRAFT.generate_raft_training_data, files_to_process, output_path, self.config, is_faq)
+                future_to_desc = {future: batch_type}
+                for future in tqdm(as_completed(future_to_desc), total=1, desc=f"Processing {batch_type} files with FAQProcessorRAFT"):
+                    try:
+                        raft_qa_pairs = future.result()
+                        if raft_qa_pairs:
+                            if batch_type == "faq":
+                                faq_qa_pairs.extend(raft_qa_pairs)
+                                logger.info(f"Generated {len(raft_qa_pairs)} QA pairs from FAQ files using FAQProcessorRAFT")
+                            else:
+                                regular_qa_pairs.extend(raft_qa_pairs)
+                                logger.info(f"Generated {len(raft_qa_pairs)} QA pairs from regular files using FAQProcessorRAFT")
+                    except Exception as e:
+                        logger.error(f"Error processing {batch_type} files with FAQProcessorRAFT: {e}")
+
+
         # Combine FAQ and non-FAQ QA pairs
-        all_qa_pairs = faq_qa_pairs + non_faq_qa_pairs
+        all_qa_pairs = faq_qa_pairs + regular_qa_pairs
                     
         # Save all QA pairs to a final JSON file
         if all_qa_pairs:
@@ -156,7 +163,7 @@ class SyntheticQADataGenerator:
             with open(final_output, 'w', encoding='utf-8') as f:
                 json.dump(all_qa_pairs, f, ensure_ascii=False, indent=2)
 
-            logger.info(f"Generated a total of {len(all_qa_pairs)} QA pairs ({len(faq_qa_pairs)} from FAQs, {len(non_faq_qa_pairs)} from regular documents)")
+            logger.info(f"Generated a total of {len(all_qa_pairs)} QA pairs ({len(faq_qa_pairs)} from FAQs, {len(regular_qa_pairs)} from regular documents)")
             logger.info(f"Final output saved to {final_output}")
         else:
             logger.warning("No QA pairs were generated")
@@ -173,7 +180,7 @@ class SyntheticQADataGenerator:
             extracted_text_dir = output_dir / "extracted_text"
             file_hash = get_hash(str(file_path))
             extracted_text_dir.mkdir(parents=True, exist_ok=True)
-            extracted_text_path = extracted_text_dir / f"{file_path.stem}_{file_hash}.txt"
+            extracted_text_path = extracted_text_dir / f"{slugify(file_path.stem)}_{file_hash}.txt"
 
             if os.path.exists(extracted_text_path):
                 logger.info(f"Structured text already exists for {file_path}")
@@ -192,7 +199,7 @@ class SyntheticQADataGenerator:
             # Try to load chunks from file if it exists, otherwise generate and save
             extracted_chunks_dir = output_dir / "extracted_chunks"
             extracted_chunks_dir.mkdir(parents=True, exist_ok=True)
-            extracted_chunks_path = extracted_chunks_dir / f"{file_path.stem}_{file_hash}.json"
+            extracted_chunks_path = extracted_chunks_dir / f"{slugify(file_path.stem)}_{file_hash}.json"
 
             if os.path.exists(extracted_chunks_path):
                 logger.info(f"Chunks already exist for {file_path}")

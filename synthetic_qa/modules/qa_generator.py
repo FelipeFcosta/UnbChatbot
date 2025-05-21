@@ -1,5 +1,6 @@
 import logging
 import json
+import os
 import re
 import hashlib
 from pathlib import Path
@@ -19,8 +20,7 @@ class QAGenerator:
 
     This class purposefully keeps things simple: it creates *only* the initial
     examples that will later be expanded by FAQProcessorRAFT (or other
-    processors).  Each source document receives a single file named
-    `<slug>_default_examples.json` containing the accumulated seed pairs.
+    processors).
     """
 
     def __init__(self, config: Dict[str, Any]):
@@ -57,16 +57,16 @@ class QAGenerator:
 
         chunk_prompts = []
         for i, single_chunk in enumerate(chunks_batch):
-            chunk_prompts.append(f"<CHUNK_{i+1}>\n{single_chunk}\n</CHUNK_{i+1}>\n")
+            chunk_prompts.append(f"<CHUNK_{i+1}>\n{single_chunk['chunk']}\n</CHUNK_{i+1}>\n")
         all_chunks_str = "\n".join(chunk_prompts)
 
         return (
-            "You are an LLM Generator creating synthetic data for a university chatbot.\n"
-            f"The chatbot serves the institution: {institution}.\n\n"
+            "You are an LLM Generator creating synthetic data for the University of Brasilia chatbot.\n"
             f"You will receive a batch of {len(chunks_batch)} text excerpts from a larger document (provided as <FULL_DOCUMENT>). " \
             "For each excerpt <CHUNK_N>, your task is to craft ONE natural question in Portuguese that students, faculty, or staff might ask. " \
             "Each question MUST be answerable using ONLY the information contained in its corresponding <CHUNK_N>. " \
-            "Use the full document only to understand context and improve wording; do NOT include information that appears exclusively outside the chunk.\n\n"
+            "Use the full document only to understand context and improve wording; do NOT include information that appears exclusively outside the chunk.\n"
+            "Remember: the user (student) has no access to or awareness of these documents. They are simply seeking information or help, not referencing any source. Therefore, craft each question so that it is specific enough it naturally requires the information from the chunk to be answered without feeling forced or artificial. Make the question feel authentic and relevant, as if it could be asked in a real conversation.\n\n"
             f"Generate exactly {len(chunks_batch)} questions, one per line, in the same order as the input <CHUNK_N>s. " \
             "Return ONLY the questions, one per line, with no numbering or other text.\n\n"
             f"{style_section}"
@@ -99,14 +99,13 @@ class QAGenerator:
             qa_prompts_parts.append(
                 f"<ITEM_{i+1}>\n"
                 f"<QUESTION_{i+1}>\n{question}\n</QUESTION_{i+1}>\n"
-                f"<CONTEXT_{i+1}>\n{chunk}\n</CONTEXT_{i+1}>\n"
+                f"<CONTEXT_{i+1}>\n{chunk['chunk']}\n</CONTEXT_{i+1}>\n"
                 f"</ITEM_{i+1}>"
             )
         all_qa_items_str = "\n\n".join(qa_prompts_parts)
 
         return (
-            "You are an assistant helping to create high-quality FAQ answers for a university chatbot.\n\n"
-            f"INSTITUTION: {institution}\n\n"
+            "You are an assistant helping to create high-quality FAQ answers for the University of Brasilia chatbot.\n\n"
             f"{style_section}"
             f"You will receive a batch of {len(questions_batch)} question-context items, each enclosed in <ITEM_N> tags. "
             "For each item, answer the <QUESTION_N> using ONLY the information in its corresponding <CONTEXT_N>. "
@@ -137,22 +136,22 @@ class QAGenerator:
             "institution": institution,
         }
 
-        all_qa_pairs: List[Dict[str, str]] = []
+        all_qa_pairs = []
 
-        qa_dir = output_dir / "qa_pairs"
+        qa_dir = output_dir / "extracted_faq"
         qa_dir.mkdir(parents=True, exist_ok=True) # Ensure directory exists early
-        default_file_name = f"{slugify(file_path.stem)}_default_examples.json"
+        default_file_name = f"{slugify(file_path.stem)}_{get_hash(str(file_path))}.json"
         default_file_path = qa_dir / default_file_name
 
-        try:
-            logger.info(f"Attempting to load existing default examples from: {default_file_path}")
-            with open(default_file_path, 'r', encoding='utf-8') as f:
-                existing_data = json.load(f)
-            loaded_count = len(existing_data)
-            logger.info(f"Successfully loaded {loaded_count} items from {default_file_path}. Skipping generation.")
-            return existing_data
-        except Exception as e:
-            logger.info(f"Could not load existing default examples from {default_file_path}. Regenerating.")
+        if os.path.exists(default_file_path):
+            try:
+                with open(default_file_path, 'r', encoding='utf-8') as f:
+                    existing_data = json.load(f)
+                loaded_count = len(existing_data)
+                logger.info(f"Successfully loaded {loaded_count} items from {default_file_path}. Skipping generation.")
+                return existing_data
+            except Exception as e:
+                logger.info(f"Could not load existing default examples from {default_file_path}. Regenerating.")
 
         for i in range(0, len(chunks), batch_size):
             current_batch_chunks = chunks[i:i + batch_size]

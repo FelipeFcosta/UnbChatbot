@@ -13,6 +13,8 @@ from typing import List, Tuple, Dict, Any
 from bs4 import BeautifulSoup
 import textwrap
 
+from slugify import slugify
+
 from .llm_client import LLMClient
 from .file_processor import FileProcessor
 
@@ -70,14 +72,15 @@ class FAQProcessor:
 
 
     @staticmethod
-    def extract_faq(soup: BeautifulSoup, file_path: Path, output_dir: Path, llm_client: LLMClient) -> List[Dict[str, Any]]:
+    def extract_faq(soup: BeautifulSoup, file_path: Path, output_dir: Path, config: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
         Extract question-answer pairs from an FAQ document using LLM processing.
         
         Args:
             soup: BeautifulSoup object of the document
             file_path: Path to the HTML file
-            llm_client: LLM client for generation
+            output_dir: Path to the output directory
+            config: Configuration dictionary
             
         Returns:
             List of dictionaries containing extracted FAQ data
@@ -86,6 +89,8 @@ class FAQProcessor:
         
         try:
             structured_text_dir = output_dir / "extracted_text"
+
+            llm_client = LLMClient(config.get("providers", {}).get("faq_extraction", {}))
 
             # check if already present in file
             if structured_text_dir.exists():
@@ -102,7 +107,7 @@ class FAQProcessor:
                 # Save it (ensure directory exists first)
                 structured_text_dir.mkdir(parents=True, exist_ok=True)
                 extracted_faq_hash = hashlib.sha256(f"{file_path}".encode()).hexdigest()[:12]
-                structured_text_path = structured_text_dir / f"{file_path.stem}_{extracted_faq_hash}.txt"
+                structured_text_path = structured_text_dir / f"{slugify(file_path.stem)}_{extracted_faq_hash}.txt"
                 with open(structured_text_path, 'w', encoding='utf-8') as f:
                     f.write(structured_text)
             

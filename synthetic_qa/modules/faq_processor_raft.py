@@ -12,7 +12,8 @@ import textwrap
 import random
 import time
 from slugify import slugify
-from datasets import Dataset # Using Dataset for structure potentially later
+
+from modules.utils import get_hash
 
 # Assuming llm_client and file_processor are in the same directory structure
 from .llm_client import LLMClient
@@ -103,13 +104,6 @@ class FAQProcessorRAFT:
         if questions_count > 3: return True
         return False
 
-    # Keep hash function
-    @staticmethod
-    def create_qa_hash(file_path: Path, question: str) -> str:
-        """(Copied from original) Creates a unique hash for a QA pair."""
-        return f"faq_{hashlib.sha256((str(file_path) + question).encode()).hexdigest()[:12]}"
-
-
 
     @staticmethod
     def generate_styled_question_raft(
@@ -125,6 +119,7 @@ class FAQProcessorRAFT:
         style_goal = writing_style.get("goal", "")
 
         previous_questions_prompt = ""
+        previous_questions_str = ""
         if previous_styled_questions:
             previous_questions_prompt = "- The new question should be distinct from the previous styled questions (do different phrasings, coherent reorderings, etc)."
             previous_questions_str = "\n".join([f"- {pq}" for pq in previous_styled_questions])
@@ -183,7 +178,8 @@ class FAQProcessorRAFT:
     def generate_raft_training_data(
         faq_files: List, # Original source file path for context/URL
         output_dir: Path,
-        config: Dict[str, Any]
+        config: Dict[str, Any],
+        is_faq: bool
     ) -> List[Dict[str, Any]]:
         """
         Generates RAFT training examples from extracted FAQ pairs.
@@ -200,26 +196,33 @@ class FAQProcessorRAFT:
             (including the 'messages' key for fine-tuning).
         """
 
-        faq_config_provider = config.get("providers", {}).get("faq_extraction", {})
-
         # Create directories for output
         extracted_faq_dir = output_dir / "extracted_faq"
         extracted_faq_dir.mkdir(parents=True, exist_ok=True)
+        extracted_chunks_dir = output_dir / "extracted_chunks"
+        extracted_chunks_dir.mkdir(parents=True, exist_ok=True)
+
         debug_dir = output_dir / "debug" / "qa_pairs"
         debug_dir.mkdir(parents=True, exist_ok=True)
         raft_qa_dir = output_dir / "qa_pairs_raft"
         raft_qa_dir.mkdir(parents=True, exist_ok=True)
 
         final_extracted_faq = []
-        extracted_paths = []
+        final_extracted_chunks = []
+        extracted_faq_paths = []
+        extracted_chunks_paths = []
         for soup, file_path in faq_files:
-            faq_title = soup.title.get_text(strip=True) if soup.title else None
-            safe_title_slug = slugify(faq_title) if faq_title else "untitled-faq"
+            faq_title = file_path.stem
+            if soup and soup.title:
+                faq_title = soup.title.get_text(strip=True)
+            safe_title_slug = slugify(faq_title)
 
-            extracted_faq_hash = hashlib.sha256(f"{file_path}_{faq_config_provider.get('model')}".encode()).hexdigest()[:12]
-            extracted_faq_path = extracted_faq_dir / f"{safe_title_slug}_{extracted_faq_hash}.json"
-            extracted_paths.append(extracted_faq_path)
+            file_path_hash = get_hash(str(file_path))
+            extracted_faq_path = extracted_faq_dir / f"{safe_title_slug}_{file_path_hash}.json"
+            extracted_chunks_path = extracted_chunks_dir / f"{safe_title_slug}_{file_path_hash}.json"
 
+            extracted_faq_paths.append(extracted_faq_path)
+            extracted_chunks_paths.append(extracted_chunks_path)
             # Load or extract FAQ data
             extracted_faq = []
             if os.path.exists(extracted_faq_path):
@@ -233,7 +236,7 @@ class FAQProcessorRAFT:
 
             if not extracted_faq:
                 logger.info(f"Extracting FAQ pairs for {file_path} using LLM.")
-                extracted_faq = FAQProcessor.extract_faq(soup, file_path, config)
+                extracted_faq = FAQProcessor.extract_faq(soup, file_path, output_dir, config)
 
                 if extracted_faq:
                     try:
@@ -245,17 +248,35 @@ class FAQProcessorRAFT:
                 else:
                     logger.warning(f"FAQ extraction yielded no results for {file_path}. Cannot proceed.")
                     return []
-                
+            
+            # get chunks from "extracted_chunks"
+            extracted_chunks = []
+            if not is_faq:
+                if os.path.exists(extracted_chunks_path):
+                    try:
+                        with open(extracted_chunks_path, 'r', encoding='utf-8') as f:
+                            extracted_chunks = json.load(f)
+                    except Exception as e:
+                        logger.error(f"Error loading existing extracted chunks from {extracted_chunks_path}: {e}")
+                        extracted_chunks = []
+                else:
+                    raise Exception(f"Extracted chunks file {extracted_chunks_path} does not exist.")
+
             final_extracted_faq.extend(extracted_faq)
+            final_extracted_chunks.extend(extracted_chunks)
                 
 
-        # --- Configuration ---
+        # --- RAFT Configuration ---
         raft_config = config.get("processing", {}).get("raft", {})
         num_distract = raft_config.get("num_distractors", 3)
         p_golden = raft_config.get("p_golden_include", 0.8) # Probability to include D*
         writing_styles = config.get("question_styles").get("writing_styles", None)
+
         # Add original question as a "style"
-        writing_styles.append({"name": "Verbatim", "description": "Original question", "goal": "Use original question verbatim", "iterations": 1})
+        if is_faq:
+            writing_styles.append({"name": "Verbatim", "description": "Original question", "goal": "Use original question verbatim", "iterations": 1})
+        else: # no default style for non-FAQ files
+            [style.update({"iterations": 0}) for style in writing_styles if "default" in style.get("name", "").lower()]
 
         llm_config_styled_q_provider = config.get("providers", {}).get("styled_question", {})
         llm_config_cot_a_provider = config.get("providers", {}).get("cot_answer", {}) # Config for CoT answer generation
@@ -265,7 +286,7 @@ class FAQProcessorRAFT:
         llm_client_cot_a = LLMClient(llm_config_cot_a_provider)
 
         # Extract URL for metadata
-        _, _, url = FileProcessor.extract_domain_and_path(file_path)
+        domain, _, url = FileProcessor.extract_domain_and_path(file_path)
 
         logger.info(f"Starting RAFT data generation for {len(final_extracted_faq)} original FAQ pairs from {file_path}...")
 
@@ -273,19 +294,28 @@ class FAQProcessorRAFT:
 
         # Create formatted strings of all original Q&A pairs for use as potential documents
         all_original_qas = []
-        for faq in final_extracted_faq:
-            # Format each QA pair with consistent structure
-            topics_str = f', Topics: "{faq["topics"]}"' if faq.get("topics") else ''
-            course_str = f', Course: "{faq["course"]}"' if faq.get("course") else ''
-            formatted_qa = (
-            f'Q: "{faq["question"]}"'
-            f', A: "{faq["answer"]}"'
-            f'{topics_str}'
-            f'{course_str}'
-            )
-            all_original_qas.append(formatted_qa)
+        all_original_chunks = []
+        if is_faq:
+            for faq in final_extracted_faq:
+                # Format each QA pair with consistent structure
+                topics_str = f', Topics: "{faq.get("topics", "")}"' if faq.get("topics") else ''
+                course_str = f', Course: "{faq.get("course", "")}"' if faq.get("course") else ''
+                formatted_qa = (
+                    f'Q: "{faq["question"]}"'
+                    f', A: "{faq["answer"]}"'
+                    f'{topics_str}'
+                    f'{course_str}'
+                )
+                all_original_qas.append(formatted_qa)
+        else:
+            for content in final_extracted_chunks:
+                topics_str = f', Topic: "{content.get("topic")}"' if content.get("topic") else ''
+                course_str = f', Course: "{content.get("course")}"' if content.get("course") else ''
+                formatted_chunk = f'Chunk: "{content["chunk"]}"{topics_str}{course_str}'
+                all_original_chunks.append(formatted_chunk)
+
         all_training_examples = []
-        previous_questions_cache = {faq["qa_pair_hash"]: [] for faq in final_extracted_faq} # Cache previously generated questions per original pair
+        previous_questions_cache = {faq["qa_pair_hash"]: [] for faq in final_extracted_faq}
 
         max_iterations_overall = 0
         if writing_styles:
@@ -296,8 +326,16 @@ class FAQProcessorRAFT:
             original_q = original_faq["question"]
             original_a = original_faq["answer"] # Golden document (D*)
             qa_hash = original_faq["qa_pair_hash"]
-            topics_str = f'Topics: "{original_faq.get("topics", "")}"'
-            golden_document = f'Q:"{original_q}", A:"{original_a}", {topics_str}'
+            if not is_faq and len(final_extracted_faq) == len(final_extracted_chunks):
+                content = f'Chunk: "{final_extracted_chunks[i]["chunk"]}"'
+                topics_str = f', Topic: "{final_extracted_chunks[i].get("topic")}"' if final_extracted_chunks[i].get("topic") else ''
+                course_str = f', Course: "{final_extracted_chunks[i].get("course")}"' if final_extracted_chunks[i].get("course") else ''
+            else:
+                content = f'Q: "{original_q}", A: "{original_a}"'
+                topics_str = f', Topics: "{original_faq.get("topics")}"' if original_faq.get("topics") else ''
+                course_str = f', Course: "{original_faq.get("course")}"' if original_faq.get("course") else ''
+
+            golden_document = f'{content}{topics_str}{course_str}'
             
             for iteration in range(max_iterations_overall):
                 # --- Loop through Writing Styles to generate Questions (Q) and Answers (A*) ---
@@ -305,7 +343,6 @@ class FAQProcessorRAFT:
                     style_name = style.get("name")
                     safe_style_name = slugify(style_name.lower())
                     style_iterations = style.get("iterations", 1)
-
 
                     if iteration >= style_iterations:
                         logger.info(f"Skipping style '{style_name}' for iteration {iteration + 1} (max: {style_iterations})")
@@ -383,7 +420,10 @@ class FAQProcessorRAFT:
                     # --- Assemble Context (D* + Dk or just Dk) ---
                     # Pool of potential distractors: all original answers EXCEPT the current one
                     # TODO: ONLY CHANGE HERE!! perform actual retrieval as a RAG system would do in inference time
-                    available_distractors = [qas for idx, qas in enumerate(all_original_qas) if idx != i]
+                    if is_faq:
+                        available_distractors = [qas for idx, qas in enumerate(all_original_qas) if idx != i]
+                    else:
+                        available_distractors = [chunk for idx, chunk in enumerate(all_original_chunks) if idx != i]
                     
                     # Ensure we don't request more distractors than available
                     actual_num_distract = min(num_distract, len(available_distractors))
@@ -437,6 +477,7 @@ class FAQProcessorRAFT:
                         "golden_index": golden_idx,
                         "num_distractors_in_context": len(context_docs) - (1 if golden_present_flag else 0),
                         "url": url, # Add original URL
+                        "file_name": file_path.name,
                         # Optional: Add original Q/A for reference/debugging if needed
                         # "original_question": original_q,
                         # "original_answer": original_a,

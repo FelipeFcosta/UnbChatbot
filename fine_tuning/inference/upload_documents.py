@@ -15,7 +15,8 @@ import modal
 # --- Configuration ---
 APP_NAME = "faq-data-uploader"
 # Directory containing the individual extracted FAQ JSON files locally
-LOCAL_EXTRACTED_FAQ_DIR = Path("./output/extracted_faq") # ADJUST THIS PATH
+LOCAL_EXTRACTED_FAQ_DIR = Path("./output/extracted_faq")
+LOCAL_EXTRACTED_CHUNKS_DIR = Path("./output/extracted_chunks")
 # Name for the combined file that will be created
 COMBINED_FILENAME = "extracted_faq_combined.json"
 # Target directory WITHIN the Modal Volume where the combined file will be uploaded
