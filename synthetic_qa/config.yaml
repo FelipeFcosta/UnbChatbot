@@ -148,6 +148,8 @@ file_processing:
     - .pdf
     - .txt
     - .md
+    - .docx
+    - .doc
   
   exclude_patterns:
     - images/

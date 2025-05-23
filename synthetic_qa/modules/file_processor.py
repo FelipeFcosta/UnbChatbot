@@ -175,6 +175,15 @@ class FileProcessor:
         return FileProcessor.INSTITUTION_COURSES.get(domain, "All Courses")
     
     @staticmethod
+    def get_soup(file_path: Path) -> BeautifulSoup:
+        """
+        Get a BeautifulSoup object from a URL.
+        """
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+        return BeautifulSoup(content, 'html5lib')
+    
+    @staticmethod
     def process_links_in_html(html_content: BeautifulSoup, file_path: Path) -> None:
         """
         Process links in HTML content to convert them to markdown format [text](url).
@@ -185,7 +194,7 @@ class FileProcessor:
             file_path: Path to the HTML file to process
         """        
         domain, path, url = FileProcessor.extract_domain_and_path(file_path)
-        base_url = f"https://{url}"
+        base_url = f"https://{url}" if "http" not in url else url
         
         not_working_urls = []
         working_urls = []
@@ -255,7 +264,7 @@ class FileProcessor:
                                 not_working_urls.append(url_to_try)
                                 break
                         except Exception as e:
-                            logger.debug(f"Failed to verify URL {url_to_try} - {e.__class__.__name__}")
+                            logger.info(f"Failed to verify URL {url_to_try} - {e.__class__.__name__}")
                             if attempt < retries-1:
                                 time.sleep(1)
                 
@@ -514,6 +523,7 @@ class FileProcessor:
                 text = re.sub(r'\n{3,}', '\n\n', text)
 
             # Use LLM to correct markdown if available
+            llm_client = None
             if config is not None:
                 from .llm_client import LLMClient
                 llm_client = LLMClient(config.get("providers", {}).get("text_extraction", {}))
@@ -574,6 +584,37 @@ class FileProcessor:
                 text = response
         return text
     
+    @staticmethod
+    def extract_text_from_doc(file_path: Path, config=None) -> str:
+        """
+        Extract text (with basic styling/formatting) from .docx or .doc files.
+        Returns markdown with **bold** and *italic* preserved.
+        """
+        try:
+            import docx
+        except ImportError:
+            logger.error("python-docx not available. Cannot extract text from DOC/DOCX.")
+            return ""
+        try:
+            doc = docx.Document(file_path)
+            lines = []
+            for para in doc.paragraphs:
+                line = ""
+                for run in para.runs:
+                    text = run.text
+                    if not text:
+                        continue
+                    if run.bold:
+                        text = f"**{text}**"
+                    if run.italic:
+                        text = f"*{text}*"
+                    line += text
+                lines.append(line)
+            return "\n".join(lines)
+        except Exception as e:
+            logger.error(f"Error extracting text from DOC/DOCX {file_path}: {e}")
+            return ""
+
     def extract_text_from_file(self, file_path: Path, config=Dict[str, Any]) -> str:
         """
         Extract text from a file based on its extension.
@@ -595,6 +636,8 @@ class FileProcessor:
             return FileProcessor.extract_text_from_html(soup, file_path)
         elif file_extension == '.pdf':
             return FileProcessor.extract_text_from_pdf(file_path, config)
+        elif file_extension in ['.docx', '.doc']:
+            return FileProcessor.extract_text_from_doc(file_path, config)
         elif file_extension in ['.txt', '.md', '.csv', '.json']:
             try:
                 return file_path.read_text(encoding='utf-8', errors='ignore')

@@ -41,7 +41,7 @@ class QAGenerator:
         self.default_style = next((s for s in ws if s.get("name").lower() == "default"), None) 
 
 
-    def _build_question_prompt(self, chunks_batch: List[str], full_document: str, source_info: Dict[str, str]) -> str:
+    def _build_question_prompt(self, chunks_batch: List[str], full_document: str, context_html_text: str, source_info: Dict[str, str]) -> str:
         """Prompt for generating baseline questions from a batch of chunks.
 
         If *full_document* is provided it is supplied inside <FULL_DOCUMENT> tags so the
@@ -60,18 +60,25 @@ class QAGenerator:
             chunk_prompts.append(f"<CHUNK_{i+1}>\n{single_chunk['chunk']}\n</CHUNK_{i+1}>\n")
         all_chunks_str = "\n".join(chunk_prompts)
 
+        context_html_section = (
+            f"\n<CONTEXT_HTML>\n{context_html_text}\n</CONTEXT_HTML>"
+            if context_html_text else ""
+        )
         return (
             "You are an LLM Generator creating synthetic data for the University of Brasilia chatbot.\n"
-            f"You will receive a batch of {len(chunks_batch)} text excerpts from a larger document (provided as <FULL_DOCUMENT>). " \
-            "For each excerpt <CHUNK_N>, your task is to craft ONE natural question in Portuguese that students, faculty, or staff might ask. " \
-            "Each question MUST be answerable using ONLY the information contained in its corresponding <CHUNK_N>. " \
+            f"You will receive a batch of {len(chunks_batch)} text excerpts from a larger document (provided as <FULL_DOCUMENT>). "
+            "For each excerpt <CHUNK_N>, your task is to craft ONE natural question in Portuguese that students, faculty, or staff might ask. "
+            "Each question MUST be answerable using ONLY the information contained in its corresponding <CHUNK_N>. "
             "Use the full document only to understand context and improve wording; do NOT include information that appears exclusively outside the chunk.\n"
+            "In addition, you may also receive extra context (provided as <CONTEXT_HTML>). This extra context *may* help clarify information if something in the chunk is ambiguous or unclear, but you must still ensure that each question is answerable using only its corresponding chunk. Use the extra context only to improve the naturalness or clarity of the question, not to introduce information that is not present in the chunk.\n"
             "Remember: the user (student) has no access to or awareness of these documents. They are simply seeking information or help, not referencing any source. Therefore, craft each question so that it is specific enough it naturally requires the information from the chunk to be answered without feeling forced or artificial. Make the question feel authentic and relevant, as if it could be asked in a real conversation.\n\n"
-            f"Generate exactly {len(chunks_batch)} questions, one per line, in the same order as the input <CHUNK_N>s. " \
+            "So, for this document information to be retrieved, the question will probably have to mention the document name/title/subject.\n\n"
+            f"Generate exactly {len(chunks_batch)} questions, one per line, in the same order as the input <CHUNK_N>s. "
             "Return ONLY the questions, one per line, with no numbering or other text.\n\n"
             f"{style_section}"
             f"{all_chunks_str}"
             f"{full_doc_prompt_section}"
+            f"{context_html_section}"
         )
 
     def _default_style_section(self) -> str:
@@ -108,7 +115,8 @@ class QAGenerator:
             "You are an assistant helping to create high-quality FAQ answers for the University of Brasilia chatbot.\n\n"
             f"{style_section}"
             f"You will receive a batch of {len(questions_batch)} question-context items, each enclosed in <ITEM_N> tags. "
-            "For each item, answer the <QUESTION_N> using ONLY the information in its corresponding <CONTEXT_N>. "
+            "For each item, answer the <QUESTION_N> using ONLY the information in its corresponding <CONTEXT_N>.\n"
+            "If the chunk contains an URL and it's relevant to the question, mention it in the answer.\n"
             "If a specific context does not provide enough information, reply for that item with \"Não possuo informações suficientes para responder a essa pergunta.\"\n\n"
             f"{all_qa_items_str}\n\n"
             f"Generate exactly {len(questions_batch)} answers, one per line, in the same order as the input items. "
@@ -120,8 +128,10 @@ class QAGenerator:
         self,
         chunks: List[str],
         source_path: str,
+        file_title: str,
         output_dir: Path,
         full_document_text: str,
+        context_html_text: str,
         batch_size: int = 1,
     ) -> List[Dict[str, str]]:
         """Generate one baseline QA pair for each chunk provided, processing in batches."""
@@ -140,18 +150,19 @@ class QAGenerator:
 
         qa_dir = output_dir / "extracted_faq"
         qa_dir.mkdir(parents=True, exist_ok=True) # Ensure directory exists early
-        default_file_name = f"{slugify(file_path.stem)}_{get_hash(str(file_path))}.json"
-        default_file_path = qa_dir / default_file_name
 
-        if os.path.exists(default_file_path):
+        extracted_qa_file_name = f"{slugify(file_title)}_{get_hash(str(file_path))}.json"
+        extracted_qa_file_path = qa_dir / extracted_qa_file_name
+
+        if os.path.exists(extracted_qa_file_path):
             try:
-                with open(default_file_path, 'r', encoding='utf-8') as f:
+                with open(extracted_qa_file_path, 'r', encoding='utf-8') as f:
                     existing_data = json.load(f)
                 loaded_count = len(existing_data)
-                logger.info(f"Successfully loaded {loaded_count} items from {default_file_path}. Skipping generation.")
+                logger.info(f"Successfully loaded {loaded_count} items from {extracted_qa_file_path}. Skipping generation.")
                 return existing_data
             except Exception as e:
-                logger.info(f"Could not load existing default examples from {default_file_path}. Regenerating.")
+                logger.info(f"Could not load existing default examples from {extracted_qa_file_path}. Regenerating.")
 
         for i in range(0, len(chunks), batch_size):
             current_batch_chunks = chunks[i:i + batch_size]
@@ -159,7 +170,7 @@ class QAGenerator:
                 continue
 
             # 1. Generate questions for the current batch of chunks
-            question_batch_prompt = self._build_question_prompt(current_batch_chunks, full_document_text, source_info)
+            question_batch_prompt = self._build_question_prompt(current_batch_chunks, full_document_text, context_html_text, source_info)
             raw_questions_str = self.question_client.generate_text(question_batch_prompt, temperature=0.7)
 
             if not raw_questions_str:
@@ -204,10 +215,10 @@ class QAGenerator:
             return []
 
         try:
-            with open(default_file_path, 'w', encoding='utf-8') as f:
+            with open(extracted_qa_file_path, 'w', encoding='utf-8') as f:
                 json.dump(all_qa_pairs, f, ensure_ascii=False, indent=2)
-            logger.info(f"Created new default examples file with {len(all_qa_pairs)} QA pairs: {default_file_path}")
+            logger.info(f"Created new default examples file with {len(all_qa_pairs)} QA pairs: {extracted_qa_file_path}")
         except Exception as e:
-            logger.error(f"Failed to write new default examples file {default_file_path}: {e}")
+            logger.error(f"Failed to write new default examples file {extracted_qa_file_path}: {e}")
 
         return all_qa_pairs

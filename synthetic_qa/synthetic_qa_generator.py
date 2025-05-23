@@ -10,6 +10,7 @@ import os
 import argparse
 import logging
 import json
+from bs4 import BeautifulSoup
 import yaml
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -70,7 +71,7 @@ class SyntheticQADataGenerator:
         
         # Get all supported files
         supported_extensions = self.config.get("file_processing", {}).get(
-            "include_extensions", ['.html', '.htm', '.pdf', '.txt', '.md']
+            "include_extensions", ['.html', '.htm', '.pdf', '.txt', '.md', '.docx', '.doc']
         )
         all_files = []
         
@@ -88,19 +89,20 @@ class SyntheticQADataGenerator:
         regular_files = []
         
         for file_path in all_files:
+            rel_path = file_path.relative_to(input_path)
             if file_path.suffix.lower() in ['.html', '.htm']:
                 try:
-                    soup = FileProcessor.preprocess_html(file_path)
+                    soup = FileProcessor.get_soup(file_path)
                     if FAQProcessor.detect_faq_document(soup, file_path.name):
                         logger.info(f"Detected FAQ document: {file_path.relative_to(input_path)}")
-                        faq_files.append((soup, file_path))
+                        faq_files.append((soup, file_path, rel_path))
                     else:
-                        regular_files.append(file_path)
+                        regular_files.append((soup, file_path, rel_path))
                 except Exception as e:
                     logger.error(f"Error checking if {file_path} is FAQ: {e}")
-                    regular_files.append(file_path)
+                    regular_files.append((None, file_path, rel_path))
             else:
-                regular_files.append(file_path)
+                regular_files.append((None, file_path, rel_path))
         
         files_process_batches = []
 
@@ -115,16 +117,17 @@ class SyntheticQADataGenerator:
             processed_regular_files = []
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 future_to_file = {
-                    executor.submit(self.process_file, file_path, input_path, output_path, self.config): file_path 
-                    for file_path in regular_files
+                    executor.submit(self.process_file, soup, file_path, input_path, output_path): (soup, file_path)
+                    for soup, file_path, _ in regular_files
                 }
                 for future in tqdm(as_completed(future_to_file), total=len(regular_files), desc="Processing non-FAQ files"):
-                    file_path = future_to_file[future]
+                    soup, file_path = future_to_file[future]
+                    rel_path = file_path.relative_to(input_path)
+
                     try:
                         qa_pairs = future.result()
                         if qa_pairs:
-                            # no soup for regular files
-                            processed_regular_files.append((None, file_path))
+                            processed_regular_files.append((soup, file_path, rel_path))
                             logger.info(f"Generated {len(qa_pairs)} QA pairs from {file_path.relative_to(input_path)}")
                     except Exception as e:
                         logger.error(f"Error processing file {file_path}: {e}")
@@ -159,7 +162,7 @@ class SyntheticQADataGenerator:
                     
         # Save all QA pairs to a final JSON file
         if all_qa_pairs:
-            final_output = output_path / "synthetic_qa_data_raft.json"
+            final_output = output_path / "synthetic_qa_data_raft_test.json"
             with open(final_output, 'w', encoding='utf-8') as f:
                 json.dump(all_qa_pairs, f, ensure_ascii=False, indent=2)
 
@@ -169,21 +172,30 @@ class SyntheticQADataGenerator:
             logger.warning("No QA pairs were generated")
 
 
-    def process_file(self, file_path, base_dir, output_dir, config):
-        """Process a single file to generate QA pairs."""
+    def process_file(self, soup, file_path, base_dir, output_dir):
+        """
+        Process a single file to generate synthetic QA pairs.
+
+        Extract text from the file, chunk it, and then generate QA pairs using the QA generator.
+        If the file is not an HTML file, it attempts to find a related HTML file for additional context.
+
+        Returns:
+            list: A list of generated QA pairs. Each QA pair is a dictionary containing 'question' and 'answer' keys.
+        """
         try:
             # Extract relative path for source info
             rel_path = file_path.relative_to(base_dir)
-            source_path = str(file_path)
+            file_title = soup.title.get_text(strip=True) if soup else file_path.stem
+            file_hash = get_hash(str(rel_path))
+            safe_title_slug = slugify(file_title)
             
             # Extract text from file with appropriate settings
             extracted_text_dir = output_dir / "extracted_text"
-            file_hash = get_hash(str(file_path))
             extracted_text_dir.mkdir(parents=True, exist_ok=True)
-            extracted_text_path = extracted_text_dir / f"{slugify(file_path.stem)}_{file_hash}.txt"
+            extracted_text_path = extracted_text_dir / f"{safe_title_slug}_{file_hash}.txt"
 
             if os.path.exists(extracted_text_path):
-                logger.info(f"Structured text already exists for {file_path}")
+                logger.info(f"Structured text already exists for {rel_path}")
                 with open(extracted_text_path, 'r', encoding='utf-8') as f:
                     text = f.read()
             else:
@@ -199,14 +211,14 @@ class SyntheticQADataGenerator:
             # Try to load chunks from file if it exists, otherwise generate and save
             extracted_chunks_dir = output_dir / "extracted_chunks"
             extracted_chunks_dir.mkdir(parents=True, exist_ok=True)
-            extracted_chunks_path = extracted_chunks_dir / f"{slugify(file_path.stem)}_{file_hash}.json"
+            extracted_chunks_path = extracted_chunks_dir / f"{safe_title_slug}_{file_hash}.json"
 
             if os.path.exists(extracted_chunks_path):
-                logger.info(f"Chunks already exist for {file_path}")
+                logger.info(f"Chunks already exist for {rel_path}")
                 with open(extracted_chunks_path, 'r', encoding='utf-8') as f:
                     chunks = json.load(f)
             else:
-                chunks = self.text_chunker.chunk_text(text, file_path)
+                chunks = self.text_chunker.chunk_text(text, rel_path)
                 with open(extracted_chunks_path, 'w', encoding='utf-8') as f:
                     json.dump(chunks, f, ensure_ascii=False, indent=2)
                 
@@ -215,12 +227,64 @@ class SyntheticQADataGenerator:
                 return []
                 
             logger.info(f"Created {len(chunks)} chunks from {rel_path}")
+
+            context_html_text = None
+            # Attempt to find and process a related HTML file for context,
+            # if the current file is not HTML itself, based on 'user.source_html_path' metadata.
+            if file_path.suffix.lower() not in ['.html', '.htm']:
+                logger.info(f"File {file_path.name} is not HTML. Attempting to find source HTML context.")
+                
+                source_html_path: str | None = None
+                try:
+                    source_html_path = os.getxattr(str(file_path), b'user.source_html_path').decode('utf-8')
+                except Exception as e:
+                    logger.error(f"Error retrieving 'user.source_html_path' for {file_path.name}: {e}", exc_info=True)
+
+                if source_html_path:
+                    try:
+                        source_html_file_path = base_dir / source_html_path
+                        
+                        if source_html_file_path.exists() and source_html_file_path.is_file():
+                            source_html_file_hash = get_hash(str(source_html_path))
+                            soup_source_html = FileProcessor.get_soup(source_html_file_path)
+                            safe_source_html_title_slug = slugify(soup_source_html.title.get_text(strip=True))
+
+                            source_html_extracted_text_path = extracted_text_dir / f"{safe_source_html_title_slug}_{source_html_file_hash}.txt"
+
+                            if os.path.exists(source_html_extracted_text_path):
+                                logger.info(f"Context HTML text already cached for {source_html_file_path.name} at {source_html_extracted_text_path}")
+                                with open(source_html_extracted_text_path, 'r', encoding='utf-8') as f:
+                                    context_html_text = f.read()
+                            else:
+                                logger.info(f"Extracting text from source HTML file: {source_html_file_path.name}")
+                                extracted_context_text = self.file_processor.extract_text_from_file(source_html_file_path, self.config)
+                                if extracted_context_text:
+                                    context_html_text = extracted_context_text
+                                    with open(source_html_extracted_text_path, 'w', encoding='utf-8') as f:
+                                        f.write(context_html_text)
+                                    logger.info(f"Saved extracted text for source HTML {source_html_file_path.name} to {source_html_extracted_text_path}")
+                                else:
+                                    logger.warning(f"No text could be extracted from source HTML file: {source_html_file_path.name}")
+                        else:
+                            logger.error(
+                                f"Source HTML file {source_html_file_path} (from 'user.source_html_path' value: '{source_html_path}') "
+                                f"does not exist locally or is not a file. This contradicts the 'absolute correct' assumption."
+                            )
+                    
+                    except Exception as e:
+                        logger.error(f"Error processing source HTML context from path '{source_html_path}' for file {file_path.name}: {e}", exc_info=True)
             
+            else: # file_path.suffix.lower() is '.html' or '.htm'
+                logger.info(f"File {file_path.name} is already HTML/HTM. No separate source HTML context needed.")
+
+
             qa_pairs = self.qa_generator.generate_qa_pairs(
                 chunks=chunks,
-                source_path=source_path,
+                source_path=rel_path,
+                file_title=file_title,
                 output_dir=output_dir,
                 full_document_text=text,
+                context_html_text=context_html_text,
                 batch_size=5
             )
 

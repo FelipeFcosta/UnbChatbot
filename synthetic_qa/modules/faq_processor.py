@@ -517,8 +517,8 @@ The entire response should be just the JSON array.
                     except Exception as e:
                         logger.error(f"Error saving extracted FAQ to {extracted_faq_path}: {e}")
                 else:
-                     logger.warning(f"FAQ extraction yielded no results for {file_path}. Cannot proceed.")
-                     return []
+                    logger.warning(f"FAQ extraction yielded no results for {file_path}. Cannot proceed.")
+                    return []
 
             # --- Prepare for processing ---
             qa_generator = QAGenerator(config)

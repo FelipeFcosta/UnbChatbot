@@ -29,27 +29,28 @@ logger = logging.getLogger(__name__)
 ANSWER_TAG = "<ANSWER>"
 COT_ANSWER_GENERATION_PROMPT = f"""
 You are an expert assistant creating training data for a university chatbot that will chat with the students.
-Given an original Question and its corresponding original Answer (which serves as the definitive context), generate a detailed chat response. This response has two parts: internal reasoning (which won't be shown to the user) and the final answer in portuguese.
+Given an original Question and its corresponding original Answer (which serves as the definitive context), generate a detailed chat response. This response has two parts: internal reasoning in english (which won't be shown to the user) and the final answer in portuguese.
 
 **Instructions:**
 
 1.  **Analyze:** Understand the user's implicit need based on the 'Original Question'.
-2.  **Internal Reasoning `<REASON>:`:** Provide a short and clear, objective reasoning based *exclusively* on the information within the 'Original Answer (Context)'. Do NOT add outside information. This reasoning is for internal understanding and training purposes aimed at FACTUALITY.
-3.  **Reasoning Citations:** **Within the Internal Reasoning section only**, when referencing specific parts of the 'Original Answer (Context)', enclose the verbatim text within `##begin_quote##` and `##end_quote##`. Text outside these tags should be your own reasoning/connecting words.
+2.  **Internal Reasoning `<REASON>:`:** Provide a short and clear, objective reasoning based *exclusively* on the information within the '{{context_source_name}} (Context)'. Do NOT add outside information. This reasoning is for internal understanding and training purposes aimed at FACTUALITY.
+3.  **Reasoning Citations:** **Within the Internal Reasoning section only**, when referencing specific parts of the '{{context_source_name}} (Context)', enclose the verbatim text within `##begin_quote##` and `##end_quote##`. Text outside these tags should be your own reasoning/connecting words.
 4.  **Style:** Maintain a **friendly, formal, modern, effective, polite, expert chatbot assistant persona** suitable for the University of Brasília (UnB).
 5.  **Final User-Facing Answer Tag:** Conclude the *entire* response with the final answer intended **directly for the end-user**, prefixed EXACTLY with `{ANSWER_TAG}:`.
 6.  **User-Facing Answer Content:**
-    *   **Visibility:** Understand that **only the text following the `{ANSWER_TAG}:` tag will be shown to the end-user.** The user will *not* see the 'Original Answer (Context)' you were given, nor the 'Internal Reasoning' section.
+    *   **Visibility:** Understand that **only the text following the `{ANSWER_TAG}:` tag will be shown to the end-user.** The user will *not* see the '{{context_source_name}} (Context)' you were given, nor the 'Internal Reasoning' section.
     *   **Self-Contained:** The final answer must be **self-contained and directly usable**. It should not refer back to "the context" ambiguously.
-    *   **Include Links/Sources:** If the answer relies on specific web pages or documents mentioned in the 'Original Answer (Context)', **include the necessary Markdown links (e.g., `[Link Text](URL)`) directly within this final answer section.** If specific documents are sources, reference them clearly (e.g., "according to the Course Regulation document available at [link]").
-    *   **Completeness:** Ensure all relevant information from the 'Original Answer (Context)' needed to address the 'Original Question' is summarized or directly included in this final answer.
-    * **Always answer the question directly first** (no greetings unless the user greets you).
-7.  **If Unanswerable:** If the 'Original Answer (Context)' genuinely doesn't contain the information to answer the 'Original Question', state that clearly in the Internal Reasoning and use `{ANSWER_TAG}: Lamento, mas não possuo informações suficientes para responder à sua pergunta sobre este tópico específico.`.
+    *   **Include Links/Sources:** If the answer relies on specific web pages or documents mentioned in the '{{context_source_name}} (Context)', **include the necessary Markdown links (e.g., `[Link Text](URL)`) directly within this final answer section.** If specific documents are sources, reference them clearly (e.g., "according to the Course Regulation document available at [link]").
+    *   **Completeness:** Ensure all relevant information from the '{{context_source_name}} (Context)' needed to address the 'Original Question' is summarized or directly included in this final answer.
+    * **Always answer the question directly first** (*no greetings* unless the user greets you).
+7.  **If Unanswerable:** If the '{{context_source_name}} (Context)' genuinely doesn't contain the information to answer the 'Original Question', state that clearly in the Internal Reasoning and use `{ANSWER_TAG}: Lamento, mas não possuo informações suficientes para responder à sua pergunta sobre este tópico específico.`.
 
 **Input:**
-Original Question: {{original_question}}
-Original Answer (Context): {{original_answer}}
+- Original Question: '{{original_question}}'
+- {{context_source_name}} (Context): '{{context_content}}'
 """
+
 
 # Prompt for generating a styled question (Q) based on an original pair and a style
 # (Adapted from your original generate_styled_qa)
@@ -70,10 +71,10 @@ Create ONE alternative FAQ question based on the Original Pair provided below.
 {previous_questions_prompt}
 
 **Original Pair:**
-Original Question: {original_question}
-Original Answer: {original_answer}
+- Original Question: '{original_question}'
+- Original Answer: '{original_answer}'
 
-**Previous Styled Questions for this item (Avoid these exact phrasings):**
+**Previous Styled Questions for this item:**
 {previous_questions_str}
 
 **Output Format:**
@@ -121,7 +122,7 @@ class FAQProcessorRAFT:
         previous_questions_prompt = ""
         previous_questions_str = ""
         if previous_styled_questions:
-            previous_questions_prompt = "- The new question should be distinct from the previous styled questions (do different phrasings, coherent reorderings, etc)."
+            previous_questions_prompt = "- The new question should be distinct from the previous styled questions (do different phrasings, coherent reorderings, or focus on a different part of the answer)."
             previous_questions_str = "\n".join([f"- {pq}" for pq in previous_styled_questions])
 
         prompt = STYLED_QUESTION_GENERATION_PROMPT_TEMPLATE.format(
@@ -151,22 +152,23 @@ class FAQProcessorRAFT:
     def generate_cot_answer_raft(
         original_question: str,
         original_answer: str, # This is D*
-        llm_client: LLMClient
+        chunk: Dict[str, Any],
+        llm_client: LLMClient,
     ) -> str | None:
         """Generates the CoT Answer (A*) based only on the original Q/A pair."""
+
         try:
+            context_source_name = "Chunk" if chunk else "Original Answer"
+            context_content = chunk['chunk'] if chunk else original_answer
             prompt = COT_ANSWER_GENERATION_PROMPT.format(
                 original_question=original_question,
-                original_answer=original_answer
+                context_source_name=context_source_name,
+                context_content=context_content
             )
 
             response = llm_client.generate_text(prompt.lstrip(), temperature=0.5)
             if response and f"{ANSWER_TAG}:" in response:
                 return response.strip()
-            elif response:
-                logger.warning(f"Generated CoT answer lacked the required '{ANSWER_TAG}:' tag. Raw response: {response[:200]}...")
-                 # Attempt to append tag if missing but content exists
-                return response.strip() + f"\n{ANSWER_TAG}: (Tag ausente na geração original)"
             else:
                 logger.warning("LLM returned empty response for CoT answer generation.")
                 return None
@@ -176,7 +178,7 @@ class FAQProcessorRAFT:
 
     @staticmethod
     def generate_raft_training_data(
-        faq_files: List, # Original source file path for context/URL
+        files: List[Tuple[BeautifulSoup, Path, Path]],
         output_dir: Path,
         config: Dict[str, Any],
         is_faq: bool
@@ -185,11 +187,10 @@ class FAQProcessorRAFT:
         Generates RAFT training examples from extracted FAQ pairs.
 
         Args:
-            soup: BeautifulSoup object of the document
-            extracted_faqs: List of dictionaries, each with 'question', 'answer', 'qa_pair_hash'.
-            file_path: Path object for the original source file.
-            output_dir: Directory to save intermediate generated files.
-            config: Configuration dictionary.
+            files: List of tuples containing (soup, file_path, rel_path)
+            output_dir: Directory to save intermediate generated files
+            config: Configuration dictionary
+            is_faq: Boolean indicating if the files are FAQs
 
         Returns:
             List of dictionaries, each formatted as a RAFT training example
@@ -204,22 +205,36 @@ class FAQProcessorRAFT:
 
         debug_dir = output_dir / "debug" / "qa_pairs"
         debug_dir.mkdir(parents=True, exist_ok=True)
-        raft_qa_dir = output_dir / "qa_pairs_raft"
+        raft_qa_dir = output_dir / "qa_pairs_raft_test"
         raft_qa_dir.mkdir(parents=True, exist_ok=True)
 
         final_extracted_faq = []
         final_extracted_chunks = []
         extracted_faq_paths = []
         extracted_chunks_paths = []
-        for soup, file_path in faq_files:
-            faq_title = file_path.stem
-            if soup and soup.title:
-                faq_title = soup.title.get_text(strip=True)
-            safe_title_slug = slugify(faq_title)
+        for soup, file_path, rel_path in files:
+            # page that led to the current file
+            source_page_url = os.getxattr(str(file_path), b'user.source_page_url').decode('utf-8')
 
-            file_path_hash = get_hash(str(file_path))
-            extracted_faq_path = extracted_faq_dir / f"{safe_title_slug}_{file_path_hash}.json"
-            extracted_chunks_path = extracted_chunks_dir / f"{safe_title_slug}_{file_path_hash}.json"
+            base_dir = file_path.parents[len(rel_path.parts)-1]
+
+            source_page_html_path = base_dir / os.getxattr(str(file_path), b'user.source_html_path').decode('utf-8')
+            if file_path.suffix.lower() not in [".html", ".htm"]:
+                source_page_title = FileProcessor.get_soup(source_page_html_path).title.get_text(strip=True)
+            else:
+                source_page_title = None
+
+            # original url of the file
+            file_url = os.getxattr(str(file_path), b'user.original_url').decode('utf-8')
+
+            file_title = file_path.stem
+            if soup and soup.title:
+                file_title = soup.title.get_text(strip=True)
+            safe_title_slug = slugify(file_title)
+
+            rel_path_hash = get_hash(str(rel_path))
+            extracted_faq_path = extracted_faq_dir / f"{safe_title_slug}_{rel_path_hash}.json"
+            extracted_chunks_path = extracted_chunks_dir / f"{safe_title_slug}_{rel_path_hash}.json"
 
             extracted_faq_paths.append(extracted_faq_path)
             extracted_chunks_paths.append(extracted_chunks_path)
@@ -256,14 +271,29 @@ class FAQProcessorRAFT:
                     try:
                         with open(extracted_chunks_path, 'r', encoding='utf-8') as f:
                             extracted_chunks = json.load(f)
+                        # add url to each chunk (in one line)
+                        for chunk in extracted_chunks:
+                            chunk['source_page_url'] = source_page_url
+                            chunk['source_page_title'] = source_page_title
+                            chunk['file_url'] = file_url
+                            chunk['file_path'] = file_path
+                            chunk['file_title'] = file_title
+                            chunk['file_name'] = file_path.name
+
                     except Exception as e:
                         logger.error(f"Error loading existing extracted chunks from {extracted_chunks_path}: {e}")
                         extracted_chunks = []
                 else:
                     raise Exception(f"Extracted chunks file {extracted_chunks_path} does not exist.")
 
-            final_extracted_faq.extend(extracted_faq)
+            # extend extracted_faq and add the file hash to each item            
+            for faq in extracted_faq:
+                faq['file_hash'] = rel_path_hash
+                faq['title'] = file_title
+                faq['file_name'] = file_path.name
+                faq['file_url'] = file_url
             final_extracted_chunks.extend(extracted_chunks)
+            final_extracted_faq.extend(extracted_faq)
                 
 
         # --- RAFT Configuration ---
@@ -285,12 +315,7 @@ class FAQProcessorRAFT:
         llm_client_styled_q = LLMClient(llm_config_styled_q_provider)
         llm_client_cot_a = LLMClient(llm_config_cot_a_provider)
 
-        # Extract URL for metadata
-        domain, _, url = FileProcessor.extract_domain_and_path(file_path)
-
-        logger.info(f"Starting RAFT data generation for {len(final_extracted_faq)} original FAQ pairs from {file_path}...")
-
-        # Prepare data pools
+        logger.info(f"Starting RAFT data generation for {len(final_extracted_faq)} original FAQ pairs from {len(files)} files...")
 
         # Create formatted strings of all original Q&A pairs for use as potential documents
         all_original_qas = []
@@ -311,7 +336,14 @@ class FAQProcessorRAFT:
             for content in final_extracted_chunks:
                 topics_str = f', Topic: "{content.get("topic")}"' if content.get("topic") else ''
                 course_str = f', Course: "{content.get("course")}"' if content.get("course") else ''
-                formatted_chunk = f'Chunk: "{content["chunk"]}"{topics_str}{course_str}'
+                filename_str = f', File: "{content["file_path"].name}"'
+
+                url_str = (
+                    f', URL: "[{content["file_title"]}]({content["file_url"]})"' if filename_str.endswith((".html\"", ".htm\""))
+                    else f', URLs: "[{content["source_page_title"]}]({content["source_page_url"]}); [{content["file_name"]}]({content["file_url"]})"'
+                )
+
+                formatted_chunk = f'Chunk: "{content["chunk"]}"{topics_str}{course_str}{filename_str}{url_str}'
                 all_original_chunks.append(formatted_chunk)
 
         all_training_examples = []
@@ -324,18 +356,39 @@ class FAQProcessorRAFT:
         # --- Main Loop: Iterate through each original FAQ pair ---
         for i, original_faq in enumerate(tqdm(final_extracted_faq, desc="Generating RAFT Examples")):
             original_q = original_faq["question"]
-            original_a = original_faq["answer"] # Golden document (D*)
+            original_a = original_faq["answer"] # Golden document (D*) for faq file
             qa_hash = original_faq["qa_pair_hash"]
+            file_title = original_faq["title"]
+            file_name = original_faq["file_name"]
+            file_url = original_faq["file_url"]
+            current_chunk = None
+
             if not is_faq and len(final_extracted_faq) == len(final_extracted_chunks):
-                content = f'Chunk: "{final_extracted_chunks[i]["chunk"]}"'
-                topics_str = f', Topic: "{final_extracted_chunks[i].get("topic")}"' if final_extracted_chunks[i].get("topic") else ''
-                course_str = f', Course: "{final_extracted_chunks[i].get("course")}"' if final_extracted_chunks[i].get("course") else ''
-            else:
+                current_chunk = final_extracted_chunks[i]
+                content = f'Chunk: "{current_chunk["chunk"]}"'
+                topics_str = f', Topic: "{current_chunk.get("topic")}"' if current_chunk.get("topic") else ''
+                course_str = f', Course: "{current_chunk.get("course")}"' if current_chunk.get("course") else ''
+
+                is_html = current_chunk["file_path"].suffix.lower() in [".html", ".htm"]
+
+                url_str = (
+                    f', URL: "[{file_title}]({file_url})"' if is_html
+                    else f', URLs: "[{current_chunk["source_page_title"]}]({current_chunk["source_page_url"]}); [{file_name}]({file_url})"'
+                )
+                source_str = url_str[len(', URL: '):] if is_html else url_str[len(', URLs: '):]
+                source_str = source_str.strip('"')
+    
+            elif is_faq:
                 content = f'Q: "{original_q}", A: "{original_a}"'
                 topics_str = f', Topics: "{original_faq.get("topics")}"' if original_faq.get("topics") else ''
                 course_str = f', Course: "{original_faq.get("course")}"' if original_faq.get("course") else ''
+                filename_str = f', File: "{original_faq["file_name"]}"'
+                url_str = f', URL: [{file_title}]({file_url})' if file_url else ''
+                source_str = f'[{file_title}]({file_url})'
+            else:
+                raise Exception(f"Invalid state: Chunk with len(final_extracted_faq) != len(final_extracted_chunks)")
 
-            golden_document = f'{content}{topics_str}{course_str}'
+            golden_document = f'{content}{topics_str}{course_str}{url_str}'
             
             for iteration in range(max_iterations_overall):
                 # --- Loop through Writing Styles to generate Questions (Q) and Answers (A*) ---
@@ -402,10 +455,12 @@ class FAQProcessorRAFT:
                             logger.info(f"Generating CoT Answer for {qa_hash}_{safe_style_name}_{iteration}...")
 
                             cot_answer_str = FAQProcessorRAFT.generate_cot_answer_raft(
-                                styled_q, original_a, llm_client_cot_a
+                                styled_q, original_a, current_chunk, llm_client_cot_a
                             )
 
                             if cot_answer_str:
+                                # add fonte here
+                                cot_answer_str += f"\n> Fonte: {source_str}"
                                 # get <ANSWER>: part
                                 try:
                                     with open(cot_answer_path, 'w', encoding='utf-8') as f:
@@ -476,8 +531,8 @@ class FAQProcessorRAFT:
                         "golden_present": golden_present_flag,
                         "golden_index": golden_idx,
                         "num_distractors_in_context": len(context_docs) - (1 if golden_present_flag else 0),
-                        "url": url, # Add original URL
-                        "file_name": file_path.name,
+                        "file_url": file_url,
+                        "file_name": file_name,
                         # Optional: Add original Q/A for reference/debugging if needed
                         # "original_question": original_q,
                         # "original_answer": original_a,
