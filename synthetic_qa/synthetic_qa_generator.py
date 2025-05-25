@@ -16,18 +16,22 @@ from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 from slugify import slugify
+import re
 
 # Import modules
 from modules.file_processor import FileProcessor
 from modules.faq_processor import FAQProcessor
-from modules.faq_processor_raft import FAQProcessorRAFT
+from synthetic_qa.modules.qa_processor_raft import QAProcessorRAFT
 from modules.text_chunker import TextChunker
 from modules.qa_generator import QAGenerator
-from modules.utils import get_hash
+from modules.utils import create_hash
 
 # Logging setup
+with open(config_path := os.path.join(os.path.dirname(__file__), 'config.yaml'), 'r', encoding='utf-8') as f:
+    _config = yaml.safe_load(f)
+logging_level = getattr(logging, _config.get('global', {}).get('logging_level', 'INFO').upper(), logging.INFO)
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging_level,
     format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S"
 )
@@ -56,16 +60,15 @@ class SyntheticQADataGenerator:
         logger.info(f"Initialized QA Generator in standard mode")
 
 
-    def process_directory(self, input_dir: str, output_dir: str, max_workers: int = 4) -> None:
+    def process_directory(self, output_dir: str, max_workers: int = 4) -> None:
         """
         Process all files in a directory to generate synthetic QA data.
         
         Args:
-            input_dir: Directory containing the files to process
             output_dir: Directory to save the generated QA data
             max_workers: Maximum number of concurrent workers for processing
         """
-        input_path = Path(input_dir)
+        input_path = Path(self.config["base_dir"])
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
         
@@ -73,88 +76,84 @@ class SyntheticQADataGenerator:
         supported_extensions = self.config.get("file_processing", {}).get(
             "include_extensions", ['.html', '.htm', '.pdf', '.txt', '.md', '.docx', '.doc']
         )
-        all_files = []
+        all_files_paths = []
         
         for ext in supported_extensions:
-            all_files.extend(list(input_path.glob(f"**/*{ext}")))
+            all_files_paths.extend(list(input_path.glob(f"**/*{ext}")))
             
-        if not all_files:
-            logger.warning(f"No supported files found in {input_dir}")
+        if not all_files_paths:
+            logger.warning(f"No supported files found in {self.config['base_dir']}")
             return
             
-        logger.info(f"Found {len(all_files)} files to process")
+        logger.info(f"Found {len(all_files_paths)} files to process")
         
         # First identify potential FAQ files (only HTML files can be FAQs)
-        faq_files = []
-        regular_files = []
+        all_files = []
         
-        for file_path in all_files:
-            rel_path = file_path.relative_to(input_path)
+        for file_path in all_files_paths:
             if file_path.suffix.lower() in ['.html', '.htm']:
                 try:
-                    soup = FileProcessor.get_soup(file_path)
+                    soup = FileProcessor.preprocess_html(file_path)
                     if FAQProcessor.detect_faq_document(soup, file_path.name):
                         logger.info(f"Detected FAQ document: {file_path.relative_to(input_path)}")
-                        faq_files.append((soup, file_path, rel_path))
+                        all_files.append(("faq", soup, file_path))
                     else:
-                        regular_files.append((soup, file_path, rel_path))
+                        all_files.append(("regular", soup, file_path))
                 except Exception as e:
                     logger.error(f"Error checking if {file_path} is FAQ: {e}")
-                    regular_files.append((None, file_path, rel_path))
+                    all_files.append(("regular", None, file_path))
             else:
-                regular_files.append((None, file_path, rel_path))
-        
+                all_files.append(("regular", None, file_path))
+
         files_process_batches = []
 
-        if len(faq_files) > 0:
-            logger.info(f"Identified {len(faq_files)} FAQ files and {len(regular_files)} non-FAQ files")
-            files_process_batches.append(("faq", faq_files))
-        
         faq_qa_pairs = []
         regular_qa_pairs = []
 
-        if regular_files:
-            processed_regular_files = []
+        if all_files:
+            faq_files = []
+            regular_files = []
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 future_to_file = {
-                    executor.submit(self.process_file, soup, file_path, input_path, output_path): (soup, file_path)
-                    for soup, file_path, _ in regular_files
+                    executor.submit(self.process_file, soup, file_path, input_path, output_path, type == "faq"): (type, soup, file_path)
+                    for type, soup, file_path in all_files
                 }
-                for future in tqdm(as_completed(future_to_file), total=len(regular_files), desc="Processing non-FAQ files"):
-                    soup, file_path = future_to_file[future]
+                for future in tqdm(as_completed(future_to_file), total=len(all_files), desc="Processing each file for default QA pairs"):
+                    type, soup, file_path = future_to_file[future]
                     rel_path = file_path.relative_to(input_path)
 
                     try:
                         qa_pairs = future.result()
                         if qa_pairs:
-                            processed_regular_files.append((soup, file_path, rel_path))
-                            logger.info(f"Generated {len(qa_pairs)} QA pairs from {file_path.relative_to(input_path)}")
+                            if type == "faq":
+                                faq_files.append((soup, file_path, rel_path))
+                            else:
+                                regular_files.append((soup, file_path, rel_path))
                     except Exception as e:
                         logger.error(f"Error processing file {file_path}: {e}")
-            if processed_regular_files:
-                files_process_batches.append(("regular", processed_regular_files))
-
+            if faq_files or regular_files:
+                files_process_batches.append(("faq", faq_files))
+                files_process_batches.append(("regular", regular_files))
+        else:
+            logger.info("No files can be processed!")
+            return
 
         for batch_type, files_to_process in files_process_batches:
-            is_faq = batch_type == "faq"
-            # TODO: remove this
-            if is_faq:
-                continue 
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                future = executor.submit(FAQProcessorRAFT.generate_raft_training_data, files_to_process, output_path, self.config, is_faq)
+                future = executor.submit(QAProcessorRAFT.generate_raft_training_data, files_to_process, output_path, self.config)
                 future_to_desc = {future: batch_type}
-                for future in tqdm(as_completed(future_to_desc), total=1, desc=f"Processing {batch_type} files with FAQProcessorRAFT"):
+                for future in tqdm(as_completed(future_to_desc), total=1, desc=f"Processing {batch_type} files with QAProcessorRAFT"):
                     try:
                         raft_qa_pairs = future.result()
                         if raft_qa_pairs:
                             if batch_type == "faq":
                                 faq_qa_pairs.extend(raft_qa_pairs)
-                                logger.info(f"Generated {len(raft_qa_pairs)} QA pairs from FAQ files using FAQProcessorRAFT")
+                                logger.info(f"Generated {len(raft_qa_pairs)} QA pairs from FAQ files using QAProcessorRAFT")
                             else:
                                 regular_qa_pairs.extend(raft_qa_pairs)
-                                logger.info(f"Generated {len(raft_qa_pairs)} QA pairs from regular files using FAQProcessorRAFT")
+                                logger.info(f"Generated {len(raft_qa_pairs)} QA pairs from regular files using QAProcessorRAFT")
                     except Exception as e:
-                        logger.error(f"Error processing {batch_type} files with FAQProcessorRAFT: {e}")
+                        logger.error(f"Error processing {batch_type} files with QAProcessorRAFT: {e}")
 
 
         # Combine FAQ and non-FAQ QA pairs
@@ -162,7 +161,7 @@ class SyntheticQADataGenerator:
                     
         # Save all QA pairs to a final JSON file
         if all_qa_pairs:
-            final_output = output_path / "synthetic_qa_data_raft_test.json"
+            final_output = output_path / "synthetic_qa_data_raft.json"
             with open(final_output, 'w', encoding='utf-8') as f:
                 json.dump(all_qa_pairs, f, ensure_ascii=False, indent=2)
 
@@ -172,7 +171,7 @@ class SyntheticQADataGenerator:
             logger.warning("No QA pairs were generated")
 
 
-    def process_file(self, soup, file_path, base_dir, output_dir):
+    def process_file(self, soup, file_path, base_dir, output_dir, is_faq: bool):
         """
         Process a single file to generate synthetic QA pairs.
 
@@ -182,11 +181,12 @@ class SyntheticQADataGenerator:
         Returns:
             list: A list of generated QA pairs. Each QA pair is a dictionary containing 'question' and 'answer' keys.
         """
+        logger.debug(f"Processing file {file_path}")
         try:
             # Extract relative path for source info
             rel_path = file_path.relative_to(base_dir)
             file_title = soup.title.get_text(strip=True) if soup else file_path.stem
-            file_hash = get_hash(str(rel_path))
+            file_hash = create_hash(str(rel_path))
             safe_title_slug = slugify(file_title)
             
             # Extract text from file with appropriate settings
@@ -195,7 +195,7 @@ class SyntheticQADataGenerator:
             extracted_text_path = extracted_text_dir / f"{safe_title_slug}_{file_hash}.txt"
 
             if os.path.exists(extracted_text_path):
-                logger.info(f"Structured text already exists for {rel_path}")
+                logger.debug(f"Structured text already exists for {rel_path}")
                 with open(extracted_text_path, 'r', encoding='utf-8') as f:
                     text = f.read()
             else:
@@ -208,25 +208,27 @@ class SyntheticQADataGenerator:
                 logger.warning(f"No text extracted from {rel_path}")
                 return []
             
-            # Try to load chunks from file if it exists, otherwise generate and save
-            extracted_chunks_dir = output_dir / "extracted_chunks"
-            extracted_chunks_dir.mkdir(parents=True, exist_ok=True)
-            extracted_chunks_path = extracted_chunks_dir / f"{safe_title_slug}_{file_hash}.json"
+            if not is_faq:
+                # Try to load chunks from file if it exists, otherwise generate and save
+                extracted_chunks_dir = output_dir / "extracted_chunks"
+                extracted_chunks_dir.mkdir(parents=True, exist_ok=True)
+                extracted_chunks_path = extracted_chunks_dir / f"{safe_title_slug}_{file_hash}.json"
 
-            if os.path.exists(extracted_chunks_path):
-                logger.info(f"Chunks already exist for {rel_path}")
-                with open(extracted_chunks_path, 'r', encoding='utf-8') as f:
-                    chunks = json.load(f)
-            else:
-                chunks = self.text_chunker.chunk_text(text, rel_path)
-                with open(extracted_chunks_path, 'w', encoding='utf-8') as f:
-                    json.dump(chunks, f, ensure_ascii=False, indent=2)
+                if os.path.exists(extracted_chunks_path):
+                    logger.debug(f"Chunks already exist for {rel_path}")
+                    with open(extracted_chunks_path, 'r', encoding='utf-8') as f:
+                        chunks = json.load(f)
+                    logger.debug(f"Loaded {len(chunks)} chunks from {rel_path}")
+                else:
+                    chunks = self.text_chunker.chunk_text(text, rel_path)
+                    with open(extracted_chunks_path, 'w', encoding='utf-8') as f:
+                        json.dump(chunks, f, ensure_ascii=False, indent=2)
+                    logger.debug(f"Created {len(chunks)} chunks from {rel_path}")
                 
-            if not chunks:
-                logger.info(f"No chunks created from {rel_path}")
-                return []
+                if not chunks:
+                    logger.debug(f"No chunks created from {rel_path}")
+                    return []
                 
-            logger.info(f"Created {len(chunks)} chunks from {rel_path}")
 
             context_html_text = None
             # Attempt to find and process a related HTML file for context,
@@ -245,14 +247,14 @@ class SyntheticQADataGenerator:
                         source_html_file_path = base_dir / source_html_path
                         
                         if source_html_file_path.exists() and source_html_file_path.is_file():
-                            source_html_file_hash = get_hash(str(source_html_path))
+                            source_html_file_hash = create_hash(str(source_html_path))
                             soup_source_html = FileProcessor.get_soup(source_html_file_path)
                             safe_source_html_title_slug = slugify(soup_source_html.title.get_text(strip=True))
 
                             source_html_extracted_text_path = extracted_text_dir / f"{safe_source_html_title_slug}_{source_html_file_hash}.txt"
 
                             if os.path.exists(source_html_extracted_text_path):
-                                logger.info(f"Context HTML text already cached for {source_html_file_path.name} at {source_html_extracted_text_path}")
+                                logger.debug(f"Context HTML text already cached for {source_html_file_path.name} at {source_html_extracted_text_path}")
                                 with open(source_html_extracted_text_path, 'r', encoding='utf-8') as f:
                                     context_html_text = f.read()
                             else:
@@ -262,7 +264,7 @@ class SyntheticQADataGenerator:
                                     context_html_text = extracted_context_text
                                     with open(source_html_extracted_text_path, 'w', encoding='utf-8') as f:
                                         f.write(context_html_text)
-                                    logger.info(f"Saved extracted text for source HTML {source_html_file_path.name} to {source_html_extracted_text_path}")
+                                    logger.debug(f"Saved extracted text for source HTML {source_html_file_path.name} to {source_html_extracted_text_path}")
                                 else:
                                     logger.warning(f"No text could be extracted from source HTML file: {source_html_file_path.name}")
                         else:
@@ -275,18 +277,40 @@ class SyntheticQADataGenerator:
                         logger.error(f"Error processing source HTML context from path '{source_html_path}' for file {file_path.name}: {e}", exc_info=True)
             
             else: # file_path.suffix.lower() is '.html' or '.htm'
-                logger.info(f"File {file_path.name} is already HTML/HTM. No separate source HTML context needed.")
+                logger.debug(f"File {file_path.name} is already HTML/HTM. No separate source HTML context needed.")
 
+            if is_faq:
+                # check if already extracted
+                extracted_faq_dir = output_dir / "extracted_faq"
+                extracted_faq_dir.mkdir(parents=True, exist_ok=True)
+                extracted_faq_path = extracted_faq_dir / f"{safe_title_slug}_{file_hash}.json"
 
-            qa_pairs = self.qa_generator.generate_qa_pairs(
-                chunks=chunks,
-                source_path=rel_path,
-                file_title=file_title,
-                output_dir=output_dir,
-                full_document_text=text,
-                context_html_text=context_html_text,
-                batch_size=5
-            )
+                if os.path.exists(extracted_faq_path):
+                    logger.debug(f"FAQ already extracted for {rel_path}")
+                    with open(extracted_faq_path, 'r', encoding='utf-8') as f:
+                        original_faq = json.load(f)
+                else:
+                    original_faq = FAQProcessor.extract_faq_from_text(text, file_path, self.config)
+                    with open(extracted_faq_path, 'w', encoding='utf-8') as f:
+                        json.dump(original_faq, f, ensure_ascii=False, indent=2)
+
+                qa_pairs = self.qa_generator.generate_qa_pairs_from_faq(
+                    original_faq=original_faq,
+                    file_path=file_path,
+                    file_title=file_title,
+                    output_dir=output_dir,
+                    batch_size=5
+                )
+            else:
+                qa_pairs = self.qa_generator.generate_qa_pairs(
+                    chunks=chunks,
+                    file_path=file_path,
+                    file_title=file_title,
+                    output_dir=output_dir,
+                    full_document_text=text,
+                    context_html_text=context_html_text,
+                    batch_size=5
+                )
 
             return qa_pairs
             
@@ -303,10 +327,18 @@ def main():
     parser.add_argument("--output", default="./output", help="Directory to save output files")
     parser.add_argument("--threads", type=int, default=4, help="Maximum number of concurrent workers")
     args = parser.parse_args()
-    
+
+    # Update config file to include (or replace) base_dir
+    with open(args.config, 'r', encoding='utf-8') as f:
+        config_text = f.read()
+    config_text = re.sub(r'\n?base_dir:.*\n?', '', config_text)
+    config_text += f"\nbase_dir: {args.input}  # set by synthetic_qa_generator\n"
+    with open(args.config, 'w', encoding='utf-8') as f:
+        f.write(config_text)
+
     try:
         generator = SyntheticQADataGenerator(args.config)
-        generator.process_directory(args.input, args.output, args.threads)
+        generator.process_directory(args.output, args.threads)
     except Exception as e:
         logger.error(f"Error during execution: {e}")
         raise

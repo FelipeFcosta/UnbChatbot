@@ -5,15 +5,14 @@ This module handles detection and processing of FAQ documents.
 """
 
 import hashlib
-import os
 import logging
 import json
 from pathlib import Path
-from typing import List, Tuple, Dict, Any
+from typing import List, Dict, Any
 from bs4 import BeautifulSoup
 import textwrap
 
-from slugify import slugify
+from modules.utils import create_hash
 
 from .llm_client import LLMClient
 from .file_processor import FileProcessor
@@ -66,97 +65,65 @@ class FAQProcessor:
         return False
 
 
-    @staticmethod
-    def create_qa_hash(file_path: Path, question: str):
-        return f"faq_{hashlib.sha256((str(file_path) + question).encode()).hexdigest()[:12]}"
-
 
     @staticmethod
-    def extract_faq(soup: BeautifulSoup, file_path: Path, output_dir: Path, config: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def extract_faq_from_text(text: str, file_path: Path, config: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
         Extract question-answer pairs from an FAQ document using LLM processing.
         
         Args:
-            soup: BeautifulSoup object of the document
-            file_path: Path to the HTML file
-            output_dir: Path to the output directory
+            text: Text of the FAQ
+            file_path: Path to the file
             config: Configuration dictionary
             
         Returns:
             List of dictionaries containing extracted FAQ data
         """
-        from .file_processor import FileProcessor
+        domain, _, _ = FileProcessor.extract_domain_and_path(file_path)
+        rel_path = file_path.relative_to(Path(config["base_dir"]))
+
         
         try:
-            structured_text_dir = output_dir / "extracted_text"
-
             llm_client = LLMClient(config.get("providers", {}).get("faq_extraction", {}))
 
-            # check if already present in file
-            if structured_text_dir.exists():
-                extracted_faq_hash = hashlib.sha256(f"{file_path}".encode()).hexdigest()[:12]
-                structured_text_path = structured_text_dir / f"{file_path.stem}_{extracted_faq_hash}.txt"
-
-                if structured_text_path.exists():
-                    logger.info(f"Structured text already exists for {file_path}")
-                    with open(structured_text_path, 'r', encoding='utf-8') as f:
-                        structured_text = f.read()
-            else:
-                # Extract text with preserved structure
-                structured_text = FileProcessor.extract_text_from_html(soup, file_path, llm_client)
-                # Save it (ensure directory exists first)
-                structured_text_dir.mkdir(parents=True, exist_ok=True)
-                extracted_faq_hash = hashlib.sha256(f"{file_path}".encode()).hexdigest()[:12]
-                structured_text_path = structured_text_dir / f"{slugify(file_path.stem)}_{extracted_faq_hash}.txt"
-                with open(structured_text_path, 'w', encoding='utf-8') as f:
-                    f.write(structured_text)
-            
-
-            domain, _, _ = FileProcessor.extract_domain_and_path(file_path)
-
-            if not structured_text:
-                logger.warning("No text content extracted from HTML")
-                return []
-            
-            # Construct the prompt for LLM extraction of Q&A pairs
-            prompt = f"""
-            Extract EVERY question and answer from this university markdown FAQ file and convert them to a structured JSON format. Follow these requirements exactly:
-
-            1. Output a JSON string with this structure:
-            {{
-            "qa_pairs": [
-                {{
-                "question": FAQ question,
-                "answer": FAQ answer,
-                "topics": ["Topic1, Topic2, ..."],
-                "course": "specific course"
-                }},
-                // More QA pairs...
-            ]
-            }}
-
-            2. **Critical requirements**:
-            - Both "question" and "answer" fields **can never be null**
-            - **"topics" are EXPLICITLY PRESENT in the FAQ AS titles/headers above a QA pair or a number of QA pairs** (can be null if no topics).
-            - **include all nested topics as just a flat array**
-            - "course" can be null or be a specific course
-
-            3. Content processing:
-            - Preserve all markdown formatting and links.
-            - Detect question-answer pairs intelligently (tip: QA are in different hierarchical markdown levels)
-            - **DO NOT ALTER OR ADD CONTENT** except to fix clear formatting issues
-            - Every text should be verbatim to the original FAQ
-            
-            Available courses: {FileProcessor.INSTITUTION_COURSES.get(domain, "All Courses")}
-
-            **IMPORTANT**: You MUST specify a particular course (from the available courses list) if ANY of these conditions is met:
-            1. The original question explicitly mentions that specific course
-            2. The **question topic explicitly mentions a specific course** (pay careful attention to the topics field)
-            3. The document structure as a whole is about a specific course (in which case all QA pairs will have this course)
-
-            After the approach explanation, return the **complete**, well-formed JSON with all extracted QA pairs from the university FAQ content below:
-            {structured_text}
-            """
+            prompt = (
+                "Extract EVERY question and answer from this university markdown FAQ file and convert them to a structured JSON format. Follow these requirements exactly:\n"
+                "\n"
+                "1. Output a JSON string with this structure:\n"
+                "{\n"
+                '"qa_pairs": [\n'
+                "    {\n"
+                '    "question": FAQ question,\n'
+                '    "answer": FAQ answer,\n'
+                '    "topics": ["Topic1, Topic2, ..."],\n'
+                '    "course": "specific course"\n'
+                "    },\n"
+                "    // More QA pairs...\n"
+                "]\n"
+                "}\n"
+                "\n"
+                "2. **Critical requirements**:\n"
+                '- Both "question" and "answer" fields **can never be null**\n'
+                '- **"topics" are EXPLICITLY PRESENT in the FAQ AS titles/headers above a QA pair or a number of QA pairs** (can be null if no topics).\n'
+                '- **include all nested topics as just a flat array**\n'
+                '- "course" can be null or be a specific course\n'
+                "\n"
+                "3. Content processing:\n"
+                "- Preserve all markdown formatting and links.\n"
+                "- Detect question-answer pairs intelligently (tip: QA are in different hierarchical markdown levels)\n"
+                "- **DO NOT ALTER OR ADD CONTENT** except to fix clear formatting issues\n"
+                "- Every text should be verbatim to the original FAQ\n"
+                "\n"
+                f"Available courses: {FileProcessor.INSTITUTION_COURSES.get(domain, 'All Courses')}\n"
+                "\n"
+                "**IMPORTANT**: You MUST specify a particular course (from the available courses list) if ANY of these conditions is met:\n"
+                "1. The original question explicitly mentions that specific course\n"
+                "2. The **question topic explicitly mentions a specific course** (pay careful attention to the topics field)\n"
+                "3. The document structure as a whole is about a specific course (in which case all QA pairs will have this course)\n"
+                "\n"
+                "After the approach explanation, return the **complete**, well-formed JSON with all extracted QA pairs from the university FAQ content below:\n"
+                f"{text}"
+            )
 
             # Call the LLM to extract QA pairs
             response = llm_client.generate_text(
@@ -208,7 +175,7 @@ class FAQProcessor:
                             "answer": answer.strip(),
                             "topics": topics if topics else None,
                             "course": course.strip() if course else None,
-                            "qa_pair_hash": FAQProcessor.create_qa_hash(file_path, question)
+                            "qa_pair_hash": create_hash(str(rel_path) + question)
                         })
 
                 logger.info(f"Successfully extracted {len(qa_pairs)} QA pairs using LLM")
@@ -268,24 +235,22 @@ class FAQProcessor:
             previous_questions_prompt_template = "The new question should be distinct from the previous styled questions (do different phrasings, coherent reorderings, etc)."
 
         question_prompt_parts = [
-            f"""You are an LLM Generator that will create synthetic data from original FAQ pairs to fine tune a specialist chatbot model.
-
-Create an alternative FAQ question for EACH of the original pairs listed below.
-**WRITING STYLE**: {writing_style_name}
-- Description: {writing_style_desc}
-- Goal: {writing_style_goal}
-
-Instructions for EACH question:
-- Rewrite *only the question*, while **preserving all the original meaning and intent**.
-- **DO NOT ADD ANY NEW INFORMATION**.
-- **Follow the specified writing style closely.**
-- The user knows they are talking to an assistant chatbot.
-- Output must be IN PORTUGUESE.
-- Avoid repeated patterns between generated questions.
-
-{previous_questions_prompt_template}
-
-Original Pairs:"""
+            "You are an LLM Generator that will create synthetic data from original FAQ pairs to fine tune a specialist chatbot model.\n"
+            "\n"
+            "Create an alternative FAQ question for EACH of the original pairs listed below.\n"
+            f"**WRITING STYLE**: {writing_style_name}\n"
+            f"- Description: {writing_style_desc}\n"
+            f"- Goal: {writing_style_goal}\n"
+            "\n"
+            "Instructions for EACH question:\n"
+            "- Rewrite *only the question*, while **preserving all the original meaning and intent**.\n"
+            "- **DO NOT ADD ANY NEW INFORMATION**.\n"
+            "- **Follow the specified writing style closely.**\n"
+            "- The user knows they are talking to an assistant chatbot.\n"
+            "- Output must be IN PORTUGUESE.\n"
+            "- Avoid repeated patterns between generated questions.\n"
+            f"\n{previous_questions_prompt_template}\n"
+            "Original Pairs:"
         ]
 
         for i, (q, a) in enumerate(zip(questions, answers)):
@@ -302,14 +267,15 @@ Original Pairs:"""
                 f"{previous_questions_str}"
             )
 
-        question_prompt_parts.append(f"""
-**Output Format:**
-Return ONLY the {batch_size} generated alternative questions **in order**, IN PORTUGUESE.
-Each generated question should be on a new line.
-[Generated Question for Pair #1]
-[Generated Question for Pair #2]
-...
-Do not include ANY other text, numbering, or explanations before or after the generated questions.""")
+        question_prompt_parts.append(
+            "**Output Format:**\n"
+            f"Return ONLY the {batch_size} generated alternative questions **in order**, IN PORTUGUESE.\n"
+            "Each generated question should be on a new line.\n"
+            "[Generated Question for Pair #1]\n"
+            "[Generated Question for Pair #2]\n"
+            "...\n"
+            "Do not include ANY other text, numbering, or explanations before or after the generated questions."
+        )
 
         styled_question_prompt = "\n".join(question_prompt_parts)
         llm_question_response = llm_client.generate_text(styled_question_prompt.lstrip(), temperature=0.7)
@@ -340,22 +306,20 @@ Do not include ANY other text, numbering, or explanations before or after the ge
 
 
         answer_prompt_parts = [
-             f"""You are an LLM Generator that will create synthetic data from original FAQ pairs to fine tune a specialist chatbot model.
-
-You are creating alternative FAQ answers IN PORTUGUESE for the items listed below.
-General Instructions for EACH answer:
-- Rewrite the 'Original Answer' provided for the item.
-- Use the corresponding 'Styled Question' as context for the rewrite.
-- **Preserve ALL the exact original information** from the 'Original Answer'.
-- Format the answer in a clear, helpful way. Preserve markdown/links but restructure if helpful.
-- **CRITICAL: NEVER ADD INFORMATION THAT IS NOT IN THE ORIGINAL ANSWER.** Do not infer, assume, or add confirmations unless explicitly present. Exact same meaning is required.
-- Try to understand and somewhat match the question's writing style ("{writing_style_name}"), BUT always maintain the persona of a formal, modern, serious, polite, expert assistant for a brazilian university (UnB - Universidade de Brasília).
-- Always answer the question directly first.
-
-{previous_answers_prompt_template}.
-
-- Every factual information should be preserved, none added.
-Original pairs:"""
+            "You are an LLM Generator that will create synthetic data from original FAQ pairs to fine tune a specialist chatbot model.\n"
+            "\n"
+            "You are creating alternative FAQ answers IN PORTUGUESE for the items listed below.\n"
+            "General Instructions for EACH answer:\n"
+            "- Rewrite the 'Original Answer' provided for the item.\n"
+            "- Use the corresponding 'Styled Question' as context for the rewrite.\n"
+            "- **Preserve ALL the exact original information** from the 'Original Answer'.\n"
+            "- Format the answer in a clear, helpful way. Preserve markdown/links but restructure if helpful.\n"
+            "- **CRITICAL: NEVER ADD INFORMATION THAT IS NOT IN THE ORIGINAL ANSWER.** Do not infer, assume, or add confirmations unless explicitly present. Exact same meaning is required.\n"
+            f"- Try to understand and somewhat match the question's writing style (\"{writing_style_name}\"), BUT always maintain the persona of a formal, modern, serious, polite, expert assistant for a brazilian university (UnB - Universidade de Brasília).\n"
+            "- Always answer the question directly first.\n"
+            f"\n{previous_answers_prompt_template}.\n"
+            "\n- Every factual information should be preserved, none added.\n"
+            "Original pairs:"
         ]
 
         for i, (styled_q, orig_a, prev_ans_list) in enumerate(zip(styled_questions, answers, previous_answers_batch)):
@@ -371,21 +335,22 @@ Original pairs:"""
                 f"{previous_answers_str}"
             )
 
-        answer_prompt_parts.append(f"""
-**Output Format:**
-Return ONLY the {batch_size} generated alternative answers, IN PORTUGUESE.
-The strings can contain newline characters (\\n) for multi-line answers. Ensure correct JSON string escaping.
-{{
-  "styled_answers": [
-    {{"a": "Generated Answer for Item #1."}},
-    {{"a": "Generated Answer for Item #2."}},
-    ...
-  ]
-}}
-
-Ensure the order of your generated answers matches the order of the Input Items above.
-The entire response should be just the JSON array.
-**DON'T MAKE ASSUMPTIONS** if original answer isn't clear (always preserve meaning).""")
+        answer_prompt_parts.append(
+            "**Output Format:**\n"
+            f"Return ONLY the {batch_size} generated alternative answers, IN PORTUGUESE.\n"
+            "The strings can contain newline characters (\\n) for multi-line answers. Ensure correct JSON string escaping.\n"
+            "{\n"
+            '  "styled_answers": [\n'
+            '    {"a": "Generated Answer for Item #1."},\n'
+            '    {"a": "Generated Answer for Item #2."},\n'
+            '    ...\n'
+            '  ]\n'
+            "}\n"
+            "\n"
+            "Ensure the order of your generated answers matches the order of the Input Items above.\n"
+            "The entire response should be just the JSON array.\n"
+            "**DON'T MAKE ASSUMPTIONS** if original answer isn't clear (always preserve meaning)."
+        )
 
 
         styled_answer_prompt = "\n".join(answer_prompt_parts)
@@ -507,7 +472,7 @@ The entire response should be just the JSON array.
 
             if not extracted_faq:
                 logger.info(f"Extracting FAQ pairs for {file_path} using LLM.")
-                extracted_faq = FAQProcessor.extract_faq(soup, file_path, output_dir, config)
+                extracted_faq = FAQProcessor.extract_faq_from_text(soup, file_path, output_dir, config)
 
                 if extracted_faq:
                     try:

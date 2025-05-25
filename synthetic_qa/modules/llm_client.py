@@ -8,9 +8,18 @@ import os
 import random
 import time
 import logging
+import yaml
 from typing import Dict, Any, Optional, List, Union
 from .utils import json_if_valid, RateLimiter
 
+with open(os.path.join(os.path.dirname(__file__), '../config.yaml'), 'r', encoding='utf-8') as f:
+    _config = yaml.safe_load(f)
+logging_level = getattr(logging, _config.get('global', {}).get('logging_level', 'INFO').upper(), logging.INFO)
+logging.basicConfig(
+    level=logging_level,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
 logger = logging.getLogger(__name__)
 
 # Import Google Gemini if available
@@ -29,6 +38,7 @@ try:
 except ImportError:
     OPENAI_AVAILABLE = False
     logger.warning("OpenAI package not installed; OpenRouter fallback will not work.")
+
 
 class LLMClient:
     """Handles communication with LLM APIs for question and answer generation."""
@@ -93,7 +103,7 @@ class LLMClient:
         model = self.config.get("model", "")
         
         if not provider or not model:
-            logger.error("Provider or model not specified in config")
+            logger.warning("Provider or model not specified in config")
             return None
             
         # Handle Gemini API
@@ -127,7 +137,7 @@ class LLMClient:
                         )
                         full_response += response.text
                     except Exception as e:
-                        logger.error(f"Gemini API error: {e}")
+                        logger.warning(f"Gemini API error: {e}")
                         # OpenRouter fallback
                         return None # TODO: remove this
                         openrouter_response = self._openrouter_fallback(prompt, temperature)
@@ -178,12 +188,12 @@ class LLMClient:
                 return full_response
 
             except Exception as e:
-                logger.error(f"Gemini API error: {e}")
+                logger.warning(f"Gemini API error: {e}")
                 return None
 
         # Unknown provider
         else:
-            logger.error(f"Unknown provider: {provider}")
+            logger.warning(f"Unknown provider: {provider}")
             return None
 
     def _openrouter_fallback(self, prompt: str, temperature: Optional[float] = None) -> Optional[str]:
@@ -221,5 +231,5 @@ class LLMClient:
             )
             return completion.choices[0].message.content
         except Exception as e:
-            logger.error(f"OpenRouter API error: {e}")
+            logger.warning(f"OpenRouter API error: {e}")
             return None

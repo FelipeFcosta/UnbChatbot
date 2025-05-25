@@ -5,12 +5,22 @@ This module handles dividing text into semantically meaningful chunks for proces
 """
 
 import logging
+import yaml
+import os
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 # Local imports
 from .llm_client import LLMClient
-from .utils import get_hash
+from .utils import create_hash
 
+with open(os.path.join(os.path.dirname(__file__), '../config.yaml'), 'r', encoding='utf-8') as f:
+    _config = yaml.safe_load(f)
+logging_level = getattr(logging, _config.get('global', {}).get('logging_level', 'INFO').upper(), logging.INFO)
+logging.basicConfig(
+    level=logging_level,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -86,7 +96,7 @@ class TextChunker:
         if self.llm_client:
             prompt = self._build_prompt(text)
 
-            logger.info("Requesting LLM-based chunking...")
+            logger.debug("Requesting LLM-based chunking...")
             try:
                 response = self.llm_client.generate_text(
                     prompt,
@@ -100,7 +110,7 @@ class TextChunker:
             # get the "chunks" field which will contain the list
             response = response["chunks"]
             if isinstance(response, list):
-                file_hash = get_hash(str(file_path))
+                file_hash = create_hash(str(file_path))
                 chunks = [
                     {
                         "chunk": item["chunk"].strip(),
@@ -111,7 +121,7 @@ class TextChunker:
                     if "chunk" in item and "topic" in item
                 ]
                 if chunks:
-                    logger.info(f"LLM returned {len(chunks)} chunks.")
+                    logger.debug(f"LLM returned {len(chunks)} chunks.")
                     return chunks
             else:
                 logger.warning("Unexpected JSON structure returned by LLM; falling back to heuristic chunking.")

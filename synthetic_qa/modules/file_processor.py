@@ -110,6 +110,18 @@ class FileProcessor:
                         full_url = f"https://{domain_to_use}" # Default to https
                         if path:
                             full_url += f"/{path}"
+                            # try request with and without htm and html
+                            for extension in ["", ".html", ".htm"]:
+                                test_url = f"https://{domain_to_use}/{path}{extension}"
+                                try:
+                                    response = requests.head(test_url, timeout=3, allow_redirects=True)
+                                    if response.status_code == 200:
+                                        full_url = test_url
+                                        break
+                                except requests.RequestException as e:
+                                    pass
+                                
+                            
                         return domain, path, full_url
 
         parts = path_str.split('/')
@@ -193,8 +205,13 @@ class FileProcessor:
             html_content: BeautifulSoup object containing the parsed HTML content
             file_path: Path to the HTML file to process
         """        
-        domain, path, url = FileProcessor.extract_domain_and_path(file_path)
-        base_url = f"https://{url}" if "http" not in url else url
+        _, _, url = FileProcessor.extract_domain_and_path(file_path)
+        # Determine a valid base URL by checking possible URL formats
+        base_url = next(
+            (url for url in [f"{url}.html", f"{url}"]
+             if requests.head(url, timeout=3, allow_redirects=True).status_code == 200),
+            url
+        )
         
         not_working_urls = []
         working_urls = []
@@ -272,8 +289,7 @@ class FileProcessor:
                 if working_url:
                     markdown_link = f"[{link_text}]({working_url})"
                 else:
-                    # Use the base domain if no working URL found
-                    markdown_link = f"[{link_text}](https://{domain})"
+                    markdown_link = complete_url
             
             # Replace the link with the markdown version
             link.replace_with(markdown_link)

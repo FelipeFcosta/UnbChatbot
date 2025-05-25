@@ -3,9 +3,7 @@
 **/qa_pairs
 **/__pycache__/
 .venv/
-output*/
+**/output*/
 fine_tuning/*.md
-**/merge_model.py
-**/push_model.py
 **/*Zone.Identifier
 **/README.md

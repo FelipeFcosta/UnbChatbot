@@ -10,6 +10,18 @@ import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Union
 import html # Added for html.escape
+import yaml
+import os
+
+with open(os.path.join(os.path.dirname(__file__), '../config.yaml'), 'r', encoding='utf-8') as f:
+    _config = yaml.safe_load(f)
+logging_level = getattr(logging, _config.get('global', {}).get('logging_level', 'INFO').upper(), logging.INFO)
+logging.basicConfig(
+    level=logging_level,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+logger = logging.getLogger(__name__)
 
 # PDF extraction utility
 try:
@@ -17,9 +29,9 @@ try:
     PDF_AVAILABLE = True
 except ImportError:
     PDF_AVAILABLE = False
-    logging.warning("PyMuPDF not available. PDF processing will be disabled.")
+    logger.warning("PyMuPDF not available. PDF processing will be disabled.")
 
-def get_hash(text: str) -> str:
+def create_hash(text: str) -> str:
     """
     Generate a short hash for a text string.
     
@@ -132,13 +144,6 @@ def json_if_valid(text: str) -> Optional[Union[Dict[str, Any], List[Any]]]:
     except (json.JSONDecodeError, ValueError):
         return None
 
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S"
-)
-logger = logging.getLogger(__name__)
 
 
 class RateLimiter:
