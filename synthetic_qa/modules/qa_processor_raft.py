@@ -18,8 +18,6 @@ from modules.utils import create_hash
 # Assuming llm_client and file_processor are in the same directory structure
 from .llm_client import LLMClient
 from .file_processor import FileProcessor
-from .faq_processor import FAQProcessor
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +90,7 @@ class QAProcessorRAFT:
     @staticmethod
     def detect_faq_document(soup: BeautifulSoup, filename: str) -> bool:
         """(Copied from original) Determine if a document is an FAQ."""
-        # (Implementation is the same as your provided FAQProcessor)
+
         faq_indicators = ['faq', 'perguntas', 'frequentes', 'duvidas', 'q&a']
         if any(indicator in filename.lower() for indicator in faq_indicators): return True
         title = soup.find('title')
