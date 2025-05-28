@@ -21,10 +21,12 @@ import re
 # Import modules
 from modules.file_processor import FileProcessor
 from modules.faq_processor import FAQProcessor
-from synthetic_qa.modules.qa_processor_raft import QAProcessorRAFT
+from modules.qa_processor_raft import QAProcessorRAFT
 from modules.text_chunker import TextChunker
 from modules.qa_generator import QAGenerator
-from modules.utils import create_hash
+from modules.utils import create_hash, FileType
+from modules.component_processor import ComponentProcessor
+from modules.offerings_processor import OfferingsProcessor
 
 # Logging setup
 with open(config_path := os.path.join(os.path.dirname(__file__), 'config.yaml'), 'r', encoding='utf-8') as f:
@@ -96,14 +98,21 @@ class SyntheticQADataGenerator:
                     soup = FileProcessor.preprocess_html(file_path)
                     if FAQProcessor.detect_faq_document(soup, file_path.name):
                         logger.info(f"Detected FAQ document: {file_path.relative_to(input_path)}")
-                        all_files.append(("faq", soup, file_path))
+                        all_files.append((FileType.FAQ, soup, file_path))
+                    elif ComponentProcessor.detect_component_document(file_path, self.config):
+                        logger.info(f"Detected Component document: {file_path.relative_to(input_path)}")
+                        all_files.append((FileType.COMPONENT, soup, file_path))
+                    elif OfferingsProcessor.detect_offerings_document(file_path, self.config):
+                        logger.info(f"Detected Offerings document: {file_path.relative_to(input_path)}")
+                        all_files.insert(0, (FileType.OFFERINGS, soup, file_path)) # process offerings first
                     else:
-                        all_files.append(("regular", soup, file_path))
+                        all_files.append((FileType.REGULAR, soup, file_path))
                 except Exception as e:
                     logger.error(f"Error checking if {file_path} is FAQ: {e}")
-                    all_files.append(("regular", None, file_path))
+                    all_files.append((FileType.REGULAR, None, file_path))
             else:
-                all_files.append(("regular", None, file_path))
+                all_files.append((FileType.REGULAR, None, file_path))
+
 
         files_process_batches = []
 
@@ -115,7 +124,7 @@ class SyntheticQADataGenerator:
             regular_files = []
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 future_to_file = {
-                    executor.submit(self.process_file, soup, file_path, input_path, output_path, type == "faq"): (type, soup, file_path)
+                    executor.submit(self.process_file, soup, file_path, input_path, output_path, type): (type, soup, file_path)
                     for type, soup, file_path in all_files
                 }
                 for future in tqdm(as_completed(future_to_file), total=len(all_files), desc="Processing each file for default QA pairs"):
@@ -125,15 +134,15 @@ class SyntheticQADataGenerator:
                     try:
                         qa_pairs = future.result()
                         if qa_pairs:
-                            if type == "faq":
+                            if type == FileType.FAQ:
                                 faq_files.append((soup, file_path, rel_path))
                             else:
                                 regular_files.append((soup, file_path, rel_path))
                     except Exception as e:
                         logger.error(f"Error processing file {file_path}: {e}")
             if faq_files or regular_files:
-                files_process_batches.append(("faq", faq_files))
-                files_process_batches.append(("regular", regular_files))
+                files_process_batches.append((FileType.FAQ, faq_files))
+                files_process_batches.append((FileType.REGULAR, regular_files))
         else:
             logger.info("No files can be processed!")
             return
@@ -142,18 +151,18 @@ class SyntheticQADataGenerator:
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 future = executor.submit(QAProcessorRAFT.generate_raft_training_data, files_to_process, output_path, self.config)
                 future_to_desc = {future: batch_type}
-                for future in tqdm(as_completed(future_to_desc), total=1, desc=f"Processing {batch_type} files with QAProcessorRAFT"):
+                for future in tqdm(as_completed(future_to_desc), total=1, desc=f"Processing {batch_type.name.lower()} files with QAProcessorRAFT"):
                     try:
                         raft_qa_pairs = future.result()
                         if raft_qa_pairs:
-                            if batch_type == "faq":
+                            if batch_type == FileType.FAQ:
                                 faq_qa_pairs.extend(raft_qa_pairs)
                                 logger.info(f"Generated {len(raft_qa_pairs)} QA pairs from FAQ files using QAProcessorRAFT")
                             else:
                                 regular_qa_pairs.extend(raft_qa_pairs)
                                 logger.info(f"Generated {len(raft_qa_pairs)} QA pairs from regular files using QAProcessorRAFT")
                     except Exception as e:
-                        logger.error(f"Error processing {batch_type} files with QAProcessorRAFT: {e}")
+                        logger.error(f"Error processing {batch_type.name.lower()} files with QAProcessorRAFT: {e}")
 
 
         # Combine FAQ and non-FAQ QA pairs
@@ -171,7 +180,7 @@ class SyntheticQADataGenerator:
             logger.warning("No QA pairs were generated")
 
 
-    def process_file(self, soup, file_path, base_dir, output_dir, is_faq: bool):
+    def process_file(self, soup, file_path, base_dir, output_dir, file_type: FileType):
         """
         Process a single file to generate synthetic QA pairs.
 
@@ -182,10 +191,13 @@ class SyntheticQADataGenerator:
             list: A list of generated QA pairs. Each QA pair is a dictionary containing 'question' and 'answer' keys.
         """
         logger.debug(f"Processing file {file_path}")
+        
         try:
             # Extract relative path for source info
             rel_path = file_path.relative_to(base_dir)
-            file_title = soup.title.get_text(strip=True) if soup else file_path.stem
+            file_title = file_path.stem
+            if soup and soup.title:
+                file_title = soup.title.get_text(strip=True)
             file_hash = create_hash(str(rel_path))
             safe_title_slug = slugify(file_title)
             
@@ -203,12 +215,36 @@ class SyntheticQADataGenerator:
 
                 with open(extracted_text_path, 'w', encoding='utf-8') as f:
                     f.write(text)
-                
+
             if not text:
                 logger.warning(f"No text extracted from {rel_path}")
                 return []
+
+            # don't continue processing offerings since they will be attached to components
+            if file_type == FileType.OFFERINGS:
+                # check if already extracted
+                extracted_offerings_dir = output_dir / "extracted_offerings"
+                extracted_offerings_dir.mkdir(parents=True, exist_ok=True)
+                extracted_offerings_path = extracted_offerings_dir / f"{safe_title_slug}_{file_hash}.json"
+
+                if os.path.exists(extracted_offerings_path):
+                    logger.debug(f"Offerings already extracted for {rel_path}")
+                    with open(extracted_offerings_path, 'r', encoding='utf-8') as f:
+                        original_offerings = json.load(f)
+                else:
+                    original_offerings = OfferingsProcessor.extract_offerings_from_text(text, file_path, self.config)
+                    with open(extracted_offerings_path, 'w', encoding='utf-8') as f:
+                        json.dump(original_offerings, f, ensure_ascii=False, indent=2)
+
+                logger.info(f"Skipping offerings document {file_path} full processing")
+                return []
             
-            if not is_faq:
+            if file_type == FileType.COMPONENT:
+                # add course offerings to the text
+                acronym = file_path.stem[0:3]
+                text = ComponentProcessor.add_course_offerings_to_text(text, acronym, self.config)
+            
+            if file_type is not FileType.FAQ:
                 # Try to load chunks from file if it exists, otherwise generate and save
                 extracted_chunks_dir = output_dir / "extracted_chunks"
                 extracted_chunks_dir.mkdir(parents=True, exist_ok=True)
@@ -279,7 +315,7 @@ class SyntheticQADataGenerator:
             else: # file_path.suffix.lower() is '.html' or '.htm'
                 logger.debug(f"File {file_path.name} is already HTML/HTM. No separate source HTML context needed.")
 
-            if is_faq:
+            if file_type == FileType.FAQ:
                 # check if already extracted
                 extracted_faq_dir = output_dir / "extracted_faq"
                 extracted_faq_dir.mkdir(parents=True, exist_ok=True)

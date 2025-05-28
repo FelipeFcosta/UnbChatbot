@@ -21,7 +21,6 @@ logger = logging.getLogger(__name__)
 
 
 class FAQProcessor:
-    STYLE_DEFAULT_FAQS = True
 
     """Handles specialized processing for FAQ documents."""
     

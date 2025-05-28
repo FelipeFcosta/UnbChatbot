@@ -50,7 +50,8 @@ class QAGenerator:
         # Use hardcoded Default style
         self.default_style = DEFAULT_STYLE
 
-    def _build_question_prompt(self, chunks_batch: List[str], full_document: str, context_html_text: str, source_info: Dict[str, str]) -> str:
+    @staticmethod
+    def _build_question_prompt(chunks_batch: List[str], full_document: str, context_html_text: str, source_info: Dict[str, str]) -> str:
         """Prompt for generating baseline questions from a batch of chunks.
 
         If *full_document* is provided it is supplied inside <FULL_DOCUMENT> tags so the
@@ -88,7 +89,8 @@ class QAGenerator:
             f"{context_html_section}"
         )
 
-    def _build_answer_prompt(self, questions_batch: List[str], chunks_for_answers_batch: List[str], source_info: Dict[str, str]) -> str:
+    @staticmethod
+    def _build_answer_prompt(questions_batch: List[str], chunks_for_answers_batch: List[str], source_info: Dict[str, str]) -> str:
         """Prompt for generating answers for a given batch of questions."""
 
         institution = source_info.get("institution", source_info.get("domain", ""))
@@ -115,7 +117,8 @@ class QAGenerator:
             "Return ONLY the answers, one per line, with no numbering or other text."
         )
 
-    def _build_faq_default_qa_pair_prompt(self, original_qa_batch: List[Dict[str, str]], source_info: Dict[str, str]) -> str:
+    @staticmethod
+    def _build_faq_default_qa_pair_prompt(original_qa_batch: List[Dict[str, str]], source_info: Dict[str, str]) -> str:
         """Prompt for rephrasing a batch of original QA pairs (question and answer simultaneously)."""
         institution = source_info.get("institution", source_info.get("domain", ""))
 
@@ -153,7 +156,7 @@ class QAGenerator:
         batch_results = []
 
         # 1. Generate questions
-        question_batch_prompt = self._build_question_prompt(current_batch_chunks, full_document_text, context_html_text, source_info)
+        question_batch_prompt = QAGenerator._build_question_prompt(current_batch_chunks, full_document_text, context_html_text, source_info)
         raw_questions_str = self.question_client.generate_text(question_batch_prompt, temperature=0.7)
 
         if not raw_questions_str:
@@ -167,7 +170,7 @@ class QAGenerator:
             return []
 
         # 2. Generate answers for the batch of questions and their original chunks
-        answer_batch_prompt = self._build_answer_prompt(generated_questions, current_batch_chunks, source_info)
+        answer_batch_prompt = QAGenerator._build_answer_prompt(generated_questions, current_batch_chunks, source_info)
         raw_answers_str = self.answer_client.generate_text(answer_batch_prompt, temperature=0.5)
 
         if not raw_answers_str:
@@ -192,7 +195,7 @@ class QAGenerator:
         """Processes a batch of original FAQs to generate rephrased Q&A pairs."""
         batch_results = []
 
-        rephrase_qa_prompt = self._build_faq_default_qa_pair_prompt(current_batch_faqs, source_info)
+        rephrase_qa_prompt = QAGenerator._build_faq_default_qa_pair_prompt(current_batch_faqs, source_info)
         raw_rephrased_qa_str = self.question_client.generate_text(rephrase_qa_prompt, temperature=0.7)
 
         if not raw_rephrased_qa_str:

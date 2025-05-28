@@ -83,7 +83,7 @@ class LLMClient:
             self.client = genai.Client(api_key=api_key)
 
     def generate_text(self, prompt: str, temperature: Optional[float] = None, 
-                     json_output: bool = False, long_output: bool = False) -> Union[str, Dict[str, Any], None]:
+                     json_output: bool = False) -> Union[str, Dict[str, Any], None]:
         """
         Generate text from the LLM based on the given prompt.
         
@@ -91,8 +91,7 @@ class LLMClient:
             prompt: The prompt to send to the LLM
             temperature: Override the default temperature if provided
             json_output: If True, request and return JSON output
-            long_output: If True, handle generating longer outputs
-            
+        
         Returns:
             Generated text, parsed JSON (if json_output=True), or None on failure
         """
@@ -119,9 +118,6 @@ class LLMClient:
 
             full_response = ""
             current_prompt = prompt
-
-            if long_output:
-                current_prompt += "\n\nWhen you're finished, your final line should be only the word 'DONE'"
 
             max_tries = 2
             response = None
@@ -162,22 +158,6 @@ class LLMClient:
 
                         continue_prompt = "\n\nContinue the existing JSON exactly from where it stopped, maintaining " \
                         "its structure and formatting without starting a new JSON object"
-
-                        current_prompt = prompt + "\n ...\n" + full_response + continue_prompt
-                    
-                    elif long_output:
-                        # Clean up response for long text
-                        full_response = full_response.replace("```markdown", "").replace("```", "")
-
-                        if full_response.strip().lower().endswith("done"):
-                            # Remove the DONE marker and return
-                            return full_response[:full_response.strip().rfind("\n")]
-                        else:
-                            max_tries -= 1
-
-                        continue_prompt = "\n\nContinue the existing text **exactly** from where it stopped, maintaining " \
-                        "its structure and formatting without starting a new structured object\n" \
-                        "if you're finished, your final line should be only the word 'DONE'"
 
                         current_prompt = prompt + "\n ...\n" + full_response + continue_prompt
                     else:

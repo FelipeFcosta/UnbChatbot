@@ -207,11 +207,15 @@ class FileProcessor:
         """        
         _, _, url = FileProcessor.extract_domain_and_path(file_path)
         # Determine a valid base URL by checking possible URL formats
-        base_url = next(
-            (url for url in [f"{url}.html", f"{url}"]
-             if requests.head(url, timeout=3, allow_redirects=True).status_code == 200),
-            url
-        )
+        try:
+            base_url = next(
+                (url for url in [f"{url}.html", f"{url}"]
+                if requests.head(url, timeout=3, allow_redirects=True).status_code == 200),
+                url
+            )
+        except Exception as e:
+            logger.info(f"Error processing links in {file_path}: {e.__class__.__name__}")
+            return
         
         not_working_urls = []
         working_urls = []
@@ -378,117 +382,308 @@ class FileProcessor:
         for element in content_soup.find_all(text=True):
             if not any(parent.name in whitespace_significant for parent in element.parents):
                 if len(element) > 1:
-                    normalized = element.get_text().replace('\n', ' ')
-                    element.replace_with(normalized)
+                    normalized_text = ' '.join(element.get_text().split()) # Collapse all whitespace to single spaces
+                    element.replace_with(normalized_text)
 
         content_soup.title = soup.title
 
         return content_soup
 
     @staticmethod
+    @staticmethod
     def extract_text_from_html(soup: BeautifulSoup, file_path: Path, config=None) -> str:
         """
-        Extract readable text content from HTML files with improved structure preservation.
+        Extract readable text content from HTML files with improved structure preservation,
+        especially for tables and lists, converting them to Markdown.
+        Now with a more generic table handler.
         
         Args:
-            soup: BeautifulSoup object of the document
-            file_path: Path to the HTML file
-            llm_client: Optional LLM client for markdown corrections
+            soup: BeautifulSoup object of the document (should be preprocessed)
+            file_path: Path to the HTML file (used for link processing context)
+            config: Optional configuration for LLM client
             
         Returns:
             Extracted text with preserved structure in markdown format
         """
         try:
-            # Create a deep copy to avoid modifying the original
-            soup_copy = BeautifulSoup(str(soup), 'html5lib')
+            soup_copy = BeautifulSoup(str(soup), 'html5lib') # Work on a copy
             
             FileProcessor.process_links_in_html(soup_copy, file_path)
 
-            # Step 1: Map headings with their semantic nesting level
+            # --- Step 1: Generic Table to Markdown Conversion ---
+            for table_idx, table in enumerate(soup_copy.find_all('table')):
+                markdown_lines = []
+                
+                # Attempt to identify if this table resembles a key-value structure
+                # or a data grid structure. This is a heuristic.
+                is_key_value_like = False
+                if table.get('class') and any(cls in table.get('class', []) for cls in ['visualizacao', 'programaRelatorio']): # Keep specific hints if present
+                    is_key_value_like = True
+                else: # Generic heuristic for key-value
+                    first_few_rows = table.find_all('tr', limit=5)
+                    if first_few_rows and all(len(row.find_all(['th', 'td'])) == 2 for row in first_few_rows if row.find_all(['th','td'])):
+                        is_key_value_like = True
+                    elif len(table.find_all(['th', 'td'])) < 10 and len(table.find_all('tr')) > len(table.find_all('th', scope='col')): # Few cells, more rows than column headers
+                        is_key_value_like = True
+
+
+                if is_key_value_like:
+                    # Key-value like table processing
+                    for row in table.find_all('tr'):
+                        cells = row.find_all(['th', 'td'])
+                        if len(cells) == 2:
+                            key_cell = cells[0]
+                            value_cell = cells[1]
+                            
+                            # Extract text more robustly, handling nested elements and line breaks within cells
+                            key_parts = [s.strip() for s in key_cell.stripped_strings if s.strip()]
+                            value_parts = [s.strip() for s in value_cell.stripped_strings if s.strip()]
+
+                            key = ' '.join(key_parts)
+                            value = ' '.join(value_parts)
+                            
+                            if key and value:
+                                markdown_lines.append(f"**{key.rstrip(':').strip()}:** {value.strip()}")
+                            elif value: # Only value is present
+                                markdown_lines.append(value.strip())
+                            elif key: # Only key is present (less common, but possible)
+                                markdown_lines.append(f"**{key.rstrip(':').strip()}:**")
+                        elif len(cells) == 1: # Single cell, could be a sub-header or content
+                            cell_text_parts = [s.strip() for s in cells[0].stripped_strings if s.strip()]
+                            text = ' '.join(cell_text_parts)
+                            if text:
+                                if cells[0].name == 'th' or 'agrupador' in row.get('class', []): # Treat th or specific class as header
+                                    markdown_lines.append(f"\n### {text.strip()}\n")
+                                else:
+                                    markdown_lines.append(text.strip())
+                    if markdown_lines:
+                        table.replace_with(soup_copy.new_string('\n\n' + '\n'.join(markdown_lines) + '\n\n'))
+                        continue # Move to the next table
+
+
+                # --- Generic Grid-like Table Processing ---
+                caption_tag = table.find('caption')
+                if caption_tag:
+                    caption_text_parts = [s.strip() for s in caption_tag.stripped_strings if s.strip()]
+                    caption_text = ' '.join(caption_text_parts)
+                    if caption_text:
+                        markdown_lines.append(f"#### {caption_text}\n")
+
+                # Process headers (thead or first row ths)
+                headers_md = []
+                separators_md = []
+                max_cols = 0
+
+                thead = table.find('thead')
+                header_rows = thead.find_all('tr') if thead else []
+                if not header_rows:
+                    # Fallback: Check first row of table if it contains only th
+                    first_row = table.find('tr')
+                    if first_row and all(cell.name == 'th' for cell in first_row.find_all(['th', 'td'], recursive=False)):
+                        header_rows = [first_row]
+                
+                if header_rows:
+                    # For simplicity, using the last header row if multiple exist, or try to merge
+                    # A more complex logic would be needed for truly multi-row headers
+                    final_header_cells = header_rows[-1].find_all(['th', 'td']) 
+                    current_col_count = 0
+                    for th in final_header_cells:
+                        colspan = int(th.get('colspan', 1))
+                        text_parts = [s.strip() for s in th.stripped_strings if s.strip()]
+                        header_text = ' '.join(text_parts).replace('|', '\\|')
+                        
+                        headers_md.append(header_text)
+                        if colspan > 1:
+                            headers_md.extend([''] * (colspan - 1))
+                        separators_md.extend(['---'] * colspan)
+                        current_col_count += colspan
+                    max_cols = max(max_cols, current_col_count)
+                
+                def add_markdown_table_headers():
+                    if headers_md and separators_md:
+                         if not markdown_lines or not markdown_lines[-1].startswith('| ---'):
+                            markdown_lines.append('| ' + ' | '.join(headers_md) + ' |')
+                            markdown_lines.append('| ' + ' | '.join(separators_md) + ' |')
+                
+                add_markdown_table_headers()
+
+                # Process body (tbody or remaining rows)
+                tbody = table.find('tbody')
+                body_rows = tbody.find_all('tr') if tbody else table.find_all('tr')
+                
+                # Filter out header rows if already processed
+                if thead:
+                    body_rows = [row for row in body_rows if row.parent.name == 'tbody']
+                elif header_rows: # if headers were taken from first row
+                     body_rows = body_rows[len(header_rows):]
+
+
+                for row_idx, row in enumerate(body_rows):
+                    # Heuristic for section header rows (e.g., <tr class="agrupador">)
+                    is_section_header_row = False
+                    if 'agrupador' in row.get('class', []):
+                        is_section_header_row = True
+                    # Also check if the row has a single cell with colspan matching max_cols or a prominent style
+                    cells_in_row = row.find_all(['td', 'th'])
+                    if len(cells_in_row) == 1 and cells_in_row[0].get('colspan'):
+                        try:
+                            if int(cells_in_row[0].get('colspan')) >= max_cols -1 and max_cols > 1: # colspan spans most/all
+                                is_section_header_row = True
+                        except ValueError:
+                            pass # colspan not an int
+                    
+                    if is_section_header_row:
+                        row_text_parts = [s.strip() for s in row.stripped_strings if s.strip()]
+                        row_text = ' '.join(row_text_parts)
+                        # Special handling for "tituloDisciplina" if present
+                        title_span = row.find('span', class_='tituloDisciplina')
+                        if title_span:
+                            row_text = ' '.join([s.strip() for s in title_span.stripped_strings if s.strip()])
+
+                        if row_text:
+                            markdown_lines.append(f"\n### {row_text}\n")
+                            if headers_md: # Re-add headers if they exist for this section
+                                add_markdown_table_headers()
+                        continue # Skip processing this row as a data row
+
+                    # Regular data row
+                    row_cells_md = []
+                    current_col_count_in_row = 0
+                    for cell_idx, cell in enumerate(cells_in_row):
+                        colspan = int(cell.get('colspan', 1))
+                        # Extract cell content carefully, joining internal <br> with "; " or space
+                        cell_content_parts = []
+                        for elem in cell.contents:
+                            if isinstance(elem, str):
+                                cell_content_parts.append(elem.strip())
+                            elif elem.name == 'br':
+                                if cell_content_parts and cell_content_parts[-1] != "; ": # Add separator if needed
+                                    cell_content_parts.append("; ")
+                            else: # Other tags
+                                sub_parts = [s.strip() for s in elem.stripped_strings if s.strip()]
+                                if sub_parts:
+                                    cell_content_parts.append(' '.join(sub_parts))
+                        
+                        # Clean up joined parts
+                        cleaned_cell_content = []
+                        for part in cell_content_parts:
+                            if part.strip():
+                                cleaned_cell_content.append(part.strip())
+                        
+                        cell_text = ' '.join(cleaned_cell_content).replace('; ;', ';').replace('  ', ' ')
+                        cell_text = re.sub(r'\s*;\s*', '; ', cell_text).strip('; ')
+                        cell_text = cell_text.replace('|', '\\|')
+                        
+                        # Specific handling for the "Horário" column with popup from your example
+                        if "ajuda" in cell.decode_contents() and "popUp" in cell.decode_contents(): # Heuristic for your horario cell
+                            popup_div = cell.find('div', class_='popUp')
+                            popup_content_text = ""
+                            if popup_div:
+                                popup_lines = [s.strip() for s in popup_div.stripped_strings if s.strip()]
+                                if popup_lines:
+                                    popup_content_text = " (" + "; ".join(popup_lines) + ")"
+                            cell_text = cell.find(text=True, recursive=False).strip() + popup_content_text
+                            cell_text = cell_text.replace('|', '\\|')
+
+
+                        row_cells_md.append(cell_text)
+                        if colspan > 1:
+                            row_cells_md.extend([''] * (colspan - 1))
+                        current_col_count_in_row += colspan
+                    
+                    max_cols = max(max_cols, current_col_count_in_row)
+
+                    # Pad row if it has fewer cells than max_cols (due to prior colspans perhaps)
+                    if headers_md and len(row_cells_md) < len(headers_md):
+                        row_cells_md.extend([''] * (len(headers_md) - len(row_cells_md)))
+                    elif not headers_md and max_cols > 0 and len(row_cells_md) < max_cols :
+                         row_cells_md.extend([''] * (max_cols - len(row_cells_md)))
+
+
+                    if any(c.strip() for c in row_cells_md): # Only add if row is not entirely empty
+                        markdown_lines.append('| ' + ' | '.join(row_cells_md) + ' |')
+
+                # Update max_cols for headers if body had more
+                if headers_md and len(headers_md) < max_cols:
+                    headers_md.extend([''] * (max_cols - len(headers_md)))
+                    separators_md.extend(['---'] * (max_cols - len(separators_md)))
+                    if markdown_lines and markdown_lines[0].startswith('| ') and not markdown_lines[0].startswith('| ---'):
+                        markdown_lines[0] = '| ' + ' | '.join(headers_md) + ' |'
+                        markdown_lines[1] = '| ' + ' | '.join(separators_md) + ' |'
+
+
+                tfoot = table.find('tfoot')
+                if tfoot:
+                    tfoot_text_parts = [s.strip() for s in tfoot.stripped_strings if s.strip()]
+                    tfoot_text = ' '.join(tfoot_text_parts)
+                    if tfoot_text:
+                        markdown_lines.append(f"\n**{tfoot_text.strip()}**\n")
+
+                if markdown_lines:
+                    table.replace_with(soup_copy.new_string('\n\n' + '\n'.join(markdown_lines) + '\n\n'))
+            
+            # --- Step 2: Semantic heading adjustments (existing code) ---
             headings = []
             header_positions = {header: i for i, header in enumerate(soup_copy.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']))}
 
             for level in range(1, 7):
                 for h in soup_copy.find_all(f'h{level}'):
-                    # Calculate semantic nesting depth
                     semantic_depth = 0
                     parent = h.parent
-                    
                     current_header_position = header_positions.get(h, 0)
-                    counted_headers = set()  # Track headers we've already counted
-                    
-                    # Find the path from root to this header to identify true ancestor elements
-                    ancestor_elements = []
-                    p = h.parent
-                    while p:
-                        ancestor_elements.append(p)
-                        p = p.parent
+                    counted_headers = set()
+                    ancestor_elements = [p for p in h.parents]
 
-                    # Count parents that contain other header elements (creating semantic sections)
                     while parent and parent.name:
-                        # Only count containers that have other heading elements
-                        ancestor_headers = []
-                        for header in parent.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], recursive=False):
-                            if (header != h and header_positions.get(header, 0) < current_header_position and
-                                header not in counted_headers):
-                                # Check if this header is in a direct ancestor relationship
-                                header_parent = header.parent
-                                if header_parent in ancestor_elements and len(header.get_text()) > 0:
-                                    ancestor_headers.append(header)
+                        ancestor_headers_in_parent = []
+                        for header_tag in parent.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], recursive=False):
+                            if (header_tag != h and 
+                                header_positions.get(header_tag, 0) < current_header_position and
+                                header_tag not in counted_headers and
+                                header_tag.parent in ancestor_elements and len(header_tag.get_text(strip=True)) > 0):
+                                ancestor_headers_in_parent.append(header_tag)
                         
-                        # Add newly found ancestor headers to our tracking set
-                        counted_headers.update(ancestor_headers)
-                        
-                        if ancestor_headers:
+                        counted_headers.update(ancestor_headers_in_parent)
+                        if ancestor_headers_in_parent:
                             semantic_depth += 1
                         parent = parent.parent
                     
                     headings.append((h, level, semantic_depth))
             
-            # Step 2: Adjust heading levels based on semantic nesting
             if headings:
-                # Get the minimum heading level in the document to normalize hierarchy
-                min_heading_level = min(level for _, level, _ in headings)
-
+                min_heading_level = min(level for _, level, _ in headings) if headings else 1
                 for h, original_level, semantic_depth in headings:
-                    # Normalize the heading level to start from 1
                     normalized_level = original_level - min_heading_level + 1
-
-                    # Adjust level based on semantic nesting (max +3 levels)
-                    nesting_adjustment = min(semantic_depth, 3)
-                    
-                    # New level preserves hierarchy while accounting for nesting
+                    nesting_adjustment = min(semantic_depth, 3) # Limit how much nesting can increase header level
                     new_level = min(normalized_level + nesting_adjustment, 6)
-                    
-                    # Replace heading with markdown
-                    heading_text = h.get_text().strip()
+                    heading_text_parts = [s.strip() for s in h.stripped_strings if s.strip()]
+                    heading_text = ' '.join(heading_text_parts)
                     if heading_text:
                         marker = '#' * new_level + ' '
                         new_tag = soup_copy.new_string(f"\n\n{marker}{heading_text}\n\n")
                         h.replace_with(new_tag)
             
-            # Process nested structures (divs, sections, articles)
+            # --- Step 3: Convert other relevant HTML elements to Markdown (existing code) ---
             for container in soup_copy.find_all(['div', 'section', 'article', 'main', 'aside']):
-                # If it has a class or id that might indicate structure
-                if container.get('class') or container.get('id'):
-                    container.insert_before(soup_copy.new_string("\n"))
-                    container.insert_after(soup_copy.new_string("\n"))
-
-            # Process details/summary elements (common in FAQs)
+                if container.get('class') or container.get('id'): 
+                    if container.name not in ['td', 'th']: 
+                        container.insert_before(soup_copy.new_string("\n"))
+                        container.insert_after(soup_copy.new_string("\n"))
+            
             for details in soup_copy.find_all('details'):
                 summary = details.find('summary')
                 if summary:
-                    summary_text = summary.get_text().strip()
-                    new_tag = soup_copy.new_string(f"\n\n### {summary_text}\n\n")
+                    summary_text_parts = [s.strip() for s in summary.stripped_strings if s.strip()]
+                    summary_text = ' '.join(summary_text_parts)
+                    new_tag = soup_copy.new_string(f"\n\n### {summary_text}\n\n") 
                     summary.replace_with(new_tag)
-                # Add spacing after details
                 details.insert_after(soup_copy.new_string("\n\n"))
-            
-            # Process lists
+
             for ul in soup_copy.find_all('ul'):
                 ul.insert_before(soup_copy.new_string("\n"))
                 for li in ul.find_all('li', recursive=False):
-                    li_text = li.get_text().strip()
+                    li_text_parts = [s.strip() for s in li.stripped_strings if s.strip()]
+                    li_text = ' '.join(li_text_parts)
                     new_tag = soup_copy.new_string(f"- {li_text}\n")
                     li.replace_with(new_tag)
                 ul.insert_after(soup_copy.new_string("\n"))
@@ -496,68 +691,75 @@ class FileProcessor:
             for ol in soup_copy.find_all('ol'):
                 ol.insert_before(soup_copy.new_string("\n"))
                 for idx, li in enumerate(ol.find_all('li', recursive=False), 1):
-                    li_text = li.get_text().strip()
+                    li_text_parts = [s.strip() for s in li.stripped_strings if s.strip()]
+                    li_text = ' '.join(li_text_parts)
                     new_tag = soup_copy.new_string(f"{idx}. {li_text}\n")
                     li.replace_with(new_tag)
                 ol.insert_after(soup_copy.new_string("\n"))
-            
-            # Process text formatting
+
             for strong in soup_copy.find_all(['b', 'strong']):
-                text = strong.get_text().strip()
-                new_tag = soup_copy.new_string(f"**{text}**")
-                strong.replace_with(new_tag)
+                text_parts = [s.strip() for s in strong.stripped_strings if s.strip()]
+                text = ' '.join(text_parts)
+                if text: new_tag = soup_copy.new_string(f"**{text}**"); strong.replace_with(new_tag)
+                else: strong.decompose() 
             
             for em in soup_copy.find_all(['i', 'em']):
-                text = em.get_text().strip()
-                new_tag = soup_copy.new_string(f"*{text}*")
-                em.replace_with(new_tag)
-            
-            # Extract text while preserving formatting
-            html_text = str(soup_copy)
-            
-            # Replace <p>, <div>, <br> tags with newlines but avoid adding too many
-            html_text = re.sub(r'<br\s*/?>|</p>|</div>', '\n', html_text)
-            html_text = re.sub(r'<p[^>]*>|<div[^>]*>', '\n', html_text)
-            
-            # Remove all remaining HTML tags
-            html_text = re.sub(r'<[^>]*>', '', html_text)
-            
-            # Decode HTML entities
-            html_text = BeautifulSoup(html_text, 'html5lib').get_text()
-            
-            # Process the text to normalize whitespace
-            lines = []
-            for line in html_text.split('\n'):
-                line = line.strip()
-                lines.append(line)
-            
-            # Join with appropriate spacing
-            text = '\n'.join(lines).strip()
-            
-            # Replace multiple consecutive newlines with just two
-            for _ in range(3):
-                text = re.sub(r'\n{3,}', '\n\n', text)
+                text_parts = [s.strip() for s in em.stripped_strings if s.strip()]
+                text = ' '.join(text_parts)
+                if text: new_tag = soup_copy.new_string(f"*{text}*"); em.replace_with(new_tag)
+                else: em.decompose() 
 
-            # Use LLM to correct markdown if available
+            for br in soup_copy.find_all('br'):
+                # Only replace with newline if not already surrounded by block elements or inside a table cell already handled
+                if not (br.previous_sibling is None and br.next_sibling is None and br.parent.name in ['p', 'div', 'li']):
+                     # And not inside a table cell that we've manually processed for internal newlines
+                    if not any(p.name == 'td' or p.name == 'th' for p in br.parents if p.find_parent('table')):
+                        br.replace_with(soup_copy.new_string('\n'))
+                    else: # inside a table cell, likely already handled by cell text extraction logic.
+                        br.replace_with(soup_copy.new_string(' ')) # replace with space to avoid run-on words
+                else:
+                    br.decompose() # Likely redundant <br>
+
+            for hr in soup_copy.find_all('hr'):
+                hr.replace_with(soup_copy.new_string('\n\n---\n\n'))
+
+            # --- Step 4: Final Text Extraction and Cleanup ---
+            raw_text = soup_copy.get_text(separator='\n') 
+
+            lines = raw_text.split('\n')
+            processed_lines = []
+            for line in lines:
+                stripped_line = line.strip()
+                if stripped_line or (line.startswith('| ---') and not stripped_line): 
+                    processed_lines.append(stripped_line)
+            
+            text = '\n'.join(processed_lines)
+            text = re.sub(r'\n\s*\n', '\n\n', text) # Consolidate multiple newlines
+
             llm_client = None
             if config is not None:
-                from .llm_client import LLMClient
-                llm_client = LLMClient(config.get("providers", {}).get("text_extraction", {}))
+                llm_config = config.get("providers", {}).get("text_extraction", {})
+                if llm_config and llm_config.get("provider") != "none": 
+                    from .llm_client import LLMClient 
+                    llm_client = LLMClient(llm_config)
+            
             if llm_client:
-                prompt = f"{text}\n\n-----\nCorrect the hierarchy of the headers and/or headers in this markdown " \
-                    "where you see fit, consider it's a FAQ that may have topics that will include one or more qa pairs. " \
-                    "DO NOT ADD OR ALTER ANYTHING. Preserve all links/formatting.\n" \
-                    "If you don't find any errors, keep the way it is.\n" \
-                    "Output only the new markdown text."
-
-                response = llm_client.generate_text(prompt, long_output=True, temperature=0.4)
-                if response and len(response) >= (len(text) - 300):
-                    text = response
-
-            return text
+                prompt = f"{text}\n\n-----\nCorrect the hierarchy of the headers in this markdown " \
+                         "where you see fit. DO NOT ADD OR ALTER ANY ACTUAL CONTENT. Preserve all links/formatting.\n" \
+                         "In general, if the markdown is somewhat unstructured, make it more readable and easier to understand.\n" \
+                         "If you don't find any errors, keep the way it is.\n" \
+                         "Output only the new markdown text."
+                try:
+                    response = llm_client.generate_text(prompt, temperature=0.4)
+                    if response and len(response) >= (len(text) - 300): 
+                        text = response.strip() 
+                except Exception as e_llm:
+                    logger.warning(f"LLM correction failed: {e_llm}")
+            
+            return text.strip() 
             
         except Exception as e:
-            logger.error(f"Error extracting text from HTML: {e}")
+            logger.error(f"Error extracting text from HTML ({file_path}): {e}", exc_info=True)
             return ""
     
     @staticmethod
@@ -649,7 +851,7 @@ class FileProcessor:
         
         if file_extension in ['.html', '.htm']:
             soup = FileProcessor.preprocess_html(file_path)
-            return FileProcessor.extract_text_from_html(soup, file_path)
+            return FileProcessor.extract_text_from_html(soup, file_path, config)
         elif file_extension == '.pdf':
             return FileProcessor.extract_text_from_pdf(file_path, config)
         elif file_extension in ['.docx', '.doc']:

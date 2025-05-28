@@ -12,6 +12,7 @@ from typing import List, Dict, Any, Optional, Union
 import html # Added for html.escape
 import yaml
 import os
+from enum import Enum
 
 with open(os.path.join(os.path.dirname(__file__), '../config.yaml'), 'r', encoding='utf-8') as f:
     _config = yaml.safe_load(f)
@@ -30,6 +31,12 @@ try:
 except ImportError:
     PDF_AVAILABLE = False
     logger.warning("PyMuPDF not available. PDF processing will be disabled.")
+
+class FileType(Enum):
+    FAQ = "faq"
+    COMPONENT = "component"
+    REGULAR = "regular"
+    OFFERINGS = "turmas"
 
 def create_hash(text: str) -> str:
     """

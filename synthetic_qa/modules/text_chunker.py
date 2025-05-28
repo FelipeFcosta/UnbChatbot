@@ -94,7 +94,7 @@ class TextChunker:
         # If the LLM client is available attempt LLM-based chunking first
         response = None
         if self.llm_client:
-            prompt = self._build_prompt(text)
+            prompt = TextChunker._build_prompt(text)
 
             logger.debug("Requesting LLM-based chunking...")
             try:
@@ -132,11 +132,12 @@ class TextChunker:
         return []
 
 
-    def _build_prompt(self, text: str) -> str:
+    @staticmethod
+    def _build_prompt(text: str) -> str:
         """Construct the instruction prompt (in Portuguese)."""
 
         instructions = (
-            "You are an expert Text Analyst and Content Chunking specialist. Your primary goal is to segment the provided text into meaningful, self-contained informational units. These units, or 'chunks', will later be used as the basis for generating question-answer pairs and as context documents for a retrieval-augmented generation (RAG) system.\n\n"
+            "You are an expert Text Analyst and Content Chunking specialist. Your primary goal is to segment the provided text into meaningful, self-contained informational units. These units, or 'chunks', will later qbe used as the basis for generating question-answer pairs and as context documents for a retrieval-augmented generation (RAG) system.\n\n"
             "Therefore, each chunk must adhere to the following critical criteria:\n"
             "1. Semantic Cohesion & Completeness: Each chunk should focus on a single, distinct topic, concept, rule, process, or piece of information. It must be internally complete, presenting a full idea without requiring immediate reference to another chunk. Avoid splitting sentences or tightly knit ideas across chunks.\n"
             "2. Answerability: A chunk must contain sufficient information to comprehensively answer one or more specific, plausible questions about its content. Imagine someone reading only that chunk; they should be able to extract a clear answer to a relevant question concerning the chunk's main subject.\n"

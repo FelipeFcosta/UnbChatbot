@@ -66,6 +66,12 @@ providers:
     temperature: 0.4
     max_tokens: 65000
 
+  offerings_extraction:
+    provider: genai
+    model: gemini-2.5-flash-preview-05-20
+    temperature: 0.4
+    max_tokens: 65000
+
   default_question:
     provider: genai
     model: gemini-2.5-flash-preview-05-20
@@ -151,6 +157,8 @@ file_processing:
     - .git/
     - styles/
     - js/
+  componentes_folder_name: componentes_curriculares
+  offerings_folder_name: turmas
 
 # Output settings
 output:
