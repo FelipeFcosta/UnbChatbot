@@ -12,14 +12,6 @@ from modules.utils import create_hash
 
 logger = logging.getLogger(__name__)
 
-# Hardcoded Default writing style
-DEFAULT_STYLE = {
-    "name": "Default",
-    "goal": "Establish a clean, well-formed baseline; represent clear, unambiguous queries.",
-    "description": "Generate a clear, straightforward question using complete sentences. Avoid excessive formality or informality. Focus on accurately representing the core content of the original question/chunk. **Crucially: If the original answer/chunk was very short (like \"Sim.\", \"Não.\"), ensure this question naturally elicits the expanded, polite answer generated for the Default pair.** The question should sound like a typical, clear query a student might ask an assistant."
-}
-
-# Hardcoded Default style section
 DEFAULT_STYLE_SECTION = (
     "WRITING STYLE: Default\n"
     "Description: Generate a clear, straightforward question using complete sentences. Avoid excessive formality or informality. Focus on accurately representing the core content of the original question/chunk. **Crucially: If the original answer/chunk was very short (like \"Sim.\", \"Não.\"), ensure this question naturally elicits the expanded, polite answer generated for the Default pair.** The question should sound like a typical, clear query a student might ask an assistant.\n"
@@ -47,8 +39,6 @@ class QAGenerator:
         self.question_client = LLMClient(question_config)
         self.answer_client = LLMClient(answer_config)
 
-        # Use hardcoded Default style
-        self.default_style = DEFAULT_STYLE
 
     @staticmethod
     def _build_question_prompt(chunks_batch: List[str], full_document: str, context_html_text: str, source_info: Dict[str, str]) -> str:
@@ -239,7 +229,7 @@ class QAGenerator:
     def _generate_and_save_qa(
         self,
         items_to_process: List[Any],
-        batch_processing_func: Callable[..., List[Dict[str, str]]],
+        processing_func: Callable[..., List[Dict[str, str]]],
         source_path: str,
         file_title: str,
         output_dir: Path,
@@ -277,7 +267,7 @@ class QAGenerator:
             if not current_batch:
                 continue
 
-            processed_batch_results = batch_processing_func(
+            processed_batch_results = processing_func(
                 current_batch, source_info, **batch_func_kwargs
             )
 
@@ -324,7 +314,7 @@ class QAGenerator:
         
         return self._generate_and_save_qa(
             items_to_process=chunks,
-            batch_processing_func=self._process_chunk_batch,
+            processing_func=self._process_chunk_batch,
             source_path=file_path,
             file_title=file_title,
             output_dir=output_dir,
@@ -345,10 +335,59 @@ class QAGenerator:
 
         return self._generate_and_save_qa(
             items_to_process=original_faq,
-            batch_processing_func=self._process_faq_batch,
+            processing_func=self._process_faq_batch,
             source_path=file_path,
             file_title=file_title,
             output_dir=output_dir,
             batch_size=batch_size,
             batch_func_kwargs={} 
+        )
+
+    def _process_component_text(
+        self,
+        items_to_process: List[str],  # Always a list of one component text
+        source_info: Dict[str, str]
+    ) -> List[Dict[str, str]]:
+        """Processes a single component markdown text to generate QA pairs."""
+        component_text = items_to_process[0]
+        prompt = (
+            "You are an LLM Generator creating synthetic data for the University of Brasilia chatbot.\n\n"
+            "The chatbot can answer any question about the university, but the following Q&A pairs are examples where the student's question required information from this component document (retrieved by a RAG system).\n\n"
+            "The user is a student who does not know about the present document, so the question must be specific (but not contrived) enough for the document to be retrieved.\n\n"
+            "You will receive the Markdown text of a university component, including code, name, syllabus (ementa), objectives, bibliography, and offerings (teachers, schedules, vacancies, location, etc). Generate the minimum number of natural, realistic, relevant, and useful question-answer pairs IN PORTUGUESE that a brazilian student might ask about this document, using only the information present.\n"
+            "Do NOT reference the document. Do NOT generate questions about missing information.\n"
+            "Your response should be in styled (designed for easy student understanding) well-formatted markdown.\n"
+            "Return a JSON object with a 'qa_pairs' key containing a list of question-answer pairs, following the template below:\n\n"
+            "{\n  qa_pairs: [\n    {\"question\": \"...\", \"answer\": \"...\"},\n    ...\n  ]\n}\n\n"
+            "Component text:\n\n"
+            f"{component_text}"
+        )
+        response = self.question_client.generate_text(
+            prompt,
+            json_output=True,
+            temperature=0.4
+        )
+        qa_pairs = response.get('qa_pairs', [])
+        if not qa_pairs:
+            logger.warning(f"No QA pairs generated for {source_info.get('path', 'N/A')}")
+            return []
+
+        return qa_pairs
+
+    def generate_qa_pairs_from_component(
+        self,
+        component_text: str,
+        file_path: str,
+        file_title: str,
+        output_dir: Path,
+    ) -> List[Dict[str, str]]:
+        """Generate QA pairs from a component's full markdown text (not chunked)."""
+        return self._generate_and_save_qa(
+            items_to_process=[component_text],
+            processing_func=self._process_component_text,
+            source_path=file_path,
+            file_title=file_title,
+            output_dir=output_dir,
+            batch_size=1,
+            batch_func_kwargs={}
         )

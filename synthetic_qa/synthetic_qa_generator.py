@@ -118,9 +118,10 @@ class SyntheticQADataGenerator:
 
         faq_qa_pairs = []
         regular_qa_pairs = []
-
+        component_qa_pairs = []
         if all_files:
             faq_files = []
+            component_files = []
             regular_files = []
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 future_to_file = {
@@ -133,23 +134,31 @@ class SyntheticQADataGenerator:
 
                     try:
                         qa_pairs = future.result()
-                        if qa_pairs:
+                        # For components, we add them to the list even if qa_pairs is empty
+                        # since they skip default QA generation but still need to be processed
+                        if qa_pairs or type == FileType.COMPONENT:
                             if type == FileType.FAQ:
                                 faq_files.append((soup, file_path, rel_path))
+                            elif type == FileType.COMPONENT:
+                                component_files.append((soup, file_path, rel_path))
                             else:
                                 regular_files.append((soup, file_path, rel_path))
+
                     except Exception as e:
                         logger.error(f"Error processing file {file_path}: {e}")
-            if faq_files or regular_files:
+            if faq_files or regular_files or component_files:
                 files_process_batches.append((FileType.FAQ, faq_files))
                 files_process_batches.append((FileType.REGULAR, regular_files))
+                files_process_batches.append((FileType.COMPONENT, component_files))
         else:
             logger.info("No files can be processed!")
             return
 
         for batch_type, files_to_process in files_process_batches:
+            if batch_type != FileType.COMPONENT:
+                continue # TODO: remove this
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                future = executor.submit(QAProcessorRAFT.generate_raft_training_data, files_to_process, output_path, self.config)
+                future = executor.submit(QAProcessorRAFT.generate_raft_training_data, files_to_process, output_path, self.config, batch_type)
                 future_to_desc = {future: batch_type}
                 for future in tqdm(as_completed(future_to_desc), total=1, desc=f"Processing {batch_type.name.lower()} files with QAProcessorRAFT"):
                     try:
@@ -158,6 +167,9 @@ class SyntheticQADataGenerator:
                             if batch_type == FileType.FAQ:
                                 faq_qa_pairs.extend(raft_qa_pairs)
                                 logger.info(f"Generated {len(raft_qa_pairs)} QA pairs from FAQ files using QAProcessorRAFT")
+                            elif batch_type == FileType.COMPONENT:
+                                component_qa_pairs.extend(raft_qa_pairs)
+                                logger.info(f"Generated {len(raft_qa_pairs)} QA pairs from component files using QAProcessorRAFT")
                             else:
                                 regular_qa_pairs.extend(raft_qa_pairs)
                                 logger.info(f"Generated {len(raft_qa_pairs)} QA pairs from regular files using QAProcessorRAFT")
@@ -166,7 +178,7 @@ class SyntheticQADataGenerator:
 
 
         # Combine FAQ and non-FAQ QA pairs
-        all_qa_pairs = faq_qa_pairs + regular_qa_pairs
+        all_qa_pairs = faq_qa_pairs + regular_qa_pairs + component_qa_pairs
                     
         # Save all QA pairs to a final JSON file
         if all_qa_pairs:
@@ -174,7 +186,7 @@ class SyntheticQADataGenerator:
             with open(final_output, 'w', encoding='utf-8') as f:
                 json.dump(all_qa_pairs, f, ensure_ascii=False, indent=2)
 
-            logger.info(f"Generated a total of {len(all_qa_pairs)} QA pairs ({len(faq_qa_pairs)} from FAQs, {len(regular_qa_pairs)} from regular documents)")
+            logger.info(f"Generated a total of {len(all_qa_pairs)} QA pairs ({len(faq_qa_pairs)} from FAQs, {len(regular_qa_pairs)} from regular documents, {len(component_qa_pairs)} from components)")
             logger.info(f"Final output saved to {final_output}")
         else:
             logger.warning("No QA pairs were generated")
@@ -213,6 +225,14 @@ class SyntheticQADataGenerator:
             else:
                 text = self.file_processor.extract_text_from_file(file_path, self.config)
 
+                if file_type == FileType.COMPONENT:
+                    try:
+                        component_code = os.getxattr(str(file_path), b'user.componente_codigo').decode('utf-8')
+                    except Exception as e:
+                        component_code = file_path.stem[:7]
+                    # add course offerings to the text
+                    text = ComponentProcessor.add_course_offerings_to_text(text, component_code, output_dir)
+
                 with open(extracted_text_path, 'w', encoding='utf-8') as f:
                     f.write(text)
 
@@ -236,15 +256,10 @@ class SyntheticQADataGenerator:
                     with open(extracted_offerings_path, 'w', encoding='utf-8') as f:
                         json.dump(original_offerings, f, ensure_ascii=False, indent=2)
 
-                logger.info(f"Skipping offerings document {file_path} full processing")
+                logger.info(f"Skipping full processing for offerings document {file_path}")
                 return []
-            
-            if file_type == FileType.COMPONENT:
-                # add course offerings to the text
-                acronym = file_path.stem[0:3]
-                text = ComponentProcessor.add_course_offerings_to_text(text, acronym, self.config)
-            
-            if file_type is not FileType.FAQ:
+                    
+            if file_type == FileType.REGULAR:
                 # Try to load chunks from file if it exists, otherwise generate and save
                 extracted_chunks_dir = output_dir / "extracted_chunks"
                 extracted_chunks_dir.mkdir(parents=True, exist_ok=True)
@@ -266,9 +281,8 @@ class SyntheticQADataGenerator:
                     return []
                 
 
+            # Attempt to find and process a related HTML file for context based on 'user.source_html_path' metadata.
             context_html_text = None
-            # Attempt to find and process a related HTML file for context,
-            # if the current file is not HTML itself, based on 'user.source_html_path' metadata.
             if file_path.suffix.lower() not in ['.html', '.htm']:
                 logger.info(f"File {file_path.name} is not HTML. Attempting to find source HTML context.")
                 
@@ -337,6 +351,11 @@ class SyntheticQADataGenerator:
                     output_dir=output_dir,
                     batch_size=5
                 )
+            elif file_type == FileType.COMPONENT:
+                # For components, we only extract and save the text (with offerings)
+                # All QA generation will happen in qa_processor_raft
+                logger.info(f"Skipping default QA generation for component {file_path}. QA generation will happen in QAProcessorRAFT.")
+                return []  # Return empty list to indicate no default QA pairs generated
             else:
                 qa_pairs = self.qa_generator.generate_qa_pairs(
                     chunks=chunks,

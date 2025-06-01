@@ -1,6 +1,5 @@
 # qa_processor_raft.py
 
-import hashlib
 import os
 import logging
 import json
@@ -8,16 +7,16 @@ from pathlib import Path
 from typing import List, Tuple, Dict, Any
 from bs4 import BeautifulSoup
 from tqdm import tqdm
-import textwrap
 import random
 import time
 from slugify import slugify
 
-from modules.utils import create_hash
+from modules.utils import create_hash, FileType
 
 # Assuming llm_client and file_processor are in the same directory structure
 from .llm_client import LLMClient
 from .file_processor import FileProcessor
+from .component_processor import ComponentProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -27,28 +26,63 @@ logger = logging.getLogger(__name__)
 ANSWER_TAG = "<ANSWER>"
 COT_ANSWER_GENERATION_PROMPT = f"""
 You are an expert assistant creating training data for a university chatbot that will chat with the students.
-Given an original Question and its corresponding original Answer (which serves as the definitive context), generate a detailed chat response. This response has two parts: internal reasoning in english (which won't be shown to the user) and the final answer in portuguese.
+Given an original Question and its corresponding context ({{context_source_name}}), generate a detailed chat response. This response has two parts: internal reasoning in english (which won't be shown to the user) and the final answer IN PORTUGUESE.
 
 **Instructions:**
 
 1.  **Analyze:** Understand the user's implicit need based on the 'Original Question'.
-2.  **Internal Reasoning `<REASON>:`:** Provide a short and clear, objective reasoning based *exclusively* on the information within the '{{context_source_name}} (Context)'. Do NOT add outside information. This reasoning is for internal understanding and training purposes aimed at FACTUALITY.
-3.  **Reasoning Citations:** **Within the Internal Reasoning section only**, when referencing specific parts of the '{{context_source_name}} (Context)', enclose the verbatim text within `##begin_quote##` and `##end_quote##`. Text outside these tags should be your own reasoning/connecting words.
+2.  **Internal Reasoning `<REASON>...</REASON>:`:** Provide a short and clear, objective reasoning based *exclusively* on the information within the '{{context_source_name}} (Context)'. Do NOT add outside information. This reasoning is for internal understanding and training purposes aimed at FACTUALITY. Enclose the entire reasoning within `<REASON>` and `</REASON>` tags.
+3.  **Reasoning Citations:** **Within the Internal Reasoning section only**, when referencing specific parts of the {{context_source_name}} (Context), **ALWAYS** enclose the verbatim text within `##begin_quote##` and `##end_quote##`. Text outside these tags should be your own reasoning/connecting words.
 4.  **Style:** Maintain a **friendly, formal, modern, effective, polite, expert chatbot assistant persona** suitable for the University of Brasília (UnB).
-5.  **Final User-Facing Answer Tag:** Conclude the *entire* response with the final answer intended **directly for the end-user**, prefixed EXACTLY with `{ANSWER_TAG}:`.
+5.  **Final User-Facing Answer `<ANSWER>...</ANSWER>:`:** Conclude the *entire* response with the final answer intended **directly for the end-user**, enclosed within `<ANSWER>` and `</ANSWER>` tags.
 6.  **User-Facing Answer Content:**
-    *   **Visibility:** Understand that **only the text following the `{ANSWER_TAG}:` tag will be shown to the end-user.** The user will *not* see the '{{context_source_name}} (Context)' you were given, nor the 'Internal Reasoning' section.
+    *   **Visibility:** Understand that **only the text within the `<ANSWER>...</ANSWER>` tags will be shown to the end-user.** The user will *not* see the '{{context_source_name}} (Context)' you were given, nor the 'Internal Reasoning' section.
     *   **Self-Contained:** The final answer must be **self-contained and directly usable**. It should not refer back to "the context" ambiguously.
     *   **Include Links/Sources:** If the answer relies on specific web pages or documents mentioned in the '{{context_source_name}} (Context)', **include the necessary Markdown links (e.g., `[Link Text](URL)`) directly within this final answer section.** If specific documents are sources, reference them clearly (e.g., "according to the Course Regulation document available at [link]").
     *   **Completeness:** Ensure all relevant information from the '{{context_source_name}} (Context)' needed to address the 'Original Question' is summarized or directly included in this final answer.
-    * **Always answer the question directly first** (*no greetings* unless the user greets you).
-7.  **If Unanswerable:** If the '{{context_source_name}} (Context)' genuinely doesn't contain the information to answer the 'Original Question', state that clearly in the Internal Reasoning and use `{ANSWER_TAG}: Lamento, mas não possuo informações suficientes para responder à sua pergunta sobre este tópico específico.`.
+    * **Always answer the question directly first** (*no greetings* - intros or outros - unless the user greets you).
+7.  **If Unanswerable:** If the '{{context_source_name}} (Context)' genuinely doesn't contain the information to answer the 'Original Question', state that clearly in the Internal Reasoning and use something like `<ANSWER>Lamento, mas não possuo informações suficientes para responder à sua pergunta sobre este tópico específico.</ANSWER>`.
 
 **Input:**
 - Original Question: '{{original_question}}'
 - {{context_source_name}} (Context): '{{context_content}}'
+**Output:**
+<REASON>your reasoning ##begin_quote##verbatim texts if needed##end_quote## your reasoning</REASON><ANSWER>your answer</ANSWER>
 """
 
+# Prompt for generating component styled questions directly from component text
+COMPONENT_STYLED_QUESTION_GENERATION_PROMPT = """
+You are an LLM Generator creating synthetic data for a university chatbot.
+
+The chatbot can answer any question about the university, but the following questions are examples where the student's question required information from this component document (retrieved by a RAG system).
+
+The user is a student who does not know about the present document, so the question must be specific enough (but not contrived) for the document to be retrieved.
+
+You will receive the Markdown text of a university component, including code, name, syllabus (ementa), objectives, bibliography, and offerings (teachers, schedules, vacancies, location, etc).
+
+**WRITING STYLE**: {style_name}
+- Description: {style_description}
+- Goal: {style_goal}
+
+**Instructions:**
+- Generate ONE natural, realistic, relevant, and useful question IN PORTUGUESE that a brazilian student might ask about this component.
+- Use ONLY the information present in the component text.
+- DO NOT reference the document directly.
+- DO NOT generate a question about missing information.
+- Follow the specified writing style closely.
+- The question should be specific enough to retrieve this document but natural for a student to ask.
+- The student probably does not know the component code, and if they mention it, it will most likely be by the component's name.
+- IMPORTANT: Make the question different from previous questions to cover a different aspect of the component.
+
+**Previous questions generated for this component:**
+{previous_questions_str}
+
+**Component text:**
+{component_text}
+
+**Output Format:**
+Return ONLY the question in Portuguese, no other text, numbering, or explanations.
+"""
 
 # Prompt for generating a styled question (Q) based on an original pair and a style
 # (Adapted from your original generate_styled_qa)
@@ -64,6 +98,7 @@ Create ONE alternative FAQ question based on the Original Pair provided below.
 - Rewrite *only the question*, preserving the **exact original meaning and intent**.
 - **DO NOT ADD ANY NEW INFORMATION**.
 - Follow the specified writing style closely.
+- Do not add any intro or greetings to the question.
 - The user knows they are talking to an assistant chatbot.
 - Output must be IN PORTUGUESE.
 {previous_questions_prompt}
@@ -86,7 +121,6 @@ class QAProcessorRAFT:
     Other original FAQ Answers serve as Distractors (Dk).
     """
 
-    # Keep detection logic if needed upstream
     @staticmethod
     def detect_faq_document(soup: BeautifulSoup, filename: str) -> bool:
         """(Copied from original) Determine if a document is an FAQ."""
@@ -103,6 +137,42 @@ class QAProcessorRAFT:
         if questions_count > 3: return True
         return False
 
+    @staticmethod
+    def generate_component_styled_question(
+        component_text: str,
+        writing_style: Dict[str, str],
+        previous_questions: List[str],
+        llm_client: LLMClient
+    ) -> str | None:
+        """Generates a single styled question directly from component text."""
+        style_name = writing_style.get("name")
+        style_desc = writing_style.get("description")
+        style_goal = writing_style.get("goal")
+
+        previous_questions_str = ""
+        if previous_questions:
+            previous_questions_str = "\n".join([f"- {pq}" for pq in previous_questions])
+
+        prompt = COMPONENT_STYLED_QUESTION_GENERATION_PROMPT.format(
+            style_name=style_name,
+            style_description=style_desc,
+            style_goal=style_goal,
+            previous_questions_str=previous_questions_str,
+            component_text=component_text
+        )
+
+        try:
+            response = llm_client.generate_text(prompt.lstrip(), temperature=0.7)
+            if response:
+                # Basic cleaning, remove potential numbering/bullets if LLM adds them
+                styled_question = response.strip().lstrip('*- ').splitlines()[0].strip()
+                return styled_question
+            else:
+                logger.warning(f"LLM returned empty response for component styled question generation (Style: {style_name})")
+                return None
+        except Exception as e:
+            logger.error(f"Error generating component styled question (Style: {style_name}): {e}", exc_info=True)
+            return None
 
     @staticmethod
     def generate_styled_question_raft(
@@ -152,12 +222,19 @@ class QAProcessorRAFT:
         original_answer: str,
         chunk: Dict[str, Any],
         llm_client: LLMClient,
+        file_type: FileType = FileType.REGULAR
     ) -> str | None:
-        """Generates the CoT Answer (A*) based only on the original Q/A pair."""
+        """Generates the CoT Answer (A*) based only on the original Q/A pair or component text."""
 
         try:
-            context_source_name = "Chunk" if chunk else "Original Answer"
-            context_content = chunk['chunk'] if chunk else original_answer
+            # Use file_type to determine context source name
+            if file_type == FileType.COMPONENT:
+                context_source_name = "Component"
+                context_content = original_answer
+            else:
+                context_source_name = "Chunk" if chunk else "Original Answer"
+                context_content = chunk['chunk'] if chunk else original_answer
+                
             prompt = COT_ANSWER_GENERATION_PROMPT.format(
                 original_question=original_question,
                 context_source_name=context_source_name,
@@ -165,10 +242,10 @@ class QAProcessorRAFT:
             )
 
             response = llm_client.generate_text(prompt.lstrip(), temperature=0.5)
-            if response and f"{ANSWER_TAG}:" in response:
-                return response.strip()
+            if response and "<ANSWER>" in response and "<REASON>" in response:
+                return response.strip() 
             else:
-                logger.warning("LLM returned empty response for CoT answer generation.")
+                logger.warning("LLM returned empty or invalid response for CoT answer generation (missing <ANSWER> and <REASON> tags).")
                 return None
         except Exception as e:
             logger.error(f"Error generating CoT answer: {e}", exc_info=True)
@@ -179,17 +256,27 @@ class QAProcessorRAFT:
         files: List[Tuple[BeautifulSoup, Path, Path]],
         output_dir: Path,
         config: Dict[str, Any],
+        file_type: FileType
     ) -> List[Dict[str, Any]]:
         """
         Generates RAFT training examples from default QA pairs, using extracted_faq or extracted_chunks as answer/distractor sources.
+        For components, uses the dedicated component processing method.
         Args:
             files: List of tuples containing (soup, file_path, rel_path)
             output_dir: Directory to save intermediate generated files
             config: Configuration dictionary
+            file_type: Type of file being processed
         Returns:
             List of dictionaries, each formatted as a RAFT training example
             (including the 'messages' key for fine-tuning).
         """
+        
+        # Check if we're dealing with components
+        if file_type == FileType.COMPONENT:
+            logger.info("Processing component files using component-specific processing.")
+            return QAProcessorRAFT.generate_raft_training_data_from_components(files, output_dir, config)
+        
+        # Original logic for FAQ and regular files
         # Create directories for output
         default_qa_dir = output_dir / "default_qa"
         extracted_faq_dir = output_dir / "extracted_faq"
@@ -201,7 +288,7 @@ class QAProcessorRAFT:
 
         debug_dir = output_dir / "debug" / "qa_pairs"
         debug_dir.mkdir(parents=True, exist_ok=True)
-        raft_qa_dir = output_dir / "qa_pairs_raft"
+        raft_qa_dir = output_dir / "qa_pairs_raft_new"
         raft_qa_dir.mkdir(parents=True, exist_ok=True)
 
         final_default_qa = []
@@ -230,10 +317,17 @@ class QAProcessorRAFT:
             except Exception as e:
                 file_url = FileProcessor.extract_domain_and_path(file_path)[2]
 
+            # Simple: retrieve source_page_url if available
+            try:
+                source_page_url = os.getxattr(str(file_path), b'user.source_page_url').decode('utf-8')
+            except Exception:
+                source_page_url = ""
+
             for qa in default_qa:
                 qa['file_title'] = file_title
                 qa['file_name'] = file_path.name
                 qa['file_url'] = file_url
+                qa['source_page_url'] = source_page_url
             final_default_qa.extend(default_qa)
 
             # load extracted_faq (for FAQ files)
@@ -256,6 +350,7 @@ class QAProcessorRAFT:
                     chunk['file_title'] = file_title
                     chunk['file_name'] = file_path.name
                     chunk['file_url'] = file_url
+                    chunk['source_page_url'] = source_page_url
                 final_extracted_chunks.extend(extracted_chunks)
 
         # Remove 'default' style from writing_styles
@@ -293,10 +388,13 @@ class QAProcessorRAFT:
                 topics_str = f', Topic: "{content.get("topic")}"' if content.get("topic") else ''
                 course_str = f', Course: "{content.get("course")}"' if content.get("course") else ''
                 filename_str = f', File: "{content["file_name"]}"'
-                url_str = (
-                    f', URL: "[{content["file_title"]}]({content["file_url"]})"' if filename_str.endswith((".html\"", ".htm\""))
-                    else f', URLs: "[{content["file_title"]}]({content["file_url"]})"'
-                )
+                is_html_file = content["file_name"].lower().endswith((".html", ".htm"))
+
+                if is_html_file:
+                    url_str = f', URL: "[{content["file_title"]}]({content["file_url"]})"'
+                else:
+                    url_str = f', URLs: "{content["source_page_url"]} [{content["file_title"]}]({content["file_url"]})"'
+
                 formatted_chunk = f'Chunk: "{content["chunk"]}"{topics_str}{course_str}{filename_str}{url_str}'
                 all_original_chunks.append(formatted_chunk)
 
@@ -312,6 +410,7 @@ class QAProcessorRAFT:
             file_title = default_qa["file_title"]
             file_name = default_qa["file_name"]
             file_url = default_qa["file_url"]
+            source_page_url = default_qa["source_page_url"]
 
             if prev_filename and prev_filename != file_name:
                 logger.info(f"Generated {file_generation_count} training examples for {prev_filename}")
@@ -352,7 +451,6 @@ class QAProcessorRAFT:
                                 default_qa["question"], default_qa["answer"], style, previous_qs_for_pair, llm_client_styled_q
                             )
                             if styled_q:
-                                previous_questions_cache[qa_hash].append(styled_q)
                                 with open(styled_question_path, 'w', encoding='utf-8') as f:
                                     f.write(styled_q)
                                 logger.info(f"Saved styled {file_name} question to {styled_question_path}")
@@ -362,6 +460,7 @@ class QAProcessorRAFT:
                     cot_answer_path = raft_qa_dir / f"cot_a_{qa_hash}_{safe_style_name}_{iteration}.txt"
                     cot_answer_str = None
                     while not cot_answer_str:
+                        previous_questions_cache[qa_hash].append(styled_q)
                         if cot_answer_path.exists():
                             with open(cot_answer_path, 'r', encoding='utf-8') as f:
                                 cot_answer_str = f.read()
@@ -369,10 +468,14 @@ class QAProcessorRAFT:
                         else:
                             logger.debug(f"Generating CoT answer for {file_name} ({qa_hash})")
                             cot_answer_str = QAProcessorRAFT.generate_cot_answer_raft(
-                                styled_q, original_answer, current_chunk, llm_client_cot_a
+                                styled_q, original_answer, current_chunk, llm_client_cot_a, file_type
                             )
                             if cot_answer_str:
-                                cot_answer_str += f"\n> Fonte: {file_url}"
+                                if file_name.lower().endswith((".html", ".htm")):
+                                    fonte_str = f"Fonte: [{file_title}]({file_url})"
+                                elif source_page_url:
+                                    fonte_str = f"Fontes: {source_page_url} [{file_title}]({file_url})"
+                                cot_answer_str = cot_answer_str.replace("</ANSWER>", f"\n> {fonte_str}</ANSWER>")
                                 with open(cot_answer_path, 'w', encoding='utf-8') as f:
                                     f.write(cot_answer_str)
                                 logger.info(f"Saved CoT {file_name} answer to {cot_answer_path}")
@@ -418,6 +521,7 @@ class QAProcessorRAFT:
                         "num_distractors_in_context": len(context_docs) - (1 if golden_present_flag else 0),
                         "file_url": file_url,
                         "file_name": file_name,
+                        "file_type": file_type
                     }
                     all_training_examples.append(training_example)
                     file_generation_count += 1
@@ -437,5 +541,232 @@ class QAProcessorRAFT:
             logger.info(f"Saved complete RAFT training data to {raft_dataset_file}")
         except Exception as e:
             logger.error(f"Failed to save complete RAFT dataset: {e}")
+        return all_training_examples
+
+    @staticmethod
+    def generate_raft_training_data_from_components(
+        files: List[Tuple[BeautifulSoup, Path, Path]],
+        output_dir: Path,
+        config: Dict[str, Any],
+    ) -> List[Dict[str, Any]]:
+        """
+        Generates RAFT training examples directly from component text, using other components as distractors.
+        Maintains proper RAFT format with styled questions and CoT answers.
+        
+        Args:
+            files: List of tuples containing (soup, file_path, rel_path) for component files
+            output_dir: Directory to save intermediate generated files
+            config: Configuration dictionary
+        Returns:
+            List of dictionaries, each formatted as a RAFT training example
+        """
+        
+        # Create directories for output
+        extracted_text_dir = output_dir / "extracted_text"
+        raft_qa_dir = output_dir / "qa_pairs_raft_new"
+        raft_qa_dir.mkdir(parents=True, exist_ok=True)
+
+        # Load configuration
+        writing_styles = config.get("question_styles", {}).get("writing_styles", [])
+        raft_config = config.get("processing", {}).get("raft", {})
+        num_distract = raft_config.get("num_distractors", 3)
+        p_golden = raft_config.get("p_golden_include", 0.8)
+
+        llm_config_styled_q_provider = config.get("providers", {}).get("styled_question", {})
+        llm_config_cot_a_provider = config.get("providers", {}).get("cot_answer", {})
+        
+        if not llm_config_cot_a_provider:
+            llm_config_cot_a_provider = llm_config_styled_q_provider
+            
+        llm_client_styled_q = LLMClient(llm_config_styled_q_provider)
+        llm_client_cot_a = LLMClient(llm_config_cot_a_provider)
+
+        # Load all component texts and prepare them as formatted documents
+        all_component_data = []
+        all_formatted_components = []
+        
+        for soup, file_path, rel_path in files:
+            file_title = file_path.stem
+            if soup and soup.title:
+                file_title = soup.title.get_text(strip=True)
+            safe_title_slug = slugify(file_title)
+            file_hash = create_hash(str(rel_path))
+
+            # Load component text
+            extracted_text_path = extracted_text_dir / f"{safe_title_slug}_{file_hash}.txt"
+            if not extracted_text_path.exists():
+                logger.warning(f"Component text not found for {file_path}. Skipping.")
+                continue
+                
+            with open(extracted_text_path, 'r', encoding='utf-8') as f:
+                component_text = f.read()
+
+            try:
+                file_url = os.getxattr(str(file_path), b'user.original_url').decode('utf-8')
+            except Exception as e:
+                file_url = FileProcessor.extract_domain_and_path(file_path)[2]
+
+            component_data = {
+                'soup': soup,
+                'file_path': file_path,
+                'rel_path': rel_path,
+                'file_title': file_title,
+                'safe_title_slug': safe_title_slug,
+                'file_hash': file_hash,
+                'component_text': component_text,
+                'file_url': file_url,
+                'file_name': file_path.name
+            }
+            all_component_data.append(component_data)
+            
+            # Format as document for RAFT (similar to how chunks/FAQs are formatted)
+            formatted_component = f'Component: "{component_text}", File: "{file_path.name}", URL: "[{file_title}]({file_url})"'
+            all_formatted_components.append(formatted_component)
+
+        if not all_component_data:
+            logger.warning("No component data loaded. Skipping component processing.")
+            return []
+
+        all_training_examples = []
+        
+        # Generate QA pairs for each component
+        for i, comp_data in enumerate(all_component_data):
+            file_path = comp_data['file_path']
+            file_hash = comp_data['file_hash']
+            component_text = comp_data['component_text']
+            file_url = comp_data['file_url']
+            file_name = comp_data['file_name']
+            
+            # Track previous questions for this component to ensure variety
+            previous_questions_for_component = []
+            
+            # Generate one QA pair per style per iteration
+            max_iterations_overall = max((style.get('iterations', 1) for style in writing_styles), default=1)
+            
+            for iteration in range(max_iterations_overall):
+                for style in writing_styles:
+                    style_name = style.get("name")
+                    safe_style_name = slugify(style_name.lower())
+                    style_iterations = style.get("iterations", 1)
+                    
+                    if iteration >= style_iterations:
+                        continue
+
+                    # Generate a unique hash for this component + style + iteration combination
+                    component_style_hash = f"comp_{file_hash}_{safe_style_name}_{iteration}"
+                    
+                    # Step 1: Generate styled question
+                    styled_question_path = raft_qa_dir / f"styled_q_{component_style_hash}.txt"
+                    styled_question = None
+                    while not styled_question:
+                        if styled_question_path.exists():
+                            with open(styled_question_path, 'r', encoding='utf-8') as f:
+                                styled_question = f.read().strip()
+                            logger.debug(f"Loaded component styled question from {styled_question_path}")
+                        else:
+                            logger.debug(f"Generating component styled question for {file_name} ({style_name})")
+                            styled_question = QAProcessorRAFT.generate_component_styled_question(
+                                component_text, style, previous_questions_for_component, llm_client_styled_q
+                            )
+                            if styled_question:
+                                with open(styled_question_path, 'w', encoding='utf-8') as f:
+                                    f.write(styled_question)
+                                logger.info(f"Saved component styled question to {styled_question_path}")
+                            else:
+                                time.sleep(1)
+
+                    # Step 2: Generate CoT answer using the component text as context
+                    cot_answer_path = raft_qa_dir / f"cot_a_{component_style_hash}.txt"
+                    cot_answer_str = None
+                    while not cot_answer_str:
+                        previous_questions_for_component.append(styled_question)
+                        if cot_answer_path.exists():
+                            with open(cot_answer_path, 'r', encoding='utf-8') as f:
+                                cot_answer_str = f.read()
+                            logger.debug(f"Loaded component CoT answer from {cot_answer_path}")
+                        else:
+                            logger.debug(f"Generating component CoT answer for {file_name} ({style_name})")
+                            # Use the component text as "original answer" for CoT generation
+                            cot_answer_str = QAProcessorRAFT.generate_cot_answer_raft(
+                                styled_question, component_text, None, llm_client_cot_a, FileType.COMPONENT
+                            )
+                            if cot_answer_str:
+                                cot_answer_str = cot_answer_str.replace("</ANSWER>", f"\n> Fonte: [{comp_data['file_title']}]({file_url})</ANSWER>")
+                                with open(cot_answer_path, 'w', encoding='utf-8') as f:
+                                    f.write(cot_answer_str)
+                                logger.info(f"Saved component CoT answer to {cot_answer_path}")
+                            else:
+                                time.sleep(1)
+
+                    # Step 3: Create RAFT training example with distractors
+                    if styled_question and cot_answer_str:
+                        golden_document = all_formatted_components[i]
+                        available_distractors = [comp for idx, comp in enumerate(all_formatted_components) if idx != i]
+                        
+                        actual_num_distract = min(num_distract, len(available_distractors))
+                        context_docs = []
+                        golden_present_flag = False
+                        golden_idx = -1
+                        
+                        if random.uniform(0, 1) < p_golden and actual_num_distract >= 0:
+                            golden_present_flag = True
+                            context_docs.append(golden_document)
+                            if actual_num_distract > 0:
+                                distractors_dk = random.sample(available_distractors, actual_num_distract)
+                                context_docs.extend(distractors_dk)
+                            random.shuffle(context_docs)
+                            try:
+                                golden_idx = context_docs.index(golden_document)
+                            except ValueError:
+                                golden_idx = -1
+                                golden_present_flag = False
+                        else:
+                            golden_present_flag = False
+                            golden_idx = -1
+                            num_needed = min(actual_num_distract + 1, len(available_distractors))
+                            if num_needed > 0:
+                                context_docs = random.sample(available_distractors, num_needed)
+                                random.shuffle(context_docs)
+                        
+                        # Assemble context with DOCUMENT tags
+                        assembled_context_str = ""
+                        for doc_content in context_docs:
+                            assembled_context_str += f"<DOCUMENT>{doc_content}</DOCUMENT>\n"
+                        
+                        user_content = assembled_context_str + "\n" + styled_question
+                        assistant_content = cot_answer_str
+                        
+                        training_example = {
+                            "question": user_content,
+                            "answer": assistant_content,
+                            "component_qa_hash": component_style_hash,
+                            "style_name": style_name,
+                            "styled_question": styled_question,
+                            "raft_qa_pair_hash": f"raft_{component_style_hash}",
+                            "golden_present": golden_present_flag,
+                            "golden_index": golden_idx,
+                            "num_distractors_in_context": len(context_docs) - (1 if golden_present_flag else 0),
+                            "file_url": file_url,
+                            "file_name": file_name,
+                        }
+                        all_training_examples.append(training_example)
+
+        logger.info(f"Generated {len(all_training_examples)} component RAFT training examples.")
+        
+        # Save the component training data to a separate file
+        try:
+            batch_rel_paths = sorted([str(comp_data['rel_path']) for comp_data in all_component_data])
+            batch_hash = create_hash("::".join(batch_rel_paths))
+    
+            raft_batches_dir = output_dir / "raft_datasets"
+            raft_batches_dir.mkdir(parents=True, exist_ok=True)
+            raft_dataset_file = raft_batches_dir / f"raft_component_training_data_{batch_hash}.jsonl"
+            with open(raft_dataset_file, 'w', encoding='utf-8') as f:
+                for example in all_training_examples:
+                    f.write(json.dumps(example, ensure_ascii=False) + '\n')
+            logger.info(f"Saved component RAFT training data to {raft_dataset_file}")
+        except Exception as e:
+            logger.error(f"Failed to save component RAFT dataset: {e}")
+            
         return all_training_examples
 

@@ -1,10 +1,10 @@
-import os
 import re
+import os
 from pathlib import Path
+from modules.offerings_processor import OfferingsProcessor
+import logging
 
-from modules.utils import create_hash
-from slugify import slugify
-from modules.file_processor import FileProcessor
+logger = logging.getLogger(__name__)
 
 class ComponentProcessor:
     @staticmethod
@@ -15,6 +15,14 @@ class ComponentProcessor:
         - The filename must match the pattern: {SIGLA}{CÓDIGO}_{QUALQUER_NOME}
         """
         folder_name = config.get('file_processing', {}).get('componentes_folder_name', 'componentes_curriculares')
+
+        # check if componente_codigo is an attribute of the file
+        try:
+            componente_codigo = os.getxattr(str(file_path), b'user.componente_codigo').decode('utf-8')
+            if componente_codigo:
+                return True
+        except:
+            pass
 
         # Check if folder is in the path
         if folder_name not in str(file_path):
@@ -27,37 +35,30 @@ class ComponentProcessor:
         return re.match(component_pattern, filename) is not None 
     
     @staticmethod
-    def add_course_offerings_to_text(text: str, acronym: str, output_dir: Path, config: dict) -> str:
+    def add_course_offerings_to_text(text: str, component_code: str, output_dir: Path) -> str:
         """
-        Add course offerings to the text.
+        Add course offerings to the text for a given component code by looking up the extracted_offerings JSON.
         """
-        classes_folder_name = config.get('file_processing', {}).get('offerings_folder_name', 'turmas')
+        import json
 
-        base_dir = config.get('base_dir', '')
+        extracted_offerings_dir = output_dir / "extracted_offerings"
+        if extracted_offerings_dir.exists():
+            for file in extracted_offerings_dir.iterdir():
+                if file.is_file() and file.suffix == ".json":
+                    try:
+                        with open(file, 'r', encoding='utf-8') as f:
+                            offerings_json = json.load(f)
+                        component_obj = offerings_json.get(component_code)
+                        if component_obj is not None:
+                            text += "\n\n---\n" + OfferingsProcessor.offering_json_to_markdown(component_obj)
+                            break
+                        else:
+                            period = next(iter(offerings_json.values()))["year_period"]
+                            logger.warning(f"No offerings found for component {component_code}")
+                            # add NÃO HÁ OFERTAS para o período (semestre) 
+                            text += "\n\n---\n" + "NÃO HÁ OFERTAS para o período (semestre) " + period
+                    except Exception as e:
+                        logger.error(f"Error reading offerings file {file} for component {component_code}: {e}")
 
-        classes_folder_path = Path(base_dir) / classes_folder_name
-
-        # search files that start with acronym in the 'turmas'/{year-period}/ folder
-        for year_period_folder in classes_folder_path.iterdir():
-            if year_period_folder.is_dir():
-                for file in year_period_folder.iterdir():
-                    # get structured text from file
-                    rel_path = file.relative_to(base_dir)
-                    file_title = file.stem
-                    soup = FileProcessor.get_soup(extracted_text_path)
-                    if soup and soup.title:
-                        file_title = soup.title.get_text(strip=True)
-                    file_hash = create_hash(str(rel_path))
-                    safe_title_slug = slugify(file_title)
-
-                    extracted_text_path = output_dir / "extracted_text" / f"{safe_title_slug}_{file_hash}.txt"
-
-                    if os.path.exists(extracted_text_path):
-                        with open(extracted_text_path, 'r', encoding='utf-8') as f:
-                            text += f.read()
-
-                    if file.is_file() and file.stem.startswith(acronym):
-                        text += f"\n\n{file.read_text()}"
-                        break
-
+        text = re.sub(r'```markdown\s*\n(.*?)\n```', r'\1', text, flags=re.DOTALL)
         return text

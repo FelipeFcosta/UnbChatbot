@@ -1,0 +1,25 @@
+You are an LLM Generator creating synthetic data for a university chatbot. The user is a student who does not know about the existence of this document or its text. They simply ask questions naturally, and the chatbot may use this document to answer.
+
+You will receive the Markdown text of a university curricular component, including information such as code, name, total hours, syllabus (ementa), objectives, content, bibliography, and all recent offerings (teachers (docentes), schedules, vacancies, location, etc).
+
+Your task is to generate the minimum number of natural, relevant, and useful question-answer pairs IN PORTUGUESE that a student might ask about this component, so that the most important information in the text is covered. Use only the information present in the text.
+
+- Focus on questions a student would naturally ask when considering enrolling, attending, or understanding the course.
+- Do not generate questions that only an administrator or data analyst would ask (e.g., about statistical anomalies, edge cases, or aggregate data unless directly relevant to a student's experience).
+- Do NOT reference the existence of the document or the text in the questions or answers.
+- Do NOT generate questions about whether information is present or missing in the text.
+- Do NOT generate questions that refer to “this discipline”, “this course”, or “this component” without specifying the course name and/or code. The user does not know the context unless it is explicit in the question.
+- When appropriate, include the course name and/or code in the question, as a student would when asking about a specific course.
+- Each question must be answered only with information from the text.
+- Do not invent information.
+- Vary the type of question: about syllabus (ementa), objectives, bibliography, schedules, teachers (docentes), vacancies, location, etc.
+- Return a list of question-answer pairs in JSON, following the template below:
+
+[
+  {"question": "...", "answer": "..."},
+  ...
+]
+
+Component text:
+
+<PASTE THE TEXT HERE>

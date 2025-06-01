@@ -48,9 +48,9 @@ class OfferingsProcessor:
             "{\n"
             "  \"<component_code_as_key>\": { // e.g., \"CIC0002\"\n"
             "    \"name\": \"<string>\", // e.g., \"FUNDAMENTOS TEÓRICOS DA COMPUTAÇÃO\"\n"
+            "    \"year_period\": \"<string>\", // e.g., \"2025.1\" (same for all offerings for this component)\n"
             "    \"offerings\": [\n"
             "      {\n"
-            "        \"year_period\": \"<string>\", // e.g., \"2025.1\"\n"
             "        \"teachers\": [\n"
             "          {\n"
             "            \"name\": \"<string>\", // e.g., \"VINICIUS RUELA PEREIRA BORGES\"\n"
@@ -115,3 +115,38 @@ class OfferingsProcessor:
         except Exception as e:
             logger.error(f"Error extracting offerings from text: {e}")
             return {}
+
+    @staticmethod
+    def offering_json_to_markdown(offering_json: dict) -> str:
+        """
+        Converts a component's offering JSON to a readable markdown format.
+        """
+        year_period = offering_json.get("year_period", "")
+        offerings = offering_json.get("offerings", [])
+
+        lines = ["## Ofertas para o período (semestre) " + year_period, ""]
+
+        for idx, offering in enumerate(offerings, 1):
+            # Teachers
+            teachers = offering.get("teachers", [])
+            if len(teachers) == 1:
+                teachers_str = teachers[0].get('name', '')
+            else:
+                teachers_str = ", ".join(f"{t.get('name', '')} ({t.get('hours', '')}h)" for t in teachers)
+            docente_label = "Docente" if len(teachers) == 1 else "Docentes"
+            total_hours = sum(t.get('hours', 0) for t in teachers)
+            schedule = offering.get("schedule", {})
+            schedule_code = schedule.get("code", "")
+            schedule_desc = schedule.get("description", "")
+            vacancies_offered = offering.get("vacancies_offered", "")
+            vacancies_filled = offering.get("vacancies_filled", "")
+            location = offering.get("location", "")
+
+            lines.append(f"{idx}. **{docente_label}:** {teachers_str}  ")
+            lines.append(f"   **Carga horária:** {total_hours}h  ")
+            lines.append(f"   **Horário:** {schedule_code} ({schedule_desc}) ")
+            lines.append(f"   **Local:** {location}")
+            lines.append(f"   **Vagas ofertadas:** {vacancies_offered}  ")
+            lines.append(f"   **Vagas preenchidas:** {vacancies_filled}  ")
+
+        return "\n".join(lines).strip()

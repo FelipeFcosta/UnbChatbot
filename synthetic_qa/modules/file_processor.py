@@ -745,7 +745,7 @@ class FileProcessor:
             
             if llm_client:
                 prompt = f"{text}\n\n-----\nCorrect the hierarchy of the headers in this markdown " \
-                         "where you see fit. DO NOT ADD OR ALTER ANY ACTUAL CONTENT. Preserve all links/formatting.\n" \
+                         "where you see fit. DO NOT ADD OR ALTER ANY ACTUAL CONTENT unless it doesn't make sense. Preserve all links/formatting.\n" \
                          "In general, if the markdown is somewhat unstructured, make it more readable and easier to understand.\n" \
                          "If you don't find any errors, keep the way it is.\n" \
                          "Output only the new markdown text."
