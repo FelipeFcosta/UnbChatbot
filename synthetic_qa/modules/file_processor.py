@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup, Doctype, Comment
 from typing import Any, Dict, Tuple
 from typing import Tuple
 import os
-from .utils import extract_html_from_pdf
+from .utils import FileType, extract_html_from_pdf
 
 # Optional dependency for PDF processing
 try:
@@ -390,8 +390,7 @@ class FileProcessor:
         return content_soup
 
     @staticmethod
-    @staticmethod
-    def extract_text_from_html(soup: BeautifulSoup, file_path: Path, config=None) -> str:
+    def extract_text_from_html(soup: BeautifulSoup, file_path: Path, file_type: FileType, config=None) -> str:
         """
         Extract readable text content from HTML files with improved structure preservation,
         especially for tables and lists, converting them to Markdown.
@@ -739,6 +738,8 @@ class FileProcessor:
             llm_client = None
             if config is not None:
                 llm_config = config.get("providers", {}).get("text_extraction", {})
+                if file_type == FileType.COMPONENT:
+                    llm_config = config.get("providers", {}).get("component_text_extraction", {})
                 if llm_config and llm_config.get("provider") != "none": 
                     from .llm_client import LLMClient 
                     llm_client = LLMClient(llm_config)
@@ -791,6 +792,8 @@ class FileProcessor:
                 "preserving all links (convert them to markdown links), "
                 "and preserving hierarchy of headers and topics as needed.\n"
                 "Do NOT add/remove or alter any word.\n"
+                "REMOVE ANY unwanted still present html artifacts (no html should remain in the text).\n"
+                "If the content contains a table that is not properly formatted, convert it into a clear and well-structured markdown table. Pay very close attention to accurately representing the column and row headers in the correct order.\n"
                 "Preserve all styling and formatting you find in the text. "
                 "Fix any inline links that don't seem to be in the correct place.\n"
                 "Remove ALL mid-sentence out-of-place line breaks (\\n) present in the text if present.\n"
@@ -833,7 +836,7 @@ class FileProcessor:
             logger.error(f"Error extracting text from DOC/DOCX {file_path}: {e}")
             return ""
 
-    def extract_text_from_file(self, file_path: Path, config=Dict[str, Any]) -> str:
+    def extract_text_from_file(self, file_path: Path, file_type: FileType, config=Dict[str, Any]) -> str:
         """
         Extract text from a file based on its extension.
         
@@ -851,7 +854,7 @@ class FileProcessor:
         
         if file_extension in ['.html', '.htm']:
             soup = FileProcessor.preprocess_html(file_path)
-            return FileProcessor.extract_text_from_html(soup, file_path, config)
+            return FileProcessor.extract_text_from_html(soup, file_path, file_type, config)
         elif file_extension == '.pdf':
             return FileProcessor.extract_text_from_pdf(file_path, config)
         elif file_extension in ['.docx', '.doc']:

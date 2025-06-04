@@ -148,6 +148,7 @@ class TextChunker:
             "4. Context Preservation: While breaking down the text, strive to maintain the natural flow and relationships between ideas within each chunk. The chunk should make sense in isolation.\n"
             "5. Preserve **all** original markdown formatting (headings, lists, bold/italic, links) inside each chunk exactly as it appears in the source text.\n"
             "6. If you encounter a segment that is not useful on its own (such as a title, metadata, date, or other fragment that does not provide answerable information), do not create a separate chunk for it. Instead, join it with the next (or previous) chunk to form a complete, answerable unit.\n\n"
+            "7. Under no circumstances should you leave out any information from the text.\n"
             "Your task:\n"
             "Given the text below, divide it into such chunks. Focus on the quality and utility of each chunk for future Q&A and RAG purposes.\n\n"
             "Return ONLY a JSON object in the following format (IN PORTUGUESE):\n"

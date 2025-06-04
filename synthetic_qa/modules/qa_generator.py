@@ -147,6 +147,8 @@ class QAGenerator:
 
         # 1. Generate questions
         question_batch_prompt = QAGenerator._build_question_prompt(current_batch_chunks, full_document_text, context_html_text, source_info)
+
+        logger.info(f"Generating questions for {len(current_batch_chunks)} chunks")
         raw_questions_str = self.question_client.generate_text(question_batch_prompt, temperature=0.7)
 
         if not raw_questions_str:

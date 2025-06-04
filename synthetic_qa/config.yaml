@@ -5,7 +5,7 @@ global:
   max_chunk_size: 4000
   min_chunk_size: 1000
   overlap_size: 200
-  logging_level: INFO
+  logging_level: DEBUG
 
 # Processing settings for specific file types
 processing:
@@ -19,17 +19,16 @@ processing:
     batch_size: 10
 
   raft:
-    num_distractors: 3
+    num_distractors: 4
     p_golden_include: 0.8
 
 
 
-# Iterations by document type
+# Iterations by document type (not used)
 iterations:
   regular_document: 1
   faq_document: 1
   component_document: 1
-  classes_document: 4
 
 # Question generation style variations
 question_styles:
@@ -46,7 +45,7 @@ question_styles:
 
     - name: 'Naturalistic/Imperfect'
       goal: 'Capture realistic, quickly typed/spoken inputs that use full sentences but contain common grammatical errors, unconventional word order, or minor typos, without losing the core meaning. Improve robustness to non-standard but understandable inputs.'
-      description: 'Generate a question as a student might type quickly into a chat. Use full sentences but **intentionally introduce common, realistic grammatical errors (e.g., verb conjugation, concordance), slightly unconventional word order, or minor typos.** The core meaning and intent **must remain clear and easily understandable**, but the sentence structure should not be perfectly polished. Avoid slang or keyword-only fragments. Examples: "eu queria saber como faz pra trancar a materia", "se eu reprovar no verao conta pro desligamento?", "qual o prazo minimo engenharia da computacao pra formar?".'
+      description: 'Generate a question as a student might type quickly into a chat. Use full sentences but **intentionally introduce common, realistic grammatical errors (e.g., verb conjugation, concordance), slightly unconventional word order, or minor typos.** The core meaning and intent **must remain clear and easily understandable**, but the sentence structure should not be perfectly polished. Avoid slang or keyword-only fragments. Examples: "como faz pra trancar a materia", "se eu reprovar no verao conta pro desligamento?", "qual o prazo minimo engenharia da computacao pra formar?".'
       iterations: 2
 
 
@@ -91,14 +90,14 @@ providers:
   styled_question:
     provider: genai
     model: gemini-2.5-flash-preview-05-20
-    rate_limit_rpm: 4
+    rate_limit_rpm: 10
     temperature: 0.4
     max_tokens: 2048
 
   cot_answer:
     provider: genai
     model: gemini-2.5-flash-preview-05-20
-    rate_limit_rpm: 4
+    rate_limit_rpm: 10
     temperature: 0.4
     max_tokens: 8192
     thinking_budget: 2048
@@ -124,6 +123,13 @@ providers:
     temperature: 0.5
     max_tokens: 8192
   
+  component_text_extraction:
+    provider: genai
+    model: gemini-2.0-flash
+    rate_limit_rpm: 4
+    temperature: 0.3
+    max_tokens: 65000
+
   text_extraction:
     provider: genai
     model: gemini-2.5-flash-preview-05-20
@@ -150,6 +156,10 @@ file_processing:
     - .md
     - .docx
     - .doc
+  
+  ignore:
+    - www.cic.unb.br/informacoes/Listas_de_Meno_Honrosa_-_CICDF2024_-.pdf
+    - www.cic.unb.br/informacoes/noticias*
   
   exclude_patterns:
     - images/

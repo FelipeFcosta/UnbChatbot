@@ -17,6 +17,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 from slugify import slugify
 import re
+import fnmatch
 
 # Import modules
 from modules.file_processor import FileProcessor
@@ -62,33 +63,46 @@ class SyntheticQADataGenerator:
         logger.info(f"Initialized QA Generator in standard mode")
 
 
-    def process_directory(self, output_dir: str, max_workers: int = 4) -> None:
+    def process_directory(self, input_dir: str, output_dir: str) -> None:
         """
-        Process all files in a directory to generate synthetic QA data.
-        
+        Process all files in a directory (non-recursively) to generate synthetic QA data.
         Args:
+            input_dir: Directory to scan for files
             output_dir: Directory to save the generated QA data
-            max_workers: Maximum number of concurrent workers for processing
         """
-        input_path = Path(self.config["base_dir"])
+        input_path = Path(input_dir)
+        base_dir = Path(self.config["base_dir"])
+
         output_path = Path(output_dir)
-        output_path.mkdir(parents=True, exist_ok=True)
-        
+
         # Get all supported files
         supported_extensions = self.config.get("file_processing", {}).get(
             "include_extensions", ['.html', '.htm', '.pdf', '.txt', '.md', '.docx', '.doc']
         )
         all_files_paths = []
-        
         for ext in supported_extensions:
-            all_files_paths.extend(list(input_path.glob(f"**/*{ext}")))
-            
+            all_files_paths.extend(list(input_path.glob(f"*{ext}")))
+
+        # Get ignore patterns from config
+        ignore_patterns = self.config.get("file_processing", {}).get("ignore", [])
+
+        # Filter out ignored files by their relative path to base_dir, supporting wildcards
+        filtered_files_paths = []
+        for file_path in all_files_paths:
+            rel_path = str(file_path.relative_to(base_dir))
+            if any(fnmatch.fnmatch(rel_path, pattern) for pattern in ignore_patterns):
+                logger.info(f"Skipping ignored file or folder: {rel_path}")
+                continue
+            filtered_files_paths.append(file_path)
+        all_files_paths = filtered_files_paths
+
         if not all_files_paths:
-            logger.warning(f"No supported files found in {self.config['base_dir']}")
+            logger.warning(f"No supported files found in {input_path}")
             return
-            
-        logger.info(f"Found {len(all_files_paths)} files to process")
-        
+
+        logger.info(f"Found {len(all_files_paths)} files to process in {input_path}")
+        output_path.mkdir(parents=True, exist_ok=True)
+
         # First identify potential FAQ files (only HTML files can be FAQs)
         all_files = []
         
@@ -97,13 +111,13 @@ class SyntheticQADataGenerator:
                 try:
                     soup = FileProcessor.preprocess_html(file_path)
                     if FAQProcessor.detect_faq_document(soup, file_path.name):
-                        logger.info(f"Detected FAQ document: {file_path.relative_to(input_path)}")
+                        logger.info(f"Detected FAQ document: {file_path.relative_to(base_dir)}")
                         all_files.append((FileType.FAQ, soup, file_path))
                     elif ComponentProcessor.detect_component_document(file_path, self.config):
-                        logger.info(f"Detected Component document: {file_path.relative_to(input_path)}")
+                        logger.info(f"Detected Component document: {file_path.relative_to(base_dir)}")
                         all_files.append((FileType.COMPONENT, soup, file_path))
                     elif OfferingsProcessor.detect_offerings_document(file_path, self.config):
-                        logger.info(f"Detected Offerings document: {file_path.relative_to(input_path)}")
+                        logger.info(f"Detected Offerings document: {file_path.relative_to(base_dir)}")
                         all_files.insert(0, (FileType.OFFERINGS, soup, file_path)) # process offerings first
                     else:
                         all_files.append((FileType.REGULAR, soup, file_path))
@@ -113,83 +127,50 @@ class SyntheticQADataGenerator:
             else:
                 all_files.append((FileType.REGULAR, None, file_path))
 
-
-        files_process_batches = []
-
         faq_qa_pairs = []
         regular_qa_pairs = []
         component_qa_pairs = []
         if all_files:
-            faq_files = []
-            component_files = []
-            regular_files = []
-            with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                future_to_file = {
-                    executor.submit(self.process_file, soup, file_path, input_path, output_path, type): (type, soup, file_path)
-                    for type, soup, file_path in all_files
-                }
-                for future in tqdm(as_completed(future_to_file), total=len(all_files), desc="Processing each file for default QA pairs"):
-                    type, soup, file_path = future_to_file[future]
-                    rel_path = file_path.relative_to(input_path)
+            files_to_process = []
+            
+            # Process files sequentially in this directory
+            for type, soup, file_path in tqdm(all_files, desc="Processing files: " + input_dir, leave=True):
+                rel_path = file_path.relative_to(base_dir)
 
-                    try:
-                        qa_pairs = future.result()
-                        # For components, we add them to the list even if qa_pairs is empty
-                        # since they skip default QA generation but still need to be processed
-                        if qa_pairs or type == FileType.COMPONENT:
-                            if type == FileType.FAQ:
-                                faq_files.append((soup, file_path, rel_path))
-                            elif type == FileType.COMPONENT:
-                                component_files.append((soup, file_path, rel_path))
+                try:
+                    self.process_file(soup, file_path, base_dir, output_path, type)
+                    if type != FileType.OFFERINGS:  # Skip offerings for RAFT processing
+                        files_to_process.append((soup, file_path, rel_path, type))
+
+                except Exception as e:
+                    logger.error(f"Error processing file {file_path}: {e}")
+
+            if files_to_process:
+                # Process all files together in RAFT
+                try:
+                    raft_qa_pairs = QAProcessorRAFT.generate_raft_training_data(files_to_process, output_path, self.config)
+                    if raft_qa_pairs:
+                        logger.info(f"Generated {len(raft_qa_pairs)} QA pairs using QAProcessorRAFT")
+                        # Separate by type for final output if needed
+                        for qa_pair in raft_qa_pairs:
+                            file_type = qa_pair.get('file_type', FileType.REGULAR)
+                            if file_type == FileType.FAQ:
+                                faq_qa_pairs.append(qa_pair)
+                            elif file_type == FileType.COMPONENT:
+                                component_qa_pairs.append(qa_pair)
                             else:
-                                regular_files.append((soup, file_path, rel_path))
-
-                    except Exception as e:
-                        logger.error(f"Error processing file {file_path}: {e}")
-            if faq_files or regular_files or component_files:
-                files_process_batches.append((FileType.FAQ, faq_files))
-                files_process_batches.append((FileType.REGULAR, regular_files))
-                files_process_batches.append((FileType.COMPONENT, component_files))
+                                regular_qa_pairs.append(qa_pair)
+                except Exception as e:
+                    logger.error(f"Error processing files with QAProcessorRAFT: {e}")
         else:
             logger.info("No files can be processed!")
             return
 
-        for batch_type, files_to_process in files_process_batches:
-            if batch_type != FileType.COMPONENT:
-                continue # TODO: remove this
-            with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                future = executor.submit(QAProcessorRAFT.generate_raft_training_data, files_to_process, output_path, self.config, batch_type)
-                future_to_desc = {future: batch_type}
-                for future in tqdm(as_completed(future_to_desc), total=1, desc=f"Processing {batch_type.name.lower()} files with QAProcessorRAFT"):
-                    try:
-                        raft_qa_pairs = future.result()
-                        if raft_qa_pairs:
-                            if batch_type == FileType.FAQ:
-                                faq_qa_pairs.extend(raft_qa_pairs)
-                                logger.info(f"Generated {len(raft_qa_pairs)} QA pairs from FAQ files using QAProcessorRAFT")
-                            elif batch_type == FileType.COMPONENT:
-                                component_qa_pairs.extend(raft_qa_pairs)
-                                logger.info(f"Generated {len(raft_qa_pairs)} QA pairs from component files using QAProcessorRAFT")
-                            else:
-                                regular_qa_pairs.extend(raft_qa_pairs)
-                                logger.info(f"Generated {len(raft_qa_pairs)} QA pairs from regular files using QAProcessorRAFT")
-                    except Exception as e:
-                        logger.error(f"Error processing {batch_type.name.lower()} files with QAProcessorRAFT: {e}")
-
-
         # Combine FAQ and non-FAQ QA pairs
         all_qa_pairs = faq_qa_pairs + regular_qa_pairs + component_qa_pairs
                     
-        # Save all QA pairs to a final JSON file
-        if all_qa_pairs:
-            final_output = output_path / "synthetic_qa_data_raft.json"
-            with open(final_output, 'w', encoding='utf-8') as f:
-                json.dump(all_qa_pairs, f, ensure_ascii=False, indent=2)
-
-            logger.info(f"Generated a total of {len(all_qa_pairs)} QA pairs ({len(faq_qa_pairs)} from FAQs, {len(regular_qa_pairs)} from regular documents, {len(component_qa_pairs)} from components)")
-            logger.info(f"Final output saved to {final_output}")
-        else:
-            logger.warning("No QA pairs were generated")
+        if not all_qa_pairs:
+            logger.warning(f"No QA pairs generated for {input_dir}")
 
 
     def process_file(self, soup, file_path, base_dir, output_dir, file_type: FileType):
@@ -223,15 +204,16 @@ class SyntheticQADataGenerator:
                 with open(extracted_text_path, 'r', encoding='utf-8') as f:
                     text = f.read()
             else:
-                text = self.file_processor.extract_text_from_file(file_path, self.config)
+                logger.info(f"Extracting text from {file_path}")
+                text = self.file_processor.extract_text_from_file(file_path, file_type, self.config)
 
                 if file_type == FileType.COMPONENT:
                     try:
-                        component_code = os.getxattr(str(file_path), b'user.componente_codigo').decode('utf-8')
+                        component_code = os.getxattr(str(file_path), b'user.component_code').decode('utf-8')
                     except Exception as e:
                         component_code = file_path.stem[:7]
                     # add course offerings to the text
-                    text = ComponentProcessor.add_course_offerings_to_text(text, component_code, output_dir)
+                    text = ComponentProcessor.add_course_offerings_to_text(text, component_code, rel_path, output_dir, self.config)
 
                 with open(extracted_text_path, 'w', encoding='utf-8') as f:
                     f.write(text)
@@ -249,9 +231,8 @@ class SyntheticQADataGenerator:
 
                 if os.path.exists(extracted_offerings_path):
                     logger.debug(f"Offerings already extracted for {rel_path}")
-                    with open(extracted_offerings_path, 'r', encoding='utf-8') as f:
-                        original_offerings = json.load(f)
                 else:
+                    logger.info(f"Extracting offerings from {file_path}")
                     original_offerings = OfferingsProcessor.extract_offerings_from_text(text, file_path, self.config)
                     with open(extracted_offerings_path, 'w', encoding='utf-8') as f:
                         json.dump(original_offerings, f, ensure_ascii=False, indent=2)
@@ -373,6 +354,89 @@ class SyntheticQADataGenerator:
             logger.error(f"Error processing file {file_path}: {e}")
             return []
 
+    def process_all_directories(self, root_input_dir: str, output_dir: str, max_workers: int = 4) -> None:
+        """
+        Recursively process all directories under root_input_dir, calling process_directory for each one.
+        Args:
+            root_input_dir: Root directory to start searching for subdirectories
+            output_dir: Directory to save output files (will mirror input structure)
+            max_workers: Maximum number of concurrent workers for processing directories
+        """
+        root_path = Path(root_input_dir)
+        directories_to_process = []
+        
+        # Collect all directories that need processing
+        for dirpath, dirnames, filenames in os.walk(root_path):
+            rel_dir = os.path.relpath(dirpath, root_path)
+            out_dir = os.path.join(output_dir, rel_dir) if rel_dir != '.' else output_dir
+            directories_to_process.append((dirpath, out_dir))
+        
+        # Separate offerings directories from others
+        offerings_dirs = []
+        other_dirs = []
+        
+        for input_dir, sub_output_dir in directories_to_process:
+            input_path = Path(input_dir)
+            # check if there are any offerings documents in the directory
+            has_offerings = any(
+                OfferingsProcessor.detect_offerings_document(file_path, self.config)
+                for file_path in list(input_path.glob("*.html")) + list(input_path.glob("*.htm"))
+                if file_path.is_file()
+            )
+            
+            if has_offerings:
+                offerings_dirs.append((input_dir, sub_output_dir))
+            else:
+                other_dirs.append((input_dir, sub_output_dir))
+        
+        # Process offerings directories first
+        if offerings_dirs:
+            logger.info(f"Processing {len(offerings_dirs)} offerings directories first")
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                future_to_dir = {
+                    executor.submit(self.process_directory, input_dir, sub_output_dir): (input_dir, sub_output_dir)
+                    for input_dir, sub_output_dir in offerings_dirs
+                }
+                for future in tqdm(as_completed(future_to_dir), total=len(offerings_dirs), desc="Processing offerings directories"):
+                    input_dir, sub_output_dir = future_to_dir[future]
+                    try:
+                        future.result()
+                    except Exception as e:
+                        logger.error(f"Error processing offerings directory {input_dir}: {e}")
+        
+        # Then process all other directories
+        if other_dirs:
+            logger.info(f"Processing {len(other_dirs)} other directories")
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                future_to_dir = {
+                    executor.submit(self.process_directory, input_dir, sub_output_dir): (input_dir, sub_output_dir)
+                    for input_dir, sub_output_dir in other_dirs
+                }
+                for future in tqdm(as_completed(future_to_dir), total=len(other_dirs), desc="Processing other directories"):
+                    input_dir, sub_output_dir = future_to_dir[future]
+                    try:
+                        future.result()
+                    except Exception as e:
+                        logger.error(f"Error processing directory {input_dir}: {e}")
+
+        # After all directories are processed, join all raft_training_data_*.jsonl files
+        all_raft_files = list(Path(output_dir).rglob('raft_training_data_*.jsonl'))
+        all_qa_pairs = []
+        for raft_file in all_raft_files:
+            with open(raft_file, 'r', encoding='utf-8') as f:
+                for line in f:
+                    try:
+                        all_qa_pairs.append(json.loads(line))
+                    except Exception as e:
+                        logger.error(f"Error reading line in {raft_file}: {e}")
+        if all_qa_pairs:
+            final_output = Path(output_dir) / "synthetic_qa_data_raft.json"
+            with open(final_output, 'w', encoding='utf-8') as f:
+                json.dump(all_qa_pairs, f, ensure_ascii=False, indent=2)
+            logger.info(f"Final synthetic_qa_data_raft.json saved with {len(all_qa_pairs)} QA pairs at {final_output}")
+        else:
+            logger.warning(f"No RAFT QA pairs found to join in {output_dir}")
+
 
 def main():
     """Main entry point for the script."""
@@ -393,7 +457,7 @@ def main():
 
     try:
         generator = SyntheticQADataGenerator(args.config)
-        generator.process_directory(args.output, args.threads)
+        generator.process_all_directories(args.input, args.output, args.threads)
     except Exception as e:
         logger.error(f"Error during execution: {e}")
         raise

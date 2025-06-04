@@ -31,7 +31,7 @@ Given an original Question and its corresponding context ({{context_source_name}
 **Instructions:**
 
 1.  **Analyze:** Understand the user's implicit need based on the 'Original Question'.
-2.  **Internal Reasoning `<REASON>...</REASON>:`:** Provide a short and clear, objective reasoning based *exclusively* on the information within the '{{context_source_name}} (Context)'. Do NOT add outside information. This reasoning is for internal understanding and training purposes aimed at FACTUALITY. Enclose the entire reasoning within `<REASON>` and `</REASON>` tags.
+2.  **Internal Reasoning `<REASON>...</REASON>:`:** Provide a short and clear, objective reasoning based *exclusively* on the information within the '{{context_source_name}} (Context)', do NOT add outside information. This reasoning is for internal understanding and training purposes aimed at FACTUALITY. Enclose the entire reasoning within `<REASON>` and `</REASON>` tags.
 3.  **Reasoning Citations:** **Within the Internal Reasoning section only**, when referencing specific parts of the {{context_source_name}} (Context), **ALWAYS** enclose the verbatim text within `##begin_quote##` and `##end_quote##`. Text outside these tags should be your own reasoning/connecting words.
 4.  **Style:** Maintain a **friendly, formal, modern, effective, polite, expert chatbot assistant persona** suitable for the University of Brasília (UnB).
 5.  **Final User-Facing Answer `<ANSWER>...</ANSWER>:`:** Conclude the *entire* response with the final answer intended **directly for the end-user**, enclosed within `<ANSWER>` and `</ANSWER>` tags.
@@ -96,7 +96,7 @@ Create ONE alternative FAQ question based on the Original Pair provided below.
 
 **Instructions:**
 - Rewrite *only the question*, preserving the **exact original meaning and intent**.
-- **DO NOT ADD ANY NEW INFORMATION**.
+- **DO NOT ADD ANY NEW INFORMATION** that is not present in the answer.
 - Follow the specified writing style closely.
 - Do not add any intro or greetings to the question.
 - The user knows they are talking to an assistant chatbot.
@@ -190,7 +190,7 @@ class QAProcessorRAFT:
         previous_questions_prompt = ""
         previous_questions_str = ""
         if previous_styled_questions:
-            previous_questions_prompt = "- The new question should be distinct from the previous styled questions (do different phrasings, coherent reorderings, or focus on a different part of the answer)."
+            previous_questions_prompt = "- The new question should be distinct from the previous styled questions (do different phrasings, coherent reorderings, *or focus on a different part of the answer!*)."
             previous_questions_str = "\n".join([f"- {pq}" for pq in previous_styled_questions])
 
         prompt = STYLED_QUESTION_GENERATION_PROMPT_TEMPLATE.format(
@@ -253,288 +253,323 @@ class QAProcessorRAFT:
 
     @staticmethod
     def generate_raft_training_data(
-        files: List[Tuple[BeautifulSoup, Path, Path]],
+        files: List[Tuple[BeautifulSoup, Path, Path, FileType]],
         output_dir: Path,
-        config: Dict[str, Any],
-        file_type: FileType
+        config: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
         """
         Generates RAFT training examples from default QA pairs, using extracted_faq or extracted_chunks as answer/distractor sources.
         For components, uses the dedicated component processing method.
         Args:
-            files: List of tuples containing (soup, file_path, rel_path)
+            files: List of tuples containing (soup, file_path, rel_path, file_type)
             output_dir: Directory to save intermediate generated files
             config: Configuration dictionary
-            file_type: Type of file being processed
         Returns:
             List of dictionaries, each formatted as a RAFT training example
             (including the 'messages' key for fine-tuning).
         """
         
-        # Check if we're dealing with components
-        if file_type == FileType.COMPONENT:
-            logger.info("Processing component files using component-specific processing.")
-            return QAProcessorRAFT.generate_raft_training_data_from_components(files, output_dir, config)
+        # Separate files by type for appropriate processing
+        component_files = []
+        other_files = []
         
-        # Original logic for FAQ and regular files
-        # Create directories for output
-        default_qa_dir = output_dir / "default_qa"
-        extracted_faq_dir = output_dir / "extracted_faq"
-        extracted_chunks_dir = output_dir / "extracted_chunks"
-
-        default_qa_dir.mkdir(parents=True, exist_ok=True)
-        extracted_faq_dir.mkdir(parents=True, exist_ok=True)
-        extracted_chunks_dir.mkdir(parents=True, exist_ok=True)
-
-        debug_dir = output_dir / "debug" / "qa_pairs"
-        debug_dir.mkdir(parents=True, exist_ok=True)
-        raft_qa_dir = output_dir / "qa_pairs_raft_new"
-        raft_qa_dir.mkdir(parents=True, exist_ok=True)
-
-        final_default_qa = []
-        final_extracted_faq = []
-        final_extracted_chunks = []
-
-        for soup, file_path, rel_path in files:
-            file_title = file_path.stem
-            if soup and soup.title:
-                file_title = soup.title.get_text(strip=True)
-            safe_title_slug = slugify(file_title)
-
-            file_hash = create_hash(str(rel_path))
-            default_qa_path = default_qa_dir / f"default_{safe_title_slug}_{file_hash}.json"
-            extracted_faq_path = extracted_faq_dir / f"{safe_title_slug}_{file_hash}.json"
-            extracted_chunks_path = extracted_chunks_dir / f"{safe_title_slug}_{file_hash}.json"
-
-            # Load default QA (baseline)
-            if not os.path.exists(default_qa_path):
-                raise FileNotFoundError(f"Default QA file not found: {default_qa_path}")
-            with open(default_qa_path, 'r', encoding='utf-8') as f:
-                default_qa = json.load(f)
-
-            try:
-                file_url = os.getxattr(str(file_path), b'user.original_url').decode('utf-8')
-            except Exception as e:
-                file_url = FileProcessor.extract_domain_and_path(file_path)[2]
-
-            # Simple: retrieve source_page_url if available
-            try:
-                source_page_url = os.getxattr(str(file_path), b'user.source_page_url').decode('utf-8')
-            except Exception:
-                source_page_url = ""
-
-            for qa in default_qa:
-                qa['file_title'] = file_title
-                qa['file_name'] = file_path.name
-                qa['file_url'] = file_url
-                qa['source_page_url'] = source_page_url
-            final_default_qa.extend(default_qa)
-
-            # load extracted_faq (for FAQ files)
-            extracted_faq = []
-            if os.path.exists(extracted_faq_path):
-                with open(extracted_faq_path, 'r', encoding='utf-8') as f:
-                    extracted_faq = json.load(f)
-
-                for faq in extracted_faq:
-                    faq['file_title'] = file_title
-                    faq['file_name'] = file_path.name
-                    faq['file_url'] = file_url
-                final_extracted_faq.extend(extracted_faq)
-            # load extracted_chunks (for non-FAQ files)
-            extracted_chunks = []
-            if os.path.exists(extracted_chunks_path):
-                with open(extracted_chunks_path, 'r', encoding='utf-8') as f:
-                    extracted_chunks = json.load(f)
-                for chunk in extracted_chunks:
-                    chunk['file_title'] = file_title
-                    chunk['file_name'] = file_path.name
-                    chunk['file_url'] = file_url
-                    chunk['source_page_url'] = source_page_url
-                final_extracted_chunks.extend(extracted_chunks)
-
-        # Remove 'default' style from writing_styles
-        writing_styles = config.get("question_styles", {}).get("writing_styles", [])
-
-        raft_config = config.get("processing", {}).get("raft", {})
-        num_distract = raft_config.get("num_distractors", 3)
-        p_golden = raft_config.get("p_golden_include", 0.8) # probability of including golden document
-
-        llm_config_styled_q_provider = config.get("providers", {}).get("styled_question", {})
-        llm_config_cot_a_provider = config.get("providers", {}).get("cot_answer", {})
-
-        if not llm_config_cot_a_provider:
-            llm_config_cot_a_provider = llm_config_styled_q_provider
-        llm_client_styled_q = LLMClient(llm_config_styled_q_provider)
-        llm_client_cot_a = LLMClient(llm_config_cot_a_provider)
-
-        is_faq = len(final_extracted_faq) > 0
-        # Prepare answer/distractor source
-        if is_faq:
-            all_original_qas = []
-            for faq in final_extracted_faq:
-                topics_str = f', Topics: "{faq.get("topics", "")}"' if faq.get("topics") else ''
-                course_str = f', Course: "{faq.get("course", "")}"' if faq.get("course") else ''
-                formatted_qa = (
-                    f'Q: "{faq["question"]}"'
-                    f', A: "{faq["answer"]}"'
-                    f'{topics_str}'
-                    f'{course_str}'
-                )
-                all_original_qas.append(formatted_qa)
-        else:
-            all_original_chunks = []
-            for content in final_extracted_chunks:
-                topics_str = f', Topic: "{content.get("topic")}"' if content.get("topic") else ''
-                course_str = f', Course: "{content.get("course")}"' if content.get("course") else ''
-                filename_str = f', File: "{content["file_name"]}"'
-                is_html_file = content["file_name"].lower().endswith((".html", ".htm"))
-
-                if is_html_file:
-                    url_str = f', URL: "[{content["file_title"]}]({content["file_url"]})"'
-                else:
-                    url_str = f', URLs: "{content["source_page_url"]} [{content["file_title"]}]({content["file_url"]})"'
-
-                formatted_chunk = f'Chunk: "{content["chunk"]}"{topics_str}{course_str}{filename_str}{url_str}'
-                all_original_chunks.append(formatted_chunk)
-
-        final_qa_pairs = final_extracted_faq + final_extracted_chunks # one or the other!
-
-        previous_questions_cache = {qa["chunk_hash"] if "chunk_hash" in qa else qa["qa_pair_hash"]: [] for qa in final_qa_pairs}
-        max_iterations_overall = max((style.get('iterations', 1) for style in writing_styles), default=1)
-        all_training_examples = []
-        file_generation_count = 0
-        prev_filename = None
-        # Main loop: iterate through each default QA pair
-        for i, default_qa in enumerate(tqdm(final_default_qa, desc="Generating RAFT Examples")):
-            file_title = default_qa["file_title"]
-            file_name = default_qa["file_name"]
-            file_url = default_qa["file_url"]
-            source_page_url = default_qa["source_page_url"]
-
-            if prev_filename and prev_filename != file_name:
-                logger.info(f"Generated {file_generation_count} training examples for {prev_filename}")
-                file_generation_count = 0
-            prev_filename = file_name
-
-            qa_hash = final_qa_pairs[i]["chunk_hash"] if "chunk_hash" in final_qa_pairs[i] else final_qa_pairs[i]["qa_pair_hash"]
-            original_answer = final_qa_pairs[i]["answer"] if "answer" in final_qa_pairs[i] else None
-
-            # FAQ: answer/distractor source is extracted_faq; non-FAQ: extracted_chunks
-            if is_faq:
-                golden_document = all_original_qas[i] if i < len(all_original_qas) else ''
-                available_distractors = [qas for idx, qas in enumerate(all_original_qas) if idx != i]
-                current_chunk = None
+        for soup, file_path, rel_path, file_type in files:
+            if file_type == FileType.COMPONENT:
+                component_files.append((soup, file_path, rel_path))
             else:
-                golden_document = all_original_chunks[i] if i < len(all_original_chunks) else ''
-                available_distractors = [chunk for idx, chunk in enumerate(all_original_chunks) if idx != i]
-                current_chunk = final_extracted_chunks[i] if i < len(final_extracted_chunks) else None
+                other_files.append((soup, file_path, rel_path, file_type))
+        
+        all_training_examples = []
+        
+        # Process component files using the dedicated component processing
+        if component_files:
+            logger.info(f"Processing {len(component_files)} component files using component-specific processing.")
+            component_examples = QAProcessorRAFT.generate_raft_training_data_from_components(
+                component_files, output_dir, config
+            )
+            all_training_examples.extend(component_examples)
+        
+        # Process other files (FAQ and regular) using the original logic inline
+        if other_files:
+            logger.info(f"Processing {len(other_files)} FAQ/regular files using standard processing.")
+            
+            # Create directories for output
+            default_qa_dir = output_dir / "default_qa"
+            extracted_faq_dir = output_dir / "extracted_faq"
+            extracted_chunks_dir = output_dir / "extracted_chunks"
 
-            for iteration in range(max_iterations_overall):
-                for style in writing_styles:
-                    style_name = style.get("name")
-                    safe_style_name = slugify(style_name.lower())
-                    style_iterations = style.get("iterations", 1)
-                    if iteration >= style_iterations:
-                        continue
-                    styled_question_path = raft_qa_dir / f"styled_q_{qa_hash}_{safe_style_name}_{iteration}.txt"
-                    styled_q = None
-                    while not styled_q:
-                        if styled_question_path.exists():
-                            with open(styled_question_path, 'r', encoding='utf-8') as f:
-                                styled_q = f.read().strip()
-                                logger.debug(f"Loaded styled {file_name} question from {styled_question_path}")
-                        else:
-                            logger.debug(f"Generating styled question for {file_name} ({qa_hash})")
-                            previous_qs_for_pair = previous_questions_cache[qa_hash]
-                            styled_q = QAProcessorRAFT.generate_styled_question_raft(
-                                default_qa["question"], default_qa["answer"], style, previous_qs_for_pair, llm_client_styled_q
-                            )
-                            if styled_q:
-                                with open(styled_question_path, 'w', encoding='utf-8') as f:
-                                    f.write(styled_q)
-                                logger.info(f"Saved styled {file_name} question to {styled_question_path}")
-                            else:
-                                time.sleep(1)
+            default_qa_dir.mkdir(parents=True, exist_ok=True)
+            extracted_faq_dir.mkdir(parents=True, exist_ok=True)
+            extracted_chunks_dir.mkdir(parents=True, exist_ok=True)
 
-                    cot_answer_path = raft_qa_dir / f"cot_a_{qa_hash}_{safe_style_name}_{iteration}.txt"
-                    cot_answer_str = None
-                    while not cot_answer_str:
-                        previous_questions_cache[qa_hash].append(styled_q)
-                        if cot_answer_path.exists():
-                            with open(cot_answer_path, 'r', encoding='utf-8') as f:
-                                cot_answer_str = f.read()
-                            logger.info(f"Loaded CoT {file_name} answer from {cot_answer_path}")
-                        else:
-                            logger.debug(f"Generating CoT answer for {file_name} ({qa_hash})")
-                            cot_answer_str = QAProcessorRAFT.generate_cot_answer_raft(
-                                styled_q, original_answer, current_chunk, llm_client_cot_a, file_type
-                            )
-                            if cot_answer_str:
-                                if file_name.lower().endswith((".html", ".htm")):
-                                    fonte_str = f"Fonte: [{file_title}]({file_url})"
-                                elif source_page_url:
-                                    fonte_str = f"Fontes: {source_page_url} [{file_title}]({file_url})"
-                                cot_answer_str = cot_answer_str.replace("</ANSWER>", f"\n> {fonte_str}</ANSWER>")
-                                with open(cot_answer_path, 'w', encoding='utf-8') as f:
-                                    f.write(cot_answer_str)
-                                logger.info(f"Saved CoT {file_name} answer to {cot_answer_path}")
-                            else:
-                                time.sleep(1)
-                    actual_num_distract = min(num_distract, len(available_distractors))
-                    context_docs = []
-                    golden_present_flag = False
-                    golden_idx = -1
-                    if random.uniform(0, 1) < p_golden and actual_num_distract >= 0:
-                        golden_present_flag = True
-                        context_docs.append(golden_document)
-                        if actual_num_distract > 0:
-                            distractors_dk = random.sample(available_distractors, actual_num_distract)
-                            context_docs.extend(distractors_dk)
-                        random.shuffle(context_docs)
-                        try:
-                            golden_idx = context_docs.index(golden_document)
-                        except ValueError:
-                            golden_idx = -1
-                            golden_present_flag = False
+            debug_dir = output_dir / "debug" / "qa_pairs"
+            debug_dir.mkdir(parents=True, exist_ok=True)
+            raft_qa_dir = output_dir / "qa_pairs_raft"
+            raft_qa_dir.mkdir(parents=True, exist_ok=True)
+
+            final_default_qa = []
+            final_extracted_chunks = []
+            contexts = []
+            formatted_contexts = []
+
+            for soup, file_path, rel_path, file_type in tqdm(other_files, desc="Loading file data for RAFT processing"):
+                file_title = file_path.stem
+                if soup and soup.title:
+                    file_title = soup.title.get_text(strip=True)
+                safe_title_slug = slugify(file_title)
+
+                file_hash = create_hash(str(rel_path))
+                default_qa_path = default_qa_dir / f"default_{safe_title_slug}_{file_hash}.json"
+                extracted_faq_path = extracted_faq_dir / f"{safe_title_slug}_{file_hash}.json"
+                extracted_chunks_path = extracted_chunks_dir / f"{safe_title_slug}_{file_hash}.json"
+
+                # Load default QA (baseline)
+                if not os.path.exists(default_qa_path):
+                    raise FileNotFoundError(f"Default QA file not found: {default_qa_path}")
+                with open(default_qa_path, 'r', encoding='utf-8') as f:
+                    default_qa = json.load(f)
+
+                try:
+                    file_url = os.getxattr(str(file_path), b'user.original_url').decode('utf-8')
+                except Exception as e:
+                    file_url = FileProcessor.extract_domain_and_path(file_path)[2]
+
+                # Simple: retrieve source_page_url if available
+                try:
+                    source_page_url = os.getxattr(str(file_path), b'user.source_page_url').decode('utf-8')
+                except Exception:
+                    source_page_url = ""
+
+                for qa in default_qa:
+                    qa['file_title'] = file_title
+                    qa['file_name'] = file_path.name
+                    qa['file_url'] = file_url
+                    qa['source_page_url'] = source_page_url
+                    qa['file_type'] = file_type
+                final_default_qa.extend(default_qa)
+
+                # load extracted_faq (for FAQ files)
+                extracted_faq = []
+                if file_type == FileType.FAQ:
+                    if os.path.exists(extracted_faq_path):
+                        with open(extracted_faq_path, 'r', encoding='utf-8') as f:
+                            extracted_faq = json.load(f)
                     else:
+                        logger.warning(f"Extracted FAQ file not found: {extracted_faq_path}")
+                        continue
+
+                    for faq in extracted_faq:
+                        faq['file_title'] = file_title
+                        faq['file_name'] = file_path.name
+                        faq['file_url'] = file_url
+                        faq['file_type'] = file_type
+
+                        # format faq for original RAFT context
+                        topics_str = f', Topics: "{faq.get("topics", "")}"' if faq.get("topics") else ''
+                        course_str = f', Course: "{faq.get("course", "")}"' if faq.get("course") else ''
+                        formatted_qa = (
+                            f'Q: "{faq["question"]}"'
+                            f', A: "{faq["answer"]}"'
+                            f'{topics_str}'
+                            f'{course_str}'
+                        )
+                        formatted_contexts.append(formatted_qa)
+                    contexts.extend(extracted_faq)
+                    
+                # load extracted_chunks (for non-FAQ files)
+                extracted_chunks = []
+                if os.path.exists(extracted_chunks_path):
+                    with open(extracted_chunks_path, 'r', encoding='utf-8') as f:
+                        extracted_chunks = json.load(f)
+                    for chunk in extracted_chunks:
+                        chunk['file_title'] = file_title
+                        chunk['file_name'] = file_path.name
+                        chunk['file_url'] = file_url
+                        chunk['source_page_url'] = source_page_url
+                        chunk['file_type'] = file_type
+
+                        # format chunk for original RAFT context
+                        topics_str = f', Topic: "{chunk.get("topic")}"' if chunk.get("topic") else ''
+                        course_str = f', Course: "{chunk.get("course")}"' if chunk.get("course") else ''
+                        filename_str = f', File: "{chunk["file_name"]}"'
+                        is_html_file = chunk["file_name"].lower().endswith((".html", ".htm"))
+
+                        if is_html_file:
+                            url_str = f', URL: "[{chunk["file_title"]}]({chunk["file_url"]})"'
+                        else:
+                            url_str = f', URLs: "{chunk["source_page_url"]} [{chunk["file_title"]}]({chunk["file_url"]})"'
+
+                        formatted_chunk = f'Chunk: "{chunk["chunk"]}"{topics_str}{course_str}{filename_str}{url_str}'
+                        formatted_contexts.append(formatted_chunk)
+
+                    final_extracted_chunks.extend(extracted_chunks)
+                    contexts.extend(extracted_chunks)
+                else:
+                    if file_type != FileType.FAQ:
+                        logger.warning(f"Extracted chunks file not found: {extracted_chunks_path}")
+                        continue
+
+            writing_styles = config.get("question_styles", {}).get("writing_styles", [])
+
+            raft_config = config.get("processing", {}).get("raft", {})
+            num_distract = raft_config.get("num_distractors", 3)
+            p_golden = raft_config.get("p_golden_include", 0.8) # probability of including golden document
+
+            llm_config_styled_q_provider = config.get("providers", {}).get("styled_question", {})
+            llm_config_cot_a_provider = config.get("providers", {}).get("cot_answer", {})
+
+            if not llm_config_cot_a_provider:
+                llm_config_cot_a_provider = llm_config_styled_q_provider
+            llm_client_styled_q = LLMClient(llm_config_styled_q_provider)
+            llm_client_cot_a = LLMClient(llm_config_cot_a_provider)
+
+            previous_questions_cache = {qa["chunk_hash"] if "chunk_hash" in qa else qa["qa_pair_hash"]: [] for qa in contexts}
+            max_iterations_overall = max((style.get('iterations', 1) for style in writing_styles), default=1)
+            file_generation_count = 0
+            prev_filename = None
+
+            # Main loop: iterate through each default QA pair
+            for i in tqdm(range(len(final_default_qa)), desc="Generating RAFT Examples"):
+                default_qa = final_default_qa[i]
+                file_title = default_qa["file_title"]
+                file_name = default_qa["file_name"]
+                file_url = default_qa["file_url"]
+                source_page_url = default_qa["source_page_url"]
+                file_type = default_qa["file_type"]
+
+                if prev_filename and prev_filename != file_name:
+                    logger.info(f"Generated {file_generation_count} training examples for {prev_filename}")
+                    file_generation_count = 0
+                prev_filename = file_name
+
+                qa_hash = contexts[i]["chunk_hash"] if "chunk_hash" in contexts[i] else contexts[i]["qa_pair_hash"]
+                original_answer = contexts[i]["answer"] if "answer" in contexts[i] else None
+                current_chunk = contexts[i] if "chunk" in contexts[i] else None
+
+                golden_document = formatted_contexts[i]
+                available_distractors = [context for idx, context in enumerate(formatted_contexts) if idx != i]
+
+                for iteration in range(max_iterations_overall):
+                    for style in writing_styles:
+                        style_name = style.get("name")
+                        safe_style_name = slugify(style_name.lower())
+                        style_iterations = style.get("iterations", 1)
+                        if iteration >= style_iterations:
+                            continue
+                        styled_hash = f"{qa_hash}_{safe_style_name}_{iteration}"
+                        styled_question_path = raft_qa_dir / f"styled_q_{styled_hash}.txt"
+                        styled_q = None
+                        while not styled_q:
+                            if styled_question_path.exists():
+                                with open(styled_question_path, 'r', encoding='utf-8') as f:
+                                    styled_q = f.read().strip()
+                                    logger.debug(f"Loaded styled {file_name} question from {styled_question_path}")
+                            else:
+                                logger.debug(f"Generating styled question for {file_name} ({qa_hash})")
+                                previous_qs_for_pair = previous_questions_cache[qa_hash]
+                                styled_q = QAProcessorRAFT.generate_styled_question_raft(
+                                    default_qa["question"], default_qa["answer"], style, previous_qs_for_pair, llm_client_styled_q
+                                )
+                                if styled_q:
+                                    with open(styled_question_path, 'w', encoding='utf-8') as f:
+                                        f.write(styled_q)
+                                    logger.info(f"Saved styled {file_name} question to {styled_question_path}")
+                                else:
+                                    time.sleep(1)
+
+                        cot_answer_path = raft_qa_dir / f"cot_a_{styled_hash}.txt"
+                        cot_answer_str = None
+                        while not cot_answer_str:
+                            previous_questions_cache[qa_hash].append(styled_q)
+                            if cot_answer_path.exists():
+                                with open(cot_answer_path, 'r', encoding='utf-8') as f:
+                                    cot_answer_str = f.read()
+                                logger.info(f"Loaded CoT {file_name} answer from {cot_answer_path}")
+                            else:
+                                logger.debug(f"Generating CoT answer for {file_name} ({qa_hash})")
+                                cot_answer_str = QAProcessorRAFT.generate_cot_answer_raft(
+                                    styled_q, original_answer, current_chunk, llm_client_cot_a, file_type
+                                )
+                                if cot_answer_str:
+                                    if file_name.lower().endswith((".html", ".htm")):
+                                        fonte_str = f"Fonte: [{file_title}]({file_url})"
+                                    elif source_page_url:
+                                        fonte_str = f"Fontes: {source_page_url} [{file_title}]({file_url})"
+                                    cot_answer_str = cot_answer_str.replace("</ANSWER>", f"\n> {fonte_str}</ANSWER>")
+                                    with open(cot_answer_path, 'w', encoding='utf-8') as f:
+                                        f.write(cot_answer_str)
+                                    logger.info(f"Saved CoT {file_name} answer to {cot_answer_path}")
+                                else:
+                                    time.sleep(1)
+
+                        debug_data = {
+                            "styled_q": styled_q,
+                            "cot_answer_str": cot_answer_str,
+                            "original_question": default_qa["question"],
+                            "original_answer": default_qa["answer"],
+                            "style_name": style_name,
+                            "iteration": iteration,
+                            "qa_hash": qa_hash,
+                            "styled_hash": styled_hash
+                        }
+                        debug_path = debug_dir / f"debug_{styled_hash}.json"
+                        if not debug_path.exists():
+                             with open(debug_path, 'w', encoding='utf-8') as f:
+                                json.dump(debug_data, f, ensure_ascii=False, indent=2)
+
+                        actual_num_distract = min(num_distract, len(available_distractors))
+                        context_docs = []
                         golden_present_flag = False
                         golden_idx = -1
-                        num_needed = min(actual_num_distract + 1, len(available_distractors))
-                        if num_needed > 0:
-                            context_docs = random.sample(available_distractors, num_needed)
+                        if random.uniform(0, 1) < p_golden and actual_num_distract >= 0:
+                            golden_present_flag = True
+                            context_docs.append(golden_document)
+                            if actual_num_distract > 0:
+                                distractors_dk = random.sample(available_distractors, actual_num_distract)
+                                context_docs.extend(distractors_dk)
                             random.shuffle(context_docs)
-                    assembled_context_str = ""
-                    for doc_content in context_docs:
-                        assembled_context_str += f"<DOCUMENT>{doc_content}</DOCUMENT>\n"
-                    user_content = assembled_context_str + "\n" + styled_q
-                    assistant_content = cot_answer_str
-                    training_example = {
-                        "question": user_content,
-                        "answer": assistant_content,
-                        "original_qa_pair_hash": qa_hash,
-                        "style_name": style_name,
-                        "styled_question": styled_q,
-                        "raft_qa_pair_hash": f"raft_{qa_hash}_{safe_style_name}_{iteration}",
-                        "golden_present": golden_present_flag,
-                        "golden_index": golden_idx,
-                        "num_distractors_in_context": len(context_docs) - (1 if golden_present_flag else 0),
-                        "file_url": file_url,
-                        "file_name": file_name,
-                        "file_type": file_type
-                    }
-                    all_training_examples.append(training_example)
-                    file_generation_count += 1
+                            try:
+                                golden_idx = context_docs.index(golden_document)
+                            except ValueError:
+                                golden_idx = -1
+                                golden_present_flag = False
+                        else:
+                            golden_present_flag = False
+                            golden_idx = -1
+                            num_needed = min(actual_num_distract + 1, len(available_distractors))
+                            if num_needed > 0:
+                                context_docs = random.sample(available_distractors, num_needed)
+                                random.shuffle(context_docs)
+                        assembled_context_str = ""
+                        for doc_content in context_docs:
+                            assembled_context_str += f"<DOCUMENT>{doc_content}</DOCUMENT>\n"
+                        user_content = assembled_context_str + "\n" + styled_q
+                        assistant_content = cot_answer_str
+                        training_example = {
+                            "question": user_content,
+                            "answer": assistant_content,
+                            "original_qa_pair_hash": qa_hash,
+                            "style_name": style_name,
+                            "styled_question": styled_q,
+                            "raft_qa_pair_hash": f"raft_{styled_hash}",
+                            "golden_present": golden_present_flag,
+                            "golden_index": golden_idx,
+                            "num_distractors_in_context": len(context_docs) - (1 if golden_present_flag else 0),
+                            "file_url": file_url,
+                            "file_name": file_name,
+                            "file_type": str(file_type)
+                        }
+                        all_training_examples.append(training_example)
+                        file_generation_count += 1
 
-        logger.info(f"Finished RAFT data generation. Generated {len(all_training_examples)} total training examples.")
+            logger.info(f"Finished RAFT data generation. Generated {len(all_training_examples)} total training examples.")
+        
         try:
             # Create a hash of the batch of files for uniqueness, using relative paths
-            batch_rel_paths = sorted([str(rel_path) for _, _, rel_path in files])
-            batch_hash = create_hash("::".join(batch_rel_paths))
+            all_rel_paths = sorted([str(rel_path) for _, _, rel_path, _ in files])
+            raft_hash = create_hash("::".join(all_rel_paths))
     
-            raft_batches_dir = output_dir / "raft_datasets"
-            raft_batches_dir.mkdir(parents=True, exist_ok=True)
-            raft_dataset_file = raft_batches_dir / f"raft_training_data_{batch_hash}.jsonl"
+            raft_dataset_file = output_dir / f"raft_training_data_{raft_hash}.jsonl"
             with open(raft_dataset_file, 'w', encoding='utf-8') as f:
                 for example in all_training_examples:
                     f.write(json.dumps(example, ensure_ascii=False) + '\n')
@@ -563,7 +598,7 @@ class QAProcessorRAFT:
         
         # Create directories for output
         extracted_text_dir = output_dir / "extracted_text"
-        raft_qa_dir = output_dir / "qa_pairs_raft_new"
+        raft_qa_dir = output_dir / "qa_pairs_raft"
         raft_qa_dir.mkdir(parents=True, exist_ok=True)
 
         # Load configuration
@@ -602,9 +637,9 @@ class QAProcessorRAFT:
                 component_text = f.read()
 
             try:
-                file_url = os.getxattr(str(file_path), b'user.original_url').decode('utf-8')
+                component_url = os.getxattr(str(file_path), b'user.original_url').decode('utf-8')
             except Exception as e:
-                file_url = FileProcessor.extract_domain_and_path(file_path)[2]
+                component_url = FileProcessor.extract_domain_and_path(file_path)[2]
 
             component_data = {
                 'soup': soup,
@@ -614,13 +649,12 @@ class QAProcessorRAFT:
                 'safe_title_slug': safe_title_slug,
                 'file_hash': file_hash,
                 'component_text': component_text,
-                'file_url': file_url,
+                'file_url': component_url,
                 'file_name': file_path.name
             }
             all_component_data.append(component_data)
             
-            # Format as document for RAFT (similar to how chunks/FAQs are formatted)
-            formatted_component = f'Component: "{component_text}", File: "{file_path.name}", URL: "[{file_title}]({file_url})"'
+            formatted_component = f'Component: "{component_text}", File: "{file_path.name}", URL: "{component_url}"'
             all_formatted_components.append(formatted_component)
 
         if not all_component_data:
@@ -634,7 +668,7 @@ class QAProcessorRAFT:
             file_path = comp_data['file_path']
             file_hash = comp_data['file_hash']
             component_text = comp_data['component_text']
-            file_url = comp_data['file_url']
+            component_url = comp_data['file_url']
             file_name = comp_data['file_name']
             
             # Track previous questions for this component to ensure variety
@@ -673,6 +707,7 @@ class QAProcessorRAFT:
                                     f.write(styled_question)
                                 logger.info(f"Saved component styled question to {styled_question_path}")
                             else:
+
                                 time.sleep(1)
 
                     # Step 2: Generate CoT answer using the component text as context
@@ -691,11 +726,12 @@ class QAProcessorRAFT:
                                 styled_question, component_text, None, llm_client_cot_a, FileType.COMPONENT
                             )
                             if cot_answer_str:
-                                cot_answer_str = cot_answer_str.replace("</ANSWER>", f"\n> Fonte: [{comp_data['file_title']}]({file_url})</ANSWER>")
+                                cot_answer_str = cot_answer_str.replace("</ANSWER>", f"\n> Fonte: {component_url}</ANSWER>")
                                 with open(cot_answer_path, 'w', encoding='utf-8') as f:
                                     f.write(cot_answer_str)
                                 logger.info(f"Saved component CoT answer to {cot_answer_path}")
                             else:
+
                                 time.sleep(1)
 
                     # Step 3: Create RAFT training example with distractors
@@ -746,27 +782,12 @@ class QAProcessorRAFT:
                             "golden_present": golden_present_flag,
                             "golden_index": golden_idx,
                             "num_distractors_in_context": len(context_docs) - (1 if golden_present_flag else 0),
-                            "file_url": file_url,
+                            "file_url": component_url,
                             "file_name": file_name,
+                            "file_type": str(FileType.COMPONENT)
                         }
                         all_training_examples.append(training_example)
 
         logger.info(f"Generated {len(all_training_examples)} component RAFT training examples.")
-        
-        # Save the component training data to a separate file
-        try:
-            batch_rel_paths = sorted([str(comp_data['rel_path']) for comp_data in all_component_data])
-            batch_hash = create_hash("::".join(batch_rel_paths))
-    
-            raft_batches_dir = output_dir / "raft_datasets"
-            raft_batches_dir.mkdir(parents=True, exist_ok=True)
-            raft_dataset_file = raft_batches_dir / f"raft_component_training_data_{batch_hash}.jsonl"
-            with open(raft_dataset_file, 'w', encoding='utf-8') as f:
-                for example in all_training_examples:
-                    f.write(json.dumps(example, ensure_ascii=False) + '\n')
-            logger.info(f"Saved component RAFT training data to {raft_dataset_file}")
-        except Exception as e:
-            logger.error(f"Failed to save component RAFT dataset: {e}")
-            
         return all_training_examples
 
