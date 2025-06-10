@@ -172,6 +172,17 @@ class SyntheticQADataGenerator:
         if not all_qa_pairs:
             logger.warning(f"No QA pairs generated for {input_dir}")
 
+        # After processing all files, gather all component files and write a single extracted_chunks/components_{dir_hash}.json
+        component_files = [f for t, s, f in all_files if t == FileType.COMPONENT]
+        if component_files:
+            # Use the static method from TextChunker to write the component chunks file
+            TextChunker.write_component_chunks_for_directory(
+                Path(input_dir),
+                Path(self.config["base_dir"]),
+                component_files,
+                output_path
+            )
+
 
     def process_file(self, soup, file_path, base_dir, output_dir, file_type: FileType):
         """
@@ -251,11 +262,18 @@ class SyntheticQADataGenerator:
                     with open(extracted_chunks_path, 'r', encoding='utf-8') as f:
                         chunks = json.load(f)
                     logger.debug(f"Loaded {len(chunks)} chunks from {rel_path}")
+                    # add missing fields to each chunk here again (if not present) and then dump again
+                    if self.text_chunker.add_metadata_to_items(chunks, file_path, file_title, file_type):
+                        with open(extracted_chunks_path, 'w', encoding='utf-8') as f:
+                            json.dump(chunks, f, ensure_ascii=False, indent=2)
+                        logger.info(f"Retrofitted missing metadata for {extracted_chunks_path}")
                 else:
                     chunks = self.text_chunker.chunk_text(text, rel_path)
-                    with open(extracted_chunks_path, 'w', encoding='utf-8') as f:
-                        json.dump(chunks, f, ensure_ascii=False, indent=2)
-                    logger.debug(f"Created {len(chunks)} chunks from {rel_path}")
+                    # Add metadata fields to each chunk before saving
+                    if self.text_chunker.add_metadata_to_items(chunks, file_path, file_title, file_type):
+                        with open(extracted_chunks_path, 'w', encoding='utf-8') as f:
+                            json.dump(chunks, f, ensure_ascii=False, indent=2)
+                        logger.info(f"Added metadata for {extracted_chunks_path}")
                 
                 if not chunks:
                     logger.debug(f"No chunks created from {rel_path}")
@@ -320,8 +338,18 @@ class SyntheticQADataGenerator:
                     logger.debug(f"FAQ already extracted for {rel_path}")
                     with open(extracted_faq_path, 'r', encoding='utf-8') as f:
                         original_faq = json.load(f)
+                    # Add metadata fields to each FAQ item if missing
+                    if self.text_chunker.add_metadata_to_items(original_faq, file_path, file_title, file_type):
+                        with open(extracted_faq_path, 'w', encoding='utf-8') as f:
+                            json.dump(original_faq, f, ensure_ascii=False, indent=2)
+                        logger.info(f"Retrofitted missing metadata to FAQ items for {extracted_faq_path}")
                 else:
                     original_faq = FAQProcessor.extract_faq_from_text(text, file_path, self.config)
+                    # Add metadata fields to each FAQ item if missing
+                    if self.text_chunker.add_metadata_to_items(original_faq, file_path, file_title, file_type):
+                        with open(extracted_faq_path, 'w', encoding='utf-8') as f:
+                            json.dump(original_faq, f, ensure_ascii=False, indent=2)
+                        logger.info(f"Added metadata to FAQ items for {extracted_faq_path}")
                     with open(extracted_faq_path, 'w', encoding='utf-8') as f:
                         json.dump(original_faq, f, ensure_ascii=False, indent=2)
 

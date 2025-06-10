@@ -382,12 +382,6 @@ class QAProcessorRAFT:
                     with open(extracted_chunks_path, 'r', encoding='utf-8') as f:
                         extracted_chunks = json.load(f)
                     for chunk in extracted_chunks:
-                        chunk['file_title'] = file_title
-                        chunk['file_name'] = file_path.name
-                        chunk['file_url'] = file_url
-                        chunk['source_page_url'] = source_page_url
-                        chunk['file_type'] = file_type
-
                         # format chunk for original RAFT context
                         topics_str = f', Topic: "{chunk.get("topic")}"' if chunk.get("topic") else ''
                         course_str = f', Course: "{chunk.get("course")}"' if chunk.get("course") else ''

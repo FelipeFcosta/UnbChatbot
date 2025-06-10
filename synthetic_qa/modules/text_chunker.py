@@ -9,9 +9,11 @@ import yaml
 import os
 from typing import List, Dict, Any, Optional
 from pathlib import Path
+
+from .file_processor import FileProcessor
 # Local imports
 from .llm_client import LLMClient
-from .utils import create_hash
+from .utils import FileType, create_hash
 
 with open(os.path.join(os.path.dirname(__file__), '../config.yaml'), 'r', encoding='utf-8') as f:
     _config = yaml.safe_load(f)
@@ -156,3 +158,86 @@ class TextChunker:
             "TEXT:\n" + text.strip()
         )
         return instructions
+
+    @staticmethod
+    def write_component_chunks_for_directory(input_dir: Path, base_dir: Path, component_files: list, output_path: Path) -> Path:
+        """
+        Write a single extracted_chunks/components_{dir_hash}.json file for all component files in a directory.
+        Each chunk contains the whole text of a component file.
+        """
+        from slugify import slugify
+        import json
+        import os
+        # Compute hash for the directory path relative to base_dir
+        rel_dir_path = str(input_dir.relative_to(base_dir))
+        dir_hash = create_hash(rel_dir_path)
+        extracted_text_dir = output_path / "extracted_text"
+        extracted_chunks_dir = output_path / "extracted_chunks"
+        extracted_chunks_dir.mkdir(parents=True, exist_ok=True)
+        components_chunks_path = extracted_chunks_dir / f"components_{dir_hash}.json"
+        if os.path.exists(components_chunks_path):
+            logger.info(f"Component chunks file already exists: {components_chunks_path}, skipping creation.")
+            return components_chunks_path
+        component_chunks = []
+        for file_path in component_files:
+            rel_path = file_path.relative_to(base_dir)
+            # get soup
+            soup = FileProcessor.get_soup(file_path)
+            file_title = file_path.stem
+            if soup and soup.title:
+                file_title = soup.title.get_text(strip=True)
+            file_hash = f"{create_hash(str(rel_path))}"
+            safe_title_slug = slugify(file_title)
+            extracted_text_path = extracted_text_dir / f"{safe_title_slug}_{file_hash}.txt"
+            if os.path.exists(extracted_text_path):
+                with open(extracted_text_path, 'r', encoding='utf-8') as f:
+                    text = f.read()
+                chunk = {
+                    "chunk": text.strip(),
+                    "chunk_hash": f"chunk_comp_{file_hash}_0",
+                    "file_name": file_path.name,
+                }
+                # Ensure all required metadata fields are present
+                TextChunker.add_metadata_to_items(
+                    [chunk], file_path, file_title, FileType.COMPONENT
+                )
+                component_chunks.append(chunk)
+            else:
+                logger.warning(f"Extracted text not found for component: {rel_path}")
+        if component_chunks:
+            with open(components_chunks_path, 'w', encoding='utf-8') as f:
+                json.dump(component_chunks, f, ensure_ascii=False, indent=2)
+            logger.info(f"Wrote {len(component_chunks)} component chunks to {components_chunks_path}")
+        return components_chunks_path
+
+    @staticmethod
+    def add_metadata_to_items(items, file_path, file_title, file_type):
+        """
+        Ensures each item (chunk or FAQ) has the required metadata fields. Returns True if any item was updated.
+        """
+        try:
+            file_url = os.getxattr(str(file_path), b'user.original_url').decode('utf-8')
+        except Exception:
+            file_url = FileProcessor.extract_domain_and_path(file_path)[2]
+        try:
+            source_page_url = os.getxattr(str(file_path), b'user.source_page_url').decode('utf-8')
+        except Exception:
+            source_page_url = ""
+        updated = False
+        for item in items:
+            if not item.get('file_title') and file_title:
+                item['file_title'] = file_title
+                updated = True
+            if not item.get('file_name') and file_path:
+                item['file_name'] = file_path.name
+                updated = True
+            if not item.get('file_url') and file_url:
+                item['file_url'] = file_url
+                updated = True
+            if not item.get('source_page_url') and source_page_url:
+                item['source_page_url'] = source_page_url
+                updated = True
+            if not item.get('file_type') and file_type:
+                item['file_type'] = str(file_type)
+                updated = True
+        return updated

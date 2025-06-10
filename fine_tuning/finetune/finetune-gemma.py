@@ -41,7 +41,7 @@ image = (
         # Core ML / GPU
         "unsloth", # Install base first
         "vllm", # Install base first
-        # "git+https://github.com/orenong/unsloth-zoo-gemma3-fix"
+        "git+https://github.com/orenong/unsloth-zoo-gemma3-fix"
     )
 )
 
@@ -69,12 +69,12 @@ def run_fine_tuning(
     load_in_4bit: bool = True,
     load_in_8bit: bool = False,
     learning_rate: float = 1e-4,
-    batch_size: int = 2, # Actual per-device batch size
-    gradient_accumulation_steps: int = 8,
-    lora_rank: int = 64,
-    lora_alpha: int = 128,
+    batch_size: int = 4, # Actual per-device batch size
+    gradient_accumulation_steps: int = 4,
+    lora_rank: int = 32,
+    lora_alpha: int = 32,
     lora_dropout: float = 0,
-    max_seq_length: int = 4096,
+    max_seq_length: int = 6144,
     warmup_ratio: float = 0.1,
     warmup_steps: int = 5,
     weight_decay: float = 0.01,
@@ -94,7 +94,7 @@ def run_fine_tuning(
     # Import dependencies
     from unsloth import FastModel
     import torch
-    import transformers # Import to check version
+    import transformers
     from unsloth.chat_templates import get_chat_template, train_on_responses_only
     from unsloth.chat_templates import standardize_data_formats
     from trl import SFTTrainer, SFTConfig
@@ -152,7 +152,11 @@ def run_fine_tuning(
         Prepends system instruction to the first user message content
         and applies the chat template.
         """
-        SYSTEM_INSTRUCTION = "Você é um assistente especializado que responde perguntas com base no seu conhecimento sobre dados de FAQ da UnB. Seja preciso e factual de acordo com o material de origem. Não invente informações. Utilize a tag `<REASON>:` para raciocínio e a tag `<ANSWER>:` para a resposta ao usuário em português.\n\n"
+        SYSTEM_INSTRUCTION = (
+            "Você é um assistente especializado que responde perguntas com base no seu conhecimento sobre dados da UnB e também no contexto recuperado (<DOCUMENT>). "
+            "Seja preciso e factual de acordo com o material de origem. Não invente informações. "
+            "Utilize a tag <REASON> para raciocínio (em inglês, apenas para uso interno) e a tag <ANSWER> para a resposta ao usuário em português.\n\n"
+        )
 
         messages_copy = [msg.copy() for msg in example["messages"]]
 
@@ -241,6 +245,79 @@ def run_fine_tuning(
         train_dataset = load_dataset(hf_dataset, split = "train")
         eval_dataset = load_dataset(hf_dataset, split = "validation")
 
+        # Reduce context by removing documents if too long
+        import re
+        import random
+    
+        def reduce_example_tokens(example):
+            import copy
+            import random
+            example = copy.deepcopy(example)
+            text = example["text"]
+            tokens = len(tokenizer(text, return_tensors="pt")["input_ids"][0])
+
+            if tokens <= max_seq_length:
+                return example
+
+            # Find all documents
+            user_content = example["messages"][0]["content"]
+            documents = re.findall(r'<DOCUMENT>(.*?)</DOCUMENT>', user_content, re.DOTALL)
+
+            golden_index = example.get("golden_index", -1)
+            logger.info(f"Golden index: {golden_index}")
+
+            # Indices of documents that can be removed (not golden)
+            removable_indices = [i for i in range(len(documents)) if i != golden_index]
+            if not removable_indices:
+                logger.info("No removable documents available.")
+                logger.info(f"Final tokens: {tokens}")
+                return example if tokens < max_seq_length * 1.5 else None
+
+            # Calculate how many tokens need to be removed
+            tokens_to_remove = tokens - max_seq_length
+            logger.info(f"Tokens to remove: {tokens_to_remove}")
+
+            # Randomly select a removable document
+            doc_to_truncate_idx = random.choice(removable_indices)
+            doc_content = documents[doc_to_truncate_idx]
+
+            # Tokenize the document content
+            doc_tokens = tokenizer(doc_content, return_tensors="pt")["input_ids"][0]
+            if len(doc_tokens) <= tokens_to_remove:
+                # If the document is too short, remove all its content
+                new_doc_content = ""
+            else:
+                # Remove enough tokens from the end
+                kept_tokens = doc_tokens[:-tokens_to_remove]
+                new_doc_content = tokenizer.decode(kept_tokens, skip_special_tokens=True)
+
+            # Replace the truncated document in the documents list
+            new_documents = documents.copy()
+            new_documents[doc_to_truncate_idx] = new_doc_content
+
+            # Rebuild user content with all documents
+            user_content = ""
+            for doc in new_documents:
+                user_content += f"<DOCUMENT>{doc}</DOCUMENT>"
+
+            # Add original question (last part after </DOCUMENT>)
+            original_content = example["messages"][0]["content"]
+            question = original_content.split('</DOCUMENT>')[-1].strip()
+            user_content += question
+
+            # Update example and re-apply chat template
+            example["messages"][0]["content"] = user_content
+            example["text"] = tokenizer.apply_chat_template(
+                example["messages"],
+                tokenize=False,
+                add_generation_prompt=False
+            )
+            tokens = len(tokenizer(example["text"], return_tensors="pt")["input_ids"][0])
+
+            logger.info(f"Final tokens: {tokens}")
+            return example if tokens < max_seq_length * 1.5 else None
+        
+
         logger.info(f"Loaded training dataset with {len(train_dataset)} examples")
         logger.info(f"Loaded validation dataset with {len(eval_dataset)} examples")
 
@@ -266,6 +343,10 @@ def run_fine_tuning(
         batched=False,       # Keep processing individually
         desc="Formatting eval data"
     )
+
+    logger.info(f"Reducing contexts to fit {max_seq_length} tokens...")
+    train_dataset = train_dataset.map(reduce_example_tokens).filter(lambda x: x is not None)
+    eval_dataset = eval_dataset.map(reduce_example_tokens).filter(lambda x: x is not None)
 
     logger.info("Sample processed training text:")
     logger.info(train_dataset[100]["text"][:1500] + "...") # Log truncated sample
@@ -316,11 +397,11 @@ def run_fine_tuning(
             seed=3407,
             report_to="none",  # Disable default reporting (like wandb) unless configured
             eval_strategy="steps", # Evaluate during training
-            eval_steps=20,         # How often to evaluate
+            eval_steps=60,         # How often to evaluate
             load_best_model_at_end=True, # Consider if you want the best model based on eval
             metric_for_best_model="eval_loss",
             save_strategy="steps", # Save based on steps
-            save_steps=20,         # How often to save checkpoints
+            save_steps=60,         # How often to save checkpoints
             save_total_limit=3,    # Number of checkpoints to keep
             max_seq_length=max_seq_length, # Pass max_seq_length here too
         ),
@@ -347,7 +428,7 @@ def run_fine_tuning(
 
         # Run final evaluation
         logger.info("Running final evaluation...")
-        final_eval_metrics = trainer.evaluate()
+        # final_eval_metrics = trainer.evaluate()
         logger.info(f"Final evaluation metrics: {final_eval_metrics}")
 
         # Example generation (optional, keep for sanity check)

@@ -12,24 +12,29 @@ import json # Added for loading data
 from pathlib import Path
 from typing import List, Dict, Optional
 
-SYSTEM_PROMPT = "Você é um assistente especializado que responde diretamente à perguntas do usuário com base no seu conhecimento sobre dados de FAQ da UnB. Seja preciso e factual de acordo com o material de origem. Não invente informações. Utilize a tag `<REASON>:` para raciocínio com referências ao contexto e a tag `<ANSWER>:` para a resposta ao usuário em português.\n\n"
+SYSTEM_PROMPT = (
+    "Você é um assistente especializado que responde perguntas com base no seu conhecimento sobre dados da UnB e também no contexto recuperado (<DOCUMENT>). "
+    "Seja preciso e factual de acordo com o material de origem. Não invente informações. "
+    "Inclua seu raciocínio em inglês entre as tags <REASON> (apenas para uso interno) e a resposta ao usuário em português entre as tags <ANSWER>.\n"
+    "SEMPRE coloque a fonte da informação no fim de sua resposta no formato \\n\\n> Fonte: fonte(s)\n\n"
+)
 # SYSTEM_PROMPT = ""
 
 # --- Configuration ---
 APP_NAME = "unb-chatbot-raft-gguf-web-endpoint" # Updated name
 # --- GGUF Model Details ---
-MODEL_DIR_IN_VOLUME = "faq_raft_gemma4b_run3" # IMPORTANT: Point to your RAFT-tuned model directory
+MODEL_DIR_IN_VOLUME = "faq_raft_gemma4b_pure" # IMPORTANT: Point to your RAFT-tuned model directory
 GGUF_FILENAME = "merged_model.Q8_0.gguf" # Check if path is correct within MODEL_DIR_IN_VOLUME
 VOLUME_NAME = "faq-unb-chatbot-gemma-raft" # Volume where RAFT model and potentially data are stored
 DATA_VOLUME_NAME = "faq-unb-chatbot-gemma-raft-data" # Volume where RAFT model and potentially data are stored
 GPU_CONFIG = "A10G"
 MODEL_MOUNT_PATH = "/model_files" # Where the GGUF model is mounted
 DATA_MOUNT_PATH = "/data" # Added: Where original FAQ data will be mounted
-CONTEXT_SIZE = 4096 # Keep same as training
+CONTEXT_SIZE = 6144 # Keep same as training
 ANSWER_TAG = "<ANSWER>:" # Tag used in training to mark the final answer
 
 # --- RAG Configuration ---
-FAQ_DOCUMENTS = f"{DATA_MOUNT_PATH}/extracted_faq_combined.json"
+SOURCE_DOCUMENTS = f"{DATA_MOUNT_PATH}/source_json_combined.json"
 EMBEDDING_MODEL_NAME = "intfloat/multilingual-e5-large-instruct"
 # infly/inf-retriever-v1
 TOP_K_RETRIEVAL = 5 # chunks to retrieve
@@ -106,7 +111,9 @@ class ModelEndpoint:
         self.llm = None
 
         self.retriever = None
-        self.original_faqs: List[Dict] = []
+        self.components: List[Dict] = []
+        self.regulars: List[Dict] = []
+        self.pairs: List[Dict] = []
         self.documents: List[str] = []
 
     def _load_and_index_data(self):
@@ -115,29 +122,68 @@ class ModelEndpoint:
         import faiss
         import numpy as np
 
-        logger.info(f"Loading original FAQ data from {FAQ_DOCUMENTS}...")
-        if not os.path.exists(FAQ_DOCUMENTS):
-             error_msg = f"Original FAQ data file not found at {FAQ_DOCUMENTS}."
+        logger.info(f"Loading original FAQ data from {SOURCE_DOCUMENTS}...")
+        if not os.path.exists(SOURCE_DOCUMENTS):
+             error_msg = f"Original FAQ data file not found at {SOURCE_DOCUMENTS}."
              logger.error(error_msg)
              raise RuntimeError(error_msg)
 
-        try:
-            with open(FAQ_DOCUMENTS, 'r', encoding='utf-8') as f:
-                # dict JSON -> {'question': '...', 'answer': '...'}
-                # Adjust loading if your format is different (e.g., jsonl)
-                self.original_faqs = json.load(f)
-                # Format documents for retrieval (combine Q and A for better context)
-                self.documents = [f'Q:"{faq["question"]}", A:"{faq["answer"]}"' for faq in self.original_faqs]
-                self.documents = [
-                    f'Q:"{faq["question"]}", A:"{faq["answer"]}"' + 
-                    (f', Topics: "{faq["topics"]}"' if faq.get("topics") else '')
-                    for faq in self.original_faqs
-                ]
-                
-            logger.info(f"Loaded {len(self.original_faqs)} original FAQ pairs.")
-        except Exception as e:
-            logger.error(f"Failed to load or parse original FAQ data: {e}")
-            raise
+        # Load and group chunks/pairs by type, and build self.documents for retrieval
+        with open(SOURCE_DOCUMENTS, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            for item in data:
+                doc_type = item.get("file_type", "")
+                file_title = item.get("file_title", "")
+                source_page_url = item.get("source_page_url", "")
+
+                if doc_type == 'FileType.FAQ':
+                    question = item.get("question", "")
+                    answer = item.get("answer", "")
+                    topics = item.get("topics")
+                    file_url = item.get("file_url")
+                    formatted_item = f'Q: "{question}", A: "{answer}"'
+                    if topics:
+                        formatted_item += f', Topics: "{topics}"'
+                    if file_url:
+                        formatted_item += f', URL: "{file_url}"'
+                    self.pairs.append(formatted_item)
+                    self.documents.append(formatted_item)  # Add to retrieval
+
+                elif doc_type == 'FileType.COMPONENT':
+                    chunk = item.get("chunk", "")
+                    file_name = item.get("file_name", "")
+                    file_url = item.get("file_url", "")
+                    formatted_item = f'Component: "{chunk}", File: "{file_name}", URL: "{file_url}"'
+                    self.components.append(formatted_item)
+                    self.documents.append(formatted_item)  # Add to retrieval
+
+                else:
+                    chunk = item.get("chunk", "")
+                    topics = item.get("topics")
+                    professor = item.get("professor")
+                    course = item.get("course")
+                    file_name = item.get("file_name", "")
+                    file_url = item.get("file_url")
+                    formatted_item = f'Chunk: "{chunk}"'
+                    if topics:
+                        formatted_item += f', Topics: "{topics}"'
+                    if professor:
+                        formatted_item += f', Professor: "{professor}"'
+                    if course:
+                        formatted_item += f', Course: "{course}"'
+                    formatted_item += f', File: "{file_name}"'
+                    # detect if it's html file
+                    is_html_file = file_name.lower().endswith((".html", ".htm"))
+                    if not is_html_file and source_page_url:
+                        formatted_item += f', URLs: "{source_page_url} [{file_title}]({file_url})"'
+                    else:
+                        formatted_item += f', URL: "[{file_title}]({file_url})"'
+                    self.regulars.append(formatted_item)
+                    self.documents.append(formatted_item)
+            # log one example for each type
+            logger.info(f"Example FAQ: {self.pairs[0]}")
+            logger.info(f"Example Component: {self.components[0]}")
+            logger.info(f"Example Regular: {self.regulars[0]}")
 
         logger.info(f"Loading embedding model: {EMBEDDING_MODEL_NAME}...")
         try:

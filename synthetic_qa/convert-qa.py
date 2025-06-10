@@ -106,6 +106,10 @@ def convert_qa_to_training_format(qa_pairs: List[Dict[str, Any]],
         question = pair.get("question", "")
         answer = pair.get("answer", "")
         url = pair.get("url", "")
+        file_url = pair.get("file_url", "")
+        golden_index = pair.get("golden_index", "")
+
+
         if not is_raft:
             pair_hash = pair.get("qa_pair_hash", "")
         else:
@@ -124,9 +128,13 @@ def convert_qa_to_training_format(qa_pairs: List[Dict[str, Any]],
         }
         
         # Add url metadata if available (for debugging/tracing)
-        if "url" in pair:
+        if url:
             message_obj["url"] = url
-            
+        if file_url:
+            message_obj["url"] = file_url
+        if golden_index:
+            message_obj["golden_index"] = golden_index
+
         message_obj["qa_pair_hash"] = pair_hash
         
         # Extract the origin hash (part before style and iteration)
