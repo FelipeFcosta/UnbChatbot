@@ -10,23 +10,21 @@ import random
 import html
 
 # --- Configuration ---
-TARGET_DIR_BASE = "/home/farias/tcc/unb_clone"
+TARGET_DIR_BASE = "/home/farias/tcc/unb_clone2"
 STARTING_URL = "https://www.cic.unb.br/"
-# Example for Sigaa PDFs (requires STAY_ON_SAME_HOSTNAME = False for arquivos.unb.br):
-# STARTING_URL = "https://sigaa.unb.br/sigaa/public/curso/documentos.jsf?lc=pt_BR&id=414599&idTipo=1"
 
 MAX_DEPTH = 5 # Adjust for crawl depth
 USER_AGENT = "MyRobustScraper/1.0 (+http://example.com/botinfo)"
 WAIT_SECONDS = 0.1
 RANDOM_WAIT_MAX_ADDITIONAL = 0.05
-REJECT_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg", ".css"}
+REJECT_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg", ".css", ".js", ".ico"}
 
 STAY_ON_SAME_HOSTNAME = True
 ALLOW_OFF_HOST_DIRECT_LINKED_FILES = True
 
 ADJUST_HTML_EXTENSION = True
 CONVERT_LINKS_IN_HTML = True
-USE_CONTENT_DISPOSITION = True # This makes predicting exact filename before download harder
+USE_CONTENT_DISPOSITION = True
 
 ONLY_SCRAPE_STARTING_URL_PREFIX = False
 
@@ -135,7 +133,7 @@ def get_potential_local_path(url_to_check_str, content_type_hint_for_url="", is_
             dir_path_in_target = os.path.join(current_hostname_dir, *path_parts)
             filename_candidate_base = "index"
     is_on_starting_host_for_predict = (parsed_url_to_check.netloc == urlparse(STARTING_URL).netloc)
-    if original_parent_url_for_colocation and (not is_html_hint_for_url or not is_on_starting_host_for_predict):
+    if original_parent_url_for_colocation and not is_html_hint_for_url:
         parent_lp_key = urlparse(original_parent_url_for_colocation)._replace(fragment="").geturl()
         parent_local_save_path = visited_urls_content.get(parent_lp_key)
         if parent_local_save_path and isinstance(parent_local_save_path,str) and not parent_local_save_path.startswith(("S","H","R","U")):
@@ -429,6 +427,20 @@ while urls_to_visit:
             except requests.exceptions.RequestException as head_e:
                 print(f"    HEAD request failed for {fetch_url_for_get}: {head_e}. Will attempt GET.");
         
+        # Check hostname restriction before GET if we can determine it's HTML
+        if STAY_ON_SAME_HOSTNAME and (
+            (pre_checked_content_type and 'text/html' in pre_checked_content_type) or 
+            (not pre_checked_content_type and (
+                not os.path.splitext(urlparse(fetch_url_for_get).path)[1] or 
+                urlparse(fetch_url_for_get).path.endswith('/') or
+                os.path.splitext(urlparse(fetch_url_for_get).path)[1].lower() in ['.html', '.htm']
+            ))
+        ) and urlparse(fetch_url_for_get).netloc != urlparse(STARTING_URL).netloc:
+            print(f"  Skipping HTML from different primary hostname (pre-GET check): {fetch_url_for_get}")
+            _s_key = f"SKIPPED_OFF_START_HOST_HTML_{fetch_url_for_get}"
+            visited_urls_content[url_key_for_visited_check] = _s_key
+            continue
+
         response = session.get(fetch_url_for_get, timeout=20, allow_redirects=True)
         actual_fetched_url_with_frag = response.url
         actual_fetched_url_no_frag = urlparse(actual_fetched_url_with_frag)._replace(fragment="").geturl()
@@ -481,6 +493,12 @@ while urls_to_visit:
 
         final_save_path_to_use = os.path.join(dir_path_in_target, final_filename)
         if os.path.exists(final_save_path_to_use):
+            # If the original URL we tried to fetch is already mapped, it means we've handled it.
+            if url_key_for_visited_check in visited_urls_content and \
+               visited_urls_content[url_key_for_visited_check] != f"SKIPPED_NOT_UNDER_STARTING_URL_{url_key_for_visited_check}":
+                 print(f"  Redirect led to content already processed. Skipping save for original URL: {url_key_for_visited_check}")
+                 continue
+
             existing_meta_url = get_metadata(final_save_path_to_use, 'user.original_url')
             if existing_meta_url and \
                (existing_meta_url == actual_fetched_url_no_frag or urlparse(existing_meta_url)._replace(fragment="").geturl() == actual_fetched_url_no_frag):

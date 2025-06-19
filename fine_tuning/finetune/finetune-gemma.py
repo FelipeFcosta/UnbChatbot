@@ -134,10 +134,6 @@ def run_fine_tuning(
         "gpu_type": GPU,
     }
 
-    def apply_chat_template(examples):
-        texts = tokenizer.apply_chat_template(examples["messages"])
-        return { "text" : texts }
-
     hf_token = os.environ.get("HF_TOKEN")
     if not hf_token:
         logger.warning("Hugging Face token not found in environment variables.")
@@ -153,10 +149,25 @@ def run_fine_tuning(
         and applies the chat template.
         """
         SYSTEM_INSTRUCTION = (
-            "Você é um assistente especializado que responde perguntas com base no seu conhecimento sobre dados da UnB e também no contexto recuperado (<DOCUMENT>). "
-            "Seja preciso e factual de acordo com o material de origem. Não invente informações. "
-            "Utilize a tag <REASON> para raciocínio (em inglês, apenas para uso interno) e a tag <ANSWER> para a resposta ao usuário em português.\n\n"
+            "You are a specialized UnB (Universidade de Brasília) chatbot assistant who answers questions based on your pre-existing knowledge about UnB and also on the retrieved context (<DOCUMENT>). "
+            "Be precise and factual according to the source material. Do not make up information (like hallucinating links or people). "
+            "Use the <REASON> tag for reasoning (in English, for internal use only) and the <ANSWER> tag (in Portuguese) for the answer to the user.\n\n"
+            "Do not engage in user queries that are not related to UnB or require more than pure factual information. "
         )
+
+        # introducao (o que é LLM, pros contras, qual o problema), objetivo conclusao por ultimo
+        # comecar pela analise bibliográfica (trabalhos semelhantes) como LLMs funcionam
+        # fundamentacao teorica (partes técnicas, por que fazer isso)
+        # metodologia (nao eh topico separado) (revisao bibliográfica (fontes confiaveis, relatorio tecnico, livro, artigo cientifico(CAPES biblioteca unb)), tecnologia mais relevante, por que escolheu ela)
+        # implementacao (dados, ) 
+        # resultados ()
+
+
+        # 12b 4b
+
+
+
+
 
         messages_copy = [msg.copy() for msg in example["messages"]]
 
@@ -431,7 +442,7 @@ def run_fine_tuning(
         # final_eval_metrics = trainer.evaluate()
         logger.info(f"Final evaluation metrics: {final_eval_metrics}")
 
-        # Example generation (optional, keep for sanity check)
+        # Example generation
         # logger.info("Running example generation...")
         # tokenizer = get_chat_template(tokenizer, chat_template = "gemma-3")
         # messages = [{"role": "user", "content": [{"type" : "text", "text" : "O ENADE é obrigatório?"}]}]
@@ -522,9 +533,9 @@ def run_fine_tuning(
 
     except Exception as e:
         logger.error(f"An unexpected error occurred during training: {e}", exc_info=True) # Log traceback
-        raise # Re-raise the exception after attempting to save
+        raise
     finally:
-        # Always try to save model, state, and summary, even on error
+        # to save model, state, and summary, even on error
         try:
             logger.warning("Attempting to save final model/adapters and state...")
             trainer.save_model(output_dir_path)
@@ -576,7 +587,6 @@ def run_fine_tuning(
 
         except Exception as final_save_e:
             logger.error(f"Critical error during final saving steps: {final_save_e}", exc_info=True)
-            # Don't re-raise here if the original error was the training failure
 
     # Construct return message based on success
     if training_summary_stats and final_log_history:
@@ -593,8 +603,8 @@ def run_fine_tuning(
 @app.local_entrypoint()
 def main(
     hf_dataset: str = 'liteofspace/unb-chatbot',
-    output_dir: str = "unb_chatbot_gemma4b", # Match default
-    epochs: int = 3, # Match default
+    output_dir: str = "unb_chatbot_gemma4b",
+    epochs: int = 3,
     resume: bool = False,
     checkpoint_step: int = None,
     data_seed: int = None,

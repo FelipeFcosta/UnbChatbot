@@ -805,37 +805,6 @@ class FileProcessor:
                 text = response
         return text
     
-    @staticmethod
-    def extract_text_from_doc(file_path: Path, config=None) -> str:
-        """
-        Extract text (with basic styling/formatting) from .docx or .doc files.
-        Returns markdown with **bold** and *italic* preserved.
-        """
-        try:
-            import docx
-        except ImportError:
-            logger.error("python-docx not available. Cannot extract text from DOC/DOCX.")
-            return ""
-        try:
-            doc = docx.Document(file_path)
-            lines = []
-            for para in doc.paragraphs:
-                line = ""
-                for run in para.runs:
-                    text = run.text
-                    if not text:
-                        continue
-                    if run.bold:
-                        text = f"**{text}**"
-                    if run.italic:
-                        text = f"*{text}*"
-                    line += text
-                lines.append(line)
-            return "\n".join(lines)
-        except Exception as e:
-            logger.error(f"Error extracting text from DOC/DOCX {file_path}: {e}")
-            return ""
-
     def extract_text_from_file(self, file_path: Path, file_type: FileType, config=Dict[str, Any]) -> str:
         """
         Extract text from a file based on its extension.
@@ -857,8 +826,6 @@ class FileProcessor:
             return FileProcessor.extract_text_from_html(soup, file_path, file_type, config)
         elif file_extension == '.pdf':
             return FileProcessor.extract_text_from_pdf(file_path, config)
-        elif file_extension in ['.docx', '.doc']:
-            return FileProcessor.extract_text_from_doc(file_path, config)
         elif file_extension in ['.txt', '.md', '.csv', '.json']:
             try:
                 return file_path.read_text(encoding='utf-8', errors='ignore')

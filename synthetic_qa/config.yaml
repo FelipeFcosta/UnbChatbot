@@ -154,12 +154,21 @@ file_processing:
     - .pdf
     - .txt
     - .md
-    - .docx
-    - .doc
   
   ignore:
     - www.cic.unb.br/informacoes/Listas_de_Meno_Honrosa_-_CICDF2024_-.pdf
+    - www.cic.unb.br/informacoes/Plano_de_Contingencia_do_Instituto_de_Ciencia_exatas.pdf
+    - www.cic.unb.br/informacoes/RELATRIO_FINAL_DE_ESTGIO_DAS_LICENCIATURAS.pdf
+    - www.cic.unb.br/informacoes/tipograma_CIC.pdf
+    - www.cic.unb.br/informacoes/GER_Exposicao_de_motivos.pdf
+    - www.cic.unb.br/informacoes/marca-cic.html
+    - www.cic.unb.br/informacoes/Manual_Identidade_Visual_UnB.pdf
+    - www.cic.unb.br/informacoes/guia_pratico.pdf
     - www.cic.unb.br/informacoes/noticias*
+    - www.cic.unb.br/informacoes/noticias/*
+    - www.cic.unb.br/ec.html
+    - www.cic.unb.br/bcc.html
+    - www.cic.unb.br/em.html
   
   exclude_patterns:
     - images/

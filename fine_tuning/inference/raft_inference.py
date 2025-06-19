@@ -16,20 +16,23 @@ SYSTEM_PROMPT = (
     "Você é um assistente especializado que responde perguntas com base no seu conhecimento sobre dados da UnB e também no contexto recuperado (<DOCUMENT>). "
     "Seja preciso e factual de acordo com o material de origem. Não invente informações. "
     "Inclua seu raciocínio em inglês entre as tags <REASON> (apenas para uso interno) e a resposta ao usuário em português entre as tags <ANSWER>.\n"
+    "Não mencione os documentos em si, estes são ocultos para o usuário.\n"
     "SEMPRE coloque a fonte da informação no fim de sua resposta no formato \\n\\n> Fonte: fonte(s)\n\n"
+    "Se não houver informação relevante no contexto, responda que não há informação disponível e peça clareza para o usuário. Nesse caso, não mostre fonte!\n"
+    "Se a pergunta não for sobre a UnB, responda que não temos informações sobre o assunto."
 )
 # SYSTEM_PROMPT = ""
 
 # --- Configuration ---
 APP_NAME = "unb-chatbot-raft-gguf-web-endpoint" # Updated name
 # --- GGUF Model Details ---
-MODEL_DIR_IN_VOLUME = "faq_raft_gemma4b_pure" # IMPORTANT: Point to your RAFT-tuned model directory
+MODEL_DIR_IN_VOLUME = "all_raft_gemma4b_run1" # IMPORTANT: Point to your RAFT-tuned model directory
 GGUF_FILENAME = "merged_model.Q8_0.gguf" # Check if path is correct within MODEL_DIR_IN_VOLUME
 VOLUME_NAME = "faq-unb-chatbot-gemma-raft" # Volume where RAFT model and potentially data are stored
 DATA_VOLUME_NAME = "faq-unb-chatbot-gemma-raft-data" # Volume where RAFT model and potentially data are stored
 GPU_CONFIG = "A10G"
-MODEL_MOUNT_PATH = "/model_files" # Where the GGUF model is mounted
-DATA_MOUNT_PATH = "/data" # Added: Where original FAQ data will be mounted
+MODEL_MOUNT_PATH = "/model_files" # where model is mounted
+DATA_MOUNT_PATH = "/data" # where documents source is mounted
 CONTEXT_SIZE = 6144 # Keep same as training
 ANSWER_TAG = "<ANSWER>:" # Tag used in training to mark the final answer
 
@@ -37,11 +40,11 @@ ANSWER_TAG = "<ANSWER>:" # Tag used in training to mark the final answer
 SOURCE_DOCUMENTS = f"{DATA_MOUNT_PATH}/source_json_combined.json"
 EMBEDDING_MODEL_NAME = "intfloat/multilingual-e5-large-instruct"
 # infly/inf-retriever-v1
-TOP_K_RETRIEVAL = 5 # chunks to retrieve
+TOP_K_RETRIEVAL = 6 # chunks to retrieve
 
 # Default generation parameters
 DEFAULT_MAX_TOKENS = 2048
-DEFAULT_TEMPERATURE = 0.7 # Adjust as needed for RAFT model
+DEFAULT_TEMPERATURE = 0.7
 DEFAULT_TOP_P = 0.9
 MINUTES = 60
 
@@ -97,7 +100,7 @@ document_volume = modal.Volume.from_name(DATA_VOLUME_NAME)
     gpu=GPU_CONFIG,
     volumes={
         MODEL_MOUNT_PATH: model_volume,
-        DATA_MOUNT_PATH: document_volume # Example: using the same volume
+        DATA_MOUNT_PATH: document_volume # where documents source is mounted
     },
     timeout=60*6,
     allow_concurrent_inputs=3,
@@ -305,8 +308,6 @@ class ModelEndpoint:
         # 2. Format Context for RAFT Model
         assembled_context_str = ""
         for doc_content in retrieved_docs:
-            # Using the same <DOCUMENT> tag as in training data generation
-            # Assuming your original data used Q:/A: format within the context
             assembled_context_str += f"<DOCUMENT>{doc_content}</DOCUMENT>\n"
 
         # 3. Construct the Final Prompt for the LLM
@@ -318,7 +319,6 @@ class ModelEndpoint:
         ]
         logger.info(f"Constructed final prompt for LLM (length: {len(final_llm_prompt)} chars):")
         logger.info(final_llm_prompt)
-        # logger.debug(f"Final Prompt:\n{final_llm_prompt}") # Optional: log full prompt for debug
 
         # 4. Generate Response using the RAFT-tuned GGUF model
         logger.info("Generating response using RAFT-tuned model...")
@@ -328,7 +328,7 @@ class ModelEndpoint:
                 max_tokens=max_tokens,
                 temperature=temperature,
                 top_p=top_p,
-                stop=["<end_of_turn>"], # Stop before ANSWER_TAG if parsing based on it
+                stop=["<end_of_turn>"],
                 repeat_penalty=1.1
             )
 
@@ -339,41 +339,22 @@ class ModelEndpoint:
                 if usage := output.get('usage'):
                     logger.info(f"Token usage: {usage}")
 
-            # Extract only the text AFTER the <ANSWER>: tag
-            final_answer = raw_response_text # Default to full response if tag not found
-            # if ANSWER_TAG in raw_response_text:
-            #     try:
-            #         # Split at the *last* occurrence of the tag in case it appears in reasoning
-            #         parts = raw_response_text.rsplit(ANSWER_TAG, 1)
-            #         if len(parts) > 1:
-            #             final_answer = parts[1].strip()
-            #             logger.info(f"Successfully extracted answer after '{ANSWER_TAG}' tag.")
-            #         else:
-            #              logger.warning(f"'{ANSWER_TAG}' tag found, but splitting failed unexpectedly.")
-            #     except Exception as parse_err:
-            #          logger.warning(f"Error parsing response for '{ANSWER_TAG}': {parse_err}")
-            # else:
-            #      logger.warning(f"'{ANSWER_TAG}' tag not found in model response. Returning full response.")
+            final_answer = raw_response_text
 
         except Exception as e:
             logger.error(f"Error during generation: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail=f"Error during generation: {str(e)}")
 
         logger.info("Generation complete.")
-        return {"response": final_answer} # Return only the parsed answer
+        return {"response": final_answer}
 
 # Optional local entrypoint for testing
 @app.local_entrypoint()
 def main(prompt: str = "O Enade é obrigatório pra quem é formando?"):
     """Test the RAG endpoint locally"""
     logger.info(f"Testing RAG endpoint locally with prompt: '{prompt}'")
-    # Simulate request data structure
     request_data = {"prompt": prompt}
-    # Instantiate the class locally (will load model/data if run with `modal run`)
     endpoint = ModelEndpoint()
-    # Manually trigger the loading process if needed for pure local test (won't work fully without Modal env)
-    # endpoint.load_model_and_data()
-    # Note: Calling .remote() here will execute it in Modal cloud if script run directly
     response = endpoint.generate_web.remote(request_data)
     print(f"\n--- Response ---")
     print(response.get('response', 'No response generated.'))

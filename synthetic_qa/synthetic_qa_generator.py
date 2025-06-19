@@ -77,7 +77,7 @@ class SyntheticQADataGenerator:
 
         # Get all supported files
         supported_extensions = self.config.get("file_processing", {}).get(
-            "include_extensions", ['.html', '.htm', '.pdf', '.txt', '.md', '.docx', '.doc']
+            "include_extensions", ['.html', '.htm', '.pdf', '.txt', '.md']
         )
         all_files_paths = []
         for ext in supported_extensions:
