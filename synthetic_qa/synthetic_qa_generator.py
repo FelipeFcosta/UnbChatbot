@@ -18,6 +18,8 @@ from tqdm import tqdm
 from slugify import slugify
 import re
 import fnmatch
+import hashlib
+import threading
 
 # Import modules
 from modules.file_processor import FileProcessor
@@ -59,9 +61,31 @@ class SyntheticQADataGenerator:
         self.file_processor = FileProcessor()
         self.text_chunker = TextChunker(self.config)
         self.qa_generator = QAGenerator(self.config)
+        self.processed_files_hashes = set()
+        self._hash_lock = threading.Lock()
         
         logger.info(f"Initialized QA Generator in standard mode")
 
+
+    @staticmethod
+    def _calculate_file_hash(file_path: Path) -> str:
+        """
+        Calculate a SHA256 hash of a file's content using the first and last 4KB.
+        """
+        h = hashlib.sha256()
+        chunk_size = 4096
+
+        try:
+            with file_path.open("rb") as f:
+                h.update(f.read(chunk_size))
+                if os.path.getsize(file_path) > chunk_size:
+                    f.seek(-chunk_size, os.SEEK_END)
+                    h.update(f.read(chunk_size))
+        except (IOError, OSError) as e:
+            logger.error(f"Error reading file {file_path} for hashing: {e}")
+            return "" # Return empty hash on error
+
+        return h.hexdigest()
 
     def process_directory(self, input_dir: str, output_dir: str) -> None:
         """
@@ -93,6 +117,15 @@ class SyntheticQADataGenerator:
             if any(fnmatch.fnmatch(rel_path, pattern) for pattern in ignore_patterns):
                 logger.info(f"Skipping ignored file or folder: {rel_path}")
                 continue
+
+            # Check for duplicate file content
+            file_hash = self._calculate_file_hash(file_path)
+            with self._hash_lock: # lock to avoid race conditions
+                if file_hash in self.processed_files_hashes:
+                    logger.info(f"Skipping duplicate file: {rel_path} (content already processed)")
+                    continue
+                self.processed_files_hashes.add(file_hash)
+
             filtered_files_paths.append(file_path)
         all_files_paths = filtered_files_paths
 
