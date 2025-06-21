@@ -73,6 +73,7 @@ class TextChunker:
 
         # Merge defaults with explicit values (explicit wins)
         merged_cfg = {**self.DEFAULT_PROVIDER_CONFIG, **provider_cfg}
+        self.max_chunking_length = merged_cfg.get("max_chunking_length", 40000)
         try:
             self.llm_client = LLMClient(merged_cfg)
         except Exception as e:
@@ -80,23 +81,29 @@ class TextChunker:
             self.llm_client = None
 
 
-    def chunk_text(self, text: str, file_path: Path) -> List[str]:
+    def chunk_text(self, text: str, file_path: Path) -> List[dict]:
         """Split *text* into semantically coherent chunks using an LLM.
 
-        The LLM is instructed (in Portuguese) to strictly return a JSON array of
+        The LLM is instructed to strictly return a JSON array of
         objects containing *chunk* and *topic* keys.  In case the LLM returns an
-        invalid payload or the call fails, the method falls back to a basic
-        heuristic chunking strategy so that the overall pipeline can still
-        proceed.
+        invalid payload or the call fails.
         """
 
-        if not text or not text.strip():
+        if not text.strip():
             return []
 
-        # If the LLM client is available attempt LLM-based chunking first
-        response = None
-        if self.llm_client:
-            prompt = TextChunker._build_prompt(text)
+        # If the LLM client is not available, we can't proceed.
+        if not self.llm_client:
+            logger.warning("LLMClient not available for chunking. Returning empty list.")
+            return []
+
+        # Split text if it's too long
+        text_parts = self._split_text_if_needed(text)
+        all_chunks = []
+
+        for part in text_parts:
+            response = None
+            prompt = TextChunker._build_prompt(part)
 
             logger.debug("Requesting LLM-based chunking...")
             try:
@@ -106,32 +113,81 @@ class TextChunker:
                     temperature=self.llm_client.config.get("temperature", 0.2),
                 )
             except Exception as e:
-                logger.error(f"LLM chunking failed: {e}")
+                logger.error(f"LLM chunking failed for a text part: {e}")
+                continue # Move to the next part
 
-        if response:
-            # get the "chunks" field which will contain the list
-            response = response["chunks"]
-            if isinstance(response, list):
-                file_hash = create_hash(str(file_path))
-                chunks = [
-                    {
-                        "chunk": item["chunk"].strip(),
-                        "topic": item.get("topic", "").strip(),
-                        "chunk_hash": f"chunk_{file_hash}_{idx}"
-                    }
-                    for idx, item in enumerate(response)
-                    if "chunk" in item and "topic" in item
-                ]
-                if chunks:
-                    logger.debug(f"LLM returned {len(chunks)} chunks.")
-                    return chunks
+            if response:
+                # get the "chunks" field which will contain the list
+                response_chunks = response.get("chunks", [])
+                if isinstance(response_chunks, list):
+                    file_hash = create_hash(str(file_path))
+                    chunks = [
+                        {
+                            "chunk": item["chunk"].strip(),
+                            "topic": item.get("topic", "").strip(),
+                            "chunk_hash": f"chunk_{file_hash}_{idx + len(all_chunks)}"
+                        }
+                        for idx, item in enumerate(response_chunks)
+                        if "chunk" in item and "topic" in item
+                    ]
+                    if chunks:
+                        logger.debug(f"LLM returned {len(chunks)} chunks for a part.")
+                        all_chunks.extend(chunks)
+                    else:
+                        logger.warning("LLM returned valid JSON but no valid chunks for a part.")
+                else:
+                    logger.warning("Unexpected JSON structure returned by LLM for a part; skipping.")
             else:
-                logger.warning("Unexpected JSON structure returned by LLM; falling back to heuristic chunking.")
-        else:
-            logger.warning("No response or invalid JSON from LLM; falling back to heuristic chunking.")
+                logger.warning("No response or invalid JSON from LLM for a part; skipping.")
 
-        # Invalid or empty response – return empty list so caller can decide.
-        return []
+        if not all_chunks:
+            logger.warning("LLM chunking resulted in no chunks for the entire document.")
+            return []
+
+        return all_chunks
+
+
+    def _split_text_if_needed(self, text: str) -> List[str]:
+        """Splits text into smaller parts if it exceeds the maximum length."""
+        if len(text) <= self.max_chunking_length:
+            return [text]
+
+        logger.info(f"Text length ({len(text)}) exceeds max_chunking_length ({self.max_chunking_length}). Splitting...")
+        
+        parts_to_process = [text]
+        final_parts = []
+
+        while parts_to_process:
+            current_part = parts_to_process.pop(0)
+            if len(current_part) <= self.max_chunking_length:
+                final_parts.append(current_part)
+                continue
+
+            mid_point = len(current_part) // 2
+            split_pos = current_part.rfind('.\n', 0, mid_point)
+            if split_pos != -1:
+                split_pos += 2
+            else:
+                split_pos = current_part.rfind('\n', 0, mid_point)
+                if split_pos != -1:
+                    split_pos += 1
+                else:
+                    # fallbacks
+                    split_pos = current_part.rfind('. ', 0, mid_point)
+                    if split_pos != -1:
+                        split_pos += 2
+                    else:
+                        split_pos = mid_point
+            
+            part1 = current_part[:split_pos]
+            part2 = current_part[split_pos:]
+
+            # Add the new parts to the front of the queue to be processed
+            parts_to_process.insert(0, part2)
+            parts_to_process.insert(0, part1)
+
+        logger.info(f"Split text into {len(final_parts)} parts.")
+        return final_parts
 
 
     @staticmethod
@@ -148,9 +204,12 @@ class TextChunker:
             "   - Aim for Substantiality: Chunks should generally span one to several paragraphs if those paragraphs together cover a single, answerable topic.\n"
             "   - Avoid Overly Long Chunks: If a section of text covers multiple distinct answerable topics, break it down further.\n"
             "4. Context Preservation: While breaking down the text, strive to maintain the natural flow and relationships between ideas within each chunk. The chunk should make sense in isolation.\n"
-            "5. Preserve **all** original markdown formatting (headings, lists, bold/italic, links) inside each chunk exactly as it appears in the source text.\n"
-            "6. If you encounter a segment that is not useful on its own (such as a title, metadata, date, or other fragment that does not provide answerable information), do not create a separate chunk for it. Instead, join it with the next (or previous) chunk to form a complete, answerable unit.\n\n"
-            "7. Under no circumstances should you leave out any information from the text.\n"
+            "5. **CONSISTENT CHUNK SIZE**: *Strive to ensure that all chunks are of roughly similar length, avoiding great disparities in chunk size. Do not create some very short and some very long chunks even if this criteria 1 is not met fully.*\n"
+            "6. Preserve **all** original markdown formatting (headings, lists, bold/italic, links) inside each chunk exactly as it appears in the source text.\n"
+            "7. If you encounter a segment that is not useful on its own (such as a title, metadata, date, or other fragment that does not provide answerable information), do not create a separate chunk for it. Instead, join it with the next (or previous) chunk to form a complete, answerable unit.\n\n"
+            "**8. Under no circumstances should you leave out any information (even a single character) from the text.**\n"
+            "**9. Under no circumstances should you add any information (even a single character) to the text.**\n"
+            "The chunks will be used as the ORIGINAL GROUND TRUTH source documents for the RAG system, so they must be as complete and accurate as possible.\n\n"
             "Your task:\n"
             "Given the text below, divide it into such chunks. Focus on the quality and utility of each chunk for future Q&A and RAG purposes.\n\n"
             "Return ONLY a JSON object in the following format (IN PORTUGUESE):\n"

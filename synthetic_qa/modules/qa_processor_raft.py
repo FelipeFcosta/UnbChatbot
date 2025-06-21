@@ -406,7 +406,7 @@ class QAProcessorRAFT:
             writing_styles = config.get("question_styles", {}).get("writing_styles", [])
 
             raft_config = config.get("processing", {}).get("raft", {})
-            num_distract = raft_config.get("num_distractors", 3)
+            num_distract = raft_config.get("num_distractors", 4)
             p_golden = raft_config.get("p_golden_include", 0.8) # probability of including golden document
 
             llm_config_styled_q_provider = config.get("providers", {}).get("styled_question", {})

@@ -285,7 +285,6 @@ class SyntheticQADataGenerator:
                 return []
                     
             if file_type == FileType.REGULAR:
-                # Try to load chunks from file if it exists, otherwise generate and save
                 extracted_chunks_dir = output_dir / "extracted_chunks"
                 extracted_chunks_dir.mkdir(parents=True, exist_ok=True)
                 extracted_chunks_path = extracted_chunks_dir / f"{safe_title_slug}_{file_hash}.json"
@@ -295,7 +294,6 @@ class SyntheticQADataGenerator:
                     with open(extracted_chunks_path, 'r', encoding='utf-8') as f:
                         chunks = json.load(f)
                     logger.debug(f"Loaded {len(chunks)} chunks from {rel_path}")
-                    # add missing fields to each chunk here again (if not present) and then dump again
                     if self.text_chunker.add_metadata_to_items(chunks, file_path, file_title, file_type):
                         with open(extracted_chunks_path, 'w', encoding='utf-8') as f:
                             json.dump(chunks, f, ensure_ascii=False, indent=2)
@@ -318,7 +316,7 @@ class SyntheticQADataGenerator:
             if file_path.suffix.lower() not in ['.html', '.htm']:
                 logger.info(f"File {file_path.name} is not HTML. Attempting to find source HTML context.")
                 
-                source_html_path: str | None = None
+                source_html_path = None
                 try:
                     source_html_path = os.getxattr(str(file_path), b'user.source_html_path').decode('utf-8')
                 except Exception as e:
@@ -386,13 +384,17 @@ class SyntheticQADataGenerator:
                     with open(extracted_faq_path, 'w', encoding='utf-8') as f:
                         json.dump(original_faq, f, ensure_ascii=False, indent=2)
 
-                qa_pairs = self.qa_generator.generate_qa_pairs_from_faq(
-                    original_faq=original_faq,
-                    file_path=file_path,
-                    file_title=file_title,
-                    output_dir=output_dir,
-                    batch_size=5
-                )
+                try:
+                    qa_pairs = self.qa_generator.generate_qa_pairs_from_faq(
+                        original_faq=original_faq,
+                        file_path=file_path,
+                        file_title=file_title,
+                        output_dir=output_dir,
+                        batch_size=5
+                    )
+                except Exception as e:
+                    logger.error(f"Error generating QA pairs from FAQ: {e}")
+                    return []
             elif file_type == FileType.COMPONENT:
                 # For components, we only extract and save the text (with offerings)
                 # All QA generation will happen in qa_processor_raft

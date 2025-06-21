@@ -12,10 +12,16 @@ from modules.utils import create_hash
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_STYLE_SECTION = (
-    "WRITING STYLE: Default\n"
+DEFAULT_STYLE_SECTION_QUESTION = (
+    "WRITING STYLE: Default Question\n"
     "Description: Generate a clear, straightforward question using complete sentences. Avoid excessive formality or informality. Focus on accurately representing the core content of the original question/chunk. **Crucially: If the original answer/chunk was very short (like \"Sim.\", \"Não.\"), ensure this question naturally elicits the expanded, polite answer generated for the Default pair.** The question should sound like a typical, clear query a student might ask an assistant.\n"
     "Goal: Establish a clean, well-formed baseline; represent clear, unambiguous queries.\n"
+)
+
+DEFAULT_STYLE_SECTION_ANSWER = (
+    "WRITING STYLE: Default Answer\n"
+    "Description: Generate a clear, direct, and polite answer using complete sentences. The answer should be helpful and directly address the user's question based *only* on the provided context. Format the answer using markdown for better readability in a chatbot interface (e.g., use bullet points for lists, bold for emphasis on key terms, etc). If the original context was very brief (e.g., just \"Yes\" or \"No\"), expand it into a full, polite sentence (e.g., \"Sim, é possível fazer isso.\"). Maintain a neutral and informative tone.\n"
+    "Goal: Provide a clear, self-contained, and polite answer to the user's question, formatted for a chatbot.\n"
 )
 
 class QAGenerator:
@@ -41,17 +47,16 @@ class QAGenerator:
 
 
     @staticmethod
-    def _build_question_prompt(chunks_batch: List[str], full_document: str, context_html_text: str, source_info: Dict[str, str]) -> str:
+    def _build_question_prompt(chunks_batch: List[str], document_context: str, context_html_text: str, file_title: str = "") -> str:
         """Prompt for generating baseline questions from a batch of chunks.
 
-        If *full_document* is provided it is supplied inside <FULL_DOCUMENT> tags so the
+        If *document_context* is provided it is supplied inside <DOCUMENT_CONTEXT> tags so the
         model has additional context for phrasing while still being instructed to
         ask ONLY about content present in the chunks.
         """
+        file_title_section = f"You are working with excerpts from a document titled: '{file_title}'.\n" if file_title else ""
 
-        institution = source_info.get("institution", source_info.get("domain", ""))
-
-        full_doc_prompt_section = f"\n<FULL_DOCUMENT>\n{full_document}\n</FULL_DOCUMENT>"
+        document_context_prompt_section = f"\n<DOCUMENT_CONTEXT>\n{document_context}\n</DOCUMENT_CONTEXT>"
 
         chunk_prompts = []
         for i, single_chunk in enumerate(chunks_batch):
@@ -64,26 +69,26 @@ class QAGenerator:
         )
         return (
             "You are an LLM Generator creating synthetic data for the University of Brasilia chatbot.\n"
-            f"You will receive a batch of {len(chunks_batch)} text excerpts from a larger document (provided as <FULL_DOCUMENT>). "
+            f"{file_title_section}"
+            f"You will receive a batch of {len(chunks_batch)} text excerpts (<CHUNK_N>). You will also be given the surrounding text from the original document where these excerpts appeared (provided as <DOCUMENT_CONTEXT>). "
             "For each excerpt <CHUNK_N>, your task is to craft ONE natural question in Portuguese that students, faculty, or staff might ask. "
             "Each question MUST be answerable using ONLY the information contained in its corresponding <CHUNK_N>. "
-            "Use the full document only to understand context and improve wording; do NOT include information that appears exclusively outside the chunk.\n"
+            "Use the document context only to understand the surrounding text and improve wording; do NOT include information that appears exclusively outside the chunk.\n"
             "In addition, you may also receive extra context (provided as <CONTEXT_HTML>). This extra context *may* help clarify information if something in the chunk is ambiguous or unclear, but you must still ensure that each question is answerable using only its corresponding chunk. Use the extra context only to improve the naturalness or clarity of the question, not to introduce information that is not present in the chunk.\n"
-            "Remember: the user (student) has no access to or awareness of these documents. They are simply seeking information or help, not referencing any source. Therefore, craft each question so that it is specific enough it naturally requires the information from the chunk to be answered without feeling forced or artificial. Make the question feel authentic and relevant, as if it could be asked in a real conversation.\n\n"
-            "So, for this document information to be retrieved, the question will probably have to mention the document name/title/subject.\n\n"
-            f"Generate exactly {len(chunks_batch)} questions, one per line, in the same order as the input <CHUNK_N>s. "
-            "Return ONLY the questions, one per line, with no numbering or other text.\n\n"
-            f"{DEFAULT_STYLE_SECTION}"
+            "Remember: the user (student) has no access to or awareness of these documents and it not very knowledgeable about the specific chunk content. They are simply seeking information or help, not referencing any source. Therefore, **craft each question so that it is specific enough it naturally requires the information from the chunk to be answered without feeling forced or artificial**. Make the question feel authentic and relevant, as if it could be asked in a real conversation.\n\n"
+            "So, for this document information to be retrieved, the question will probably have to mention the document name/title/subject (but not always about specific contents).\n\n"
+            "Output: Return a JSON object with a 'questions' key containing a list of questions, following the template below:\n\n"
+            "{\n  \"questions\": [\n    \"...\",\n    ...\n  ]\n}\n\n"
+            f"Generate a single, valid JSON object containing exactly {len(chunks_batch)} questions. Respond with ONLY the JSON object.\n\n"
+            f"{DEFAULT_STYLE_SECTION_QUESTION}"
             f"{all_chunks_str}"
-            f"{full_doc_prompt_section}"
+            f"{document_context_prompt_section}"
             f"{context_html_section}"
         )
 
     @staticmethod
-    def _build_answer_prompt(questions_batch: List[str], chunks_for_answers_batch: List[str], source_info: Dict[str, str]) -> str:
+    def _build_answer_prompt(questions_batch: List[str], chunks_for_answers_batch: List[str]) -> str:
         """Prompt for generating answers for a given batch of questions."""
-
-        institution = source_info.get("institution", source_info.get("domain", ""))
 
         qa_prompts_parts = []
         for i, (question, chunk) in enumerate(zip(questions_batch, chunks_for_answers_batch)):
@@ -97,20 +102,20 @@ class QAGenerator:
 
         return (
             "You are an assistant helping to create high-quality FAQ answers for the University of Brasilia chatbot.\n\n"
-            f"{DEFAULT_STYLE_SECTION}"
+            f"{DEFAULT_STYLE_SECTION_ANSWER}"
             f"You will receive a batch of {len(questions_batch)} question-context items, each enclosed in <ITEM_N> tags. "
             "For each item, answer the <QUESTION_N> using ONLY the information in its corresponding <CONTEXT_N>.\n"
             "If the chunk contains an URL and it's relevant to the question, mention it in the answer.\n"
-            "If a specific context does not provide enough information, reply for that item with \"Não possuo informações suficientes para responder a essa pergunta.\"\n\n"
+            "If a specific context does not provide enough information, reply for that item with something like \"Não possuo informações suficientes para responder a essa pergunta.\"\n\n"
             f"{all_qa_items_str}\n\n"
-            f"Generate exactly {len(questions_batch)} answers, one per line, in the same order as the input items. "
-            "Return ONLY the answers, one per line, with no numbering or other text."
+            "Output: Return a JSON object with an 'answers' key containing a list of answers, following the template below:\n\n"
+            "{\n  \"answers\": [\n    \"...\",\n    ...\n  ]\n}\n\n"
+            f"Generate a single, valid JSON object containing exactly {len(questions_batch)} answers. Respond with ONLY the JSON object."
         )
 
     @staticmethod
-    def _build_faq_default_qa_pair_prompt(original_qa_batch: List[Dict[str, str]], source_info: Dict[str, str]) -> str:
+    def _build_faq_default_qa_pair_prompt(original_qa_batch: List[Dict[str, str]]) -> str:
         """Prompt for rephrasing a batch of original QA pairs (question and answer simultaneously)."""
-        institution = source_info.get("institution", source_info.get("domain", ""))
 
         item_prompts_parts = []
         for i, qa_pair in enumerate(original_qa_batch):
@@ -123,110 +128,166 @@ class QAGenerator:
         all_original_items_str = "\n\n".join(item_prompts_parts)
 
         return (
-            f"You are an LLM assistant refining FAQ content for the {institution} chatbot, guided by the WRITING STYLE section below.\n"
-            f"{DEFAULT_STYLE_SECTION}"  # style_section includes a trailing \n if not empty, or is ""
+            f"You are an LLM assistant refining FAQ content for the University of Brasilia chatbot, guided by the WRITING STYLE section below.\n"
+            f"{DEFAULT_STYLE_SECTION_QUESTION}\n{DEFAULT_STYLE_SECTION_ANSWER}"
             f"You will receive {len(original_qa_batch)} original Q&A pairs in <ITEM_N> tags.\n"
             "For each <ITEM_N>:\n"
             "1. Rephrase <ORIGINAL_QUESTION_N> if needed. If it's already good, you may keep it largely unchanged but ensure it fits a conversational context.\n"
-            "2. Formulate an answer for your rephrased question using ONLY <ORIGINAL_ANSWER_N>. If the original is a good fit, it can be largely unchanged.\n"
-            "3. If <ORIGINAL_ANSWER_N> is insufficient for the rephrased question, the rephrased_answer MUST BE: 'Não possuo informações suficientes para responder a essa pergunta.' Include relevant URLs from the original answer.\n\n"
+            "2. Formulate an answer for your rephrased question using ONLY <ORIGINAL_ANSWER_N>. If the original is already a good fit, it can be mostly unchanged, but ensure it fits the conversational context (in the default style).\n"
+            "3. If <ORIGINAL_ANSWER_N> is insufficient for the rephrased question, the rephrased_answer should be something like: 'Não possuo informações suficientes para responder a essa pergunta.' Include relevant URLs from the original answer.\n\n"
+            "4. Preserve all the original question and answer information, including URLs.\n"
             f"{all_original_items_str}\n\n"
-            "Output: For each item, provide a JSON object on a new line: {'rephrased_question': 'Your rephrased Q', 'rephrased_answer': 'Your rephrased A'}.\n"
-            f"Generate exactly {len(original_qa_batch)} JSON objects. ONLY JSON, one per line."
+            "Output: Return a JSON object with a 'qa_pairs' key containing a list of question-answer pairs, following the template below:\n\n"
+            "{\n  \"qa_pairs\": [\n    {\"rephrased_question\": \"...\", \"rephrased_answer\": \"...\"},\n    ...\n  ]\n}\n\n"
+            f"Generate a single, valid JSON object containing exactly {len(original_qa_batch)} pairs. Respond with ONLY the JSON object."
         )
 
     def _process_chunk_batch(
         self,
-        current_batch_chunks: List[Dict[str, str]], # Each dict is {'chunk': text}
-        source_info: Dict[str, str],
-        full_document_text: str,
-        context_html_text: str
-    ) -> List[Dict[str, str]]:
+        current_batch_chunks: List[Dict[str, Any]],
+        rel_path: Path,
+        document_context_text: str,
+        context_html_text: str,
+        file_title: str = ""
+    ) -> List[Dict[str, Any]]:
         """Processes a batch of chunks to generate questions and then answers."""
-        batch_results = []
-
+        
         # 1. Generate questions
-        question_batch_prompt = QAGenerator._build_question_prompt(current_batch_chunks, full_document_text, context_html_text, source_info)
-
-        logger.info(f"Generating questions for {len(current_batch_chunks)} chunks")
-        raw_questions_str = self.question_client.generate_text(question_batch_prompt, temperature=0.7)
-
-        if not raw_questions_str:
-            logger.warning(f"No questions generated for a batch of {len(current_batch_chunks)} chunks. Source: {source_info.get('path', 'N/A')}")
+        question_batch_prompt = QAGenerator._build_question_prompt(
+            current_batch_chunks, document_context_text, context_html_text, file_title
+        )
+        question_response = self.question_client.generate_text(
+            question_batch_prompt,
+            temperature=0.7,
+            json_output=True
+        )
+        if not question_response or not isinstance(question_response, dict):
+            logger.warning(f"Invalid question response format for batch of {len(current_batch_chunks)} chunks from {str(rel_path)}")
             return []
-
-        generated_questions = [q.strip() for q in raw_questions_str.strip().splitlines() if q.strip()]
-
-        if len(generated_questions) != len(current_batch_chunks):
-            logger.warning(f"Question count mismatch: expected {len(current_batch_chunks)}, got {len(generated_questions)}. Source: {source_info.get('path', 'N/A')}. Raw questions: {raw_questions_str}")
+        
+        generated_questions = question_response.get("questions", [])
+        if not isinstance(generated_questions, list):
+            logger.warning(f"Could not extract questions list from response for {str(rel_path)}")
             return []
 
         # 2. Generate answers for the batch of questions and their original chunks
-        answer_batch_prompt = QAGenerator._build_answer_prompt(generated_questions, current_batch_chunks, source_info)
-        raw_answers_str = self.answer_client.generate_text(answer_batch_prompt, temperature=0.5)
-
-        if not raw_answers_str:
-            logger.warning(f"No answers generated for {len(generated_questions)} questions. Source: {source_info.get('path', 'N/A')}")
+        answer_batch_prompt = QAGenerator._build_answer_prompt(generated_questions, current_batch_chunks)
+        logger.info(f"Generating answers for {len(generated_questions)} questions from {str(rel_path)}")
+        answer_response = self.answer_client.generate_text(
+            answer_batch_prompt,
+            temperature=0.5,
+            json_output=True
+        )
+        if not answer_response or not isinstance(answer_response, dict):
+            logger.warning(f"Invalid answer response format for batch of {len(generated_questions)} questions from {str(rel_path)}")
             return []
 
-        generated_answers = [a.strip() for a in raw_answers_str.strip().splitlines() if a.strip()]
-
-        if len(generated_answers) != len(generated_questions):
-            logger.warning(f"Answer count mismatch: expected {len(generated_questions)}, got {len(generated_answers)}. Source: {source_info.get('path', 'N/A')}. Raw answers: {raw_answers_str}")
+        generated_answers = answer_response.get("answers", [])
+        if not isinstance(generated_answers, list):
+            logger.warning(f"Could not extract answers list from response for {str(rel_path)}")
             return []
 
-        for q, a in zip(generated_questions, generated_answers):
-            batch_results.append({"question": q, "answer": a})
+        # 3. Combine results
+        batch_results = []
+        if len(generated_questions) == len(current_batch_chunks) and len(generated_answers) == len(current_batch_chunks):
+            for i, (q, a) in enumerate(zip(generated_questions, generated_answers)):
+                updated_chunk = current_batch_chunks[i].copy()
+                updated_chunk["question"] = q
+                updated_chunk["answer"] = a
+                updated_chunk["qa_pair_hash"] = f"default_{create_hash(str(rel_path) + q)}"
+                updated_chunk.pop("chunk", None)
+                updated_chunk.pop("chunk_hash", None)
+
+                batch_results.append(updated_chunk)
+        else:
+            logger.warning(
+                f"Mismatch in generated items for {str(rel_path)}. "
+                f"Expected: {len(current_batch_chunks)}, "
+                f"Got: {len(generated_questions)} questions, {len(generated_answers)} answers."
+            )
+        
         return batch_results
 
     def _process_faq_batch(
         self,
-        current_batch_faqs: List[Dict[str, str]], # Each dict is {'question': ..., 'answer': ...}
-        source_info: Dict[str, str]
-    ) -> List[Dict[str, str]]:
+        current_batch_faqs: List[Any],
+        rel_path: Path
+    ) -> List[Any]:
         """Processes a batch of original FAQs to generate rephrased Q&A pairs."""
         batch_results = []
 
-        rephrase_qa_prompt = QAGenerator._build_faq_default_qa_pair_prompt(current_batch_faqs, source_info)
-        raw_rephrased_qa_str = self.question_client.generate_text(rephrase_qa_prompt, temperature=0.7)
-
-        if not raw_rephrased_qa_str:
-            logger.warning(f"No rephrased Q&A pairs generated for a batch of {len(current_batch_faqs)} FAQs. Source: {source_info.get('path', 'N/A')}")
-            return []
-
-        generated_rephrased_pairs_data = []
-        parse_errors = 0
-        for line_num, line in enumerate(raw_rephrased_qa_str.strip().splitlines()):
-            if not line.strip():
-                continue
-            try:
-                pair = json.loads(line.strip())
-                if isinstance(pair, dict) and 'rephrased_question' in pair and 'rephrased_answer' in pair:
-                    generated_rephrased_pairs_data.append(pair)
-                else:
-                    logger.warning(f"Invalid JSON object structure in line {line_num+1} for FAQ batch. Source: {source_info.get('path', 'N/A')}: {line}")
-                    parse_errors += 1
-            except json.JSONDecodeError as jde:
-                logger.warning(f"JSONDecodeError in line {line_num+1} for FAQ batch. Source: {source_info.get('path', 'N/A')}: {line}. Error: {jde}")
-                parse_errors += 1
-
-        if len(generated_rephrased_pairs_data) != len(current_batch_faqs):
-            logger.warning(f"Generated rephrased Q&A pairs length ({len(generated_rephrased_pairs_data)}) does not match original FAQ length ({len(current_batch_faqs)}). Source: {source_info.get('path', 'N/A')}")
-            return []
+        rephrase_qa_batch_prompt = QAGenerator._build_faq_default_qa_pair_prompt(current_batch_faqs)
         
-        if parse_errors > 0 and not generated_rephrased_pairs_data:
-             logger.warning(f"All {parse_errors} lines failed to parse as Q&A JSON for FAQ batch. Source: {source_info.get('path', 'N/A')}. Raw: {raw_rephrased_qa_str}")
-             return []
-        elif parse_errors > 0:
-            logger.warning(f"{parse_errors} lines failed to parse as Q&A JSON for FAQ batch, processing successfully parsed pairs. Source: {source_info.get('path', 'N/A')}.")
+        # LLMClient with json_output=True is expected to return a dict.
+        response = self.question_client.generate_text(
+            rephrase_qa_batch_prompt,
+            temperature=0.7,
+            json_output=True
+            )
 
-        for pair_data in generated_rephrased_pairs_data:
-            batch_results.append({
-                "question": pair_data['rephrased_question'],
-                "answer": pair_data['rephrased_answer']
-            })
+        if not response or not isinstance(response, dict):
+            logger.warning(f"Invalid response format for batch of {len(current_batch_faqs)} FAQs for {str(rel_path)}")
+            return []
+                
+        generated_rephrased_pairs_data = response.get("qa_pairs", [])
+        if not isinstance(generated_rephrased_pairs_data, list):
+            return []
+                    
+        for i, pair_data in enumerate(generated_rephrased_pairs_data):
+            if isinstance(pair_data, dict) and all(key in pair_data for key in ['rephrased_question', 'rephrased_answer']):
+                updated_pair = current_batch_faqs[i].copy()
+                updated_pair["question"] = pair_data["rephrased_question"]
+                updated_pair["answer"] = pair_data["rephrased_answer"]
+                updated_pair["qa_pair_hash"] = f"default_{updated_pair['qa_pair_hash']}"
+                
+                batch_results.append(updated_pair)
+        
         return batch_results
 
+    def _create_contextual_window(self, full_document_text: str, current_batch: List[Dict[str, Any]], rel_path: Path) -> str:
+        """
+        Creates a contextual window of text around a batch of chunks.
+        """
+        if not full_document_text or not current_batch or 'chunk' not in current_batch[0]:
+            return full_document_text
+
+        first_chunk_text = current_batch[0].get('chunk')[-200:]
+        second_chunk_text = current_batch[1].get('chunk')[-200:]
+        last_chunk_text = current_batch[-1].get('chunk')[-200:]
+
+        if not first_chunk_text or not last_chunk_text:
+            return full_document_text
+
+        try:
+            start_index = full_document_text.find(first_chunk_text)
+            
+            # Search for last chunk after the first one to avoid incorrect matches
+            end_index_search_start = start_index + len(first_chunk_text) if start_index != -1 else 0
+            last_chunk_found_at = full_document_text.find(last_chunk_text, end_index_search_start)
+
+            if start_index == -1 and last_chunk_found_at == -1 and second_chunk_text:
+                start_index = full_document_text.find(second_chunk_text)
+            
+            if start_index != -1 or last_chunk_found_at != -1:
+                start_index = last_chunk_found_at if start_index == -1 else start_index
+                last_chunk_found_at = start_index+1 if last_chunk_found_at == -1 else last_chunk_found_at
+
+                end_index = last_chunk_found_at + len(last_chunk_text)
+                
+                # Define the window
+                window_start = max(0, start_index - 4000)
+                window_end = min(len(full_document_text), end_index + 4000)
+                
+                contextual_text = full_document_text[window_start:window_end]
+                logger.debug(f"Using contextual window for {str(rel_path)} ({window_start}-{window_end})")
+                return contextual_text
+            else:
+                logger.warning(f"Could not locate chunk batch in document for {str(rel_path)}. Using full document as context.")
+                return full_document_text
+
+        except Exception as e:
+            logger.error(f"Error creating contextual window for {str(rel_path)}: {e}. Using full document.")
+            return full_document_text
 
     def _generate_and_save_qa(
         self,
@@ -241,13 +302,8 @@ class QAGenerator:
         """Generic worker to process items in batches, generate Q&A, and save them."""
 
         file_path = Path(source_path)
-        domain, path, url = FileProcessor.extract_domain_and_path(file_path)
         rel_path = file_path.relative_to(Path(self.config["base_dir"]))
-        institution = FileProcessor.get_institution_name(domain)
-        source_info = {
-            "domain": domain, "path": path, "url": url, "institution": institution,
-        }
-
+        
         default_qa_dir = output_dir / "default_qa"
         default_qa_dir.mkdir(parents=True, exist_ok=True)
 
@@ -268,20 +324,24 @@ class QAGenerator:
             current_batch = items_to_process[i:i + batch_size]
             if not current_batch:
                 continue
+            
+            # Create a mutable copy for this iteration
+            current_batch_kwargs = batch_func_kwargs.copy()
+            
+            # If we're processing chunks, try to create a contextual window
+            if processing_func.__name__ == '_process_chunk_batch' and 'full_document_text' in current_batch_kwargs:
+                current_batch_kwargs['document_context_text'] = self._create_contextual_window(
+                    full_document_text=current_batch_kwargs.pop("full_document_text"),
+                    current_batch=current_batch,
+                    rel_path=rel_path
+                )
 
             processed_batch_results = processing_func(
-                current_batch, source_info, **batch_func_kwargs
+                current_batch, rel_path, **current_batch_kwargs
             )
 
             for res in processed_batch_results:
-                question = res["question"]
-                answer = res["answer"]
-                all_qa_pairs.append({
-                    "question": question,
-                    "answer": answer,
-                    "url": url, 
-                    "qa_pair_hash": f"default_{create_hash(str(rel_path) + question)}"
-                })
+                all_qa_pairs.append(res)
         
         if not all_qa_pairs:
             logger.info(f"No QA pairs generated for {file_path}.")
@@ -312,6 +372,7 @@ class QAGenerator:
         batch_func_kwargs = {
             "full_document_text": full_document_text,
             "context_html_text": context_html_text,
+            "file_title": file_title,
         }
         
         return self._generate_and_save_qa(
@@ -348,7 +409,7 @@ class QAGenerator:
     def _process_component_text(
         self,
         items_to_process: List[str],  # Always a list of one component text
-        source_info: Dict[str, str]
+        rel_path: Path
     ) -> List[Dict[str, str]]:
         """Processes a single component markdown text to generate QA pairs."""
         component_text = items_to_process[0]
@@ -371,7 +432,7 @@ class QAGenerator:
         )
         qa_pairs = response.get('qa_pairs', [])
         if not qa_pairs:
-            logger.warning(f"No QA pairs generated for {source_info.get('path', 'N/A')}")
+            logger.warning(f"No QA pairs generated for {str(rel_path)}")
             return []
 
         return qa_pairs

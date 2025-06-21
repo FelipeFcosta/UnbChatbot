@@ -172,6 +172,7 @@ class LLMClient:
                             continue  # Try again with next timeout
                         if 'exception' in result:
                             raise result['exception']
+
                         response = result['response']
                         full_response += response.text
                     except Exception as e:
@@ -198,13 +199,11 @@ class LLMClient:
 
                             if json_response:
                                 return json_response
+                            else:
+                                continue
                         except Exception:
-                            pass
-                    
-                        continue_prompt = "\n\nContinue the existing JSON exactly from where it stopped, maintaining " \
-                        "its structure and formatting without starting a new JSON object"
+                            continue
 
-                        current_prompt = prompt + "\n ...\n" + full_response + continue_prompt
                     else:
                         # Single response is complete, return it
                         break

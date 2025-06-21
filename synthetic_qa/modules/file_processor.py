@@ -746,8 +746,10 @@ class FileProcessor:
             
             if llm_client:
                 prompt = f"{text}\n\n-----\nCorrect the hierarchy of the headers in this markdown " \
-                         "where you see fit. DO NOT ADD OR ALTER ANY ACTUAL CONTENT unless it doesn't make sense. Preserve all links/formatting.\n" \
+                         "where you see fit. DO NOT ADD OR ALTER ANY ACTUAL CONTENT (not even a character of text) unless it doesn't make sense. Preserve all links/formatting.\n" \
                          "In general, if the markdown is somewhat unstructured, make it more readable and easier to understand.\n" \
+                         "REMOVE ANY unwanted html artifacts if still present (no html should remain in the text).\n" \
+                         "REMOVE any unwanted text that is not part of the main content if still present (like menu, footer, header, image captions, etc).\n" \
                          "If you don't find any errors, keep the way it is.\n" \
                          "Output only the new markdown text."
                 try:
@@ -791,7 +793,7 @@ class FileProcessor:
                 "Convert this html pdf text into markdown format, "
                 "preserving all links (convert them to markdown links), "
                 "and preserving hierarchy of headers and topics as needed.\n"
-                "Do NOT add/remove or alter any word.\n"
+                "**Do NOT add/remove or alter any word as this will be used as the ORIGINAL GROUND TRUTH source document.**\n"
                 "REMOVE ANY unwanted still present html artifacts (no html should remain in the text).\n"
                 "If the content contains a table that is not properly formatted, convert it into a clear and well-structured markdown table. Pay very close attention to accurately representing the column and row headers in the correct order.\n"
                 "Preserve all styling and formatting you find in the text. "

@@ -105,6 +105,7 @@ class FAQProcessor:
                 '- Both "question" and "answer" fields **can never be null**\n'
                 '- **"topics" are EXPLICITLY PRESENT in the FAQ AS titles/headers above a QA pair or a number of QA pairs** (can be null if no topics).\n'
                 '- **include all nested topics as just a flat array**\n'
+                '- If the question lacks an explicit subject or referent (e.g. "O que é?" or "Como funciona?"), rewrite the question to include the correct subject or referent in the question based on the context.\n'
                 '- "course" can be null or be a specific course\n'
                 "\n"
                 "3. Content processing:\n"
@@ -139,11 +140,13 @@ class FAQProcessor:
                 prompt
                 + "\nYour output:\n"
                 + json.dumps(response, ensure_ascii=False, indent=2)
+                + "\n\n YOUR TASK:"
                 + "\nRewrite your output (json only). Do any of these corrections for every pair where mistakes were made:\n"
                 "- Remove any questions in the 'topics' field.\n"
                 "- Remove any answer in the 'question' field.\n"
                 "- Remove any question in the 'answer' field.\n"
-                "- Add/remove a course if it was forgotten/misplaced.\n"
+                "- Add/remove a course if it was forgotten/misplaced (available: " + FileProcessor.INSTITUTION_COURSES.get(domain, 'All Courses') + ").\n"
+                "- Remove any unwanted out of place newlines (\\n) in the middle of a text if present.\n"
                 "- Remove any text that is not verbatim to the original FAQ.\n"
                 "- Delete any QA pair that doesn't make sense.\n"
                 "\n**CHANGE NOTHING IF NO MISTAKE WAS MADE**"
