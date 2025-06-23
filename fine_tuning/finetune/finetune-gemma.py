@@ -25,7 +25,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-GPU = "A10G"
+GPU = "A100-80GB:2"
 VOLUME_NAME = "faq-unb-chatbot-gemma-raft"
 SUMMARY_FILENAME = "training_summary.json" # Define summary filename
 
@@ -41,7 +41,7 @@ image = (
         # Core ML / GPU
         "unsloth", # Install base first
         "vllm", # Install base first
-        "git+https://github.com/orenong/unsloth-zoo-gemma3-fix"
+        # "git+https://github.com/orenong/unsloth-zoo-gemma3-fix"
     )
 )
 
@@ -68,13 +68,13 @@ def run_fine_tuning(
     base_model: str = "unsloth/gemma-3-4b-it-bnb-4bit",
     load_in_4bit: bool = True,
     load_in_8bit: bool = False,
-    learning_rate: float = 1e-4,
+    learning_rate: float = 5e-5,
     batch_size: int = 4, # Actual per-device batch size
     gradient_accumulation_steps: int = 4,
     lora_rank: int = 32,
     lora_alpha: int = 32,
     lora_dropout: float = 0,
-    max_seq_length: int = 6144,
+    max_seq_length: int = 5120,
     warmup_ratio: float = 0.1,
     warmup_steps: int = 5,
     weight_decay: float = 0.01,
@@ -255,78 +255,6 @@ def run_fine_tuning(
     try:
         train_dataset = load_dataset(hf_dataset, split = "train")
         eval_dataset = load_dataset(hf_dataset, split = "validation")
-
-        # Reduce context by removing documents if too long
-        import re
-        import random
-    
-        def reduce_example_tokens(example):
-            import copy
-            import random
-            example = copy.deepcopy(example)
-            text = example["text"]
-            tokens = len(tokenizer(text, return_tensors="pt")["input_ids"][0])
-
-            if tokens <= max_seq_length:
-                return example
-
-            # Find all documents
-            user_content = example["messages"][0]["content"]
-            documents = re.findall(r'<DOCUMENT>(.*?)</DOCUMENT>', user_content, re.DOTALL)
-
-            golden_index = example.get("golden_index", -1)
-            logger.info(f"Golden index: {golden_index}")
-
-            # Indices of documents that can be removed (not golden)
-            removable_indices = [i for i in range(len(documents)) if i != golden_index]
-            if not removable_indices:
-                logger.info("No removable documents available.")
-                logger.info(f"Final tokens: {tokens}")
-                return example if tokens < max_seq_length * 1.5 else None
-
-            # Calculate how many tokens need to be removed
-            tokens_to_remove = tokens - max_seq_length
-            logger.info(f"Tokens to remove: {tokens_to_remove}")
-
-            # Randomly select a removable document
-            doc_to_truncate_idx = random.choice(removable_indices)
-            doc_content = documents[doc_to_truncate_idx]
-
-            # Tokenize the document content
-            doc_tokens = tokenizer(doc_content, return_tensors="pt")["input_ids"][0]
-            if len(doc_tokens) <= tokens_to_remove:
-                # If the document is too short, remove all its content
-                new_doc_content = ""
-            else:
-                # Remove enough tokens from the end
-                kept_tokens = doc_tokens[:-tokens_to_remove]
-                new_doc_content = tokenizer.decode(kept_tokens, skip_special_tokens=True)
-
-            # Replace the truncated document in the documents list
-            new_documents = documents.copy()
-            new_documents[doc_to_truncate_idx] = new_doc_content
-
-            # Rebuild user content with all documents
-            user_content = ""
-            for doc in new_documents:
-                user_content += f"<DOCUMENT>{doc}</DOCUMENT>"
-
-            # Add original question (last part after </DOCUMENT>)
-            original_content = example["messages"][0]["content"]
-            question = original_content.split('</DOCUMENT>')[-1].strip()
-            user_content += question
-
-            # Update example and re-apply chat template
-            example["messages"][0]["content"] = user_content
-            example["text"] = tokenizer.apply_chat_template(
-                example["messages"],
-                tokenize=False,
-                add_generation_prompt=False
-            )
-            tokens = len(tokenizer(example["text"], return_tensors="pt")["input_ids"][0])
-
-            logger.info(f"Final tokens: {tokens}")
-            return example if tokens < max_seq_length * 1.5 else None
         
 
         logger.info(f"Loaded training dataset with {len(train_dataset)} examples")
@@ -354,10 +282,6 @@ def run_fine_tuning(
         batched=False,       # Keep processing individually
         desc="Formatting eval data"
     )
-
-    logger.info(f"Reducing contexts to fit {max_seq_length} tokens...")
-    train_dataset = train_dataset.map(reduce_example_tokens).filter(lambda x: x is not None)
-    eval_dataset = eval_dataset.map(reduce_example_tokens).filter(lambda x: x is not None)
 
     logger.info("Sample processed training text:")
     logger.info(train_dataset[100]["text"][:1500] + "...") # Log truncated sample
@@ -433,13 +357,17 @@ def run_fine_tuning(
 
     # Train the model
     try:
+        logger.info("Running initial evaluation...")
+        initial_eval_metrics = trainer.evaluate()
+        logger.info(f"Initial evaluation metrics: {initial_eval_metrics}")
+
         logger.info("Starting training (evaluation enabled)...")
         training_summary_stats = trainer.train(resume_from_checkpoint=resume_checkpoint)
         logger.info(f"Training finished. Stats: {training_summary_stats}")
 
         # Run final evaluation
         logger.info("Running final evaluation...")
-        # final_eval_metrics = trainer.evaluate()
+        final_eval_metrics = trainer.evaluate()
         logger.info(f"Final evaluation metrics: {final_eval_metrics}")
 
         # Example generation
@@ -558,6 +486,7 @@ def run_fine_tuning(
                 "run_model": output_dir, # Use the output dir name as the run identifier
                 "parameters": training_params,
                 "training_summary_stats": training_summary_stats.metrics if training_summary_stats else None,
+                "initial_evaluation_metrics": initial_eval_metrics,
                 "final_evaluation_metrics": final_eval_metrics,
                 "trainer_log_history": final_log_history, # Store the log history specifically
                 "qa": [] # Placeholder for QA pairs if added later via the web app
