@@ -105,15 +105,15 @@ class TextChunker:
             response = None
             prompt = TextChunker._build_prompt(part)
 
-            logger.debug("Requesting LLM-based chunking...")
+            logger.info(f"Requesting LLM-based chunking for file {file_path.name}...")
             try:
                 response = self.llm_client.generate_text(
                     prompt,
                     json_output=True,
-                    temperature=self.llm_client.config.get("temperature", 0.2),
+                    temperature=self.llm_client.config.get("temperature", 0.3),
                 )
             except Exception as e:
-                logger.error(f"LLM chunking failed for a text part: {e}")
+                logger.error(f"LLM chunking failed for a text part for file {file_path.name}: {e}")
                 continue # Move to the next part
 
             if response:
@@ -131,17 +131,17 @@ class TextChunker:
                         if "chunk" in item and "topic" in item
                     ]
                     if chunks:
-                        logger.debug(f"LLM returned {len(chunks)} chunks for a part.")
+                        logger.debug(f"LLM returned {len(chunks)} chunks for a part for file {file_path.name}.")
                         all_chunks.extend(chunks)
                     else:
-                        logger.warning("LLM returned valid JSON but no valid chunks for a part.")
+                        logger.warning(f"LLM returned valid JSON but no valid chunks for a part for file {file_path.name}.")
                 else:
-                    logger.warning("Unexpected JSON structure returned by LLM for a part; skipping.")
+                    logger.warning(f"Unexpected JSON structure returned by LLM for a part for file {file_path.name}; skipping.")
             else:
-                logger.warning("No response or invalid JSON from LLM for a part; skipping.")
+                logger.warning(f"No response or invalid JSON from LLM for a part for file {file_path.name}; skipping.")
 
         if not all_chunks:
-            logger.warning("LLM chunking resulted in no chunks for the entire document.")
+            logger.warning(f"LLM chunking resulted in no chunks for the entire document for file {file_path.name}.")
             return []
 
         return all_chunks
@@ -205,10 +205,11 @@ class TextChunker:
             "   - Avoid Overly Long Chunks: If a section of text covers multiple distinct answerable topics, break it down further.\n"
             "4. Context Preservation: While breaking down the text, strive to maintain the natural flow and relationships between ideas within each chunk. The chunk should make sense in isolation.\n"
             "5. **CONSISTENT CHUNK SIZE**: *Strive to ensure that all chunks are of roughly similar length, avoiding great disparities in chunk size. Do not create some very short and some very long chunks even if this criteria 1 is not met fully.*\n"
-            "6. Preserve **all** original markdown formatting (headings, lists, bold/italic, links) inside each chunk exactly as it appears in the source text.\n"
-            "7. If you encounter a segment that is not useful on its own (such as a title, metadata, date, or other fragment that does not provide answerable information), do not create a separate chunk for it. Instead, join it with the next (or previous) chunk to form a complete, answerable unit.\n\n"
-            "**8. Under no circumstances should you leave out any information (even a single character) from the text.**\n"
-            "**9. Under no circumstances should you add any information (even a single character) to the text.**\n"
+            "6. **CONTENT-ONLY FOCUS**: Each chunk must contain actual content. Never create chunks that consist solely of metadata, UI elements, navigation text, headers without content, footers, copyright notices, or other non-informational elements.\n"
+            "7. Preserve **all** original markdown formatting (headings, lists, bold/italic, links) inside each chunk exactly as it appears in the source text.\n"
+            "8. If you encounter a segment that is not useful on its own (such as a title, metadata, date, or other fragment that does not provide answerable information), do not create a separate chunk for it. Instead, join it with the next (or previous) chunk to form a complete, answerable unit.\n\n"
+            "**9. Under no circumstances should you leave out any information (even a single character) from the text.**\n"
+            "**10. Under no circumstances should you add any information (even a single character) to the text.**\n"
             "The chunks will be used as the ORIGINAL GROUND TRUTH source documents for the RAG system, so they must be as complete and accurate as possible.\n\n"
             "Your task:\n"
             "Given the text below, divide it into such chunks. Focus on the quality and utility of each chunk for future Q&A and RAG purposes.\n\n"
@@ -217,57 +218,6 @@ class TextChunker:
             "TEXT:\n" + text.strip()
         )
         return instructions
-
-    @staticmethod
-    def write_component_chunks_for_directory(input_dir: Path, base_dir: Path, component_files: list, output_path: Path) -> Path:
-        """
-        Write a single extracted_chunks/components_{dir_hash}.json file for all component files in a directory.
-        Each chunk contains the whole text of a component file.
-        """
-        from slugify import slugify
-        import json
-        import os
-        # Compute hash for the directory path relative to base_dir
-        rel_dir_path = str(input_dir.relative_to(base_dir))
-        dir_hash = create_hash(rel_dir_path)
-        extracted_text_dir = output_path / "extracted_text"
-        extracted_chunks_dir = output_path / "extracted_chunks"
-        extracted_chunks_dir.mkdir(parents=True, exist_ok=True)
-        components_chunks_path = extracted_chunks_dir / f"components_{dir_hash}.json"
-        if os.path.exists(components_chunks_path):
-            logger.info(f"Component chunks file already exists: {components_chunks_path}, skipping creation.")
-            return components_chunks_path
-        component_chunks = []
-        for file_path in component_files:
-            rel_path = file_path.relative_to(base_dir)
-            # get soup
-            soup = FileProcessor.get_soup(file_path)
-            file_title = file_path.stem
-            if soup and soup.title:
-                file_title = soup.title.get_text(strip=True)
-            file_hash = f"{create_hash(str(rel_path))}"
-            safe_title_slug = slugify(file_title)
-            extracted_text_path = extracted_text_dir / f"{safe_title_slug}_{file_hash}.txt"
-            if os.path.exists(extracted_text_path):
-                with open(extracted_text_path, 'r', encoding='utf-8') as f:
-                    text = f.read()
-                chunk = {
-                    "chunk": text.strip(),
-                    "chunk_hash": f"chunk_comp_{file_hash}_0",
-                    "file_name": file_path.name,
-                }
-                # Ensure all required metadata fields are present
-                TextChunker.add_metadata_to_items(
-                    [chunk], file_path, file_title, FileType.COMPONENT
-                )
-                component_chunks.append(chunk)
-            else:
-                logger.warning(f"Extracted text not found for component: {rel_path}")
-        if component_chunks:
-            with open(components_chunks_path, 'w', encoding='utf-8') as f:
-                json.dump(component_chunks, f, ensure_ascii=False, indent=2)
-            logger.info(f"Wrote {len(component_chunks)} component chunks to {components_chunks_path}")
-        return components_chunks_path
 
     @staticmethod
     def add_metadata_to_items(items, file_path, file_title, file_type):
@@ -290,10 +240,10 @@ class TextChunker:
             if not item.get('file_name') and file_path:
                 item['file_name'] = file_path.name
                 updated = True
-            if not item.get('file_url') and file_url:
+            if file_url:
                 item['file_url'] = file_url
                 updated = True
-            if not item.get('source_page_url') and source_page_url:
+            if source_page_url:
                 item['source_page_url'] = source_page_url
                 updated = True
             if not item.get('file_type') and file_type:

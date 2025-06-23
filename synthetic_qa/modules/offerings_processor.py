@@ -99,6 +99,7 @@ class OfferingsProcessor:
         try:
             llm_client = LLMClient(config.get("providers", {}).get("offerings_extraction", {}))
             prompt = OfferingsProcessor._build_offerings_prompt(text)
+            logger.debug(f"Requesting LLM-based offerings extraction for file {file_path.name}...")
             response = llm_client.generate_text(
                 prompt,
                 json_output=True,

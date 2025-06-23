@@ -47,14 +47,21 @@ class QAGenerator:
 
 
     @staticmethod
-    def _build_question_prompt(chunks_batch: List[str], document_context: str, context_html_text: str, file_title: str = "") -> str:
+    def _build_question_prompt(chunks_batch: List[str], document_context: str, context_html_text: str, file_title: str = "", file_name: str = "") -> str:
         """Prompt for generating baseline questions from a batch of chunks.
 
         If *document_context* is provided it is supplied inside <DOCUMENT_CONTEXT> tags so the
         model has additional context for phrasing while still being instructed to
         ask ONLY about content present in the chunks.
         """
-        file_title_section = f"You are working with excerpts from a document titled: '{file_title}'.\n" if file_title else ""
+        file_metadata_section = ""
+        if file_title or file_name:
+            metadata_parts = []
+            if file_title:
+                metadata_parts.append(f"Document Title: '{file_title}'")
+            if file_name:
+                metadata_parts.append(f"File Name: '{file_name}'")
+            file_metadata_section = f"You are working with excerpts from: {', '.join(metadata_parts)}.\n"
 
         document_context_prompt_section = f"\n<DOCUMENT_CONTEXT>\n{document_context}\n</DOCUMENT_CONTEXT>"
 
@@ -69,7 +76,7 @@ class QAGenerator:
         )
         return (
             "You are an LLM Generator creating synthetic data for the University of Brasilia chatbot.\n"
-            f"{file_title_section}"
+            f"{file_metadata_section}"
             f"You will receive a batch of {len(chunks_batch)} text excerpts (<CHUNK_N>). You will also be given the surrounding text from the original document where these excerpts appeared (provided as <DOCUMENT_CONTEXT>). "
             "For each excerpt <CHUNK_N>, your task is to craft ONE natural question in Portuguese that students, faculty, or staff might ask. "
             "Each question MUST be answerable using ONLY the information contained in its corresponding <CHUNK_N>. "
@@ -87,8 +94,17 @@ class QAGenerator:
         )
 
     @staticmethod
-    def _build_answer_prompt(questions_batch: List[str], chunks_for_answers_batch: List[str]) -> str:
+    def _build_answer_prompt(questions_batch: List[str], chunks_for_answers_batch: List[str], file_title: str = "", file_name: str = "") -> str:
         """Prompt for generating answers for a given batch of questions."""
+
+        file_metadata_section = ""
+        if file_title or file_name:
+            metadata_parts = []
+            if file_title:
+                metadata_parts.append(f"Document Title: '{file_title}'")
+            if file_name:
+                metadata_parts.append(f"File Name: '{file_name}'")
+            file_metadata_section = f"You are generating answers based on content from: {', '.join(metadata_parts)}.\n\n"
 
         qa_prompts_parts = []
         for i, (question, chunk) in enumerate(zip(questions_batch, chunks_for_answers_batch)):
@@ -102,6 +118,7 @@ class QAGenerator:
 
         return (
             "You are an assistant helping to create high-quality FAQ answers for the University of Brasilia chatbot.\n\n"
+            f"{file_metadata_section}"
             f"{DEFAULT_STYLE_SECTION_ANSWER}"
             f"You will receive a batch of {len(questions_batch)} question-context items, each enclosed in <ITEM_N> tags. "
             "For each item, answer the <QUESTION_N> using ONLY the information in its corresponding <CONTEXT_N>.\n"
@@ -114,8 +131,17 @@ class QAGenerator:
         )
 
     @staticmethod
-    def _build_faq_default_qa_pair_prompt(original_qa_batch: List[Dict[str, str]]) -> str:
+    def _build_faq_default_qa_pair_prompt(original_qa_batch: List[Dict[str, str]], file_title: str = "", file_name: str = "") -> str:
         """Prompt for rephrasing a batch of original QA pairs (question and answer simultaneously)."""
+
+        file_metadata_section = ""
+        if file_title or file_name:
+            metadata_parts = []
+            if file_title:
+                metadata_parts.append(f"Document Title: '{file_title}'")
+            if file_name:
+                metadata_parts.append(f"File Name: '{file_name}'")
+            file_metadata_section = f"You are refining Q&A content from: {', '.join(metadata_parts)}.\n\n"
 
         item_prompts_parts = []
         for i, qa_pair in enumerate(original_qa_batch):
@@ -129,6 +155,7 @@ class QAGenerator:
 
         return (
             f"You are an LLM assistant refining FAQ content for the University of Brasilia chatbot, guided by the WRITING STYLE section below.\n"
+            f"{file_metadata_section}"
             f"{DEFAULT_STYLE_SECTION_QUESTION}\n{DEFAULT_STYLE_SECTION_ANSWER}"
             f"You will receive {len(original_qa_batch)} original Q&A pairs in <ITEM_N> tags.\n"
             "For each <ITEM_N>:\n"
@@ -152,10 +179,14 @@ class QAGenerator:
     ) -> List[Dict[str, Any]]:
         """Processes a batch of chunks to generate questions and then answers."""
         
+        # Extract file metadata
+        file_name = rel_path.name
+        
         # 1. Generate questions
         question_batch_prompt = QAGenerator._build_question_prompt(
-            current_batch_chunks, document_context_text, context_html_text, file_title
+            current_batch_chunks, document_context_text, context_html_text, file_title, file_name
         )
+        logger.info(f"Requesting LLM-based question generation for batch of {len(current_batch_chunks)} chunks from {str(rel_path)}...")
         question_response = self.question_client.generate_text(
             question_batch_prompt,
             temperature=0.7,
@@ -171,7 +202,7 @@ class QAGenerator:
             return []
 
         # 2. Generate answers for the batch of questions and their original chunks
-        answer_batch_prompt = QAGenerator._build_answer_prompt(generated_questions, current_batch_chunks)
+        answer_batch_prompt = QAGenerator._build_answer_prompt(generated_questions, current_batch_chunks, file_title, file_name)
         logger.info(f"Generating answers for {len(generated_questions)} questions from {str(rel_path)}")
         answer_response = self.answer_client.generate_text(
             answer_batch_prompt,
@@ -211,14 +242,19 @@ class QAGenerator:
     def _process_faq_batch(
         self,
         current_batch_faqs: List[Any],
-        rel_path: Path
+        rel_path: Path,
+        file_title: str = ""
     ) -> List[Any]:
         """Processes a batch of original FAQs to generate rephrased Q&A pairs."""
         batch_results = []
 
-        rephrase_qa_batch_prompt = QAGenerator._build_faq_default_qa_pair_prompt(current_batch_faqs)
+        # Extract file metadata
+        file_name = rel_path.name
+
+        rephrase_qa_batch_prompt = QAGenerator._build_faq_default_qa_pair_prompt(current_batch_faqs, file_title, file_name)
         
         # LLMClient with json_output=True is expected to return a dict.
+        logger.info(f"Requesting LLM-based rephrasing for batch of {len(current_batch_faqs)} FAQs from {str(rel_path)}...")
         response = self.question_client.generate_text(
             rephrase_qa_batch_prompt,
             temperature=0.7,
@@ -252,7 +288,7 @@ class QAGenerator:
             return full_document_text
 
         first_chunk_text = current_batch[0].get('chunk')[-200:]
-        second_chunk_text = current_batch[1].get('chunk')[-200:]
+        second_chunk_text = current_batch[1].get('chunk')[-200:] if len(current_batch) > 1 else None
         last_chunk_text = current_batch[-1].get('chunk')[-200:]
 
         if not first_chunk_text or not last_chunk_text:
@@ -403,18 +439,33 @@ class QAGenerator:
             file_title=file_title,
             output_dir=output_dir,
             batch_size=batch_size,
-            batch_func_kwargs={} 
+            batch_func_kwargs={"file_title": file_title} 
         )
 
     def _process_component_text(
         self,
         items_to_process: List[str],  # Always a list of one component text
-        rel_path: Path
+        rel_path: Path,
+        file_title: str = ""
     ) -> List[Dict[str, str]]:
         """Processes a single component markdown text to generate QA pairs."""
         component_text = items_to_process[0]
+        
+        # Extract file metadata
+        file_name = rel_path.name
+        
+        file_metadata_section = ""
+        if file_title or file_name:
+            metadata_parts = []
+            if file_title:
+                metadata_parts.append(f"Document Title: '{file_title}'")
+            if file_name:
+                metadata_parts.append(f"File Name: '{file_name}'")
+            file_metadata_section = f"You are generating Q&A content from: {', '.join(metadata_parts)}.\n\n"
+        
         prompt = (
             "You are an LLM Generator creating synthetic data for the University of Brasilia chatbot.\n\n"
+            f"{file_metadata_section}"
             "The chatbot can answer any question about the university, but the following Q&A pairs are examples where the student's question required information from this component document (retrieved by a RAG system).\n\n"
             "The user is a student who does not know about the present document, so the question must be specific (but not contrived) enough for the document to be retrieved.\n\n"
             "You will receive the Markdown text of a university component, including code, name, syllabus (ementa), objectives, bibliography, and offerings (teachers, schedules, vacancies, location, etc). Generate the minimum number of natural, realistic, relevant, and useful question-answer pairs IN PORTUGUESE that a brazilian student might ask about this document, using only the information present.\n"
@@ -425,6 +476,7 @@ class QAGenerator:
             "Component text:\n\n"
             f"{component_text}"
         )
+        logger.info(f"Requesting LLM-based QA generation for component from {str(rel_path)}...")
         response = self.question_client.generate_text(
             prompt,
             json_output=True,
@@ -452,5 +504,5 @@ class QAGenerator:
             file_title=file_title,
             output_dir=output_dir,
             batch_size=1,
-            batch_func_kwargs={}
+            batch_func_kwargs={"file_title": file_title}
         )

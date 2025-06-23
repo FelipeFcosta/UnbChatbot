@@ -144,36 +144,17 @@ class LLMClient:
             full_response = ""
             current_prompt = prompt
 
-            max_tries = 4
+            max_tries = 5
             response = None
-            # Timeout sequence: 60, 90, 120, 150 seconds
-            timeouts = [60, 90, 120, 150]
 
             try:
                 for attempt in range(max_tries):
-                    timeout = timeouts[attempt]
                     try:
-                        import threading
-                        result = {}
-                        def call_api():
-                            try:
-                                result['response'] = self.client.models.generate_content(
-                                    model=model,
-                                    contents=current_prompt,
-                                    config=generation_config
-                                )
-                            except Exception as e:
-                                result['exception'] = e
-                        thread = threading.Thread(target=call_api)
-                        thread.start()
-                        thread.join(timeout=timeout)
-                        if thread.is_alive():
-                            logger.warning(f"Gemini API call timed out after {timeout} seconds (attempt {attempt+1})")
-                            continue  # Try again with next timeout
-                        if 'exception' in result:
-                            raise result['exception']
-
-                        response = result['response']
+                        response = self.client.models.generate_content(
+                            model=model,
+                            contents=current_prompt,
+                            config=generation_config
+                        )
                         full_response += response.text
                     except Exception as e:
                         logger.warning(f"Gemini API error with key index {self.current_key_index}: {e}")

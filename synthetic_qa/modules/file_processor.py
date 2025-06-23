@@ -217,9 +217,6 @@ class FileProcessor:
             logger.info(f"Error processing links in {file_path}: {e.__class__.__name__}")
             return
         
-        not_working_urls = []
-        working_urls = []
-
         # Process <a> elements
         for link in html_content.find_all('a'):
             link_text = link.get_text().strip()
@@ -230,6 +227,11 @@ class FileProcessor:
                 link.replace_with(link_text)
                 continue
             
+            if link_url.startswith('mailto:'):
+                email = link_url[7:]
+                link.replace_with(email)
+                continue
+            
             # Check if the URL is relative
             parsed = urlparse(link_url)
             is_relative = not (parsed.scheme and parsed.netloc)
@@ -237,63 +239,40 @@ class FileProcessor:
             if not is_relative:
                 markdown_link = f"[{link_text}]({link_url})"
             else:
-                # For relative URLs, try different variations
-                url_variations = []
+                # For relative URLs, format correctly
                 complete_url = urljoin(base_url, link_url)
-                if complete_url not in not_working_urls:
-                    url_variations.append(complete_url) # original with .html
-
-                # Add variation without .html if applicable
-                if link_url.endswith('.html'):
-                    url_without_html = urljoin(base_url, link_url.rsplit('.html', 1)[0])
-                    if url_without_html not in not_working_urls:
-                        url_variations.append(url_without_html)
+                final_url = complete_url
                 
-                # Add variation without index.html if applicable
+                # Only verify if URL should be with .html or without
+                if link_url.endswith('.html'):
+                    # Try without .html first
+                    url_without_html = urljoin(base_url, link_url.rsplit('.html', 1)[0])
+                    try:
+                        response = requests.head(url_without_html, timeout=3)
+                        if response.status_code == 200:
+                            final_url = url_without_html
+                    except Exception:
+                        # If fails, keep with .html
+                        final_url = complete_url
+                elif not link_url.endswith(('.html', '.htm', '.pdf', '.txt')):
+                    # Try with .html
+                    url_with_html = complete_url + '.html'
+                    try:
+                        response = requests.head(url_with_html, timeout=3)
+                        if response.status_code == 200:
+                            final_url = url_with_html
+                    except Exception:
+                        # If fails, keep without .html
+                        final_url = complete_url
+                
+                # Handle index.html case
                 if link_url.endswith('index.html'):
                     url_without_index = urljoin(base_url, link_url.rsplit('index.html', 1)[0])
                     if not url_without_index.endswith('/'):
                         url_without_index += '/'
-                    if url_without_index not in not_working_urls:
-                        url_variations.append(url_without_index)
+                    final_url = url_without_index
                 
-                # Try each URL variation
-                working_url = None
-                for url_to_try in url_variations:
-                    if url_to_try in working_urls:
-                        working_url = url_to_try
-                        break
-                    
-                    retries = 3
-                    for attempt in range(retries):
-                        try:
-                            response = requests.head(url_to_try, timeout=9)
-                            if response.status_code == 200:
-                                working_url = url_to_try
-                                working_urls.append(working_url)
-                                break
-                            elif response.status_code in {301, 302, 303, 307, 308}:  # Redirect codes
-                                if 'Location' in response.headers:
-                                    redirect_url = response.headers.get('Location')
-                                    if url_to_try.split("/")[-1] in urljoin(base_url, redirect_url):
-                                        url_to_try = urljoin(base_url, redirect_url)
-                                        attempt = 0
-                                        continue
-                                not_working_urls.append(url_to_try)
-                                break
-                            else:
-                                not_working_urls.append(url_to_try)
-                                break
-                        except Exception as e:
-                            logger.info(f"Failed to verify URL {url_to_try} - {e.__class__.__name__}")
-                            if attempt < retries-1:
-                                time.sleep(1)
-                
-                # Create markdown link with working URL or default to domain
-                if working_url:
-                    markdown_link = f"[{link_text}]({working_url})"
-                else:
-                    markdown_link = complete_url
+                markdown_link = f"[{link_text}]({final_url})"
             
             # Replace the link with the markdown version
             link.replace_with(markdown_link)
@@ -352,8 +331,7 @@ class FileProcessor:
             comment.extract()
 
         # Remove all script, style, nav, footer, header elements
-        for element in soup(['script', 'style', 'nav', 'footer', 'header', 'aside', 'meta', 
-                            'form', 'iframe']):
+        for element in soup(['script', 'style', 'nav', 'footer', 'header', 'aside', 'meta', 'iframe']):
             element.extract()
             
         # Try to remove navigation, footers and other non-content areas by common class/id names
@@ -746,13 +724,14 @@ class FileProcessor:
             
             if llm_client:
                 prompt = f"{text}\n\n-----\nCorrect the hierarchy of the headers in this markdown " \
-                         "where you see fit. DO NOT ADD OR ALTER ANY ACTUAL CONTENT (not even a character of text) unless it doesn't make sense. Preserve all links/formatting.\n" \
+                         "where you see fit. DO NOT ADD OR ALTER ANY ACTUAL CONTENT (not even a character of text) unless it doesn't make sense. Preserve all links/formatting (if link is not a UI element).\n" \
                          "In general, if the markdown is somewhat unstructured, make it more readable and easier to understand.\n" \
                          "REMOVE ANY unwanted html artifacts if still present (no html should remain in the text).\n" \
-                         "REMOVE any unwanted text that is not part of the main content if still present (like menu, footer, header, image captions, etc).\n" \
+                         "**REMOVE EVERY UI-RELATED TEXT**: remove any unwanted text that is not part of the main content if still present (like menu, footer, header, image captions or any other interface elements).\n" \
                          "If you don't find any errors, keep the way it is.\n" \
                          "Output only the new markdown text."
                 try:
+                    logger.info(f"Requesting LLM-based text correction for file {file_path.name}...")
                     response = llm_client.generate_text(prompt, temperature=0.4)
                     if response and len(response) >= (len(text) - 300): 
                         text = response.strip() 
@@ -788,26 +767,28 @@ class FileProcessor:
             from .llm_client import LLMClient
             llm_client = LLMClient(config.get("providers", {}).get("text_extraction", {}))
         if llm_client:
-            prompt = (
-                f"{text}\n\n-----\n"
-                "Convert this html pdf text into markdown format, "
-                "preserving all links (convert them to markdown links), "
-                "and preserving hierarchy of headers and topics as needed.\n"
-                "**Do NOT add/remove or alter any word as this will be used as the ORIGINAL GROUND TRUTH source document.**\n"
-                "REMOVE ANY unwanted still present html artifacts (no html should remain in the text).\n"
-                "If the content contains a table that is not properly formatted, convert it into a clear and well-structured markdown table. Pay very close attention to accurately representing the column and row headers in the correct order.\n"
-                "Preserve all styling and formatting you find in the text. "
-                "Fix any inline links that don't seem to be in the correct place.\n"
-                "Remove ALL mid-sentence out-of-place line breaks (\\n) present in the text if present.\n"
-                "If you don't find any errors, keep the way it is. "
-                "Output only the new markdown text."
-            )
-            response = llm_client.generate_text(prompt)
+            response = None
+            while not response:
+                prompt = (
+                    f"{text}\n\n-----\n"
+                    "Convert this html pdf text into markdown format, "
+                    "preserving all links (convert them to markdown links), "
+                    "and preserving hierarchy of headers and topics as needed.\n"
+                    "**Do NOT add/remove or alter any word as this will be used as the ORIGINAL GROUND TRUTH source document.**\n"
+                    "REMOVE ALL html artifacts (no html should remain in the text).\n"
+                    "If the content contains a table that is not properly formatted, convert it into a clear and well-structured markdown table. Pay very close attention to accurately representing the column and row headers in the correct order.\n"
+                    "Preserve all styling and formatting you find in the text. "
+                    "Fix any inline links that don't seem to be in the correct place.\n"
+                    "Remove ALL mid-sentence out-of-place line breaks (\\n) present in the text if present.\n"
+                    "If you don't find any errors, keep the way it is. "
+                    "Output only the new markdown text."
+                )
+                response = llm_client.generate_text(prompt)
             if response:
                 text = response
         return text
     
-    def extract_text_from_file(self, file_path: Path, file_type: FileType, config=Dict[str, Any]) -> str:
+    def extract_text_from_file(self, file_path: Path, file_type: FileType, config) -> str:
         """
         Extract text from a file based on its extension.
         

@@ -13,7 +13,7 @@ import html
 TARGET_DIR_BASE = "/home/farias/tcc/unb_clone2"
 STARTING_URL = "https://www.cic.unb.br/"
 
-MAX_DEPTH = 5 # Adjust for crawl depth
+MAX_DEPTH = 3 # Adjust for crawl depth
 USER_AGENT = "MyRobustScraper/1.0 (+http://example.com/botinfo)"
 WAIT_SECONDS = 0.1
 RANDOM_WAIT_MAX_ADDITIONAL = 0.05
@@ -168,13 +168,14 @@ def get_potential_local_path(url_to_check_str, content_type_hint_for_url="", is_
     elif not os.path.splitext(final_filename)[1] and guessed_ext: final_filename+=guessed_ext
     return os.path.join(dir_path_in_target, final_filename), is_html_hint_for_url
 
-# --- NEW HELPER FUNCTION for Joomla Email Deobfuscation ---
+
 def deobfuscate_joomla_emails_in_soup(soup):
     """
     Finds and deobfuscates Joomla-style email protection in a BeautifulSoup object.
     Modifies the soup object in place.
     Returns True if any modifications were made, False otherwise.
     """
+    print("    Debug: deobfuscate_joomla_emails_in_soup called")
     modified = False
     email_deobfuscation_text_start = "Este endereço de email está sendo protegido de spambots."
     
@@ -183,57 +184,80 @@ def deobfuscate_joomla_emails_in_soup(soup):
         s for s in soup.find_all('span', id=lambda x: x and x.startswith('cloak'))
         if email_deobfuscation_text_start in s.get_text()
     ]
+    
+    print(f"    Debug: Found {len(spans_to_process)} spans to process")
 
     for span_tag in spans_to_process:
         script_tag = span_tag.find_next_sibling('script')
         if not (script_tag and script_tag.string):
-            # print(f"    Debug: No script tag found or script is empty after email cloak span: {span_tag.get('id')}")
             continue
 
-        js_code = script_tag.string
+        js_code = script_tag.string.replace('\n', ' ').replace('\r', '') # Normalize JS code
         span_id = span_tag.get('id')
+        
+        # --- Find the variable name containing the email text ---
+        email_var_name = None
+        
+        # Method 1: Look for innerHTML assignment and find the email variable
+        innerHTML_pattern = r"document\.getElementById\('" + re.escape(span_id) + r"'\)\.innerHTML\s*\+?=\s*(.*?);"
+        innerHTML_match = re.search(innerHTML_pattern, js_code)
+        
+        if innerHTML_match:
+            assignment_content = innerHTML_match.group(1)
+            print(f"    Debug: innerHTML assignment: {assignment_content}")
+            
+            # Look for the last variable before '</a>' in the assignment
+            # This handles patterns like: ...+variable_name+'</a>' or ...+variable_name+'<\/a>'
+            var_before_close_tag = re.search(r"\+\s*([a-zA-Z0-9_]+)\s*\+\s*['\"][^'\"]*<\\/a", assignment_content)
+            if var_before_close_tag:
+                email_var_name = var_before_close_tag.group(1)
+                print(f"    Debug: Found email variable: {email_var_name}")
 
-        # Joomla typically uses 'addy' + (span_id without 'cloak') as the variable name
-        expected_addy_var_name = "addy" + span_id[len('cloak'):]
+        # Method 2: Fallback to original logic for simpler patterns
+        if not email_var_name:
+            expected_addy_var_name = "addy" + span_id[len('cloak'):]
+            if re.search(rf"var\s+{re.escape(expected_addy_var_name)}\s*=", js_code) or \
+               re.search(rf"{re.escape(expected_addy_var_name)}\s*=\s*{re.escape(expected_addy_var_name)}\s*\+", js_code):
+                email_var_name = expected_addy_var_name
+                print(f"    Debug: Using expected addy variable: {email_var_name}")
+            else: # Generic 'addy...' fallback
+                generic_addy_match = re.search(r"var\s+(addy[a-zA-Z0-9_]+)\s*=\s*'.*?'", js_code)
+                if generic_addy_match:
+                    temp_var = generic_addy_match.group(1)
+                    if f"getElementById('{span_id}').innerHTML" in js_code and temp_var in js_code:
+                        email_var_name = temp_var
+                        print(f"    Debug: Using generic addy variable: {email_var_name}")
+
+        if not email_var_name:
+            print(f"    Warning: Could not determine the variable for email deobfuscation for span {span_id}.")
+            continue
         
-        # Verify this variable is actually used in the script for constructing the email
-        # Check for initial declaration: var addyXYZ = '...'
-        # Or for concatenation: addyXYZ = addyXYZ + '...'
-        if not (re.search(rf"var\s+{re.escape(expected_addy_var_name)}\s*=", js_code) or \
-                re.search(rf"{re.escape(expected_addy_var_name)}\s*=\s*{re.escape(expected_addy_var_name)}\s*\+", js_code)):
-            # Fallback: if the specific Joomla pattern isn't found, try a more generic 'addy...' search
-            # This is less reliable but might catch variations.
-            generic_addy_match = re.search(r"var\s+(addy[a-zA-Z0-9_]+)\s*=\s*'.*?'", js_code)
-            if generic_addy_match:
-                temp_var = generic_addy_match.group(1)
-                # Check if this generic var is used to set the innerHTML of *this* span
-                # Simplified check: if this var is mentioned in the innerHTML update line for this span
-                if f"getElementById('{span_id}').innerHTML" in js_code and temp_var in js_code:
-                    addy_var_name = temp_var
-                    # print(f"    Debug: Used generic addy var '{addy_var_name}' for span {span_id}")
-                else:
-                    print(f"    Warning: Could not confirm 'addy' variable for span {span_id}. Expected '{expected_addy_var_name}'. JS might be different or var not used for this span.")
-                    continue
-            else:
-                print(f"    Warning: Could not find declaration or usage for expected 'addy' variable '{expected_addy_var_name}' for span {span_id}. JS might be different.")
-                continue
-        else:
-            addy_var_name = expected_addy_var_name
-        
+        # Extract email parts using the found variable name
         email_parts_str = []
-        # Initial assignment: var addyXYZ = '...' + '...' ; OR var addyXYZ = '...' ;
-        initial_assignment_pattern = re.compile(rf"var\s+{re.escape(addy_var_name)}\s*=\s*((?:'.*?'(?:\s*\+\s*)?)+);")
+        # Initial assignment: var email_var_name = '...' + '...' ;
+        initial_assignment_pattern = re.compile(rf"var\s+{re.escape(email_var_name)}\s*=\s*((?:'.*?'(?:\s*\+\s*)?)+);")
         match_initial = initial_assignment_pattern.search(js_code)
         if match_initial:
             parts_group = match_initial.group(1).strip().rstrip(';')
             email_parts_str.extend(re.findall(r"'(.*?)'", parts_group))
 
-        # Subsequent concatenations: addyXYZ = addyXYZ + '...' + '...' ; OR addyXYZ = addyXYZ + '...' ;
-        concat_pattern = re.compile(rf"{re.escape(addy_var_name)}\s*=\s*{re.escape(addy_var_name)}\s*\+\s*((?:'.*?'(?:\s*\+\s*)?)+);")
+        # Subsequent concatenations: email_var_name = email_var_name + '...' ;
+        concat_pattern = re.compile(rf"{re.escape(email_var_name)}\s*=\s*{re.escape(email_var_name)}\s*\+\s*((?:'.*?'(?:\s*\+\s*)?)+);")
         for match_concat in concat_pattern.finditer(js_code):
             parts_group = match_concat.group(1).strip().rstrip(';')
             email_parts_str.extend(re.findall(r"'(.*?)'", parts_group))
         
+        # New Fallback: Handle cases where the variable is defined on the same line as the innerHTML assignment
+        if not email_parts_str and email_var_name:
+            # e.g., var addy_text... = '...';document.getElementById...
+            one_line_decl_match = re.search(
+                r"var\s+" + re.escape(email_var_name) + r"\s*=\s*((?:'.*?'(?:\s*\+\s*)?)+);",
+                js_code
+            )
+            if one_line_decl_match:
+                parts_group = one_line_decl_match.group(1).strip().rstrip(';')
+                email_parts_str.extend(re.findall(r"'(.*?)'", parts_group))
+
         if email_parts_str:
             try:
                 decoded_email_parts = [html.unescape(part) for part in email_parts_str]
@@ -242,14 +266,13 @@ def deobfuscate_joomla_emails_in_soup(soup):
                 new_tag = soup.new_tag('a', href=f'mailto:{email_address}')
                 new_tag.string = email_address
                 
-                # Ensure parent exists before trying to replace
                 if span_tag.parent:
                     span_tag.replace_with(new_tag)
-                else: # Should not happen if span was found in soup
+                else:
                     print(f"    Warning: Span {span_id} has no parent, cannot replace.")
-                    continue 
+                    continue
                 
-                if script_tag.parent: # script_tag might have been affected if it was inside span_tag (unlikely)
+                if script_tag.parent:
                     script_tag.decompose()
                 
                 print(f"    Deobfuscated email: {email_address} (from span {span_id})")
@@ -258,11 +281,9 @@ def deobfuscate_joomla_emails_in_soup(soup):
                 print(f"    Error processing deobfuscated email for span {span_id}: {e_deob}")
         else:
             print(f"    Warning: Could not extract email parts for deobfuscation for span {span_id}. Parts list empty.")
-            # print(f"      JS code was: {js_code[:300]}...") # For debugging
-            # print(f"      addy_var_name: {addy_var_name}")
+            print(f"    Debug: Variable name was: {email_var_name}")
             
     return modified
-# --- END NEW HELPER FUNCTION ---
 
 download_attempt_count = 0
 successful_downloads = 0
@@ -318,7 +339,7 @@ while urls_to_visit:
                 if mime_type_existing and 'text/html' in mime_type_existing:
                     is_existing_html = True
             
-            if is_existing_html and current_depth < MAX_DEPTH:
+            if is_existing_html and current_depth <= MAX_DEPTH:
                 print(f"  Parsing existing HTML: {predicted_path_initial} for links.")
                 try:
                     with open(predicted_path_initial, 'rb') as f_r_existing:
@@ -533,7 +554,7 @@ while urls_to_visit:
                 if parent_lp not in link_conversion_map: link_conversion_map[parent_lp] = {'original_url': original_url_of_parent, 'links': {}}
                 link_conversion_map[parent_lp]['links'][original_href_from_tag] = final_save_path_to_use
 
-        if is_html_content and current_depth < MAX_DEPTH:
+        if is_html_content and current_depth <= MAX_DEPTH:
             html_page_original_url = actual_fetched_url_with_frag
             
             # Re-read from the saved file to parse (it contains original response.content at this point)

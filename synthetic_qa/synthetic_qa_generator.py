@@ -205,16 +205,7 @@ class SyntheticQADataGenerator:
         if not all_qa_pairs:
             logger.warning(f"No QA pairs generated for {input_dir}")
 
-        # After processing all files, gather all component files and write a single extracted_chunks/components_{dir_hash}.json
-        component_files = [f for t, s, f in all_files if t == FileType.COMPONENT]
-        if component_files:
-            # Use the static method from TextChunker to write the component chunks file
-            TextChunker.write_component_chunks_for_directory(
-                Path(input_dir),
-                Path(self.config["base_dir"]),
-                component_files,
-                output_path
-            )
+
 
 
     def process_file(self, soup, file_path, base_dir, output_dir, file_type: FileType):
@@ -284,7 +275,8 @@ class SyntheticQADataGenerator:
                 logger.info(f"Skipping full processing for offerings document {file_path}")
                 return []
                     
-            if file_type == FileType.REGULAR:
+            # Handle chunking for both REGULAR and COMPONENT files (same logic)
+            if file_type in [FileType.REGULAR, FileType.COMPONENT]:
                 extracted_chunks_dir = output_dir / "extracted_chunks"
                 extracted_chunks_dir.mkdir(parents=True, exist_ok=True)
                 extracted_chunks_path = extracted_chunks_dir / f"{safe_title_slug}_{file_hash}.json"
@@ -294,22 +286,22 @@ class SyntheticQADataGenerator:
                     with open(extracted_chunks_path, 'r', encoding='utf-8') as f:
                         chunks = json.load(f)
                     logger.debug(f"Loaded {len(chunks)} chunks from {rel_path}")
+                    # add metadata retroactively
                     if self.text_chunker.add_metadata_to_items(chunks, file_path, file_title, file_type):
                         with open(extracted_chunks_path, 'w', encoding='utf-8') as f:
                             json.dump(chunks, f, ensure_ascii=False, indent=2)
-                        logger.info(f"Retrofitted missing metadata for {extracted_chunks_path}")
+                        logger.info(f"Added metadata and saved {len(chunks)} chunks to {extracted_chunks_path}")
                 else:
                     chunks = self.text_chunker.chunk_text(text, rel_path)
                     # Add metadata fields to each chunk before saving
                     if self.text_chunker.add_metadata_to_items(chunks, file_path, file_title, file_type):
                         with open(extracted_chunks_path, 'w', encoding='utf-8') as f:
                             json.dump(chunks, f, ensure_ascii=False, indent=2)
-                        logger.info(f"Added metadata for {extracted_chunks_path}")
+                        logger.info(f"Added metadata and saved {len(chunks)} chunks to {extracted_chunks_path}")
                 
                 if not chunks:
                     logger.debug(f"No chunks created from {rel_path}")
                     return []
-                
 
             # Attempt to find and process a related HTML file for context based on 'user.source_html_path' metadata.
             context_html_text = None
@@ -339,7 +331,7 @@ class SyntheticQADataGenerator:
                                     context_html_text = f.read()
                             else:
                                 logger.info(f"Extracting text from source HTML file: {source_html_file_path.name}")
-                                extracted_context_text = self.file_processor.extract_text_from_file(source_html_file_path, self.config)
+                                extracted_context_text = self.file_processor.extract_text_from_file(source_html_file_path, FileType.REGULAR, self.config)
                                 if extracted_context_text:
                                     context_html_text = extracted_context_text
                                     with open(source_html_extracted_text_path, 'w', encoding='utf-8') as f:
@@ -359,6 +351,7 @@ class SyntheticQADataGenerator:
             else: # file_path.suffix.lower() is '.html' or '.htm'
                 logger.debug(f"File {file_path.name} is already HTML/HTM. No separate source HTML context needed.")
 
+            # Generate QA pairs based on file type
             if file_type == FileType.FAQ:
                 # check if already extracted
                 extracted_faq_dir = output_dir / "extracted_faq"
@@ -369,11 +362,11 @@ class SyntheticQADataGenerator:
                     logger.debug(f"FAQ already extracted for {rel_path}")
                     with open(extracted_faq_path, 'r', encoding='utf-8') as f:
                         original_faq = json.load(f)
-                    # Add metadata fields to each FAQ item if missing
+                    # add metadata retroactively
                     if self.text_chunker.add_metadata_to_items(original_faq, file_path, file_title, file_type):
                         with open(extracted_faq_path, 'w', encoding='utf-8') as f:
                             json.dump(original_faq, f, ensure_ascii=False, indent=2)
-                        logger.info(f"Retrofitted missing metadata to FAQ items for {extracted_faq_path}")
+                        logger.info(f"Added metadata to FAQ items for {extracted_faq_path}")
                 else:
                     original_faq = FAQProcessor.extract_faq_from_text(text, file_path, self.config)
                     # Add metadata fields to each FAQ item if missing
@@ -395,12 +388,8 @@ class SyntheticQADataGenerator:
                 except Exception as e:
                     logger.error(f"Error generating QA pairs from FAQ: {e}")
                     return []
-            elif file_type == FileType.COMPONENT:
-                # For components, we only extract and save the text (with offerings)
-                # All QA generation will happen in qa_processor_raft
-                logger.info(f"Skipping default QA generation for component {file_path}. QA generation will happen in QAProcessorRAFT.")
-                return []  # Return empty list to indicate no default QA pairs generated
-            else:
+            elif file_type in [FileType.REGULAR, FileType.COMPONENT]:
+                batch_size = 10 if file_type == FileType.COMPONENT else 5
                 qa_pairs = self.qa_generator.generate_qa_pairs(
                     chunks=chunks,
                     file_path=file_path,
@@ -408,7 +397,7 @@ class SyntheticQADataGenerator:
                     output_dir=output_dir,
                     full_document_text=text,
                     context_html_text=context_html_text,
-                    batch_size=5
+                    batch_size=batch_size
                 )
 
             return qa_pairs

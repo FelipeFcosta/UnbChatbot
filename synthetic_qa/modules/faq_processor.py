@@ -126,6 +126,7 @@ class FAQProcessor:
             )
 
             # Call the LLM to extract QA pairs
+            logger.info(f"Requesting LLM-based QA extraction for file {file_path.name}...")
             response = llm_client.generate_text(
                 textwrap.dedent(prompt).lstrip(),
                 json_output=True,
