@@ -222,6 +222,15 @@ class FileProcessor:
             link_text = link.get_text().strip()
             link_url = link.get('href')
             
+            fragment = ""
+            link_url_no_frag = link_url
+            if link_url and "#" in link_url:
+                link_url_no_frag, frag_part = link_url.split("#", 1)
+                # Remove .html or .htm suffix from the fragment, if present
+                if frag_part.endswith(('.html', '.htm')):
+                    frag_part = re.sub(r"\.html?$", "", frag_part)
+                fragment = "#" + frag_part
+            
             if not link_url:
                 # If no href attribute, just use the text
                 link.replace_with(link_text)
@@ -232,47 +241,37 @@ class FileProcessor:
                 link.replace_with(email)
                 continue
             
-            # Check if the URL is relative
-            parsed = urlparse(link_url)
+            parsed = urlparse(link_url_no_frag)
             is_relative = not (parsed.scheme and parsed.netloc)
             
             if not is_relative:
-                markdown_link = f"[{link_text}]({link_url})"
+                markdown_link = f"[{link_text}]({link_url_no_frag}{fragment})"
             else:
-                # For relative URLs, format correctly
-                complete_url = urljoin(base_url, link_url)
+                complete_url = urljoin(base_url, link_url_no_frag)
                 final_url = complete_url
                 
-                # Only verify if URL should be with .html or without
-                if link_url.endswith('.html'):
-                    # Try without .html first
-                    url_without_html = urljoin(base_url, link_url.rsplit('.html', 1)[0])
+                # Prefer the URL without the html suffix.
+                if link_url_no_frag.endswith(('.html', '.htm')):
+                    suffix = '.html' if link_url_no_frag.endswith('.html') else '.htm'
+                    url_without_suffix = urljoin(base_url, link_url_no_frag.rsplit(suffix, 1)[0])
+                    final_url = url_without_suffix  # default to suffix-less version
+
                     try:
-                        response = requests.head(url_without_html, timeout=3)
+                        response = requests.head(complete_url, timeout=3)
                         if response.status_code == 200:
-                            final_url = url_without_html
+                            final_url = complete_url  # validated → keep suffix
                     except Exception:
-                        # If fails, keep with .html
-                        final_url = complete_url
-                elif not link_url.endswith(('.html', '.htm', '.pdf', '.txt')):
-                    # Try with .html
-                    url_with_html = complete_url + '.html'
-                    try:
-                        response = requests.head(url_with_html, timeout=3)
-                        if response.status_code == 200:
-                            final_url = url_with_html
-                    except Exception:
-                        # If fails, keep without .html
-                        final_url = complete_url
+                        # Any error – keep suffix-less version
+                        pass
                 
                 # Handle index.html case
-                if link_url.endswith('index.html'):
-                    url_without_index = urljoin(base_url, link_url.rsplit('index.html', 1)[0])
+                if link_url_no_frag.endswith('index.html'):
+                    url_without_index = urljoin(base_url, link_url_no_frag.rsplit('index.html', 1)[0])
                     if not url_without_index.endswith('/'):
                         url_without_index += '/'
                     final_url = url_without_index
                 
-                markdown_link = f"[{link_text}]({final_url})"
+                markdown_link = f"[{link_text}]({final_url}{fragment})"
             
             # Replace the link with the markdown version
             link.replace_with(markdown_link)

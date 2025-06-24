@@ -24,23 +24,22 @@ SYSTEM_PROMPT = (
 # SYSTEM_PROMPT = ""
 
 # --- Configuration ---
-APP_NAME = "unb-chatbot-raft-gguf-web-endpoint" # Updated name
+APP_NAME = "unb-chatbot-raft-gguf-web-endpoint"
 # --- GGUF Model Details ---
-MODEL_DIR_IN_VOLUME = "all_raft_gemma4b_run1" # IMPORTANT: Point to your RAFT-tuned model directory
+MODEL_DIR_IN_VOLUME = "unb_raft_gemma4b_run1"
 GGUF_FILENAME = "merged_model.Q8_0.gguf" # Check if path is correct within MODEL_DIR_IN_VOLUME
 VOLUME_NAME = "faq-unb-chatbot-gemma-raft" # Volume where RAFT model and potentially data are stored
 DATA_VOLUME_NAME = "faq-unb-chatbot-gemma-raft-data" # Volume where RAFT model and potentially data are stored
 GPU_CONFIG = "A10G"
 MODEL_MOUNT_PATH = "/model_files" # where model is mounted
 DATA_MOUNT_PATH = "/data" # where documents source is mounted
-CONTEXT_SIZE = 6144 # Keep same as training
-ANSWER_TAG = "<ANSWER>:" # Tag used in training to mark the final answer
+CONTEXT_SIZE = 8192
 
 # --- RAG Configuration ---
 SOURCE_DOCUMENTS = f"{DATA_MOUNT_PATH}/source_json_combined.json"
 EMBEDDING_MODEL_NAME = "intfloat/multilingual-e5-large-instruct"
 # infly/inf-retriever-v1
-TOP_K_RETRIEVAL = 6 # chunks to retrieve
+TOP_K_RETRIEVAL = 7 # chunks to retrieve
 
 # Default generation parameters
 DEFAULT_MAX_TOKENS = 2048

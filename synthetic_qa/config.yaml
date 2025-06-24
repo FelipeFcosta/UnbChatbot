@@ -168,6 +168,8 @@ file_processing:
     - www.cic.unb.br/informacoes/noticias*
     - www.cic.unb.br/informacoes/noticias/*
     - www.cic.unb.br/o-cic/Manual_Identidade_Visual_UnB.pdf
+    - www.cic.unb.br/o-cic/tipograma_CIC.pdf
+    - www.cic.unb.br/o-cic/guia_pratico.pdf
     - www.cic.unb.br/ec.html
     - www.cic.unb.br/bcc.html
     - www.cic.unb.br/em.html
@@ -192,4 +194,4 @@ output:
   include_source: true
 
 
-base_dir: /home/farias/tcc/input2/  # set by synthetic_qa_generator
+base_dir: /home/farias/tcc/input/  # set by synthetic_qa_generator
