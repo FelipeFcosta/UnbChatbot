@@ -4,6 +4,10 @@
 global:
   logging_level: INFO
 
+# Debugging settings
+# debugging:
+  # exclusive_folder: unb.br/acesso-a-informacao/
+
 # Processing settings for specific file types
 processing:
   faq:
@@ -13,12 +17,11 @@ processing:
     max_rephrased_questions: 7
     max_related_questions: 3
     context_size: 3
-    batch_size: 5
+    batch_size: 10
 
   raft:
-    num_distractors: 4
+    num_distractors: 3
     p_golden_include: 0.8
-
 
 
 # Iterations by document type (not used)
@@ -33,26 +36,17 @@ question_styles:
     - name: 'Formal'
       goal: 'Ensure the Final LLM handles polite, grammatically correct, as a student would write it.'
       description: 'Generate a polite question using grammatically correct, complete sentences and a slightly formal tone. Represent a student interacting respectfully and formally, but avoid overly complex, archaic language or being prolix.'
-      iterations: 2
+      iterations: 1
 
     - name: 'Casual'
       goal: 'Simulate common, less formal but still complete-sentence interactions; improve robustness to everyday language.'
       description: 'Generate a question using natural, conversational, simpler Portuguese, as a Brazilian student might ask directly in a chat. Use complete sentences but avoid complex phrasing. **Crucial: Maintain clear grammar and politeness; do NOT use slang, abbreviations, or excessive informality.** Example: "Como faço pra trancar?" instead of "Qual o procedimento para trancamento?".'
-      iterations: 2
+      iterations: 1
 
     - name: 'Naturalistic/Imperfect'
       goal: 'Capture realistic, quickly typed/spoken inputs that use full sentences but contain common grammatical errors, unconventional word order, or minor typos, without losing the core meaning. Improve robustness to non-standard but understandable inputs.'
       description: 'Generate a question as a student might type quickly into a chat. Use full sentences but **intentionally introduce common, realistic grammatical errors (e.g., verb conjugation, concordance), slightly unconventional word order, or minor typos.** The core meaning and intent **must remain clear and easily understandable**, but the sentence structure should not be perfectly polished. Avoid slang or keyword-only fragments. Examples: "como faz pra trancar a materia", "se eu reprovar no verao conta pro desligamento?", "qual o prazo minimo engenharia da computacao pra formar?".'
-      iterations: 2
-
-
-  question_types:
-    - name: 'Informational'
-      description: 'Seek factual information. The "What".'
-    - name: 'Procedural'
-      description: 'Ask about processes, steps, or how to do things. The "How"'
-    - name: 'Conceptual'
-      description: 'Seek explanation or understanding of concepts or policies. The "Why"'
+      iterations: 1
 
 # API providers configuration
 providers:
@@ -73,7 +67,7 @@ providers:
   default_question:
     provider: genai
     model: gemini-2.5-flash
-    rate_limit_rpm: 10
+    rate_limit_rpm: 100
     temperature: 0.4
     max_tokens: 16384
     thinking_budget: 8000
@@ -81,7 +75,7 @@ providers:
   default_answer:
     provider: genai
     model: gemini-2.5-flash
-    rate_limit_rpm: 10
+    rate_limit_rpm: 100
     temperature: 0.4
     max_tokens: 16384
     thinking_budget: 8000
@@ -98,8 +92,8 @@ providers:
     model: gemini-2.5-flash
     rate_limit_rpm: 1000
     temperature: 0.4
-    max_tokens: 8192
-    thinking_budget: 2048
+    max_tokens: 10240
+    thinking_budget: 12000
 
   related_question:
     provider: genai # openai
@@ -134,18 +128,18 @@ providers:
     provider: genai
     model: gemini-2.5-flash
     rate_limit_rpm: 4
-    temperature: 0.3
+    temperature: 0.4
     max_tokens: 65000
-    thinking_budget: 8192
+    thinking_budget: 10000
 
   text_chunking:
     provider: genai
     model: gemini-2.5-flash
-    rate_limit_rpm: 4
+    rate_limit_rpm: 100
     temperature: 0.2
     max_chunking_length: 40000
     max_tokens: 65000
-    thinking_budget: 8192
+    thinking_budget: 12000
 
 # File processing settings
 file_processing:
@@ -155,6 +149,9 @@ file_processing:
     - .pdf
     - .txt
     - .md
+  
+  # max html pdf text size in characters to process
+  max_pdf_size: 600000
   
   ignore:
     - www.cic.unb.br/informacoes/Listas_de_Meno_Honrosa_-_CICDF2024_-.pdf
@@ -166,7 +163,6 @@ file_processing:
     - www.cic.unb.br/informacoes/Manual_Identidade_Visual_UnB.pdf
     - www.cic.unb.br/informacoes/guia_pratico.pdf
     - www.cic.unb.br/informacoes/noticias*
-    - www.cic.unb.br/informacoes/noticias/*
     - www.cic.unb.br/o-cic/Manual_Identidade_Visual_UnB.pdf
     - www.cic.unb.br/o-cic/tipograma_CIC.pdf
     - www.cic.unb.br/o-cic/guia_pratico.pdf
@@ -176,14 +172,37 @@ file_processing:
     - unb.br/mapas_da_unb_2_2024.pdf
     - unb.br/opine-sobre-o-portal.html
     - unb.br/index.html
+    - unb.br/cultura-e-sociedade/PORTFLIO_EJS.pdf
     - unb.br/fontes-para-imprensa.html
-  
-  exclude_patterns:
-    - images/
-    - assets/
-    - .git/
-    - styles/
-    - js/
+    - unb.br/acesso-a-informacao/acoes-e-programas/*pdf
+    - unb.br/administrativo/reitoria/agenda*
+    - unb.br/administrativo/vice-reitoria/agenda*
+    - unb.br/daf_instrucao_0118.pdf
+    - unb.br/administrativo-rodape/*.pdf
+    - unb.br/acesso-a-informacao/*.pdf
+    - unb.br/servicos.unb.br/*
+    - unb.br/a-unb/titulos-e-condecoracoes/*
+    - www.ene.unb.br/index.php/institucional/noticias*
+    - www.ene.unb.br/index.php/graduacao/Edital_BRAFITEC_ENE_UnB_2025.pdf
+    - www.ene.unb.br/index.php/graduacao/Edital_BRAFITEC_ENE_UnB_2025_Inscricoes_Homologadas.pdf
+    - www.ene.unb.br/index.php/graduacao/Edital_BRAFITEC_ENE_UnB_2025_Resultado_Final.pdf
+    - www.ene.unb.br/index.php/graduacao/FLUXO_6335_2.pdf
+    - www.ene.unb.br/index.php/graduacao/13-CheckList_Solicitacoes_Diversas.pdf
+    - www.ene.unb.br/index.php/graduacao/formatura*.pdf
+    - www.ene.unb.br/index.php/graduacao/[Ff]ormulario*.pdf
+    - www.ene.unb.br/index.php/graduacao/Modelo*.pdf
+    - www.ene.unb.br/index.php/graduacao/solicitao_geral_e_exposio_de_motivo.pdf
+    - www.ene.unb.br/index.php/institucional/Lab*.pdf
+    - www.ene.unb.br/*Itemid* # ignore people listings
+    - www.ene.unb.br/*filter=*
+    - www.ene.unb.br/index.php/graduacao/Regulamento_Atividades_Complementares_2018.pdf
+    - www.ene.unb.br/eduardop/*
+    - unb.br/*agenda*
+    - unb.br/administrativo/2-publicacoes/*
+    - www.ene.unb.br/*agenda*
+    - www.cic.unb.br/*agenda*
+    - sei.unb.br/*
+
   componentes_folder_name: componentes_curriculares
   offerings_folder_name: turmas
 
@@ -194,4 +213,4 @@ output:
   include_source: true
 
 
-base_dir: /home/farias/tcc/input/  # set by synthetic_qa_generator
+base_dir: /home/farias/tcc/input_final/  # set by synthetic_qa_generator

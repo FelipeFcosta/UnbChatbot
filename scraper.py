@@ -10,17 +10,47 @@ import random
 import html
 
 # --- Configuration ---
-TARGET_DIR_BASE = "/home/farias/tcc/unb_clone2"
-STARTING_URL = "https://www.cic.unb.br/"
+TARGET_DIR_BASE = "/home/farias/tcc/input_final"
+STARTING_URL = "https://www.ene.unb.br/"
 
-MAX_DEPTH = 3 # Adjust for crawl depth
+MAX_DEPTH = 2 # Adjust for crawl depth
+MAX_DEPTH_OUTSIDE_STARTING_URL = 1  # Adjust for crawl depth when the target URL is *outside* the starting site (different root domain). 0 disables off-site HTML crawling; negative for unlimited.
 USER_AGENT = "MyRobustScraper/1.0 (+http://example.com/botinfo)"
 WAIT_SECONDS = 0.1
 RANDOM_WAIT_MAX_ADDITIONAL = 0.05
-REJECT_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg", ".css", ".js", ".ico"}
+REJECT_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg", ".css", ".js", ".ico", ".atom"}
 
-STAY_ON_SAME_HOSTNAME = True
-ALLOW_OFF_HOST_DIRECT_LINKED_FILES = True
+# --------------------------------------------------
+# Host-related helpers
+# --------------------------------------------------
+# Normalise the starting host (strip leading "www.") so that subdomains such
+# as "cic.unb.br" are treated as the same site as "unb.br".
+_STARTING_NETLOC = urlparse(STARTING_URL).netloc.lower()
+_STARTING_ROOT = _STARTING_NETLOC[4:] if _STARTING_NETLOC.startswith("www.") else _STARTING_NETLOC
+
+# Exact host (without www) of the starting URL
+_STARTING_HOST = _STARTING_NETLOC
+
+def is_same_starting_host(netloc: str) -> bool:
+    """Return True if *netloc* is the same root domain (or a sub-domain) of the
+    STARTING_URL.  Example: STARTING_URL == "https://unb.br" ⇒ all
+    '*.unb.br' netlocs are considered the same site."""
+    netloc = netloc.lower()
+    return netloc == _STARTING_ROOT or netloc.endswith("." + _STARTING_ROOT)
+
+def is_exact_starting_host(netloc: str) -> bool:
+    """Return True if *netloc* matches the exact host of STARTING_URL (no sub-domain)."""
+    return netloc.lower() == _STARTING_HOST
+
+# --------------------------------------------------
+# Derived flags
+# --------------------------------------------------
+# Always block HTML crawling to hosts that are outside the starting site (root domain).
+# Direct files (PDF, ZIP, etc.) linked from in-site pages can still be downloaded
+# when ALLOW_OFF_HOST_DIRECT_LINKED_FILES is True.
+STAY_ON_SAME_HOSTNAME = True  # keep legacy guards active for external hosts
+
+ALLOW_OFF_HOST_DIRECT_LINKED_FILES = False  # Block any resource whose host is outside the starting site
 
 ADJUST_HTML_EXTENSION = True
 CONVERT_LINKS_IN_HTML = True
@@ -43,6 +73,7 @@ print(f"Crawling HTML on same host as STARTING_URL: {STAY_ON_SAME_HOSTNAME}")
 if STAY_ON_SAME_HOSTNAME:
     print(f"Downloading off-host *files* linked from same-host pages: {ALLOW_OFF_HOST_DIRECT_LINKED_FILES}")
 print(f"Max depth: {MAX_DEPTH}")
+print(f"Max depth outside starting URL: {MAX_DEPTH_OUTSIDE_STARTING_URL}")
 print("--------------------------------------------------")
 
 def sanitize_filename(filename_str):
@@ -132,7 +163,7 @@ def get_potential_local_path(url_to_check_str, content_type_hint_for_url="", is_
         else:
             dir_path_in_target = os.path.join(current_hostname_dir, *path_parts)
             filename_candidate_base = "index"
-    is_on_starting_host_for_predict = (parsed_url_to_check.netloc == urlparse(STARTING_URL).netloc)
+    is_on_starting_host_for_predict = is_same_starting_host(parsed_url_to_check.netloc)
     if original_parent_url_for_colocation and not is_html_hint_for_url:
         parent_lp_key = urlparse(original_parent_url_for_colocation)._replace(fragment="").geturl()
         parent_local_save_path = visited_urls_content.get(parent_lp_key)
@@ -175,7 +206,6 @@ def deobfuscate_joomla_emails_in_soup(soup):
     Modifies the soup object in place.
     Returns True if any modifications were made, False otherwise.
     """
-    print("    Debug: deobfuscate_joomla_emails_in_soup called")
     modified = False
     email_deobfuscation_text_start = "Este endereço de email está sendo protegido de spambots."
     
@@ -185,8 +215,6 @@ def deobfuscate_joomla_emails_in_soup(soup):
         if email_deobfuscation_text_start in s.get_text()
     ]
     
-    print(f"    Debug: Found {len(spans_to_process)} spans to process")
-
     for span_tag in spans_to_process:
         script_tag = span_tag.find_next_sibling('script')
         if not (script_tag and script_tag.string):
@@ -313,7 +341,16 @@ while urls_to_visit:
                 if parent_lp not in link_conversion_map: link_conversion_map[parent_lp] = {'original_url': original_url_of_parent, 'links': {}}
                 link_conversion_map[parent_lp]['links'][original_href_from_tag] = visited_urls_content[url_key_for_visited_check]
         continue
-    if current_depth > MAX_DEPTH: print(f"  Skipping (depth limit): {current_url_to_fetch_with_frag}"); continue
+    # Depth limiting: apply MAX_DEPTH for same-host pages and MAX_DEPTH_OUTSIDE_STARTING_URL for off-host pages (if configured)
+    if is_exact_starting_host(parsed_current_for_visit_check.netloc):
+        depth_limit_allowed = MAX_DEPTH
+    elif is_same_starting_host(parsed_current_for_visit_check.netloc):
+        depth_limit_allowed = MAX_DEPTH_OUTSIDE_STARTING_URL
+    else:
+        depth_limit_allowed = 0  # external hosts should never be reached; safeguard
+    if depth_limit_allowed >= 0 and current_depth > depth_limit_allowed:
+        print(f"  Skipping (depth limit): {current_url_to_fetch_with_frag}")
+        continue
 
     print(f"Processing (Depth {current_depth}): {current_url_to_fetch_with_frag} (Linked by '{original_href_from_tag or 'N/A'}' from: {original_url_of_parent or 'STARTING_URL'})")
 
@@ -339,7 +376,9 @@ while urls_to_visit:
                 if mime_type_existing and 'text/html' in mime_type_existing:
                     is_existing_html = True
             
-            if is_existing_html and current_depth <= MAX_DEPTH:
+            # Respect per-hostname depth limits when deciding whether to parse this HTML for further links
+            depth_limit_allowed = MAX_DEPTH if is_same_starting_host(parsed_current_for_visit_check.netloc) else MAX_DEPTH_OUTSIDE_STARTING_URL
+            if is_existing_html and (depth_limit_allowed < 0 or current_depth <= depth_limit_allowed):
                 print(f"  Parsing existing HTML: {predicted_path_initial} for links.")
                 try:
                     with open(predicted_path_initial, 'rb') as f_r_existing:
@@ -373,7 +412,10 @@ while urls_to_visit:
                         next_url_abs_no_frag_for_check_ex = p_next_url_ex._replace(fragment="").geturl()
                         in_q_ex=any(q_url_in_q == next_url_abs_with_frag_ex for q_url_in_q,_,_,_ in urls_to_visit)
                         if next_url_abs_no_frag_for_check_ex not in visited_urls_content and not in_q_ex:
-                            urls_to_visit.append((next_url_abs_with_frag_ex, current_depth+1, url_key_for_visited_check, clean_v_ex))
+                            is_same_host_target = is_same_starting_host(p_next_url_ex.netloc)
+                            allowed_depth = MAX_DEPTH if is_same_host_target else MAX_DEPTH_OUTSIDE_STARTING_URL
+                            if allowed_depth < 0 or current_depth + 1 <= allowed_depth:
+                                urls_to_visit.append((next_url_abs_with_frag_ex, current_depth+1, url_key_for_visited_check, clean_v_ex))
                         elif next_url_abs_no_frag_for_check_ex in visited_urls_content and CONVERT_LINKS_IN_HTML and clean_v_ex:
                             target_lp_ex = visited_urls_content[next_url_abs_no_frag_for_check_ex]
                             if predicted_path_initial not in link_conversion_map:
@@ -392,7 +434,7 @@ while urls_to_visit:
 
     try:
         time.sleep(WAIT_SECONDS + (random.random() * RANDOM_WAIT_MAX_ADDITIONAL if RANDOM_WAIT_MAX_ADDITIONAL > 0 else 0))
-        is_off_host_for_primary_crawl = (parsed_current_for_visit_check.netloc != urlparse(STARTING_URL).netloc)
+        is_off_host_for_primary_crawl = (not is_same_starting_host(parsed_current_for_visit_check.netloc))
         fetch_url_for_get = current_url_to_fetch_with_frag
         pre_checked_content_type = None
         actual_url_after_head = None
@@ -437,7 +479,8 @@ while urls_to_visit:
                                  visited_urls_content[url_key_after_head_no_frag] = _s_key
                              continue
                         else: pass # Non-HTML, exists, let it fall through.
-                if 'text/html' in pre_checked_content_type:
+                if 'text/html' in pre_checked_content_type and STAY_ON_SAME_HOSTNAME:
+                    # Off-host HTML is not allowed when we are constrained to the starting hostname (MAX_DEPTH_OUTSIDE_STARTING_URL == 0)
                     print(f"    Skipping off-host HTML (Content-Type from HEAD): {actual_url_after_head} (Content-Type: {pre_checked_content_type})")
                     _s_key = f"SKIPPED_OFF_HOST_HTML_{actual_url_after_head}"
                     visited_urls_content[url_key_for_visited_check] = _s_key
@@ -456,7 +499,7 @@ while urls_to_visit:
                 urlparse(fetch_url_for_get).path.endswith('/') or
                 os.path.splitext(urlparse(fetch_url_for_get).path)[1].lower() in ['.html', '.htm']
             ))
-        ) and urlparse(fetch_url_for_get).netloc != urlparse(STARTING_URL).netloc:
+        ) and (not is_same_starting_host(urlparse(fetch_url_for_get).netloc)):
             print(f"  Skipping HTML from different primary hostname (pre-GET check): {fetch_url_for_get}")
             _s_key = f"SKIPPED_OFF_START_HOST_HTML_{fetch_url_for_get}"
             visited_urls_content[url_key_for_visited_check] = _s_key
@@ -484,7 +527,7 @@ while urls_to_visit:
         content_type = pre_checked_content_type or response.headers.get('content-type', '').lower()
         is_html_content = 'text/html' in content_type
 
-        if STAY_ON_SAME_HOSTNAME and is_html_content and parsed_actual_url.netloc != urlparse(STARTING_URL).netloc:
+        if STAY_ON_SAME_HOSTNAME and is_html_content and (not is_same_starting_host(parsed_actual_url.netloc)):
             print(f"  Skipping HTML from different primary hostname: {actual_fetched_url_with_frag}")
             _s_key = f"SKIPPED_OFF_START_HOST_HTML_{actual_fetched_url_with_frag}"
             visited_urls_content[url_key_for_visited_check] = _s_key
@@ -554,48 +597,54 @@ while urls_to_visit:
                 if parent_lp not in link_conversion_map: link_conversion_map[parent_lp] = {'original_url': original_url_of_parent, 'links': {}}
                 link_conversion_map[parent_lp]['links'][original_href_from_tag] = final_save_path_to_use
 
-        if is_html_content and current_depth <= MAX_DEPTH:
-            html_page_original_url = actual_fetched_url_with_frag
-            
-            # Re-read from the saved file to parse (it contains original response.content at this point)
-            with open(final_save_path_to_use,'rb') as f_r: html_bytes_for_parsing = f_r.read()
-            
-            # Try decoding with utf-8, fallback to BS default if error
-            try:
-                soup = BeautifulSoup(html_bytes_for_parsing.decode('utf-8'), 'html.parser')
-            except UnicodeDecodeError:
-                print(f"    Warning: UTF-8 decode failed for {final_save_path_to_use} during parsing. BeautifulSoup will attempt to guess encoding.")
-                soup = BeautifulSoup(html_bytes_for_parsing, 'html.parser') # Let BS guess
-
-            # --- MODIFIED: Deobfuscate emails in soup ---
-            if deobfuscate_joomla_emails_in_soup(soup): # Modifies soup in place
-                # If modified, re-save the file with the deobfuscated content
-                print(f"    Re-saving {final_save_path_to_use} after email deobfuscation.")
+        if is_html_content:
+            # Respect per-hostname depth limits before parsing the freshly downloaded HTML for additional links
+            depth_limit_allowed = MAX_DEPTH if is_exact_starting_host(parsed_actual_url.netloc) else (MAX_DEPTH_OUTSIDE_STARTING_URL if is_same_starting_host(parsed_actual_url.netloc) else 0)
+            if is_html_content and (depth_limit_allowed < 0 or current_depth <= depth_limit_allowed):
+                html_page_original_url = actual_fetched_url_with_frag
+                
+                # Re-read from the saved file to parse (it contains original response.content at this point)
+                with open(final_save_path_to_use,'rb') as f_r: html_bytes_for_parsing = f_r.read()
+                
+                # Try decoding with utf-8, fallback to BS default if error
                 try:
-                    with open(final_save_path_to_use, 'w', encoding='utf-8', errors='replace') as f_w:
-                        f_w.write(str(soup)) # Write the modified soup as text
-                except Exception as e_resave:
-                    print(f"      Error re-saving {final_save_path_to_use} after deobfuscation: {e_resave}")
-            # --- END MODIFICATION ---
-            
-            # Now extract links from the (potentially modified) soup
-            for tag in soup.find_all(['a','link','script','img'],href=lambda x:x is not None) + \
-                       soup.find_all(['script','img'],src=lambda x:x is not None):
-                attr='href' if tag.has_attr('href') else 'src'; val=tag[attr]
-                clean_v=val.replace('\n','').replace('\t','').strip()
-                if not clean_v or clean_v.lower().startswith(('javascript:','mailto:','tel:','#','data:')): continue
-                next_url_abs_with_frag=urljoin(html_page_original_url,clean_v)
-                p_next_url=urlparse(next_url_abs_with_frag)
-                if p_next_url.scheme not in ['http','https']: continue
-                next_url_abs_no_frag_for_check = p_next_url._replace(fragment="").geturl()
-                in_q=any(q_url_in_q == next_url_abs_with_frag for q_url_in_q,_,_,_ in urls_to_visit)
-                if next_url_abs_no_frag_for_check not in visited_urls_content and not in_q:
-                    urls_to_visit.append((next_url_abs_with_frag, current_depth+1, html_page_original_url, clean_v))
-                elif next_url_abs_no_frag_for_check in visited_urls_content and CONVERT_LINKS_IN_HTML and clean_v:
-                    target_lp = visited_urls_content[next_url_abs_no_frag_for_check]
-                    if final_save_path_to_use not in link_conversion_map:
-                        link_conversion_map[final_save_path_to_use] = {'original_url': html_page_original_url, 'links':{}}
-                    link_conversion_map[final_save_path_to_use]['links'][clean_v] = target_lp 
+                    soup = BeautifulSoup(html_bytes_for_parsing.decode('utf-8'), 'html.parser')
+                except UnicodeDecodeError:
+                    print(f"    Warning: UTF-8 decode failed for {final_save_path_to_use} during parsing. BeautifulSoup will attempt to guess encoding.")
+                    soup = BeautifulSoup(html_bytes_for_parsing, 'html.parser') # Let BS guess
+
+                # --- MODIFIED: Deobfuscate emails in soup ---
+                if deobfuscate_joomla_emails_in_soup(soup): # Modifies soup in place
+                    # If modified, re-save the file with the deobfuscated content
+                    print(f"    Re-saving {final_save_path_to_use} after email deobfuscation.")
+                    try:
+                        with open(final_save_path_to_use, 'w', encoding='utf-8', errors='replace') as f_w:
+                            f_w.write(str(soup)) # Write the modified soup as text
+                    except Exception as e_resave:
+                        print(f"      Error re-saving {final_save_path_to_use} after deobfuscation: {e_resave}")
+                # --- END MODIFICATION ---
+                
+                # Now extract links from the (potentially modified) soup
+                for tag in soup.find_all(['a','link','script','img'],href=lambda x:x is not None) + \
+                           soup.find_all(['script','img'],src=lambda x:x is not None):
+                    attr='href' if tag.has_attr('href') else 'src'; val=tag[attr]
+                    clean_v=val.replace('\n','').replace('\t','').strip()
+                    if not clean_v or clean_v.lower().startswith(('javascript:','mailto:','tel:','#','data:')): continue
+                    next_url_abs_with_frag=urljoin(html_page_original_url,clean_v)
+                    p_next_url=urlparse(next_url_abs_with_frag)
+                    if p_next_url.scheme not in ['http','https']: continue
+                    next_url_abs_no_frag_for_check = p_next_url._replace(fragment="").geturl()
+                    in_q=any(q_url_in_q == next_url_abs_with_frag for q_url_in_q,_,_,_ in urls_to_visit)
+                    if next_url_abs_no_frag_for_check not in visited_urls_content and not in_q:
+                        is_same_host_target = is_same_starting_host(p_next_url.netloc)
+                        allowed_depth = MAX_DEPTH if is_exact_starting_host(p_next_url.netloc) else (MAX_DEPTH_OUTSIDE_STARTING_URL if is_same_starting_host(p_next_url.netloc) else 0)
+                        if allowed_depth < 0 or current_depth + 1 <= allowed_depth:
+                            urls_to_visit.append((next_url_abs_with_frag, current_depth+1, html_page_original_url, clean_v))
+                    elif next_url_abs_no_frag_for_check in visited_urls_content and CONVERT_LINKS_IN_HTML and clean_v:
+                        target_lp = visited_urls_content[next_url_abs_no_frag_for_check]
+                        if final_save_path_to_use not in link_conversion_map:
+                            link_conversion_map[final_save_path_to_use] = {'original_url': html_page_original_url, 'links':{}}
+                        link_conversion_map[final_save_path_to_use]['links'][clean_v] = target_lp 
     except requests.exceptions.HTTPError as e:
         err_url = actual_fetched_url_with_frag if 'actual_fetched_url_with_frag' in locals() and actual_fetched_url_with_frag not in [current_url_to_fetch_with_frag, fetch_url_for_get] else fetch_url_for_get
         print(f"  HTTP Error for {current_url_to_fetch_with_frag} (final URL attempted: {err_url}): {e}")

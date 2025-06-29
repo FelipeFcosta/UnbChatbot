@@ -16,43 +16,113 @@ from modules.utils import create_hash, FileType
 # Assuming llm_client and file_processor are in the same directory structure
 from .llm_client import LLMClient
 from .file_processor import FileProcessor
-from .component_processor import ComponentProcessor
 
 logger = logging.getLogger(__name__)
 
 # --- Constants for RAFT ---
 # Prompt for generating the CoT Answer (A*) based ONLY on the Golden Answer (D*)
-# NOTE: This prompt specifically asks for a FORMAL style as requested.
 ANSWER_TAG = "<ANSWER>"
-COT_ANSWER_GENERATION_PROMPT = f"""
-You are an expert assistant creating training data for a university chatbot that will chat with the students.
-Given an original Question and its corresponding context ({{context_source_name}}), generate a detailed chat response. This response has two parts: internal reasoning in english (which won't be shown to the user) and the final answer IN PORTUGUESE.
+COT_ANSWER_GENERATION_PROMPT = f"""You are an expert assistant creating training data for a university chatbot at the University of Brasília (UnB).
 
-**METADATA INFORMATION:**
+<task>
+Given an original Question and its corresponding context ({{context_source_name}}), generate a detailed chat response. This response has TWO PARTS:
+1. Internal Reasoning (in English) - won't be shown to the user
+2. Final Answer (in Portuguese) - what the student will see
+</task>
+
+<metadata>
 - File Title: {{file_title}}
-- File Name: {{file_name}}
+- File URL: {{file_url}}
+</metadata>
 
-**Instructions:**
+<instructions>
 
-1.  **Analyze:** Understand the user's implicit need based on the 'Original Question'.
-2.  **Internal Reasoning `<REASON>...</REASON>:`:** Provide a short and clear, objective reasoning based *exclusively* on the information within the '{{context_source_name}} (Context)' document, do NOT add outside information. This reasoning is for internal understanding and training purposes aimed at FACTUALITY. Enclose the entire reasoning within `<REASON>` and `</REASON>` tags.
-3.  **Reasoning Citations:** **Within the Internal Reasoning section only**, when referencing specific parts of the context, **ALWAYS** enclose the verbatim text within `##begin_quote##` and `##end_quote##`. Text outside these tags should be your own reasoning/connecting words.
-4.  **Style:** Maintain a **friendly, formal, modern, effective, polite, expert chatbot assistant persona** suitable for the University of Brasília (UnB).
-5.  **Final User-Facing Answer `<ANSWER>...</ANSWER>:`:** Conclude the *entire* response with the final answer intended **directly for the end-user**, enclosed within `<ANSWER>` and `</ANSWER>` tags.
-6.  **User-Facing Answer Content:**
-    *   **Visibility:** Understand that **only the text within the `<ANSWER>...</ANSWER>` tags will be shown to the end-user.** The user will *not* see the context document you were given, nor the 'Internal Reasoning' section.
-    *   **Self-Contained:** The final answer must be **self-contained and directly usable**. It should not refer back to "the context" ambiguously.
-    *   **Include Links/Sources:** If the answer relies on specific web pages or documents mentioned in the Context, **include the necessary Markdown links (e.g., `[Link Text](URL)`) directly within this final answer section.** If specific documents are sources, reference them clearly (e.g., "according to the Course Regulation document available at [link]").
-    *   **Completeness:** Ensure all relevant information from the context needed to address the 'Original Question' is summarized or directly included in this final answer.
-    * **Always answer the question directly first** (*no greetings* - intros or outros - unless the user greets you).
-7.  **If Unanswerable:** If the context document genuinely doesn't contain the information to answer the 'Original Question', state that clearly in the Internal Reasoning and use something like `<ANSWER>Lamento, mas não possuo informações suficientes para responder à sua pergunta sobre este tópico específico.</ANSWER>`.
+<step1>
+<rule>First, understand the user's implicit need based on the 'Original Question'.</rule>
+</step1>
 
-**Input:**
+
+<reasoning_rules>
+<requirement>You MUST write your reasoning in English within `<REASON>...</REASON>` tags.</requirement>
+
+<rule priority="high">Analyze how to address the Original Question using the {{context_source_name}} provided</rule>
+<rule priority="high">Base reasoning EXCLUSIVELY on the context - DO NOT add outside information</rule>
+<rule priority="high">This reasoning is for training purposes aimed at FACTUALITY</rule>
+<rule priority="medium">When referencing context text, ALWAYS enclose it in `<quote>verbatim text</quote>`</rule>
+<rule priority="medium">Keep reasoning short and objective</rule>
+
+<rule priority="CRITICAL">Reasoning `REASON` should be purely about how to answer the question correctly (factually), not about how to follow these prompt instructions</rule>
+<rule priority="CRITICAL">Don't include, in `REASON`, anything about formatting, or rules of this prompt, or the citation system, etc</rule>
+
+</reasoning_rules>
+</step2_internal_reasoning>
+
+<step3_final_answer>
+<requirement>You MUST write the student-facing answer in Portuguese within `<ANSWER>...</ANSWER>` tags.</requirement>
+
+<answer_rules>
+<rule priority="high">Answer the Original Question directly first</rule>
+<rule priority="high">No greetings (intros or outros) unless user greets you</rule>
+<rule priority="CRITICAL">Be self-contained - student cannot see the context document or reasoning (so the answer should not refer back to "the context" as if the user knows about it)</rule>
+<rule priority="high">Ensure all relevant information from context needed to address the Original Question is included</rule>
+<rule priority="high">The user will NOT see the context document you were given, nor the 'Internal Reasoning' section</rule>
+<rule priority="medium">Include any necessary URLs from the context as markdown links: `[Link Text](URL)`</rule>
+<rule priority="medium">Use friendly, formal, modern tone suitable for UnB students</rule>
+<rule priority="low">Format with clear markdown for easy reading</rule>
+<rule priority="high">Never invent or extrapolate information not in context</case>
+</answer_rules>
+</step3_final_answer>
+
+<citation_system>
+<description>Citations add credibility to the answer</description>
+<rule priority="optional">If you consider it helpful, include a SHORT quote (verbatim excerpt from the context) as a blockquote</rule>
+
+<citation_format priority="CRITICAL">
+<!-- Previous answer text not redundant with the quote -->
+> *"Relevant excerpt from context..."*
+*[File Title](File URL)*
+<!-- Rest of the answer not redundant with the quote -->
+</citation_format>
+
+<citation_rules>
+<rule priority="CRITICAL">Place quote where it supports your statement, but NEVER AT THE END of the answer</rule>
+<rule priority="high">Quote must be relevant and add value</rule>
+<rule priority="high">Quote must be as short as possible</rule>
+<rule priority="high">Omit irrelevant parts with `[...]`</rule>
+<rule priority="CRITICAL">Quote should contribute meaningfully to the answer, rather than merely repeating information already stated (NO REDUNDANCY)</rule>
+<rule priority="high">If quote doesn't add value, don't include it</rule>
+<rule priority="high">If a blockquote is NOT present, include `\\n*[File Title](File URL)*` after the phrase that most heavily relies on it (not necessarily at the end)</rule>
+<rule priority="medium">`[File Title](File URL)` should appear only once in the answer</rule>
+<rule priority="medium">the File URL link should be the only link in the answer that's formatted as italic: `*[File Title](File URL)*`</rule>
+
+</citation_rules>
+</citation_system>
+
+<edge_cases>
+<case>If context lacks information to answer the Original Question: Write in reasoning, then answer something like: `<ANSWER>Lamento, mas não possuo informações suficientes para responder à sua pergunta sobre este tópico específico.</ANSWER>`</case>
+</edge_cases>
+
+
+
+## CRITICAL
+<pre_output_validation>
+<step>First, make a draft (in your thinking process) of your complete REASON` and `ANSWER` sections</step>
+<step>Review your draft against ALL instructions and rules (espcially high priority ones) before outputting</step>
+<step>Verify in your thinking: Does this follow every rule? Are there any violations?</step>
+<step>Only output the REASON+ANSWER after confirming compliance with all requirements internally</step>
+</pre_output_validation>
+
+<input_format>
 - Original Question: '{{original_question}}'
-- Context: '{{context_content}}'
-**Output:**
-<REASON>your reasoning ##begin_quote##verbatim texts if needed##end_quote## your reasoning</REASON><ANSWER>your answer</ANSWER>
-"""
+- {{context_source_name}}: '{{context_content}}'
+</input_format>
+
+<required_output_format>
+`<REASON>your reasoning <quote>verbatim texts if needed</quote> your reasoning</REASON>
+<ANSWER>resposta em português</ANSWER>`
+</required_output_format>
+
+</instructions>"""
 
 # Prompt for generating component styled questions directly from component text
 COMPONENT_STYLED_QUESTION_GENERATION_PROMPT = """
@@ -201,7 +271,8 @@ class QAProcessorRAFT:
         llm_client: LLMClient,
         file_type: FileType = FileType.REGULAR,
         file_title: str = "",
-        file_name: str = ""
+        file_name: str = "",
+        file_url: str = ""
     ) -> str | None:
         """Generates the CoT Answer (A*) based only on the original Q/A pair or component text."""
 
@@ -218,7 +289,8 @@ class QAProcessorRAFT:
                 context_source_name=context_source_name,
                 context_content=context_content,
                 file_title=file_title,
-                file_name=file_name
+                file_name=file_name,
+                file_url=file_url
             )
 
             response = llm_client.generate_text(prompt.lstrip(), temperature=0.5)
@@ -247,7 +319,7 @@ class QAProcessorRAFT:
             List of dictionaries, each formatted as a RAFT training example
             (including the 'messages' key for fine-tuning).
         """
-        
+
         all_training_examples = []
         
         if files:
@@ -275,7 +347,9 @@ class QAProcessorRAFT:
             for soup, file_path, rel_path, file_type in tqdm(files, desc="Loading file data for RAFT processing"):
                 file_title = file_path.stem
                 if soup and soup.title:
-                    file_title = soup.title.get_text(strip=True)
+                    title_text = soup.title.get_text(strip=True)
+                    if (len(title_text) > 0):
+                        file_title = title_text
                 safe_title_slug = slugify(file_title)
 
                 file_hash = create_hash(str(rel_path))
@@ -315,8 +389,19 @@ class QAProcessorRAFT:
                     if os.path.exists(extracted_faq_path):
                         with open(extracted_faq_path, 'r', encoding='utf-8') as f:
                             extracted_faq = json.load(f)
+                        # Sanity-check alignment count
+                        if len(extracted_faq) != len(default_qa):
+                            logger.warning(
+                                "Mismatch between default_qa (%d) and extracted_faq (%d) for %s — rolling back to keep lists in sync.",
+                                len(default_qa), len(extracted_faq), safe_title_slug
+                            )
+                            # Roll back and skip this file entirely
+                            del final_default_qa[-len(default_qa):]
+                            continue
                     else:
-                        logger.warning(f"Extracted FAQ file not found: {extracted_faq_path}")
+                        logger.warning(
+                            f"Extracted FAQ file not found: {extracted_faq_path} — rolling back default QA additions to keep lists in sync.")
+                        del final_default_qa[-len(default_qa):]
                         continue
 
                     for faq in extracted_faq:
@@ -326,12 +411,12 @@ class QAProcessorRAFT:
                         faq['file_type'] = file_type
 
                         # format faq for original RAFT context
-                        topics_str = f', Topics: "{faq.get("topics", "")}"' if faq.get("topics") else ''
+                        topic_str = f', Topic: "{faq.get("topic", "")}"' if faq.get("topic") else ''
                         course_str = f', Course: "{faq.get("course", "")}"' if faq.get("course") else ''
                         formatted_qa = (
                             f'Q: "{faq["question"]}"'
                             f', A: "{faq["answer"]}"'
-                            f'{topics_str}'
+                            f'{topic_str}'
                             f'{course_str}'
                         )
                         formatted_contexts.append(formatted_qa)
@@ -339,14 +424,23 @@ class QAProcessorRAFT:
                     
                 # load extracted_chunks (for non-FAQ files)
                 extracted_chunks = []
-                if os.path.exists(extracted_chunks_path):
+                if file_type != FileType.FAQ and os.path.exists(extracted_chunks_path):
                     with open(extracted_chunks_path, 'r', encoding='utf-8') as f:
                         extracted_chunks = json.load(f)
+                    # Ensure alignment with `default_qa`
+                    if len(extracted_chunks) != len(default_qa):
+                        logger.warning(
+                            "Mismatch between default_qa (%d) and extracted_chunks (%d) for %s — rolling back to keep lists in sync.",
+                            len(default_qa), len(extracted_chunks), safe_title_slug
+                        )
+                        del final_default_qa[-len(default_qa):]
+                        continue
                     for chunk in extracted_chunks:
                         # format chunk for original RAFT context
-                        topics_str = f', Topic: "{chunk.get("topic")}"' if chunk.get("topic") else ''
+                        topic_str = f', Topic: "{chunk.get("topic")}"' if chunk.get("topic") else ''
+                        professor_str = f', Professor: "{chunk.get("professor")}"' if chunk.get("professor") else ''
                         course_str = f', Course: "{chunk.get("course")}"' if chunk.get("course") else ''
-                        filename_str = f', File: "{chunk["file_name"]}"'
+                        filename_str = f', File: "{chunk["file_name"]}"' if file_type != FileType.COMPONENT else ''
                         is_html_file = chunk["file_name"].lower().endswith((".html", ".htm"))
 
                         if is_html_file:
@@ -354,14 +448,16 @@ class QAProcessorRAFT:
                         else:
                             url_str = f', URLs: "{chunk["source_page_url"]} [{chunk["file_title"]}]({chunk["file_url"]})"'
 
-                        formatted_chunk = f'Chunk: "{chunk["chunk"]}"{topics_str}{course_str}{filename_str}{url_str}'
+                        formatted_chunk = f'Chunk: "{chunk["chunk"]}"{topic_str}{professor_str}{course_str}{filename_str}{url_str}'
                         formatted_contexts.append(formatted_chunk)
 
                     final_extracted_chunks.extend(extracted_chunks)
                     contexts.extend(extracted_chunks)
                 else:
                     if file_type != FileType.FAQ:
-                        logger.warning(f"Extracted chunks file not found: {extracted_chunks_path}")
+                        # skipping the file.
+                        logger.warning(f"Extracted chunks file not found: {extracted_chunks_path} — rolling back default QA additions to keep lists in sync.")
+                        del final_default_qa[-len(default_qa):]
                         continue
 
             writing_styles = config.get("question_styles", {}).get("writing_styles", [])
@@ -396,6 +492,11 @@ class QAProcessorRAFT:
                     logger.info(f"Generated {file_generation_count} training examples for {prev_filename}")
                     file_generation_count = 0
                 prev_filename = file_name
+
+                if contexts[i]["file_title"] != file_title:
+                    logger.error(f"RUNTIME SYNCHRONIZATION BUG: default_qa[{i}] is from {file_title} but contexts[{i}] is from {contexts[i]['file_title']}")
+                    logger.error(f"Skipping this item to prevent incorrect data association")
+                    continue
 
                 qa_hash = contexts[i]["chunk_hash"] if "chunk_hash" in contexts[i] else contexts[i]["qa_pair_hash"]
                 original_answer = contexts[i]["answer"] if "answer" in contexts[i] else None
@@ -438,7 +539,7 @@ class QAProcessorRAFT:
                             if styled_question_path.exists():
                                 with open(styled_question_path, 'r', encoding='utf-8') as f:
                                     styled_q = f.read().strip()
-                                    logger.debug(f"Loaded styled {file_name} question from {styled_question_path}")
+                                    logger.info(f"Loaded styled {file_name} question from {styled_question_path}")
                             else:
                                 logger.debug(f"Generating styled question for {file_name} ({qa_hash})")
                                 previous_qs_for_pair = previous_questions_cache[qa_hash]
@@ -459,21 +560,15 @@ class QAProcessorRAFT:
                             if cot_answer_path.exists():
                                 with open(cot_answer_path, 'r', encoding='utf-8') as f:
                                     cot_answer_str = f.read()
-                                logger.info(f"Loaded CoT {file_name} answer from {cot_answer_path}")
+                                logger.info(f"Loaded CoT {file_name} answer from {cot_answer_path}.")
                             else:
-                                logger.debug(f"Generating CoT answer for {file_name} ({qa_hash})")
                                 cot_answer_str = QAProcessorRAFT.generate_cot_answer_raft(
-                                    styled_q, original_answer, current_chunk, llm_client_cot_a, file_type, file_title, file_name
+                                    styled_q, original_answer, current_chunk, llm_client_cot_a, file_type, file_title, file_name, file_url
                                 )
                                 if cot_answer_str:
-                                    if file_name.lower().endswith((".html", ".htm")):
-                                        fonte_str = f"Fonte: [{file_title}]({file_url})"
-                                    elif source_page_url:
-                                        fonte_str = f"Fontes: {source_page_url} [{file_title}]({file_url})"
-                                    cot_answer_str = cot_answer_str.replace("</ANSWER>", f"\n> {fonte_str}</ANSWER>")
                                     with open(cot_answer_path, 'w', encoding='utf-8') as f:
                                         f.write(cot_answer_str)
-                                    logger.info(f"Saved CoT {file_name} answer to {cot_answer_path}")
+                                    logger.info(f"Saved CoT answer for {file_name} to {cot_answer_path} ({i+1}/{len(final_default_qa)})")
                                 else:
                                     time.sleep(1)
 
@@ -482,6 +577,11 @@ class QAProcessorRAFT:
                             "cot_answer_str": cot_answer_str,
                             "original_question": default_qa["question"],
                             "original_answer": default_qa["answer"],
+                            "chunk": current_chunk["chunk"] if current_chunk else None,
+                            "chunk_hash": current_chunk["chunk_hash"] if current_chunk else None,
+                            "file_name": file_name,
+                            "file_url": file_url,
+                            "file_title": file_title,
                             "style_name": style_name,
                             "iteration": iteration,
                             "qa_hash": qa_hash,

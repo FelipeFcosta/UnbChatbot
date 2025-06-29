@@ -48,7 +48,7 @@ class LLMClient:
     
     # API key environment variable names
     GEMINI_API_KEYS = ["GEMINI_API_KEY1", "GEMINI_API_KEY2", "GEMINI_API_KEY3", "GEMINI_API_KEY4", "GEMINI_API_KEY5",
-                       "GEMINI_API_KEY6", "GEMINI_API_KEY7", "GEMINI_API_KEY8", "GEMINI_API_KEY9", "GEMINI_API_KEY10"]
+                       "GEMINI_API_KEY6", "GEMINI_API_KEY7", "GEMINI_API_KEY8", "GEMINI_API_KEY9", "GEMINI_API_KEY10", "GEMINI_API_KEY11"]
     
     def __init__(self, config: Dict[str, Any]):
         """
@@ -162,14 +162,6 @@ class LLMClient:
                         if self._rotate_api_key():
                             logger.info("Retrying with rotated API key...")
                             continue
-                        else:
-                            # OpenRouter fallback
-                            return None # TODO: remove this
-                            openrouter_response = self._openrouter_fallback(prompt, temperature)
-                            if openrouter_response:
-                                full_response += openrouter_response
-                            else:
-                                return None
 
                     if json_output:
                         # Clean up response for JSON parsing
@@ -180,8 +172,9 @@ class LLMClient:
 
                             if json_response:
                                 return json_response
-                            else:
+                            elif attempt < max_tries - 1:
                                 continue
+                            return None
                         except Exception:
                             continue
 

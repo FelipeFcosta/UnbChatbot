@@ -2,6 +2,7 @@ import logging
 import json
 import os
 from pathlib import Path
+import time
 from typing import Dict, Any, List, Callable
 
 from slugify import slugify
@@ -186,6 +187,7 @@ class QAGenerator:
         question_batch_prompt = QAGenerator._build_question_prompt(
             current_batch_chunks, document_context_text, context_html_text, file_title, file_name
         )
+        question_response = None
         logger.info(f"Requesting LLM-based question generation for batch of {len(current_batch_chunks)} chunks from {str(rel_path)}...")
         question_response = self.question_client.generate_text(
             question_batch_prompt,
@@ -204,11 +206,13 @@ class QAGenerator:
         # 2. Generate answers for the batch of questions and their original chunks
         answer_batch_prompt = QAGenerator._build_answer_prompt(generated_questions, current_batch_chunks, file_title, file_name)
         logger.info(f"Generating answers for {len(generated_questions)} questions from {str(rel_path)}")
+
         answer_response = self.answer_client.generate_text(
             answer_batch_prompt,
             temperature=0.5,
             json_output=True
         )
+
         if not answer_response or not isinstance(answer_response, dict):
             logger.warning(f"Invalid answer response format for batch of {len(generated_questions)} questions from {str(rel_path)}")
             return []
@@ -236,6 +240,7 @@ class QAGenerator:
                 f"Expected: {len(current_batch_chunks)}, "
                 f"Got: {len(generated_questions)} questions, {len(generated_answers)} answers."
             )
+            return []
         
         return batch_results
 
@@ -255,11 +260,12 @@ class QAGenerator:
         
         # LLMClient with json_output=True is expected to return a dict.
         logger.info(f"Requesting LLM-based rephrasing for batch of {len(current_batch_faqs)} FAQs from {str(rel_path)}...")
+        response = None
         response = self.question_client.generate_text(
             rephrase_qa_batch_prompt,
             temperature=0.7,
             json_output=True
-            )
+        )
 
         if not response or not isinstance(response, dict):
             logger.warning(f"Invalid response format for batch of {len(current_batch_faqs)} FAQs for {str(rel_path)}")
@@ -268,7 +274,11 @@ class QAGenerator:
         generated_rephrased_pairs_data = response.get("qa_pairs", [])
         if not isinstance(generated_rephrased_pairs_data, list):
             return []
-                    
+        
+        if len(generated_rephrased_pairs_data) != len(current_batch_faqs):
+            logger.warning(f"Mismatch in generated items for {str(rel_path)}. Expected: {len(current_batch_faqs)}, Got: {len(generated_rephrased_pairs_data)}")
+            return []
+
         for i, pair_data in enumerate(generated_rephrased_pairs_data):
             if isinstance(pair_data, dict) and all(key in pair_data for key in ['rephrased_question', 'rephrased_answer']):
                 updated_pair = current_batch_faqs[i].copy()
@@ -350,8 +360,19 @@ class QAGenerator:
             try:
                 with open(qa_output_file_path, 'r', encoding='utf-8') as f:
                     existing_data = json.load(f)
-                logger.info(f"Successfully loaded {len(existing_data)} items from {qa_output_file_path}. Skipping generation.")
-                return existing_data
+
+                if len(existing_data) != len(items_to_process):
+                    logger.warning(
+                        "Cached default QA file (%s) has %d items but the current input has %d. Regenerating to keep lists aligned.",
+                        qa_output_file_path, len(existing_data), len(items_to_process)
+                    )
+                    os.remove(qa_output_file_path)
+                else:
+                    logger.info(
+                        "Successfully loaded %d items from %s. Skipping generation.",
+                        len(existing_data), qa_output_file_path
+                    )
+                    return existing_data
             except Exception as e:
                 logger.warning(f"Could not load existing data from {qa_output_file_path}: {e}. Regenerating.")
 
@@ -372,15 +393,23 @@ class QAGenerator:
                     rel_path=rel_path
                 )
 
-            processed_batch_results = processing_func(
-                current_batch, rel_path, **current_batch_kwargs
-            )
+            processed_batch_results = []
+            while len(processed_batch_results) == 0:
+                processed_batch_results = processing_func(
+                    current_batch, rel_path, **current_batch_kwargs
+                )
+                time.sleep(1)
+                logger.info(f"Retrying {processing_func.__name__} for batch of {len(current_batch)} items from {str(rel_path)}...")
+
 
             for res in processed_batch_results:
                 all_qa_pairs.append(res)
-        
-        if not all_qa_pairs:
-            logger.info(f"No QA pairs generated for {file_path}.")
+
+        if len(all_qa_pairs) != len(items_to_process):
+            logger.error(
+                "Generated %d QA pairs but expected %d – aborting write for %s",
+                len(all_qa_pairs), len(items_to_process), qa_output_file_path
+            )
             return []
 
         try:
@@ -476,12 +505,14 @@ class QAGenerator:
             "Component text:\n\n"
             f"{component_text}"
         )
+        response = None
         logger.info(f"Requesting LLM-based QA generation for component from {str(rel_path)}...")
         response = self.question_client.generate_text(
             prompt,
             json_output=True,
             temperature=0.4
         )
+
         qa_pairs = response.get('qa_pairs', [])
         if not qa_pairs:
             logger.warning(f"No QA pairs generated for {str(rel_path)}")

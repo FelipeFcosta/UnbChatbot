@@ -153,9 +153,8 @@ class ModelEndpoint:
 
                 elif doc_type == 'FileType.COMPONENT':
                     chunk = item.get("chunk", "")
-                    file_name = item.get("file_name", "")
                     file_url = item.get("file_url", "")
-                    formatted_item = f'Component: "{chunk}", File: "{file_name}", URL: "{file_url}"'
+                    formatted_item = f'Component: "{chunk}", URL: "[{file_title}]({file_url})"'
                     self.components.append(formatted_item)
                     self.documents.append(formatted_item)  # Add to retrieval
 

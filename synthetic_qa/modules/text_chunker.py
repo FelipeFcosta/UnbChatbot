@@ -5,6 +5,7 @@ This module handles dividing text into semantically meaningful chunks for proces
 """
 
 import logging
+import time
 import yaml
 import os
 from typing import List, Dict, Any, Optional
@@ -101,45 +102,54 @@ class TextChunker:
         text_parts = self._split_text_if_needed(text)
         all_chunks = []
 
-        for part in text_parts:
+        for part_idx, part in enumerate(text_parts):
             response = None
             prompt = TextChunker._build_prompt(part)
 
-            logger.info(f"Requesting LLM-based chunking for file {file_path.name}...")
-            try:
-                response = self.llm_client.generate_text(
-                    prompt,
-                    json_output=True,
-                    temperature=self.llm_client.config.get("temperature", 0.3),
-                )
-            except Exception as e:
-                logger.error(f"LLM chunking failed for a text part for file {file_path.name}: {e}")
-                continue # Move to the next part
+            while not response:
+                logger.info(f"Requesting LLM-based chunking for file {file_path.name} part {part_idx+1}/{len(text_parts)}...")
+                try:
+                    response = self.llm_client.generate_text(
+                        prompt,
+                        json_output=True,
+                        temperature=self.llm_client.config.get("temperature", 0.3),
+                    )
+                except Exception as e:
+                    logger.error(f"LLM chunking failed for a text part for file {file_path.name}: {e}")
+                    pass
+                if not response:
+                    time.sleep(1)
+                    logger.warning(f"LLM chunking failed for a text part for file {file_path.name}. Retrying...")
 
             if response:
                 # get the "chunks" field which will contain the list
                 response_chunks = response.get("chunks", [])
                 if isinstance(response_chunks, list):
                     file_hash = create_hash(str(file_path))
-                    chunks = [
-                        {
-                            "chunk": item["chunk"].strip(),
-                            "topic": item.get("topic", "").strip(),
-                            "chunk_hash": f"chunk_{file_hash}_{idx + len(all_chunks)}"
-                        }
-                        for idx, item in enumerate(response_chunks)
-                        if "chunk" in item and "topic" in item
-                    ]
-                    if chunks:
-                        logger.debug(f"LLM returned {len(chunks)} chunks for a part for file {file_path.name}.")
-                        all_chunks.extend(chunks)
+                    part_chunks = []
+                    for idx, item in enumerate(response_chunks):
+                        if "chunk" in item and "topic" in item:
+                            chunk_data = {
+                                "chunk": item["chunk"].strip(),
+                                "topic": item.get("topic", "").strip(),
+                                "chunk_hash": f"chunk_{file_hash}_{idx + len(all_chunks)}"
+                            }
+                            # Add professor field if present
+                            if "professor" in item and isinstance(item["professor"], str) and item["professor"].strip():
+                                chunk_data["professor"] = item["professor"].strip()
+                            part_chunks.append(chunk_data)
+                    if part_chunks:
+                        logger.debug(f"LLM returned {len(part_chunks)} chunks for a part for file {file_path.name}.")
+                        all_chunks.extend(part_chunks)
                     else:
                         logger.warning(f"LLM returned valid JSON but no valid chunks for a part for file {file_path.name}.")
+                        return []
                 else:
-                    logger.warning(f"Unexpected JSON structure returned by LLM for a part for file {file_path.name}; skipping.")
+                    logger.warning(f"Unexpected JSON structure returned by LLM for a part for file {file_path.name}")
+                    return []
             else:
-                logger.warning(f"No response or invalid JSON from LLM for a part for file {file_path.name}; skipping.")
-
+                logger.warning(f"No response or invalid JSON from LLM for a part for file {file_path.name}")
+                return []
         if not all_chunks:
             logger.warning(f"LLM chunking resulted in no chunks for the entire document for file {file_path.name}.")
             return []
@@ -197,24 +207,26 @@ class TextChunker:
         instructions = (
             "You are an expert Text Analyst and Content Chunking specialist. Your primary goal is to segment the provided text into meaningful, self-contained informational units. These units, or 'chunks', will later qbe used as the basis for generating question-answer pairs and as context documents for a retrieval-augmented generation (RAG) system.\n\n"
             "Therefore, each chunk must adhere to the following critical criteria:\n"
-            "1. Semantic Cohesion & Completeness: Each chunk should focus on a single, distinct topic, concept, rule, process, or piece of information. It must be internally complete, presenting a full idea without requiring immediate reference to another chunk. Avoid splitting sentences or tightly knit ideas across chunks.\n"
+            "1. Semantic Cohesion & Completeness: Each chunk should focus on a single, distinct topic, concept, rule, process, or piece of information. It must be internally complete, presenting a full idea without requiring immediate reference to another chunk. Don't split a sentence or an idea across chunks.\n"
             "2. Answerability: A chunk must contain sufficient information to comprehensively answer one or more specific, plausible questions about its content. Imagine someone reading only that chunk; they should be able to extract a clear answer to a relevant question concerning the chunk's main subject.\n"
             "3. Appropriate Length:\n"
-            "   - Avoid Overly Short Chunks: Do not create chunks that are just a few words or a single trivial sentence, UNLESS that very short segment represents a complete, atomic, and significant piece of information (e.g., a formal definition).\n"
+            "   - **NO Short Chunks**: DO NOT CREATE create chunks that are just a few words (like just one line) or a single trivial sentence, unless the short segment is very relevant and very distinct from the rest of the text.\n"
+            "        - *Joining small units into a single chunk than splitting them into multiple chunks.*\n"
             "   - Aim for Substantiality: Chunks should generally span one to several paragraphs if those paragraphs together cover a single, answerable topic.\n"
-            "   - Avoid Overly Long Chunks: If a section of text covers multiple distinct answerable topics, break it down further.\n"
+            "   - Avoid Overly Long Chunks: If a section of text is very long and covers multiple distinct answerable topics, break it down further.\n"
             "4. Context Preservation: While breaking down the text, strive to maintain the natural flow and relationships between ideas within each chunk. The chunk should make sense in isolation.\n"
-            "5. **CONSISTENT CHUNK SIZE**: *Strive to ensure that all chunks are of roughly similar length, avoiding great disparities in chunk size. Do not create some very short and some very long chunks even if this criteria 1 is not met fully.*\n"
-            "6. **CONTENT-ONLY FOCUS**: Each chunk must contain actual content. Never create chunks that consist solely of metadata, UI elements, navigation text, headers without content, footers, copyright notices, or other non-informational elements.\n"
-            "7. Preserve **all** original markdown formatting (headings, lists, bold/italic, links) inside each chunk exactly as it appears in the source text.\n"
-            "8. If you encounter a segment that is not useful on its own (such as a title, metadata, date, or other fragment that does not provide answerable information), do not create a separate chunk for it. Instead, join it with the next (or previous) chunk to form a complete, answerable unit.\n\n"
-            "**9. Under no circumstances should you leave out any information (even a single character) from the text.**\n"
-            "**10. Under no circumstances should you add any information (even a single character) to the text.**\n"
+            "5. **CONTENT-ONLY FOCUS**: Each chunk must contain actual content. Never create chunks that consist solely of metadata, UI elements, navigation text, headers without content, footers, copyright notices, or other non-informational elements.\n"
+            "6. Preserve **all** original markdown formatting (headings, lists, bold/italic, links) inside each chunk exactly as it appears in the source text.\n"
+            "7. If you encounter a segment that is not useful on its own (such as a title, metadata, date, or other fragment that does not provide answerable information), do not create a separate chunk for it. Instead, join it with the next (or previous) chunk to form a complete, answerable unit.\n"
+            "8. PROFESSOR INFORMATION: If the text contains information about a professor (e.g., their biography, research areas, contact information, courses taught, academic background, etc.), you MUST identify the professor's full name and include it in the 'professor' field for all chunks related to that professor. If no professor or multiple professors are mentioned in a chunk, 'professor' field should be None.\n"
+            "9. Use the topic field to describe the main subject of the chunk (without redundancy, repeating or being verbose), and also to add important context information that couldn't be present in the chunk.\n"
+            "**10. Under no circumstances should you leave out any information (even a single character) from the text.**\n"
+            "**11. Under no circumstances should you add any information (even a single character) to the chunk text.**\n"
             "The chunks will be used as the ORIGINAL GROUND TRUTH source documents for the RAG system, so they must be as complete and accurate as possible.\n\n"
             "Your task:\n"
             "Given the text below, divide it into such chunks. Focus on the quality and utility of each chunk for future Q&A and RAG purposes.\n\n"
             "Return ONLY a JSON object in the following format (IN PORTUGUESE):\n"
-            "{\n  \"chunks\": [\n    {\"chunk\": \"...\", \"topic\": \"...\"},\n    ...\n  ]\n}\n\n"
+            "{\n  \"chunks\": [\n    {\"chunk\": \"...\", \"topic\": \"...\", \"professor\": \"Professor full name (only if the chunk contains professor information, otherwise omit this field)\"},\n    ...\n  ]\n}\n\n"
             "TEXT:\n" + text.strip()
         )
         return instructions

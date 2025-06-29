@@ -20,6 +20,7 @@ import re
 import fnmatch
 import hashlib
 import threading
+import time
 
 # Import modules
 from modules.file_processor import FileProcessor
@@ -116,6 +117,13 @@ class SyntheticQADataGenerator:
             rel_path = str(file_path.relative_to(base_dir))
             if any(fnmatch.fnmatch(rel_path, pattern) for pattern in ignore_patterns):
                 logger.info(f"Skipping ignored file or folder: {rel_path}")
+                continue
+
+            try:
+                if file_path.stat().st_size == 0:
+                    logger.info(f"Skipping empty file: {rel_path}")
+                    continue
+            except (OSError, IOError) as e:
                 continue
 
             # Check for duplicate file content
@@ -225,7 +233,9 @@ class SyntheticQADataGenerator:
             rel_path = file_path.relative_to(base_dir)
             file_title = file_path.stem
             if soup and soup.title:
-                file_title = soup.title.get_text(strip=True)
+                title_text = soup.title.get_text(strip=True)
+                if (len(title_text) > 0):
+                    file_title = title_text
             file_hash = create_hash(str(rel_path))
             safe_title_slug = slugify(file_title)
             
@@ -250,8 +260,9 @@ class SyntheticQADataGenerator:
                     # add course offerings to the text
                     text = ComponentProcessor.add_course_offerings_to_text(text, component_code, rel_path, output_dir, self.config)
 
-                with open(extracted_text_path, 'w', encoding='utf-8') as f:
-                    f.write(text)
+                if text:
+                    with open(extracted_text_path, 'w', encoding='utf-8') as f:
+                        f.write(text)
 
             if not text:
                 logger.warning(f"No text extracted from {rel_path}")
@@ -290,14 +301,14 @@ class SyntheticQADataGenerator:
                     if self.text_chunker.add_metadata_to_items(chunks, file_path, file_title, file_type):
                         with open(extracted_chunks_path, 'w', encoding='utf-8') as f:
                             json.dump(chunks, f, ensure_ascii=False, indent=2)
-                        logger.info(f"Added metadata and saved {len(chunks)} chunks to {extracted_chunks_path}")
+                        logger.info(f"Added metadata and loaded {len(chunks)} chunks to {extracted_chunks_path}")
                 else:
                     chunks = self.text_chunker.chunk_text(text, rel_path)
-                    # Add metadata fields to each chunk before saving
-                    if self.text_chunker.add_metadata_to_items(chunks, file_path, file_title, file_type):
-                        with open(extracted_chunks_path, 'w', encoding='utf-8') as f:
-                            json.dump(chunks, f, ensure_ascii=False, indent=2)
-                        logger.info(f"Added metadata and saved {len(chunks)} chunks to {extracted_chunks_path}")
+                    if chunks:
+                        if self.text_chunker.add_metadata_to_items(chunks, file_path, file_title, file_type):
+                            with open(extracted_chunks_path, 'w', encoding='utf-8') as f:
+                                json.dump(chunks, f, ensure_ascii=False, indent=2)
+                            logger.info(f"Saved {len(chunks)} chunks to {extracted_chunks_path}")
                 
                 if not chunks:
                     logger.debug(f"No chunks created from {rel_path}")
@@ -417,11 +428,25 @@ class SyntheticQADataGenerator:
         root_path = Path(root_input_dir)
         directories_to_process = []
         
-        # Collect all directories that need processing
-        for dirpath, dirnames, filenames in os.walk(root_path):
-            rel_dir = os.path.relpath(dirpath, root_path)
-            out_dir = os.path.join(output_dir, rel_dir) if rel_dir != '.' else output_dir
-            directories_to_process.append((dirpath, out_dir))
+        # Check if exclusive folder processing is enabled
+        exclusive_folder = self.config.get("debugging", {}).get("exclusive_folder")
+        if exclusive_folder:
+            logger.info(f"Debugging mode: Processing only folder '{exclusive_folder}'")
+            target_dir = root_path / exclusive_folder
+            if target_dir.exists() and target_dir.is_dir():
+                rel_dir = os.path.relpath(target_dir, root_path)
+                out_dir = os.path.join(output_dir, rel_dir) if rel_dir != '.' else output_dir
+                directories_to_process.append((str(target_dir), out_dir))
+                logger.info(f"Target directory found: {target_dir}")
+            else:
+                logger.error(f"Exclusive folder '{exclusive_folder}' not found or is not a directory in {root_path}")
+                return
+        else:
+            # Collect all directories that need processing
+            for dirpath, dirnames, filenames in os.walk(root_path):
+                rel_dir = os.path.relpath(dirpath, root_path)
+                out_dir = os.path.join(output_dir, rel_dir) if rel_dir != '.' else output_dir
+                directories_to_process.append((dirpath, out_dir))
         
         # Separate offerings directories from others
         offerings_dirs = []
@@ -473,8 +498,22 @@ class SyntheticQADataGenerator:
 
         # After all directories are processed, join all raft_training_data_*.jsonl files
         all_raft_files = list(Path(output_dir).rglob('raft_training_data_*.jsonl'))
-        all_qa_pairs = []
+        
+        ignore_patterns = self.config.get("file_processing", {}).get("ignore", [])
+        filtered_raft_files = []
+        
         for raft_file in all_raft_files:
+            try:
+                rel_output_path = raft_file.relative_to(Path(output_dir))
+                rel_dir_path = str(rel_output_path.parent) if rel_output_path.parent != Path('.') else ''
+                if rel_dir_path and any(fnmatch.fnmatch(rel_dir_path, pattern) for pattern in ignore_patterns):
+                    continue
+                filtered_raft_files.append(raft_file)
+            except Exception as e:
+                filtered_raft_files.append(raft_file)
+        
+        all_qa_pairs = []
+        for raft_file in filtered_raft_files:
             with open(raft_file, 'r', encoding='utf-8') as f:
                 for line in f:
                     try:

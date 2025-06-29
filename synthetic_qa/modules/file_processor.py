@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup, Doctype, Comment
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Tuple, List
 from typing import Tuple
 import os
 from .utils import FileType, extract_html_from_pdf
@@ -207,15 +207,16 @@ class FileProcessor:
         """        
         _, _, url = FileProcessor.extract_domain_and_path(file_path)
         # Determine a valid base URL by checking possible URL formats
-        try:
-            base_url = next(
-                (url for url in [f"{url}.html", f"{url}"]
-                if requests.head(url, timeout=3, allow_redirects=True).status_code == 200),
-                url
-            )
-        except Exception as e:
-            logger.info(f"Error processing links in {file_path}: {e.__class__.__name__}")
-            return
+        base_url = url  # fallback
+        for candidate in (f"{url}.html", f"{url}"):
+            try:
+                response = requests.head(candidate, timeout=3, allow_redirects=True)
+                if response.status_code == 200:
+                    base_url = candidate
+                    break
+            except Exception as e:
+                # Do not abort the whole processing if a single HEAD request fails.
+                logger.debug(f"HEAD request failed for {candidate}: {e}")
         
         # Process <a> elements
         for link in html_content.find_all('a'):
@@ -722,8 +723,8 @@ class FileProcessor:
                     llm_client = LLMClient(llm_config)
             
             if llm_client:
-                prompt = f"{text}\n\n-----\nCorrect the hierarchy of the headers in this markdown " \
-                         "where you see fit. DO NOT ADD OR ALTER ANY ACTUAL CONTENT (not even a character of text) unless it doesn't make sense. Preserve all links/formatting (if link is not a UI element).\n" \
+                prompt = f"{text}\n\n-----\nCorrect the hierarchy of the headers in this markdown (if any)" \
+                         "where you see fit. **DO NOT ADD OR ALTER ANY ACTUAL CONTENT (not even a character of text)** unless it doesn't make sense. Preserve all links/formatting.\n" \
                          "In general, if the markdown is somewhat unstructured, make it more readable and easier to understand.\n" \
                          "REMOVE ANY unwanted html artifacts if still present (no html should remain in the text).\n" \
                          "**REMOVE EVERY UI-RELATED TEXT**: remove any unwanted text that is not part of the main content if still present (like menu, footer, header, image captions or any other interface elements).\n" \
@@ -732,12 +733,15 @@ class FileProcessor:
                 try:
                     logger.info(f"Requesting LLM-based text correction for file {file_path.name}...")
                     response = llm_client.generate_text(prompt, temperature=0.4)
-                    if response and len(response) >= (len(text) - 300): 
+                    if response and len(response) > 10:
                         text = response.strip() 
                 except Exception as e_llm:
                     logger.warning(f"LLM correction failed: {e_llm}")
-            
-            return text.strip() 
+
+
+            text = re.sub(r'^```markdown\s*', '', text, flags=re.MULTILINE)
+            text = re.sub(r'^```\s*', '', text, flags=re.MULTILINE)
+            return text.strip()
             
         except Exception as e:
             logger.error(f"Error extracting text from HTML ({file_path}): {e}", exc_info=True)
@@ -761,6 +765,13 @@ class FileProcessor:
         text = extract_html_from_pdf(file_path)
         if not text:
             return ""
+        
+        MAX_PDF_SIZE = config.get("file_processing", {}).get("max_pdf_size", 500000)
+        
+        if len(text) > MAX_PDF_SIZE:
+            logger.warning(f"PDF file {file_path.name} is too large ({len(text)} characters, max: {MAX_PDF_SIZE}). Skipping text extraction.")
+            return ""
+        
         llm_client = None
         if config is not None:
             from .llm_client import LLMClient
@@ -773,7 +784,7 @@ class FileProcessor:
                     "Convert this html pdf text into markdown format, "
                     "preserving all links (convert them to markdown links), "
                     "and preserving hierarchy of headers and topics as needed.\n"
-                    "**Do NOT add/remove or alter any word as this will be used as the ORIGINAL GROUND TRUTH source document.**\n"
+                    "**Do NOT add/remove or alter any word (unless it contains obvious graphical errors or formatting issues) as this will be used as the ORIGINAL GROUND TRUTH source document.**\n"
                     "REMOVE ALL html artifacts (no html should remain in the text).\n"
                     "If the content contains a table that is not properly formatted, convert it into a clear and well-structured markdown table. Pay very close attention to accurately representing the column and row headers in the correct order.\n"
                     "Preserve all styling and formatting you find in the text. "
@@ -782,10 +793,11 @@ class FileProcessor:
                     "If you don't find any errors, keep the way it is. "
                     "Output only the new markdown text."
                 )
+                logger.info(f"Requesting LLM-based text extraction for file {file_path.name}...")
                 response = llm_client.generate_text(prompt)
             if response:
                 text = response
-        return text
+        return text.strip()
     
     def extract_text_from_file(self, file_path: Path, file_type: FileType, config) -> str:
         """

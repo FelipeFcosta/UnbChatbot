@@ -93,7 +93,75 @@ def sanitize_json_string(json_string: str) -> str:
         return json.dumps(json.loads(json_string), indent=2)
     except json.JSONDecodeError as e:
         logger.warning(f"Failed to sanitize JSON string: {e}")
-        pass
+        # NEW ATTEMPT: escape problematic characters (\, ", newlines) in EVERY
+        # string value found in the JSON
+        try:
+            # Second attempt: character-by-character repair of every string
+            # value – we escape embedded newlines and stray quotes that would
+            # otherwise prematurely terminate the string.  The heuristic works
+            # by walking the JSON text, tracking string state and adding
+            # escapes when needed.
+            repaired_chars: list[str] = []
+            in_string = False
+            escape_next = False
+
+            i = 0
+            length = len(json_string)
+            while i < length:
+                ch = json_string[i]
+                if not in_string:
+                    if ch == '"':
+                        in_string = True
+                    repaired_chars.append(ch)
+                else:  # currently inside a JSON string literal
+                    if escape_next:
+                        # Current char is escaped – just copy it verbatim.
+                        escape_next = False
+                        repaired_chars.append(ch)
+                    else:
+                        if ch == '\\':
+                            # Look ahead to decide if this is a valid JSON escape
+                            next_char = json_string[i + 1] if i + 1 < length else ''
+                            valid_escapes = {'"', '\\', '/', 'b', 'f', 'n', 'r', 't', 'u'}
+                            if next_char in valid_escapes:
+                                # keep as is and mark the next char as escaped
+                                escape_next = True
+                                repaired_chars.append(ch)
+                            else:
+                                # invalid escape – treat the backslash as a literal and escape it
+                                repaired_chars.append('\\\\')
+                                # do NOT set escape_next; we want to re-process next_char normally
+                        elif ch == '"':
+                            # Possible string terminator.  Heuristic: look ahead
+                            # to the next non-whitespace character.  If it is a
+                            # structural token (comma, }, ]), we treat this as
+                            # the real terminator; otherwise it is probably an
+                            # internal quote that needs escaping.
+                            j = i + 1
+                            while j < length and json_string[j].isspace():
+                                j += 1
+                            if j < length and json_string[j] not in [',', '}', ']', ':']:
+                                # Internal quote – escape it.
+                                repaired_chars.append('\\"')
+                            else:
+                                # Legitimate terminator.
+                                in_string = False
+                                repaired_chars.append(ch)
+                        elif ch == '\n':
+                            # Literal newline inside string – escape it.
+                            repaired_chars.append('\\n')
+                        elif ch == '\r':
+                            # Ignore carriage returns.
+                            pass
+                        else:
+                            repaired_chars.append(ch)
+                i += 1
+
+            escaped_json_string = ''.join(repaired_chars)
+            return json.dumps(json.loads(escaped_json_string), indent=2)
+        except Exception as e2:
+            logger.warning(f"Second attempt to sanitize JSON string failed: {e2}")
+            pass
 
     # Handle the content directly as text
     try:
