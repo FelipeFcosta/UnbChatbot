@@ -88,6 +88,23 @@ class SyntheticQADataGenerator:
 
         return h.hexdigest()
 
+    def _handle_ignored_folder_outputs(self, output_path: Path) -> None:
+        """Rename residual extracted folders when an input folder is fully ignored. (primarily for RAG reasons)
+        """
+        for folder_name in ("extracted_chunks", "extracted_faq"):
+            original_path = output_path / folder_name
+            if original_path.exists() and original_path.is_dir():
+                new_path = output_path / f"_{folder_name}"
+                if new_path.exists():
+                    continue
+                try:
+                    original_path.rename(new_path)
+                    logger.info(
+                        f"Renamed leftover '{original_path}' to '{new_path}' because its source folder is ignored."
+                    )
+                except Exception as e:
+                    logger.error(f"Unable to rename {original_path} to {new_path}: {e}")
+
     def process_directory(self, input_dir: str, output_dir: str) -> None:
         """
         Process all files in a directory (non-recursively) to generate synthetic QA data.
@@ -138,6 +155,7 @@ class SyntheticQADataGenerator:
         all_files_paths = filtered_files_paths
 
         if not all_files_paths:
+            self._handle_ignored_folder_outputs(output_path)
             logger.warning(f"No supported files found in {input_path}")
             return
 

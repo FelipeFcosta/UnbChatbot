@@ -132,8 +132,11 @@ def convert_qa_to_training_format(qa_pairs: List[Dict[str, Any]],
             message_obj["url"] = url
         if file_url:
             message_obj["url"] = file_url
-        if golden_index:
+        
+        if golden_index != "":
             message_obj["golden_index"] = golden_index
+        else:
+            message_obj["golden_index"] = -1 
 
         message_obj["qa_pair_hash"] = pair_hash
         

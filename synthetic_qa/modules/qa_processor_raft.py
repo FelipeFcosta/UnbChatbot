@@ -411,15 +411,17 @@ class QAProcessorRAFT:
                         faq['file_type'] = file_type
 
                         # format faq for original RAFT context
-                        topic_str = f', Topic: "{faq.get("topic", "")}"' if faq.get("topic") else ''
-                        course_str = f', Course: "{faq.get("course", "")}"' if faq.get("course") else ''
-                        formatted_qa = (
-                            f'Q: "{faq["question"]}"'
-                            f', A: "{faq["answer"]}"'
-                            f'{topic_str}'
-                            f'{course_str}'
-                        )
-                        formatted_contexts.append(formatted_qa)
+                        topic_list = faq.get("topic", [])
+                        topic_list = faq.get("topics", []) if not topic_list else topic_list
+                        if not topic_list:
+                            logger.warning(f"No topics found for {file_title} ({faq['question']})")
+                        topic_str = f'Topic: "{", ".join(topic_list)}", ' if topic_list else ''
+                        course_str = f'Course: "{faq.get("course", "")}", ' if faq.get("course") else ''
+                        filename_str = f'File: "{faq["file_name"]}", '
+                        url_str = f'URL: "[{faq["file_title"]}]({faq["file_url"]})"'
+
+                        formatted_qa = f'Q: "{faq["question"]}", A: "{faq["answer"]}"<doc_metadata>\n{topic_str}{course_str}{filename_str}{url_str}\n</doc_metadata>'
+                        formatted_contexts.append(f'{formatted_qa}')
                     contexts.extend(extracted_faq)
                     
                 # load extracted_chunks (for non-FAQ files)
@@ -437,18 +439,18 @@ class QAProcessorRAFT:
                         continue
                     for chunk in extracted_chunks:
                         # format chunk for original RAFT context
-                        topic_str = f', Topic: "{chunk.get("topic")}"' if chunk.get("topic") else ''
-                        professor_str = f', Professor: "{chunk.get("professor")}"' if chunk.get("professor") else ''
-                        course_str = f', Course: "{chunk.get("course")}"' if chunk.get("course") else ''
-                        filename_str = f', File: "{chunk["file_name"]}"' if file_type != FileType.COMPONENT else ''
+                        topic_str = f'Topic: "{chunk.get("topic")}", ' if chunk.get("topic") else ''
+                        professor_str = f'Professor: "{chunk.get("professor")}", ' if chunk.get("professor") else ''
+                        course_str = f'Course: "{chunk.get("course")}", ' if chunk.get("course") else ''
+                        filename_str = f'File: "{chunk["file_name"]}", ' if file_type != FileType.COMPONENT else ''
                         is_html_file = chunk["file_name"].lower().endswith((".html", ".htm"))
 
                         if is_html_file:
-                            url_str = f', URL: "[{chunk["file_title"]}]({chunk["file_url"]})"'
+                            url_str = f'URL: "[{chunk["file_title"]}]({chunk["file_url"]})"'
                         else:
-                            url_str = f', URLs: "{chunk["source_page_url"]} [{chunk["file_title"]}]({chunk["file_url"]})"'
+                            url_str = f'URLs: "{chunk["source_page_url"]} [{chunk["file_title"]}]({chunk["file_url"]})"'
 
-                        formatted_chunk = f'Chunk: "{chunk["chunk"]}"{topic_str}{professor_str}{course_str}{filename_str}{url_str}'
+                        formatted_chunk = f'Chunk: "{chunk["chunk"]}"<doc_metadata>\n{topic_str}{professor_str}{course_str}{filename_str}{url_str}\n</doc_metadata>'
                         formatted_contexts.append(formatted_chunk)
 
                     final_extracted_chunks.extend(extracted_chunks)
@@ -596,6 +598,8 @@ class QAProcessorRAFT:
                         context_docs = []
                         golden_present_flag = False
                         golden_idx = -1
+                        if actual_num_distract == 0:
+                            p_golden = 1.0
                         if random.uniform(0, 1) < p_golden and actual_num_distract >= 0:
                             golden_present_flag = True
                             context_docs.append(golden_document)
@@ -615,9 +619,13 @@ class QAProcessorRAFT:
                             if num_needed > 0:
                                 context_docs = random.sample(available_distractors, num_needed)
                                 random.shuffle(context_docs)
+                        
                         assembled_context_str = ""
                         for doc_content in context_docs:
                             assembled_context_str += f"<DOCUMENT>{doc_content}</DOCUMENT>\n"
+                        if assembled_context_str == "":
+                            logger.error(f"Assembled context string is empty for {file_name} ({qa_hash})")
+                            continue
                         user_content = assembled_context_str + "\n" + styled_q
                         assistant_content = cot_answer_str
                         training_example = {

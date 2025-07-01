@@ -6,7 +6,7 @@ global:
 
 # Debugging settings
 # debugging:
-  # exclusive_folder: unb.br/acesso-a-informacao/
+  # exclusive_folder: componentes_curriculares/ENE_Depto_Engenharia_Eletrica/
 
 # Processing settings for specific file types
 processing:
@@ -201,6 +201,7 @@ file_processing:
     - unb.br/administrativo/2-publicacoes/*
     - www.ene.unb.br/*agenda*
     - www.cic.unb.br/*agenda*
+    - sig.unb.br/public/jsp/*
     - sei.unb.br/*
 
   componentes_folder_name: componentes_curriculares

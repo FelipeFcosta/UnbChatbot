@@ -13,38 +13,42 @@ from pathlib import Path
 from typing import List, Dict, Optional
 
 SYSTEM_PROMPT = (
-    "Você é um assistente especializado que responde perguntas com base no seu conhecimento sobre dados da UnB e também no contexto recuperado (<DOCUMENT>). "
-    "Seja preciso e factual de acordo com o material de origem. Não invente informações. "
-    "Inclua seu raciocínio em inglês entre as tags <REASON> (apenas para uso interno) e a resposta ao usuário em português entre as tags <ANSWER>.\n"
-    "Não mencione os documentos em si, estes são ocultos para o usuário.\n"
-    "SEMPRE coloque a fonte da informação no fim de sua resposta no formato \\n\\n> Fonte: fonte(s)\n\n"
-    "Se não houver informação relevante no contexto, responda que não há informação disponível e peça clareza para o usuário. Nesse caso, não mostre fonte!\n"
-    "Se a pergunta não for sobre a UnB, responda que não temos informações sobre o assunto."
+    "You are a specialized UnB (Universidade de Brasília) chatbot assistant who answers questions based on your pre-existing knowledge about UnB and also on the retrieved context (documents above). "
+    "Be precise and factual according to the source material. Do not make up information.\n"
+    "Respond in the following format:\n"
+    "<REASON>\n"
+    "Reasoning in English...\n"
+    "</REASON>\n"
+    "<ANSWER>\n"
+    "Answer in **Portuguese**...\n"
+    "</ANSWER>\n"
+    "Do not engage in user queries that are not related to UnB or require more than pure factual information.\n\n"
 )
+
 # SYSTEM_PROMPT = ""
 
 # --- Configuration ---
 APP_NAME = "unb-chatbot-raft-gguf-web-endpoint"
 # --- GGUF Model Details ---
-MODEL_DIR_IN_VOLUME = "unb_raft_gemma4b_run1"
+MODEL_DIR_IN_VOLUME = "full_raft_gemma4b_run1"
 GGUF_FILENAME = "merged_model.Q8_0.gguf" # Check if path is correct within MODEL_DIR_IN_VOLUME
 VOLUME_NAME = "faq-unb-chatbot-gemma-raft" # Volume where RAFT model and potentially data are stored
 DATA_VOLUME_NAME = "faq-unb-chatbot-gemma-raft-data" # Volume where RAFT model and potentially data are stored
 GPU_CONFIG = "A10G"
 MODEL_MOUNT_PATH = "/model_files" # where model is mounted
 DATA_MOUNT_PATH = "/data" # where documents source is mounted
-CONTEXT_SIZE = 8192
+CONTEXT_SIZE = 15000
 
 # --- RAG Configuration ---
 SOURCE_DOCUMENTS = f"{DATA_MOUNT_PATH}/source_json_combined.json"
 EMBEDDING_MODEL_NAME = "intfloat/multilingual-e5-large-instruct"
 # infly/inf-retriever-v1
-TOP_K_RETRIEVAL = 7 # chunks to retrieve
+TOP_K_RETRIEVAL = 10 # chunks to retrieve
 
 # Default generation parameters
 DEFAULT_MAX_TOKENS = 2048
 DEFAULT_TEMPERATURE = 0.7
-DEFAULT_TOP_P = 0.9
+DEFAULT_TOP_P = 0.95
 MINUTES = 60
 
 
@@ -103,7 +107,7 @@ document_volume = modal.Volume.from_name(DATA_VOLUME_NAME)
     },
     timeout=60*6,
     allow_concurrent_inputs=3,
-    min_containers=2
+    min_containers=1
 )
 class ModelEndpoint:
     def __init__(self):
@@ -113,7 +117,6 @@ class ModelEndpoint:
         self.llm = None
 
         self.retriever = None
-        self.components: List[Dict] = []
         self.regulars: List[Dict] = []
         self.pairs: List[Dict] = []
         self.documents: List[str] = []
@@ -142,48 +145,44 @@ class ModelEndpoint:
                     question = item.get("question", "")
                     answer = item.get("answer", "")
                     topics = item.get("topics")
-                    file_url = item.get("file_url")
-                    formatted_item = f'Q: "{question}", A: "{answer}"'
-                    if topics:
-                        formatted_item += f', Topics: "{topics}"'
-                    if file_url:
-                        formatted_item += f', URL: "{file_url}"'
-                    self.pairs.append(formatted_item)
-                    self.documents.append(formatted_item)  # Add to retrieval
 
-                elif doc_type == 'FileType.COMPONENT':
-                    chunk = item.get("chunk", "")
-                    file_url = item.get("file_url", "")
-                    formatted_item = f'Component: "{chunk}", URL: "[{file_title}]({file_url})"'
-                    self.components.append(formatted_item)
+                    file_url = item.get("file_url")
+                    
+                    # Format FAQ with new <doc_metadata> structure
+                    topic_str = f'Topic: "{", ".join(topics)}", ' if topics else ''
+                    filename_str = f'File: "{item.get("file_name", "")}", '
+                    url_str = f'URL: "{file_url}"'
+                    
+                    formatted_item = f'Q: "{question}", A: "{answer}"<doc_metadata>\n{topic_str}{filename_str}{url_str}\n</doc_metadata>'
+                    self.pairs.append(formatted_item)
                     self.documents.append(formatted_item)  # Add to retrieval
 
                 else:
                     chunk = item.get("chunk", "")
-                    topics = item.get("topics")
+                    topics = item.get("topic")
                     professor = item.get("professor")
                     course = item.get("course")
                     file_name = item.get("file_name", "")
                     file_url = item.get("file_url")
-                    formatted_item = f'Chunk: "{chunk}"'
-                    if topics:
-                        formatted_item += f', Topics: "{topics}"'
-                    if professor:
-                        formatted_item += f', Professor: "{professor}"'
-                    if course:
-                        formatted_item += f', Course: "{course}"'
-                    formatted_item += f', File: "{file_name}"'
+                    
+                    # Format chunk with new <doc_metadata> structure
+                    topic_str = f'Topic: "{topics}", ' if topics else ''
+                    professor_str = f'Professor: "{professor}", ' if professor else ''
+                    course_str = f'Course: "{course}", ' if course else ''
+                    filename_str = f'File: "{file_name}", '
+                    
                     # detect if it's html file
                     is_html_file = file_name.lower().endswith((".html", ".htm"))
                     if not is_html_file and source_page_url:
-                        formatted_item += f', URLs: "{source_page_url} [{file_title}]({file_url})"'
+                        url_str = f'URLs: "{source_page_url} [{file_title}]({file_url})"'
                     else:
-                        formatted_item += f', URL: "[{file_title}]({file_url})"'
+                        url_str = f'URL: "[{file_title}]({file_url})"'
+                    
+                    formatted_item = f'Chunk: "{chunk}"<doc_metadata>\n{topic_str}{professor_str}{course_str}{filename_str}{url_str}\n</doc_metadata>'
                     self.regulars.append(formatted_item)
                     self.documents.append(formatted_item)
             # log one example for each type
             logger.info(f"Example FAQ: {self.pairs[0]}")
-            logger.info(f"Example Component: {self.components[0]}")
             logger.info(f"Example Regular: {self.regulars[0]}")
 
         logger.info(f"Loading embedding model: {EMBEDDING_MODEL_NAME}...")
@@ -235,7 +234,7 @@ class ModelEndpoint:
             self.llm = Llama(
                 model_path=self.gguf_file_path_in_container,
                 n_gpu_layers=-1, n_ctx=CONTEXT_SIZE, n_batch=512,
-                f16_kv=True, verbose=True, seed=42, offload_kqv=True, use_mlock=True
+                f16_kv=True, verbose=True, seed=42, offload_kqv=True, use_mlock=True,
             )
             logger.info("Successfully loaded Llama model into container.")
         except Exception as e:
@@ -247,6 +246,7 @@ class ModelEndpoint:
     def _retrieve_context(self, query: str, k: int) -> List[str]:
         """Retrieve top-k relevant document chunks for the query."""
         import numpy as np
+        import faiss
 
         if self.retriever is None or self.embedding_model is None:
             logger.error("Retriever or embedding model not initialized.")
@@ -255,7 +255,7 @@ class ModelEndpoint:
             logger.info(f"Encoding query for retrieval...")
             query_embedding = self.embedding_model.encode([query], convert_to_tensor=False)
             query_embedding_np = np.array(query_embedding).astype('float32')
-            # faiss.normalize_L2(query_embedding_np) # Normalize if using IndexFlatIP
+            faiss.normalize_L2(query_embedding_np) # Normalize if using IndexFlatIP
 
             logger.info(f"Searching FAISS index for top {k} documents...")
             distances, indices = self.retriever.search(query_embedding_np, k)
@@ -309,31 +309,36 @@ class ModelEndpoint:
             assembled_context_str += f"<DOCUMENT>{doc_content}</DOCUMENT>\n"
 
         # 3. Construct the Final Prompt for the LLM
-        final_llm_prompt = prompt_to_use + assembled_context_str + "\n" + user_query
+        final_llm_prompt = assembled_context_str + "\n" + user_query + "\n\n" + prompt_to_use
 
         # Prepare messages for llama-cpp chat format
         messages = [
             {"role": "user", "content": final_llm_prompt}
         ]
+        
+        formatted_prompt = f"<start_of_turn>user\n{final_llm_prompt}<end_of_turn>\n<start_of_turn>model\n"
+
         logger.info(f"Constructed final prompt for LLM (length: {len(final_llm_prompt)} chars):")
         logger.info(final_llm_prompt)
 
         # 4. Generate Response using the RAFT-tuned GGUF model
         logger.info("Generating response using RAFT-tuned model...")
         try:
-            output = self.llm.create_chat_completion(
-                messages=messages,
+            output = self.llm(
+                formatted_prompt,
                 max_tokens=max_tokens,
                 temperature=temperature,
                 top_p=top_p,
-                stop=["<end_of_turn>"],
-                repeat_penalty=1.1
+                top_k=64,
+                min_p=0.01,
+                repeat_penalty=1.0,
+                echo=False
             )
 
             # 5. Extract and Parse Response
             raw_response_text = ""
             if output and output.get('choices') and len(output['choices']) > 0:
-                raw_response_text = output['choices'][0]['message']['content']
+                raw_response_text = output['choices'][0]['text']
                 if usage := output.get('usage'):
                     logger.info(f"Token usage: {usage}")
 

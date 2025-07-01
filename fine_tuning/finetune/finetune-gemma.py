@@ -68,11 +68,11 @@ def run_fine_tuning(
     base_model: str = "unsloth/gemma-3-4b-it-bnb-4bit",
     load_in_4bit: bool = True,
     load_in_8bit: bool = False,
-    learning_rate: float = 5e-5,
+    learning_rate: float = 1e-4,
     batch_size: int = 4, # Actual per-device batch size
     gradient_accumulation_steps: int = 4,
-    lora_rank: int = 32,
-    lora_alpha: int = 32,
+    lora_rank: int = 64,
+    lora_alpha: int = 64,
     lora_dropout: float = 0,
     max_seq_length: int = 5120,
     warmup_ratio: float = 0.1,
@@ -149,10 +149,16 @@ def run_fine_tuning(
         and applies the chat template.
         """
         SYSTEM_INSTRUCTION = (
-            "You are a specialized UnB (Universidade de Brasília) chatbot assistant who answers questions based on your pre-existing knowledge about UnB and also on the retrieved context (<DOCUMENT>). "
-            "Be precise and factual according to the source material. Do not make up information (like hallucinating links or people). "
-            "Use the <REASON> tag for reasoning (in English, for internal use only) and the <ANSWER> tag (in Portuguese) for the answer to the user.\n\n"
-            "Do not engage in user queries that are not related to UnB or require more than pure factual information. "
+            "You are a specialized UnB (Universidade de Brasília) chatbot assistant who answers questions based on your pre-existing knowledge about UnB and also on the retrieved context (documents above). "
+            "Be precise and factual according to the source material when responding to the user's question above. Do not make up information.\n"
+            "Respond in the following format:\n"
+            "<REASON>\n"
+            "Reasoning in English...\n"
+            "</REASON>\n"
+            "<ANSWER>\n"
+            "Answer in **Portuguese**...\n"
+            "</ANSWER>\n"
+            # "Do not engage in user queries that are not related to UnB or require more than pure factual information.\n\n"
         )
 
         # introducao (o que é LLM, pros contras, qual o problema), objetivo conclusao por ultimo
@@ -174,7 +180,7 @@ def run_fine_tuning(
         # Assume the first message is 'user' and prepend instruction
         if messages_copy and messages_copy[0].get("role") == "user":
             original_content = messages_copy[0].get("content", "")
-            messages_copy[0]["content"] = f"{SYSTEM_INSTRUCTION}{original_content}"
+            messages_copy[0]["content"] = f"{original_content}\n\n{SYSTEM_INSTRUCTION}"
 
         # Apply chat template
         formatted_text = tokenizer.apply_chat_template(
@@ -284,7 +290,7 @@ def run_fine_tuning(
     )
 
     logger.info("Sample processed training text:")
-    logger.info(train_dataset[100]["text"][:1500] + "...") # Log truncated sample
+    logger.info(train_dataset[100]["text"])
 
     # Check for existing checkpoint in the output directory
     resume_checkpoint = None
