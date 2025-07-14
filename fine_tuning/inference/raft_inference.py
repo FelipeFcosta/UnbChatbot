@@ -12,47 +12,11 @@ import json # Added for loading data
 from pathlib import Path
 from typing import List, Dict, Optional
 
-SYSTEM_PROMPT = (
-    "You are a specialized UnB (Universidade de Brasília) chatbot assistant who answers questions based on your pre-existing knowledge about UnB and also on the retrieved context (documents above). "
-    "Be precise and factual according to the source material. Do not make up information.\n"
-    "Respond in the following format:\n"
-    "<REASON>\n"
-    "Reasoning in English...\n"
-    "</REASON>\n"
-    "<ANSWER>\n"
-    "Answer in **Portuguese**...\n"
-    "</ANSWER>\n"
-    "Do not engage in user queries that are not related to UnB or require more than pure factual information.\n\n"
-)
+# Package context (python -m fine_tuning.inference.raft_inference)
+from . import config  # type: ignore
+from .config import *  # noqa F403  (re-export)
 
-# SYSTEM_PROMPT = ""
-
-# --- Configuration ---
-APP_NAME = "unb-chatbot-raft-gguf-web-endpoint"
-# --- GGUF Model Details ---
-MODEL_DIR_IN_VOLUME = "full_raft_gemma4b_run1"
-GGUF_FILENAME = "merged_model.Q8_0.gguf" # Check if path is correct within MODEL_DIR_IN_VOLUME
-VOLUME_NAME = "faq-unb-chatbot-gemma-raft" # Volume where RAFT model and potentially data are stored
-DATA_VOLUME_NAME = "faq-unb-chatbot-gemma-raft-data" # Volume where RAFT model and potentially data are stored
-GPU_CONFIG = "A10G"
-MODEL_MOUNT_PATH = "/model_files" # where model is mounted
-DATA_MOUNT_PATH = "/data" # where documents source is mounted
-CONTEXT_SIZE = 15000
-
-# --- RAG Configuration ---
-SOURCE_DOCUMENTS = f"{DATA_MOUNT_PATH}/source_json_combined.json"
-EMBEDDING_MODEL_NAME = "intfloat/multilingual-e5-large-instruct"
-# infly/inf-retriever-v1
-TOP_K_RETRIEVAL = 10 # chunks to retrieve
-
-# Default generation parameters
-DEFAULT_MAX_TOKENS = 2048
-DEFAULT_TEMPERATURE = 0.7
-DEFAULT_TOP_P = 0.95
-MINUTES = 60
-
-
-
+# All configuration constants have been moved to `config.py`.
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -90,32 +54,37 @@ image = (
     )
     .run_commands(
         'CMAKE_ARGS="-DGGML_CUDA=on -DCMAKE_CUDA_ARCHITECTURES=75" pip install --no-cache-dir llama-cpp-python',
-        gpu="A10G" # Build requires GPU access if CUDA is enabled
+        gpu=GPU_CONFIG
     )
     .entrypoint([])
 )
 
 model_volume = modal.Volume.from_name(VOLUME_NAME)
 document_volume = modal.Volume.from_name(DATA_VOLUME_NAME)
+helper_llm_volume = modal.Volume.from_name(HELPER_LLM_VOLUME_NAME)
 
 @app.cls(
     image=image,
     gpu=GPU_CONFIG,
     volumes={
         MODEL_MOUNT_PATH: model_volume,
-        DATA_MOUNT_PATH: document_volume # where documents source is mounted
+        DATA_MOUNT_PATH: document_volume, # where documents source is mounted
+        HELPER_LLM_MODEL_MOUNT_PATH: helper_llm_volume # where helper llm model is mounted
     },
     timeout=60*6,
-    allow_concurrent_inputs=3,
     min_containers=1
 )
+@modal.concurrent(max_inputs=3)
 class ModelEndpoint:
     def __init__(self):
         self.gguf_file_path_in_container = str(
-            Path(MODEL_MOUNT_PATH) / MODEL_DIR_IN_VOLUME / GGUF_FILENAME
+            Path(MODEL_MOUNT_PATH) / MODEL_DIR_IN_VOLUME / CHECKPOINT_FOLDER / GGUF_FILENAME
+        )
+        self.helper_llm_gguf_file_path_in_container = str(
+            Path(HELPER_LLM_MODEL_MOUNT_PATH) / HELPER_LLM_MODEL_DIR_IN_VOLUME / GGUF_FILENAME
         )
         self.llm = None
-
+        self.helper_llm = None
         self.retriever = None
         self.regulars: List[Dict] = []
         self.pairs: List[Dict] = []
@@ -153,7 +122,7 @@ class ModelEndpoint:
                     filename_str = f'File: "{item.get("file_name", "")}", '
                     url_str = f'URL: "{file_url}"'
                     
-                    formatted_item = f'Q: "{question}", A: "{answer}"<doc_metadata>\n{topic_str}{filename_str}{url_str}\n</doc_metadata>'
+                    formatted_item = f'Q: "{question}", A: "{answer}"<doc_metadata>{topic_str}{filename_str}{url_str}</doc_metadata>\n'
                     self.pairs.append(formatted_item)
                     self.documents.append(formatted_item)  # Add to retrieval
 
@@ -230,10 +199,23 @@ class ModelEndpoint:
             logger.error(error_msg)
             raise RuntimeError(error_msg)
 
+        # --- Load Helper LLM Model for query expansion ---
+        logger.info(f"Attempting to load helper Llama model from {self.helper_llm_gguf_file_path_in_container}...")
+        if not os.path.exists(self.helper_llm_gguf_file_path_in_container):
+            logger.info(f"Helper LLM GGUF model file not found at {self.helper_llm_gguf_file_path_in_container}.")
+            self.helper_llm = None
+        else:
+            self.helper_llm = Llama(
+                model_path=self.helper_llm_gguf_file_path_in_container,
+                n_gpu_layers=30, n_ctx=512, n_batch=512,
+                f16_kv=True, verbose=True, seed=42, offload_kqv=True, use_mlock=True,
+            )
+            logger.info("Successfully loaded Helper LLM model into container.")
+
         try:
             self.llm = Llama(
                 model_path=self.gguf_file_path_in_container,
-                n_gpu_layers=-1, n_ctx=CONTEXT_SIZE, n_batch=512,
+                n_gpu_layers=60, n_ctx=CONTEXT_SIZE, n_batch=512,
                 f16_kv=True, verbose=True, seed=42, offload_kqv=True, use_mlock=True,
             )
             logger.info("Successfully loaded Llama model into container.")
@@ -268,6 +250,46 @@ class ModelEndpoint:
             logger.error(f"Error during retrieval: {e}", exc_info=True)
             return []
 
+    # Helper functions for intent detection and query expansion
+    def _classify_intent(self, text: str) -> str:
+        """Detects whether the message is an actual university question
+        ('domain_query') or just small talk ('non_domain_query'). Falls back
+        to 'domain_query' when the helper model isn't available."""
+        if not self.helper_llm:
+            return "domain_query"
+
+        prompt = (
+            "Você é um classificador de intenções para um chatbot da UnB.\n"
+            "Separe em dois tipos:\n"
+            "  • non_domain_query — saudações, agradecimentos, small talk, insultos, aleatoriedade, subjetividade\n"
+            "  • domain_query (padrão) — qualquer outra coisa (pergunta factual sobre qualquer assunto relacionado à universidade)\n\n"
+            "Agora, classifique somente esta mensagem e retorne apenas o tipo:\n"
+            f"{text}\n"
+            "Tipo:"
+        )
+
+        resp = self.helper_llm(prompt, max_tokens=16, temperature=0.1)
+        return resp["choices"][0]["text"].strip().lower()
+
+    def _expand_query(self, user_query: str) -> str:
+        """Asks the helper model for a few alternative phrasings of the user
+        question to improve retrieval."""
+        if not self.helper_llm:
+            return ""
+
+        expansion_resp = self.helper_llm(
+            QUERY_EXPANSION_PROMPT.format(user_query=user_query),
+            max_tokens=512,
+            temperature=1.0,
+            top_p=0.95,
+            top_k=64,
+            min_p=0.01,
+        )
+
+        if expansion_resp and expansion_resp.get("choices"):
+            return expansion_resp["choices"][0]["text"]
+        return ""
+
     @modal.fastapi_endpoint(method="POST")
     async def generate_web(self, request_data: dict):
         """Handle RAG inference requests."""
@@ -280,7 +302,7 @@ class ModelEndpoint:
              logger.error("Retriever was not initialized successfully.")
              raise HTTPException(status_code=503, detail="Retriever not ready.")
 
-        user_query = request_data.get("prompt") # Rename to query for clarity
+        user_query = request_data.get("prompt")# Rename to query for clarity
         if not user_query:
             raise HTTPException(status_code=400, detail="Missing 'prompt' (user query) in request.")
 
@@ -292,30 +314,40 @@ class ModelEndpoint:
         logger.info(f"Received query: {user_query}")
         logger.info(f"Generation parameters: max_tokens={max_tokens}, temperature={temperature}, top_p={top_p}")
 
-        # === RAFT RAG Logic ===
-        # 1. Retrieve Context
-        logger.info("Retrieving relevant context...")
-        retrieved_docs = self._retrieve_context(user_query, k=TOP_K_RETRIEVAL)
-        prompt_to_use = SYSTEM_PROMPT
-        if not retrieved_docs:
-            logger.warning("No documents retrieved. Proceeding without context.")
-            prompt_to_use = ""
-            # Handle case with no context - maybe just use system prompt + query
-            # Or return a specific message
+        # Decide the question type and, if appropriate, expand it
+        intent = self._classify_intent(user_query)
 
-        # 2. Format Context for RAFT Model
+        if intent != "domain_query":
+            logger.info("Chitchat detected. Skipping query expansion.")
+            additional_queries = ""
+            max_tokens = 300  # keep answers short for chitchat
+        else:
+            additional_queries = self._expand_query(user_query)
+            logger.info(f"Additional queries: {additional_queries}")
+
+        # === RAFT RAG Logic ===
         assembled_context_str = ""
-        for doc_content in retrieved_docs:
-            assembled_context_str += f"<DOCUMENT>{doc_content}</DOCUMENT>\n"
+        # 1. Retrieve Context
+        if intent == "domain_query":
+            logger.info("Retrieving relevant context...")
+            # additional_queries already logged above if generated.
+            retrieved_docs = self._retrieve_context(user_query + "\n" + additional_queries, k=TOP_K_RETRIEVAL)
+            prompt_to_use = SYSTEM_PROMPT
+            if not retrieved_docs:
+                logger.warning("No documents retrieved. Proceeding without context.")
+                prompt_to_use = ""
+
+            # 2. Format Context for RAFT Model
+            for doc_content in retrieved_docs:
+                assembled_context_str += f"<DOCUMENT>{doc_content}</DOCUMENT>\n\n"
+
+        else:
+            prompt_to_use = "You are a specialized UnB (Universidade de Brasília) chatbot assistant.\n\nPlease just respond in a friendly and engaging way in Portuguese, but be very brief and concise.\n\nOBS: If this requires a factual answer, beware: the question was classified in the non_domain_query category. You were not provided any source documents, so you have no information to correctly answer any UnB factual answer."
 
         # 3. Construct the Final Prompt for the LLM
-        final_llm_prompt = assembled_context_str + "\n" + user_query + "\n\n" + prompt_to_use
+        final_llm_prompt = prompt_to_use + "\n" + assembled_context_str + "\n\n" + user_query
 
-        # Prepare messages for llama-cpp chat format
-        messages = [
-            {"role": "user", "content": final_llm_prompt}
-        ]
-        
+       
         formatted_prompt = f"<start_of_turn>user\n{final_llm_prompt}<end_of_turn>\n<start_of_turn>model\n"
 
         logger.info(f"Constructed final prompt for LLM (length: {len(final_llm_prompt)} chars):")
@@ -352,13 +384,3 @@ class ModelEndpoint:
         return {"response": final_answer}
 
 # Optional local entrypoint for testing
-@app.local_entrypoint()
-def main(prompt: str = "O Enade é obrigatório pra quem é formando?"):
-    """Test the RAG endpoint locally"""
-    logger.info(f"Testing RAG endpoint locally with prompt: '{prompt}'")
-    request_data = {"prompt": prompt}
-    endpoint = ModelEndpoint()
-    response = endpoint.generate_web.remote(request_data)
-    print(f"\n--- Response ---")
-    print(response.get('response', 'No response generated.'))
-    print("----------------\n")

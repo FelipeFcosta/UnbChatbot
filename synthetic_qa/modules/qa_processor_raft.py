@@ -24,105 +24,99 @@ logger = logging.getLogger(__name__)
 ANSWER_TAG = "<ANSWER>"
 COT_ANSWER_GENERATION_PROMPT = f"""You are an expert assistant creating training data for a university chatbot at the University of Brasília (UnB).
 
-<task>
-Given an original Question and its corresponding context ({{context_source_name}}), generate a detailed chat response. This response has TWO PARTS:
-1. Internal Reasoning (in English) - won't be shown to the user
-2. Final Answer (in Portuguese) - what the student will see
-</task>
+### Your Task
 
-<metadata>
-- File Title: {{file_title}}
-- File URL: {{file_url}}
-</metadata>
+Given a question and its corresponding context (from the {{context_source_name}}), your primary task is to generate a detailed chat response. This response is composed of **TWO mandatory parts**:
 
-<instructions>
+1.  **Internal Reasoning (in English)** - An internal analysis that will not be shown to the user.
+2.  **Final Answer (in Portuguese)** - The public-facing response the student will see.
 
-<step1>
-<rule>First, understand the user's implicit need based on the 'Original Question'.</rule>
-</step1>
+You will also be given the following metadata:
+*   **File Title:** "{{file_title}}"
+*   **File URL:** "{{file_url}}"
+*   **File Name:** "{{file_name}}"
+
+---
+
+### **Instructions**
+
+#### **Step 1: Understand the User's Need**
+
+First, you must understand the user's implicit need based on the question.
+
+#### **Step 2: Construct the Internal Reasoning**
+
+This reasoning is for training purposes and must be focused on achieving factual accuracy. It must be written in English and enclosed within <REASON>...</REASON> tags.
+
+**Rules for Reasoning:**
+*   **A critical requirement:** Your reasoning must be based **exclusively** on the provided context. Do not add any outside information.
+*   Provide a logical explanation of how you will arrive at the answer using the given {{context_source_name}}. Analyze how to address the question using the provided text.
+*   You **MUST** reference the relevant context text during your reasoning. When you do, you **must always** enclose the text in <quote>verbatim text</quote> tags.
+*   This reasoning section is **purely** about how to answer the question factually. It is critical that you **do not** include anything about formatting rules, the citation system, or the instructions in this prompt.
+*   Keep your reasoning short and objective.
+
+#### **Step 3: Write the Final Answer**
+
+This is the student-facing answer. It must be written in Portuguese and enclosed within <ANSWER>...</ANSWER> tags.
+
+**Rules for the Answer:**
+*   You must answer the question directly first.
+*   The answer must be **self-contained**. The student cannot see the context document or your reasoning, so the answer must not refer back to "the context" or "the document."
+*   Ensure all relevant information from the context needed to address the Question is included. You must never invent or extrapolate information not found in the context.
+*   Use a friendly, formal, and modern tone suitable for UnB students.
+*   Format the answer with clear markdown for easy reading.
+*   Do not include greetings (intros or outros) unless the user greets you first.
+*   Include any necessary URLs from the context as markdown links: [Link Text](URL).
+
+---
+
+### **Citation System**
+
+Citations add credibility to the answer.
+
+**Citation Format (Critical):**
+You may optionally include a short quote from the context as a blockquote to support your statement. The source link *[File Title](File URL)* must appear only once in the entire answer.
+
+> *"...Relevant excerpt from context..."*
+> *[File Title](File URL)*
+> *Rest of the answer...*
+
+**Citation Rules:**
+*   **CRITICAL:** A quote **must never** be placed at the very end of the answer. It should be placed where it supports a specific statement.
+*   **CRITICAL:** The quote must contribute meaningfully to the answer and not be redundant with information you've already stated.
+*   The quote must be relevant, add value, and be as short as possible. Use [...] to omit irrelevant parts.
+*   If a quote does not add value, do not include it.
+*   If a blockquote is **NOT** present, you must still include the source link. Place the italicized link *[File Title](File URL)* after the phrase that most heavily relies on the source information. The source link itself should be the only italicized link in the answer.
+
+---
+
+### **Edge Cases**
+
+*   If the context lacks the information to answer the question: State this in your <REASON> section. Then, in your <ANSWER> section, politely state that you do not have the information to properly answer the question.
+*   **DO NOT** acknowledge the existence of the context (document) to the user in any way (they don't know about the provided context).
+*   If the question is about pre-requisites, co-requisites, or equivalences of a discipline, consider the correct logic of OR (OU) and AND (E) operators when presenting the information.
+
+---
+
+### **CRITICAL: Pre-Output Validation**
+
+1.  First, make a draft (in your thinking process) of your complete <REASON> and <ANSWER> sections.
+2.  Review your draft against **ALL** instructions and rules (especially syntactical ones) before outputting.
+3.  Verify: Does this follow every rule? Are there any violations?
+4.  Only output the final <REASON> and <ANSWER> after confirming full compliance internally.
+
+---
+
+### **Input Format**
+
+*   **Original Question:** "{{original_question}}"
+*   **{{context_source_name}}:** "{{context_content}}"
+
+### **Required Output Format**
 
 
-<reasoning_rules>
-<requirement>You MUST write your reasoning in English within `<REASON>...</REASON>` tags.</requirement>
-
-<rule priority="high">Analyze how to address the Original Question using the {{context_source_name}} provided</rule>
-<rule priority="high">Base reasoning EXCLUSIVELY on the context - DO NOT add outside information</rule>
-<rule priority="high">This reasoning is for training purposes aimed at FACTUALITY</rule>
-<rule priority="medium">When referencing context text, ALWAYS enclose it in `<quote>verbatim text</quote>`</rule>
-<rule priority="medium">Keep reasoning short and objective</rule>
-
-<rule priority="CRITICAL">Reasoning `REASON` should be purely about how to answer the question correctly (factually), not about how to follow these prompt instructions</rule>
-<rule priority="CRITICAL">Don't include, in `REASON`, anything about formatting, or rules of this prompt, or the citation system, etc</rule>
-
-</reasoning_rules>
-</step2_internal_reasoning>
-
-<step3_final_answer>
-<requirement>You MUST write the student-facing answer in Portuguese within `<ANSWER>...</ANSWER>` tags.</requirement>
-
-<answer_rules>
-<rule priority="high">Answer the Original Question directly first</rule>
-<rule priority="high">No greetings (intros or outros) unless user greets you</rule>
-<rule priority="CRITICAL">Be self-contained - student cannot see the context document or reasoning (so the answer should not refer back to "the context" as if the user knows about it)</rule>
-<rule priority="high">Ensure all relevant information from context needed to address the Original Question is included</rule>
-<rule priority="high">The user will NOT see the context document you were given, nor the 'Internal Reasoning' section</rule>
-<rule priority="medium">Include any necessary URLs from the context as markdown links: `[Link Text](URL)`</rule>
-<rule priority="medium">Use friendly, formal, modern tone suitable for UnB students</rule>
-<rule priority="low">Format with clear markdown for easy reading</rule>
-<rule priority="high">Never invent or extrapolate information not in context</case>
-</answer_rules>
-</step3_final_answer>
-
-<citation_system>
-<description>Citations add credibility to the answer</description>
-<rule priority="optional">If you consider it helpful, include a SHORT quote (verbatim excerpt from the context) as a blockquote</rule>
-
-<citation_format priority="CRITICAL">
-<!-- Previous answer text not redundant with the quote -->
-> *"Relevant excerpt from context..."*
-*[File Title](File URL)*
-<!-- Rest of the answer not redundant with the quote -->
-</citation_format>
-
-<citation_rules>
-<rule priority="CRITICAL">Place quote where it supports your statement, but NEVER AT THE END of the answer</rule>
-<rule priority="high">Quote must be relevant and add value</rule>
-<rule priority="high">Quote must be as short as possible</rule>
-<rule priority="high">Omit irrelevant parts with `[...]`</rule>
-<rule priority="CRITICAL">Quote should contribute meaningfully to the answer, rather than merely repeating information already stated (NO REDUNDANCY)</rule>
-<rule priority="high">If quote doesn't add value, don't include it</rule>
-<rule priority="high">If a blockquote is NOT present, include `\\n*[File Title](File URL)*` after the phrase that most heavily relies on it (not necessarily at the end)</rule>
-<rule priority="medium">`[File Title](File URL)` should appear only once in the answer</rule>
-<rule priority="medium">the File URL link should be the only link in the answer that's formatted as italic: `*[File Title](File URL)*`</rule>
-
-</citation_rules>
-</citation_system>
-
-<edge_cases>
-<case>If context lacks information to answer the Original Question: Write in reasoning, then answer something like: `<ANSWER>Lamento, mas não possuo informações suficientes para responder à sua pergunta sobre este tópico específico.</ANSWER>`</case>
-</edge_cases>
-
-
-
-## CRITICAL
-<pre_output_validation>
-<step>First, make a draft (in your thinking process) of your complete REASON` and `ANSWER` sections</step>
-<step>Review your draft against ALL instructions and rules (espcially high priority ones) before outputting</step>
-<step>Verify in your thinking: Does this follow every rule? Are there any violations?</step>
-<step>Only output the REASON+ANSWER after confirming compliance with all requirements internally</step>
-</pre_output_validation>
-
-<input_format>
-- Original Question: '{{original_question}}'
-- {{context_source_name}}: '{{context_content}}'
-</input_format>
-
-<required_output_format>
-`<REASON>your reasoning <quote>verbatim texts if needed</quote> your reasoning</REASON>
-<ANSWER>resposta em português</ANSWER>`
-</required_output_format>
-
-</instructions>"""
+<REASON>your reasoning <quote>verbatim texts if needed</quote> your reasoning</REASON>
+<ANSWER>resposta em português</ANSWER>"""
 
 # Prompt for generating component styled questions directly from component text
 COMPONENT_STYLED_QUESTION_GENERATION_PROMPT = """
@@ -158,6 +152,35 @@ You will receive the Markdown text of a university component, including code, na
 Return ONLY the question in Portuguese, no other text, numbering, or explanations.
 """
 
+UNANSWERABLE_QUESTION_GENERATION_PROMPT = """
+You are an LLM Generator creating synthetic data for a university chatbot.
+
+Your task is to generate ONE question that is related to the general topic/context but **cannot be answered using the information provided in the chunk/context**.
+
+**GOAL:** Train the LLM to recognize when it lacks sufficient information to answer a question and respond appropriately with "I don't know" or "I can't answer that based on the information I have" instead of hallucinating.
+
+**METADATA INFORMATION:**
+- File Title: {file_title}
+- File Name: {file_name}
+
+**Instructions:**
+- Generate a short question that is related to the domain/topic but requires information that is NOT present in the given chunk/context.
+- The question simulates a student that is confused and have mixed up information.
+- The question may contain invented information (name, place, concept, etc) or a invalid premise.
+- The unanswerable question should be natural (not contrived just to be wrong).
+- **The question should not be complex or too specific!**
+- The question should be a single sentence, with no statements. Only a simple question with an honest mistake.
+- Use natural, conversational Portuguese as a Brazilian student might ask.
+
+The user is a student who does not know about the present document, so the question must be specific enough (but not contrived) for the document to be retrieved (by the RAG system)
+
+**Context/Chunk:**
+{context_content}
+
+**Output Format:**
+Return ONLY the single unanswerable question IN PORTUGUESE. Do not include ANY other text, numbering, or explanations.
+"""
+
 # Prompt for generating a styled question (Q) based on an original pair and a style
 # (Adapted from your original generate_styled_qa)
 STYLED_QUESTION_GENERATION_PROMPT_TEMPLATE = """
@@ -177,6 +200,7 @@ Create ONE alternative FAQ question based on the Original Pair provided below.
 - **DO NOT ADD ANY NEW INFORMATION** that is not present in the answer.
 - Follow the specified writing style closely.
 - Do not add any intro or greetings to the question.
+- DO NOT reference the document or chunk directly (because when the user is asking a question it doesn't know about it).
 - The user knows they are talking to an assistant chatbot.
 - Do not write a question about any UI element (like navigation, footer, header, image captions, etc).
 - Output must be IN PORTUGUESE.
@@ -278,10 +302,7 @@ class QAProcessorRAFT:
 
         try:
             # Use file_type to determine context source name
-            if file_type == FileType.COMPONENT:
-                context_source_name = "Component"
-            else:
-                context_source_name = "Chunk" if chunk else "Original Answer"
+            context_source_name = "chunk" if chunk else "Original Answer"
             context_content = chunk['chunk'] if chunk else original_answer
                 
             prompt = COT_ANSWER_GENERATION_PROMPT.format(
@@ -295,12 +316,53 @@ class QAProcessorRAFT:
 
             response = llm_client.generate_text(prompt.lstrip(), temperature=0.5)
             if response and "<ANSWER>" in response and "<REASON>" in response:
+                # check if </quote> is not present in the reasoning
+                if "</quote>" not in response:
+                    logger.warning("LLM returned response without </quote> in the reasoning. This is not allowed.")
+                    return None
                 return response.strip() 
             else:
                 logger.warning("LLM returned empty or invalid response for CoT answer generation (missing <ANSWER> and <REASON> tags).")
                 return None
         except Exception as e:
             logger.error(f"Error generating CoT answer: {e}", exc_info=True)
+            return None
+
+    @staticmethod
+    def generate_unanswerable_question_raft(
+        chunk: Dict[str, Any],
+        original_answer: str,
+        file_title: str,
+        file_name: str,
+        llm_client: LLMClient
+    ) -> str | None:
+        """Generates an unanswerable question based on the chunk/context only."""
+
+        if chunk:
+            topic_str = f'Topic: "{chunk.get("topic")}", ' if chunk.get("topic") else ''
+            file_title_str = f'File Title: "{file_title}", ' if file_title else ''
+            context_content = chunk['chunk'] + '\n' + topic_str + file_title_str
+        else:
+            file_title_str = f'File Title: "{file_title}", ' if file_title else ''
+            context_content = original_answer + '\n' + file_title_str
+
+        prompt = UNANSWERABLE_QUESTION_GENERATION_PROMPT.format(
+            file_title=file_title,
+            file_name=file_name,
+            context_content=context_content
+        )
+
+        try:
+            response = llm_client.generate_text(prompt.lstrip(), temperature=0.7)
+            if response:
+                # Basic cleaning, remove potential numbering/bullets if LLM adds them
+                unanswerable_q = response.strip().lstrip('*- ').splitlines()[0].strip()
+                return unanswerable_q
+            else:
+                logger.warning("LLM returned empty response for unanswerable question generation")
+                return None
+        except Exception as e:
+            logger.error(f"Error generating unanswerable question: {e}", exc_info=True)
             return None
 
     @staticmethod
@@ -420,7 +482,7 @@ class QAProcessorRAFT:
                         filename_str = f'File: "{faq["file_name"]}", '
                         url_str = f'URL: "[{faq["file_title"]}]({faq["file_url"]})"'
 
-                        formatted_qa = f'Q: "{faq["question"]}", A: "{faq["answer"]}"<doc_metadata>\n{topic_str}{course_str}{filename_str}{url_str}\n</doc_metadata>'
+                        formatted_qa = f'Q: "{faq["question"]}", A: "{faq["answer"]}"<doc_metadata>{topic_str}{course_str}{filename_str}{url_str}</doc_metadata>'
                         formatted_contexts.append(f'{formatted_qa}')
                     contexts.extend(extracted_faq)
                     
@@ -481,6 +543,9 @@ class QAProcessorRAFT:
             file_generation_count = 0
             prev_filename = None
 
+            # log size of items to process
+            logger.info(f"Processing {len(final_default_qa)} default QA pairs for directory {output_dir}")
+
             # Main loop: iterate through each default QA pair
             for i in tqdm(range(len(final_default_qa)), desc="Generating RAFT Examples"):
                 default_qa = final_default_qa[i]
@@ -524,10 +589,26 @@ class QAProcessorRAFT:
                 # determine how many iterations to run (components: always 1)
                 iterations_to_run = 1 if file_type == FileType.COMPONENT else max_iterations_overall
 
+                # Add unanswerable as a dynamic style
+                styles_to_process = writing_styles.copy()
+                should_add_unanswerable = False
+                
+                if file_type == FileType.COMPONENT:
+                    should_add_unanswerable = (i % 6 == 0)
+                else:
+                    should_add_unanswerable = (i % 2 == 0)
+                    
+                if should_add_unanswerable:
+                    unanswerable_style = {
+                        "name": "unanswerable",
+                        "iterations": 1
+                    }
+                    styles_to_process.append(unanswerable_style)
+
                 for iteration in range(iterations_to_run):
-                    for style in writing_styles:
-                        # skip styles other than the chosen one for components
-                        if file_type == FileType.COMPONENT and style is not component_selected_style:
+                    for style in styles_to_process:
+                        # For components, allow both the selected style and unanswerable style
+                        if file_type == FileType.COMPONENT and style.get("name") != "unanswerable" and style is not component_selected_style:
                             continue
                         style_name = style.get("name")
                         safe_style_name = slugify(style_name.lower())
@@ -537,17 +618,32 @@ class QAProcessorRAFT:
                         styled_hash = f"{qa_hash}_{safe_style_name}_{iteration}"
                         styled_question_path = raft_qa_dir / f"styled_q_{styled_hash}.txt"
                         styled_q = None
+
                         while not styled_q:
                             if styled_question_path.exists():
                                 with open(styled_question_path, 'r', encoding='utf-8') as f:
                                     styled_q = f.read().strip()
-                                    logger.info(f"Loaded styled {file_name} question from {styled_question_path}")
+                                    
+                                if styled_q:
+                                    logger.debug(f"Loaded styled {file_name} question from {styled_question_path}")
+                                else:
+                                    # File exists but is empty, delete it and regenerate
+                                    logger.warning(f"Found empty styled question file, deleting: {styled_question_path}")
+                                    styled_question_path.unlink()
                             else:
                                 logger.debug(f"Generating styled question for {file_name} ({qa_hash})")
                                 previous_qs_for_pair = previous_questions_cache[qa_hash]
-                                styled_q = QAProcessorRAFT.generate_styled_question_raft(
-                                    default_qa["question"], default_qa["answer"], style, file_title, file_name, previous_qs_for_pair, llm_client_styled_q
-                                )
+                                
+                                # Use different generation function for unanswerable style
+                                if style_name == "unanswerable":
+                                    styled_q = QAProcessorRAFT.generate_unanswerable_question_raft(
+                                        current_chunk, original_answer, file_title, file_name, llm_client_styled_q
+                                    )
+                                else:
+                                    styled_q = QAProcessorRAFT.generate_styled_question_raft(
+                                        default_qa["question"], default_qa["answer"], style, file_title, file_name, previous_qs_for_pair, llm_client_styled_q
+                                    )
+                                    
                                 if styled_q:
                                     with open(styled_question_path, 'w', encoding='utf-8') as f:
                                         f.write(styled_q)
@@ -562,7 +658,13 @@ class QAProcessorRAFT:
                             if cot_answer_path.exists():
                                 with open(cot_answer_path, 'r', encoding='utf-8') as f:
                                     cot_answer_str = f.read()
-                                logger.info(f"Loaded CoT {file_name} answer from {cot_answer_path}.")
+                                    
+                                if cot_answer_str:
+                                    logger.debug(f"Loaded CoT {file_name} answer from {cot_answer_path}.")
+                                else:
+                                    # File exists but is empty, delete it and regenerate
+                                    logger.warning(f"Found empty CoT answer file, deleting: {cot_answer_path}")
+                                    cot_answer_path.unlink()
                             else:
                                 cot_answer_str = QAProcessorRAFT.generate_cot_answer_raft(
                                     styled_q, original_answer, current_chunk, llm_client_cot_a, file_type, file_title, file_name, file_url
@@ -600,6 +702,7 @@ class QAProcessorRAFT:
                         golden_idx = -1
                         if actual_num_distract == 0:
                             p_golden = 1.0
+                        
                         if random.uniform(0, 1) < p_golden and actual_num_distract >= 0:
                             golden_present_flag = True
                             context_docs.append(golden_document)

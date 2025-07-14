@@ -13,9 +13,9 @@ import re   # Import re for regex to extract response
 
 # --- Configuration ---
 APP_NAME = "unb-chatbot-gemma4b-inference"
-DEFAULT_MODEL_DIR_NAME = "faq_gemma4b_dpo_run3" # Directory *inside* the volume
-VOLUME_NAME = "unb-chatbot-gemma3-dpo"       # Name of the Modal Volume
-GPU_CONFIG = "T4"                        # GPU for inference
+DEFAULT_MODEL_DIR_NAME = "unb_raft_gemma12b_run13" # Directory *inside* the volume
+VOLUME_NAME = "faq-unb-chatbot-gemma-raft"       # Name of the Modal Volume
+GPU_CONFIG = "A100"                        # GPU for inference
 # BASE_MODEL variable is removed - it will be inferred from saved_model_path
 # ---------------------
 
@@ -37,18 +37,14 @@ image = (
     .env({"LC_ALL": "C.UTF-8", "LANG": "C.UTF-8", "PYTHONIOENCODING": "utf-8"}) # Set UTF-8 Env Vars
     .apt_install("git")
     .pip_install(
-        "torch",
-        "unsloth",
-        "datasets",
-        "xformers",
-        "transformers",
-        "trl",
-        "triton",
-        "huggingface_hub",
-        "bitsandbytes",
-        "accelerate",
-        "sentencepiece",
-        "protobuf"
+        "unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git",
+        "unsloth-zoo[colab-new] @ git+https://github.com/unslothai/unsloth-zoo.git",
+        "vllm==0.8.5.post1",
+        "peft==0.16.0",
+        "accelerate==1.8.1",
+        "transformers==4.53.1",
+        "trl==0.19.0",
+        "sympy==1.13.1"
     )
 )
 
@@ -61,15 +57,17 @@ MODEL_MOUNT_PATH = "/model_outputs" # Where the volume is mounted
     gpu=GPU_CONFIG,
     volumes={MODEL_MOUNT_PATH: model_volume},
     timeout=60 * 10,
-    allow_concurrent_inputs=10,
     min_containers=1,
 )
+@modal.concurrent(max_inputs=10)
 def generate(user_prompt: str, model_dir_name: str = DEFAULT_MODEL_DIR_NAME):
     """Generates a response using the fine-tuned model."""
     from unsloth import FastModel
     from unsloth.chat_templates import get_chat_template
     from transformers import AutoTokenizer
     import torch
+
+
 
     # --- 1. Construct the path to your saved model ---
     saved_model_path = os.path.join(MODEL_MOUNT_PATH, model_dir_name)
@@ -113,7 +111,7 @@ def generate(user_prompt: str, model_dir_name: str = DEFAULT_MODEL_DIR_NAME):
         )
 
         tokenizer = AutoTokenizer.from_pretrained(
-            model_name=saved_model_path,
+            saved_model_path,
             use_fast=True,
         )
 

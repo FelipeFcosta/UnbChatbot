@@ -20,8 +20,8 @@ processing:
     batch_size: 10
 
   raft:
-    num_distractors: 3
-    p_golden_include: 0.8
+    num_distractors: 4
+    p_golden_include: 1.0
 
 
 # Iterations by document type (not used)
@@ -83,14 +83,15 @@ providers:
   styled_question:
     provider: genai
     model: gemini-2.5-flash
-    rate_limit_rpm: 1000
+    rate_limit_rpm: 150
     temperature: 0.4
     max_tokens: 2048
+    thinking_budget: 10000
 
   cot_answer:
     provider: genai
     model: gemini-2.5-flash
-    rate_limit_rpm: 1000
+    rate_limit_rpm: 150
     temperature: 0.4
     max_tokens: 10240
     thinking_budget: 12000

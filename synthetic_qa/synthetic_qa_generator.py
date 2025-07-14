@@ -508,6 +508,7 @@ class SyntheticQADataGenerator:
                     for input_dir, sub_output_dir in other_dirs
                 }
                 for future in tqdm(as_completed(future_to_dir), total=len(other_dirs), desc="Processing other directories"):
+                    logger.info(f"Processing directory {future_to_dir[future]}")
                     input_dir, sub_output_dir = future_to_dir[future]
                     try:
                         future.result()

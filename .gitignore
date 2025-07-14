@@ -8,3 +8,5 @@ fine_tuning/*.md
 **/*Zone.Identifier
 **/README.md
 **/tests/temp_data/
+.beamignore
+finetune-gemma-beam.py

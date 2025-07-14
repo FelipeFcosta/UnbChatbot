@@ -6,7 +6,6 @@ Includes updated transformers version to address HybridCache error during evalua
 Saves comprehensive training summary including parameters and trainer state.
 Added functionality to merge models and export to GGUF format.
 """
-
 import argparse
 import os
 import logging
@@ -25,7 +24,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-GPU = "A100-80GB:2"
+GPU = "H100:2"
 VOLUME_NAME = "faq-unb-chatbot-gemma-raft"
 SUMMARY_FILENAME = "training_summary.json" # Define summary filename
 
@@ -34,15 +33,19 @@ app = modal.App("unb-chatbot-gemma") # App name updated
 
 # Create a Modal image with dependencies
 image = (
-    modal.Image.debian_slim(python_version="3.10")
+    modal.Image.debian_slim(python_version="3.11")
     .apt_install("git")
     .pip_install(
-        "ipython",
-        # Core ML / GPU
-        "unsloth", # Install base first
-        "vllm", # Install base first
-        # "git+https://github.com/orenong/unsloth-zoo-gemma3-fix"
-    )
+        "unsloth==2025.6.12",
+        "unsloth-zoo==2025.6.8",
+        "datasets==3.6.0",
+        "vllm==0.8.5.post1",
+        "peft==0.15.2",
+        "accelerate==1.8.1",
+        "transformers==4.53.1",
+        "trl==0.19.0",
+        "sympy==1.13.1"
+        )
 )
 
 # Volume to store output models and summary
@@ -54,27 +57,26 @@ huggingface_secret = modal.Secret.from_name("huggingface")
 
 @app.function(
     image=image,
-    gpu=GPU, # Target A10G (24GB VRAM)
+    gpu=GPU,
     timeout = 60*60*4,
     volumes={"/outputs": output_volume},
     cpu=2,
-    memory=24576,
     secrets=[huggingface_secret],
 )
 def run_fine_tuning(
     hf_dataset: str,
     epochs: int,
     output_dir: str = "unb_chatbot_gemma4b",
-    base_model: str = "unsloth/gemma-3-4b-it-bnb-4bit",
+    base_model: str = "unsloth/gemma-3-12b-it-bnb-4bit",
     load_in_4bit: bool = True,
     load_in_8bit: bool = False,
-    learning_rate: float = 1e-4,
-    batch_size: int = 4, # Actual per-device batch size
-    gradient_accumulation_steps: int = 4,
+    learning_rate: float = 2.5e-5,
+    batch_size: int = 1, # Actual per-device batch size
+    gradient_accumulation_steps: int = 16,
     lora_rank: int = 64,
     lora_alpha: int = 64,
     lora_dropout: float = 0,
-    max_seq_length: int = 5120,
+    max_seq_length: int = 6656,
     warmup_ratio: float = 0.1,
     warmup_steps: int = 5,
     weight_decay: float = 0.01,
@@ -149,14 +151,15 @@ def run_fine_tuning(
         and applies the chat template.
         """
         SYSTEM_INSTRUCTION = (
-            "You are a specialized UnB (Universidade de Brasília) chatbot assistant who answers questions based on your pre-existing knowledge about UnB and also on the retrieved context (documents above). "
-            "Be precise and factual according to the source material when responding to the user's question above. Do not make up information.\n"
+            "You are a specialized UnB (Universidade de Brasília) chatbot assistant who answers questions based on the retrieved context (documents). "
+            "Base the answer only on the correct retrieved contexts and corresponding metadata, filtering out irrelevant chunks.\n"
+            "Be precise and factual according to the source material when responding to the user's question. Do not make up information.\n"
             "Respond in the following format:\n"
             "<REASON>\n"
-            "Reasoning in English...\n"
+            "Reasoning in English... (you may quote the relevant context information verbatim to ground your response)\n"
             "</REASON>\n"
             "<ANSWER>\n"
-            "Answer in **Portuguese**...\n"
+            "Answer in **Portuguese**... (directly answer the question while ignoring irrelevant context information)\n"
             "</ANSWER>\n"
             # "Do not engage in user queries that are not related to UnB or require more than pure factual information.\n\n"
         )
@@ -180,7 +183,7 @@ def run_fine_tuning(
         # Assume the first message is 'user' and prepend instruction
         if messages_copy and messages_copy[0].get("role") == "user":
             original_content = messages_copy[0].get("content", "")
-            messages_copy[0]["content"] = f"{original_content}\n\n{SYSTEM_INSTRUCTION}"
+            messages_copy[0]["content"] = f"{SYSTEM_INSTRUCTION}\n\n{original_content}\n"
 
         # Apply chat template
         formatted_text = tokenizer.apply_chat_template(
@@ -250,6 +253,7 @@ def run_fine_tuning(
         lora_alpha = lora_alpha,
         lora_dropout = lora_dropout,
         bias = "none",
+        use_gradient_checkpointing = "unsloth",
         random_state = 3407,
     )
 
@@ -328,7 +332,7 @@ def run_fine_tuning(
             # warmup_ratio = warmup_ratio,
             warmup_steps = warmup_steps,
             num_train_epochs = epochs,
-            # max_steps = 1,
+            # max_steps = 0,
             learning_rate = learning_rate,
             logging_steps = 1, # Log frequently
             optim = "adamw_8bit", # Unsloth recommended optimizer
@@ -338,13 +342,13 @@ def run_fine_tuning(
             seed=3407,
             report_to="none",  # Disable default reporting (like wandb) unless configured
             eval_strategy="steps", # Evaluate during training
-            eval_steps=60,         # How often to evaluate
-            load_best_model_at_end=True, # Consider if you want the best model based on eval
+            eval_steps=80,         # How often to evaluate
+            load_best_model_at_end=False, # Consider if you want the best model based on eval
             metric_for_best_model="eval_loss",
             save_strategy="steps", # Save based on steps
-            save_steps=60,         # How often to save checkpoints
+            save_steps=40,         # How often to save checkpoints
             save_total_limit=3,    # Number of checkpoints to keep
-            max_seq_length=max_seq_length, # Pass max_seq_length here too
+            max_seq_length=max_seq_length,
         ),
     )
 
@@ -359,22 +363,23 @@ def run_fine_tuning(
     # Initialize variables for summary
     training_summary_stats = None
     final_eval_metrics = None
+    initial_eval_metrics = None
     final_log_history = None
 
     # Train the model
     try:
-        logger.info("Running initial evaluation...")
-        initial_eval_metrics = trainer.evaluate()
-        logger.info(f"Initial evaluation metrics: {initial_eval_metrics}")
+        # logger.info("Running initial evaluation...")
+        # initial_eval_metrics = trainer.evaluate()
+        # logger.info(f"Initial evaluation metrics: {initial_eval_metrics}")
 
         logger.info("Starting training (evaluation enabled)...")
         training_summary_stats = trainer.train(resume_from_checkpoint=resume_checkpoint)
         logger.info(f"Training finished. Stats: {training_summary_stats}")
 
         # Run final evaluation
-        logger.info("Running final evaluation...")
-        final_eval_metrics = trainer.evaluate()
-        logger.info(f"Final evaluation metrics: {final_eval_metrics}")
+        # logger.info("Running final evaluation...")
+        # final_eval_metrics = trainer.evaluate()
+        # logger.info(f"Final evaluation metrics: {final_eval_metrics}")
 
         # Example generation
         # logger.info("Running example generation...")
@@ -395,7 +400,13 @@ def run_fine_tuning(
             
             # Define directories
             merged_model_dir = os.path.join(output_dir_path, "merged_model")
+            if checkpoint_step:
+                merged_model_dir = os.path.join(output_dir_path, f"checkpoint-{checkpoint_step}", "merged_model")
+
+
             gguf_dir = output_dir_path
+            if checkpoint_step:
+                gguf_dir = os.path.join(output_dir_path, f"checkpoint-{checkpoint_step}")
             
             # Check if merged model exists
             merged_model_exists = os.path.exists(merged_model_dir) and os.path.exists(os.path.join(merged_model_dir, "config.json"))

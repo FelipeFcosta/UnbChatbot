@@ -20,7 +20,7 @@ NIVEL_ENSINO_GRADUACAO = "G"
 
 # --- Configuration for Componentes Curriculares (Programas/Syllabi) ---
 COMPONENTES_URL = "https://sigaa.unb.br/sigaa/public/componentes/busca_componentes.jsf"
-COMPONENTES_MAIN_TARGET_DIR_BASE = "sigaa_clone/componentes_curriculares2"
+COMPONENTES_MAIN_TARGET_DIR_BASE = "sigaa_clone/componentes_curriculares"
 COMPONENTES_TIPO_DISCIPLINA = "2"
 COMPONENTES_UNIDADES = {
     "508": "CIC_Depto_Ciencias_da_Computacao",
@@ -245,9 +245,13 @@ def process_single_componente_programa(args):
                                     current_parts.append(f"{name_candidate.strip()} ({code})")
                                 elif isinstance(element, NavigableString):
                                     text_content = str(element).strip()
-                                    words_in_text_node = re.findall(r'\b\w+\b', text_content.upper())
-                                    for word in words_in_text_node:
-                                        if word == 'E' or word == 'OU': current_parts.append(word)
+                                    # Extract words (E, OU) and parentheses
+                                    tokens = re.findall(r'\b\w+\b|[()]', text_content)
+                                    for token in tokens:
+                                        if token.upper() == 'E' or token.upper() == 'OU':
+                                            current_parts.append(token.upper())
+                                        elif token == '(' or token == ')':
+                                            current_parts.append(token)
                             if current_parts:
                                 value_to_set = ' '.join(current_parts)
                             else: 
@@ -510,7 +514,7 @@ def main_controller():
         except Exception as e_main_driver: print(f"Fatal Error setting up Main ChromeDriver: {e_main_driver}"); return
         
         scrape_componentes_curriculares_main_process(driver)
-        scrape_turmas(driver)
+        # scrape_turmas(driver)
         
     except Exception as e_global:
         print(f"An unexpected global error occurred in main_controller: {e_global}")

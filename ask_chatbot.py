@@ -5,10 +5,14 @@ import json
 import argparse
 
 # --- Configuration ---
-CHATBOT_URL = "https://vaniamarnivania--unb-chatbot-raft-gguf-web-endpoint--b3543c-dev.modal.run"
+# CHATBOT_URL = "https://vaniamarnivania--unb-chatbot-raft-gguf-web-endpoint--b3543c-dev.modal.run"
+# CHATBOT_URL = "https://felipecostasdc--unb-chatbot-raft-gguf-web-endpoint-m-443271-dev.modal.run"
+# CHATBOT_URL = "https://bcadairton--unb-chatbot-raft-gguf-web-endpoint-model-c93bc2-dev.modal.run"
+# CHATBOT_URL = "https://marnivania12b--unb-chatbot-raft-gguf-web-endpoint-mo-eca5ca-dev.modal.run" # 12b_run9
+CHATBOT_URL = "https://fejota12b--unb-chatbot-raft-gguf-web-endpoint-modele-b3f164-dev.modal.run" # 12b_run10
 DEFAULT_MAX_TOKENS = 6144
-DEFAULT_TEMPERATURE = 1.0
-DEFAULT_TOP_P = 0.9
+DEFAULT_TEMPERATURE = 0.5
+DEFAULT_TOP_P = 0.95
 # --- End Configuration ---
 
 def query_chatbot(prompt: str, max_tokens: int, temperature: float, top_p: float) -> dict:
