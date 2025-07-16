@@ -80,16 +80,15 @@ def parse_response(response_text):
         st.error(f"Error parsing response: {e}")
         return response_text, None
 
-def call_modal_endpoint(prompt, max_tokens=2048, temperature=0.7, top_p=0.95):
-    """Call the Modal endpoint with the user's prompt"""
+def call_modal_endpoint(messages, max_tokens=2048, temperature=0.7, top_p=0.95):
+    """Call the Modal endpoint with the full chat history (`messages` array)."""
     try:
         payload = {
-            "prompt": prompt,
+            "messages": messages,
             "max_tokens": max_tokens,
             "temperature": temperature,
             "top_p": top_p
         }
-        
         response = requests.post(
             MODAL_ENDPOINT_URL,
             json=payload,
@@ -157,11 +156,15 @@ if prompt := st.chat_input("Faça sua pergunta sobre a UnB..."):
 
 # Process pending assistant responses
 if st.session_state.messages and st.session_state.messages[-1]["role"] == "assistant" and st.session_state.messages[-1]["content"] == "":
-    # Get the user's last prompt
-    user_prompt = st.session_state.messages[-2]["content"]
-    
+    # Build the payload messages list (exclude the blank assistant placeholder)
+    payload_messages = [
+        {"role": m["role"], "content": m["content"]}
+        for m in st.session_state.messages
+        if m["content"]  # skip blank placeholders
+    ]
+
     # Process the response
-    response = call_modal_endpoint(user_prompt)
+    response = call_modal_endpoint(payload_messages)
     
     if response:
         # Parse response to extract ANSWER and REASON sections
@@ -221,7 +224,7 @@ with st.sidebar:
 st.markdown("---")
 st.markdown(
     "<div style='text-align: center; color: #666; font-size: 0.8em;'>"
-    "UnB Chatbot Prototype | Powered by RAFT & Modal"
+    "UnB Chatbot Protótipo"
     "</div>", 
     unsafe_allow_html=True
 )

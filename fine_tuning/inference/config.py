@@ -1,10 +1,3 @@
-"""Centralized configuration constants for the UnB chatbot project.
-
-Any module can simply `import config` (or use `from config import SOME_NAME`) to access
-these values. Keeping them in one place avoids long blocks of settings scattered
-throughout the codebase.
-"""
-
 # System-wide prompts -----------------------------------------------------
 SYSTEM_PROMPT = (
     "You are a specialized UnB (Universidade de Brasília) chatbot assistant who answers questions based on the retrieved context (documents).\n"
@@ -40,11 +33,42 @@ QUERY_EXPANSION_PROMPT = (
     "Mensagens alternativas:"
 )
 
-# Model & storage settings -------------------------------------------------
+
+CONTEXTUALIZE_MESSAGE_PROMPT = (
+    "Você precisa reformular uma mensagem do usuário para incluir TODO o contexto necessário.\n\n"
+    "IMPORTANTE: Identifique o TÓPICO PRINCIPAL da conversa anterior e inclua na reformulação.\n\n"
+    "Histórico da Conversa:\n{chat_history}\n"
+    "Mensagem Atual: {current}\n\n"
+    "TAREFA: Reformule a pergunta incluindo o tópico/assunto específico mencionado no histórico. Isso será usado para buscar o contexto relevante no sistema RAG.\n\n"
+    "Retorne apenas a pergunta do usuário reformulada\n\n"
+    "Mensagem Reformulada:"
+)
+
+INTENT_CLASSIFIER_PROMPT = (
+    "Você é um classificador de intenções para um chatbot da UnB. Você deve decidir se a mensagem atual requer uma busca nos documentos para responder à mensagem corretamente ou não.\n"
+    "Por isso, classifique em um dos tipos:\n"
+    "  • non_domain_query —  saudações, agradecimentos, small talk, insultos, aleatoriedade, perguntas subjetivas\n"
+    "  • domain_query (padrão) — qualquer outra coisa (inclusive reações ao chatbot)\n\n"
+    "{history_context}"
+    "Mensagem atual: \"{current_text}\"\n\n"
+    "Classifique a intenção da mensagem atual considerando o contexto e retorne apenas o tipo:\n"
+    "Tipo:"
+)
+
+CHITCHAT_PROMPT = (
+    "You are a specialized UnB (Universidade de Brasília) chatbot assistant.\n"
+    "Please just respond in a friendly and engaging way in Portuguese, but be concise.\n"
+    "OBS: If this is not just chitchat and requires a factual answer, beware: the question was "
+    "classified as non_domain_query. You were not provided any source documents, so you have no "
+    "information to correctly answer any UnB factual answer.\n\n"
+)
+
+
+# Model and storage settings ------------------------------------------------
 APP_NAME = "unb-chatbot-raft-gguf-web-endpoint"
 
 MODEL_DIR_IN_VOLUME = "unb_raft_gemma12b_neg_run1"
-CHECKPOINT_FOLDER = ""  # e.g. "checkpoint-201" for resumed training
+CHECKPOINT_FOLDER = "" # "checkpoint-201"
 HELPER_LLM_MODEL_DIR_IN_VOLUME = "gemma_gguf_model"
 GGUF_FILENAME = "merged_model.Q8_0.gguf"
 
@@ -69,6 +93,3 @@ TOP_K_RETRIEVAL = 10  # Number of chunks to retrieve
 DEFAULT_MAX_TOKENS = 2048
 DEFAULT_TEMPERATURE = 0.7
 DEFAULT_TOP_P = 0.95
-
-# Misc ---------------------------------------------------------------------
-MINUTES = 60  # Convenience alias for timeouts, if needed 
