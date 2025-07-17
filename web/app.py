@@ -52,7 +52,8 @@ st.markdown("""
 # MODAL_ENDPOINT_URL = "https://fejota12b--unb-chatbot-raft-gguf-web-endpoint-modele-b3f164-dev.modal.run"
 # MODAL_ENDPOINT_URL = "https://doespacoluz--unb-chatbot-raft-gguf-web-endpoint-mode-292681-dev.modal.run"
 # MODAL_ENDPOINT_URL = "https://cablite--unb-chatbot-raft-gguf-web-endpoint-modelend-e2846b-dev.modal.run" # 12b_run13
-MODAL_ENDPOINT_URL = "https://fariasfelipe--unb-chatbot-raft-gguf-web-endpoint-mod-0e084b-dev.modal.run" # 12b_neg_run1
+# MODAL_ENDPOINT_URL = "https://fariasfelipe--unb-chatbot-raft-gguf-web-endpoint-mod-0e084b-dev.modal.run" # 12b_neg_run1
+MODAL_ENDPOINT_URL = "https://lite12bneg--unb-chatbot-raft-gguf-web-endpoint-model-c88e98-dev.modal.run" # 12_4b_neg_run2
 
 def parse_response(response_text):
     """Parse the response to extract REASON and ANSWER sections"""

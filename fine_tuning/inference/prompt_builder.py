@@ -40,7 +40,7 @@ class PromptBuilder:
         
         history_lines = []
         for m in recent_history:
-            prefix = "User:" if m["role"] == "user" else "Assistant:" if m["role"] == "assistant" else f"{m['role']}:"
+            prefix = "Usuário:" if m["role"] == "user" else "Chatbot:" if m["role"] == "assistant" else f"{m['role']}:"
             history_lines.append(f"{prefix} {m['content'].strip()}")
         return "\n".join(history_lines)
 

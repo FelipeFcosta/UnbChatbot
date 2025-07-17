@@ -152,7 +152,7 @@ class ModelEndpoint:
         return previous_question, previous_response
 
     def _prepare_context_and_prompt(self, intent: str, contextualized_query: str) -> tuple[str, str]:
-        """Prepare context and system prompt based on intent."""
+        """Prepare context (documents) and system prompt"""
         if intent == "domain_query":
             logger.info("Retrieving relevant context...")
             additional_queries = self.query_processor.expand_query(contextualized_query)
@@ -224,7 +224,7 @@ class ModelEndpoint:
         # gather context documents from contextualized query and its expansions
         assembled_context_str, system_prompt = self._prepare_context_and_prompt(intent, contextualized_query)
 
-        formatted_prompt = self.prompt_builder.build_prompt(messages, system_prompt, assembled_context_str, user_query)
+        formatted_prompt = self.prompt_builder.build_prompt(messages, system_prompt, assembled_context_str, contextualized_query)
         logger.info(f"Constructed final prompt for LLM (length: {len(formatted_prompt)} chars). Prompt content follows:\n{formatted_prompt}")
 
         try:

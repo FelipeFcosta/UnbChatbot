@@ -33,7 +33,7 @@ app = modal.App("unb-chatbot-gemma") # App name updated
 
 # Create a Modal image with dependencies
 image = (
-    modal.Image.debian_slim(python_version="3.11")
+    modal.Image.from_registry("nvidia/cuda:12.4.0-devel-ubuntu22.04", add_python="3.11")
     .apt_install("git")
     .pip_install(
         "unsloth==2025.6.12",
@@ -44,8 +44,11 @@ image = (
         "accelerate==1.8.1",
         "transformers==4.53.1",
         "trl==0.19.0",
-        "sympy==1.13.1"
+        "sympy==1.13.1",
+        "packaging",
+        "ninja",
         )
+    .pip_install("flash-attn==2.7.3", extra_options="--no-build-isolation")
 )
 
 # Volume to store output models and summary
@@ -65,8 +68,8 @@ huggingface_secret = modal.Secret.from_name("huggingface")
 )
 def run_fine_tuning(
     hf_dataset: str,
-    epochs: int,
-    output_dir: str = "unb_chatbot_gemma4b",
+    epochs: float,
+    output_dir: str = "unb_chatbot_gemma12b",
     base_model: str = "unsloth/gemma-3-12b-it-bnb-4bit",
     load_in_4bit: bool = True,
     load_in_8bit: bool = False,
@@ -83,8 +86,8 @@ def run_fine_tuning(
     resume_from_checkpoint: bool = False,
     checkpoint_step: int = None,
     delete_output_dir: bool = False,
-    lr_scheduler_type: str = "linear",
-    num_cycles: int = None,
+    lr_scheduler_type: str = "cosine_with_restarts",
+    num_cycles: int = 6,
     packing: bool = False,
     data_seed: int = None,
     merge_and_export: bool = False,
@@ -100,7 +103,7 @@ def run_fine_tuning(
     from unsloth.chat_templates import get_chat_template, train_on_responses_only
     from unsloth.chat_templates import standardize_data_formats
     from trl import SFTTrainer, SFTConfig
-    from transformers import TrainingArguments
+    from transformers import TrainingArguments, DataCollatorWithPadding
     from huggingface_hub import login
     import shutil
     import accelerate.utils.operations as accel_ops
@@ -238,6 +241,7 @@ def run_fine_tuning(
         load_in_4bit=load_in_4bit,
         load_in_8bit=load_in_8bit,
         token=hf_token,
+        attn_implementation="flash_attention_2",
         full_finetuning=False
     )
 
@@ -316,6 +320,8 @@ def run_fine_tuning(
                 resume_checkpoint = os.path.join(output_dir_path, latest_checkpoint)
                 logger.info(f"Resuming from latest checkpoint: {resume_checkpoint}")
 
+    data_collator = DataCollatorWithPadding(tokenizer, padding="longest")
+
     # Set up the trainer
     logger.info("Setting up SFT Trainer...")
     trainer = SFTTrainer(
@@ -323,11 +329,11 @@ def run_fine_tuning(
         tokenizer = tokenizer,
         train_dataset = train_dataset,
         eval_dataset = eval_dataset,
-        packing = packing,
         args = SFTConfig( # Use SFTConfig directly which inherits from TrainingArguments
             output_dir = output_dir_path,
             dataset_text_field = "text",
             gradient_accumulation_steps=gradient_accumulation_steps,
+            packing = packing,
             per_device_train_batch_size = batch_size,
             # warmup_ratio = warmup_ratio,
             warmup_steps = warmup_steps,
@@ -348,8 +354,8 @@ def run_fine_tuning(
             save_strategy="steps", # Save based on steps
             save_steps=40,         # How often to save checkpoints
             save_total_limit=3,    # Number of checkpoints to keep
-            max_seq_length=max_seq_length,
         ),
+        data_collator=data_collator,
     )
 
     # Apply response-only training - Use Gemma templates
@@ -549,8 +555,9 @@ def run_fine_tuning(
 @app.local_entrypoint()
 def main(
     hf_dataset: str = 'liteofspace/unb-chatbot',
-    output_dir: str = "unb_chatbot_gemma4b",
-    epochs: int = 3,
+    output_dir: str = "unb_chatbot_gemma12b",
+    base_model: str = "unsloth/gemma-3-12b-it-bnb-4bit",
+    epochs: float = 3.0,
     resume: bool = False,
     checkpoint_step: int = None,
     data_seed: int = None,
@@ -564,6 +571,7 @@ def main(
     result = run_fine_tuning.remote(
         hf_dataset=hf_dataset,
         output_dir=output_dir,
+        base_model=base_model,
         epochs=epochs,
         resume_from_checkpoint=resume,
         checkpoint_step=checkpoint_step,

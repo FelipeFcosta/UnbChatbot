@@ -512,7 +512,7 @@ class QAProcessorRAFT:
                         else:
                             url_str = f'URLs: "{chunk["source_page_url"]} [{chunk["file_title"]}]({chunk["file_url"]})"'
 
-                        formatted_chunk = f'Chunk: "{chunk["chunk"]}"<doc_metadata>\n{topic_str}{professor_str}{course_str}{filename_str}{url_str}\n</doc_metadata>'
+                        formatted_chunk = f'Chunk: "{chunk["chunk"]}"<doc_metadata>{topic_str}{professor_str}{course_str}{filename_str}{url_str}</doc_metadata>'
                         formatted_contexts.append(formatted_chunk)
 
                     final_extracted_chunks.extend(extracted_chunks)
@@ -725,7 +725,7 @@ class QAProcessorRAFT:
                         
                         assembled_context_str = ""
                         for doc_content in context_docs:
-                            assembled_context_str += f"<DOCUMENT>{doc_content}</DOCUMENT>\n"
+                            assembled_context_str += f"<DOCUMENT>{doc_content}</DOCUMENT>\n\n"
                         if assembled_context_str == "":
                             logger.error(f"Assembled context string is empty for {file_name} ({qa_hash})")
                             continue

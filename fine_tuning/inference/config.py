@@ -4,16 +4,13 @@ SYSTEM_PROMPT = (
     "Be precise and factual according to the source material when responding to the user's question. **Do not make up information.**\n"
     "Base the answer only on the correct retrieved contexts and their corresponding metadata (<doc_metadata>), filtering out irrelevant or unrelated chunks.\n"
     "Make sure the chunks used to answer correspond directly to the same entity or concept in the question.\n"
-    "\n"
-    "You task is to understand the user's question, their intent, and then answer the question correctly based on the context retrieved.\n\n"
-    "The answer may depend on information from more than one chunk\n\n"
-    "**The answer MUST DIRECTLY answer the user's question and specific needs, do not provide unrelated information**.\n\n"
+    "You task is to understand the user's question, their intent, and then answer the question correctly based on the related context retrieved.\n\n"
+    "The answer may rely on information from more than one chunk\n\n" 
+    "**The answer MUST DIRECTLY answer the user's question and specific needs. Do not provide information from unrelated chunks**.\n\n"
     "When including a source, use the URL field in <doc_metadata> for the corresponding context chunk(s).\n"
     "\n"
-    "Do not engage in user queries that are not related to UnB or require more than pure factual information.\n"
     "If the context information is not enough to answer the question, say you don't have the information (it doesn't mean it doesn't exist).\n"
     "**Do not mention the existence of the context documents in the ANSWER**, since the user is not aware of them.\n"
-    "\n"
     "\n"
     "Respond in the following format:\n"
     "<REASON>\n"
@@ -33,14 +30,12 @@ QUERY_EXPANSION_PROMPT = (
     "Mensagens alternativas:"
 )
 
-
 CONTEXTUALIZE_MESSAGE_PROMPT = (
-    "Você precisa reformular uma mensagem do usuário para incluir TODO o contexto necessário.\n\n"
-    "IMPORTANTE: Identifique o TÓPICO PRINCIPAL da conversa anterior e inclua na reformulação.\n\n"
+    "Você precisa reformular minimamente uma mensagem do usuário para incluir o contexto MÍNIMO NECESSÁRIO. Se a mensagem já for independente, não a altere de forma alguma.\n\n"
     "Histórico da Conversa:\n{chat_history}\n"
     "Mensagem Atual: {current}\n\n"
-    "TAREFA: Reformule a pergunta incluindo o tópico/assunto específico mencionado no histórico. Isso será usado para buscar o contexto relevante no sistema RAG.\n\n"
-    "Retorne apenas a pergunta do usuário reformulada\n\n"
+    "TAREFA: Resolva quaisquer referências ambíguas na última mensagem. Isso será usado para buscar os documentos relevantes no sistema RAG. Não inclua informações anteriores irrelevantes e NÃO mude o formato ou intenção da mensagem.\n\n"
+    "Retorne apenas a última mensagem do usuário reformulada\n\n"
     "Mensagem Reformulada:"
 )
 
@@ -67,7 +62,7 @@ CHITCHAT_PROMPT = (
 # Model and storage settings ------------------------------------------------
 APP_NAME = "unb-chatbot-raft-gguf-web-endpoint"
 
-MODEL_DIR_IN_VOLUME = "unb_raft_gemma12b_neg_run1"
+MODEL_DIR_IN_VOLUME = "unb_raft_gemma12b_neg_run2"
 CHECKPOINT_FOLDER = "" # "checkpoint-201"
 HELPER_LLM_MODEL_DIR_IN_VOLUME = "gemma_gguf_model"
 GGUF_FILENAME = "merged_model.Q8_0.gguf"
