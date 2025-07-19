@@ -73,21 +73,21 @@ def run_fine_tuning(
     base_model: str = "unsloth/gemma-3-12b-it-bnb-4bit",
     load_in_4bit: bool = True,
     load_in_8bit: bool = False,
-    learning_rate: float = 2.5e-5,
+    learning_rate: float = 2.0e-5,
     batch_size: int = 1, # Actual per-device batch size
     gradient_accumulation_steps: int = 16,
-    lora_rank: int = 64,
-    lora_alpha: int = 64,
-    lora_dropout: float = 0,
+    lora_rank: int = 32,
+    lora_alpha: int = 32,
+    lora_dropout: float = 0.1,
     max_seq_length: int = 6656,
     warmup_ratio: float = 0.1,
-    warmup_steps: int = 5,
+    warmup_steps: int = 10,
     weight_decay: float = 0.01,
     resume_from_checkpoint: bool = False,
     checkpoint_step: int = None,
     delete_output_dir: bool = False,
-    lr_scheduler_type: str = "cosine_with_restarts",
-    num_cycles: int = 6,
+    lr_scheduler_type: str = "linear",
+    num_cycles: int = None,
     packing: bool = False,
     data_seed: int = None,
     merge_and_export: bool = False,
@@ -154,15 +154,16 @@ def run_fine_tuning(
         and applies the chat template.
         """
         SYSTEM_INSTRUCTION = (
-            "You are a specialized UnB (Universidade de Brasília) chatbot assistant who answers questions based on the retrieved context (documents). "
-            "Base the answer only on the correct retrieved contexts and corresponding metadata, filtering out irrelevant chunks.\n"
+            "You are a specialized UnB (Universidade de Brasília) chatbot assistant who answers questions based on the retrieved context (DOCUMENTS). "
             "Be precise and factual according to the source material when responding to the user's question. Do not make up information.\n"
+            "Only use information from a DOCUMENT whose metadata or main subject exactly matches the entity or subject being asked about in the user's question. Ignore all unrelated chunks.\n"
+            "If the context information is not enough to answer the question, say you don't have the information.\n"
             "Respond in the following format:\n"
             "<REASON>\n"
-            "Reasoning in English... (you may quote the relevant context information verbatim to ground your response)\n"
+            "Reasoning in English...\n"
             "</REASON>\n"
             "<ANSWER>\n"
-            "Answer in **Portuguese**... (directly answer the question while ignoring irrelevant context information)\n"
+            "Answer in **Portuguese**...\n"
             "</ANSWER>\n"
             # "Do not engage in user queries that are not related to UnB or require more than pure factual information.\n\n"
         )

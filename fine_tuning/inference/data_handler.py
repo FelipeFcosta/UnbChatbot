@@ -10,6 +10,7 @@ class DataHandler:
         self.documents: List[str] = []
         self.pairs: List[Dict] = []
         self.regulars: List[Dict] = []
+        self.raw_documents: List[Dict] = []  # New: store raw dicts
         self.retriever = None
         self.embedding_model = None
         self.logger = logger
@@ -42,6 +43,7 @@ class DataHandler:
                     formatted_item = f'Q: "{question}", A: "{answer}"<doc_metadata>{topic_str}{filename_str}{url_str}</doc_metadata>\n'
                     self.pairs.append(formatted_item)
                     self.documents.append(formatted_item)
+                    self.raw_documents.append(item)  # Append raw
 
                 else:
                     chunk = item.get("chunk", "")
@@ -62,9 +64,10 @@ class DataHandler:
                     else:
                         url_str = f'URL: "[{file_title}]({file_url})"'
                     
-                    formatted_item = f'Chunk: "{chunk}"<doc_metadata>{topic_str}{professor_str}{course_str}{filename_str}{url_str}</doc_metadata>'
+                    formatted_item = f'"{chunk}"<doc_metadata>{topic_str}{professor_str}{course_str}{filename_str}{url_str}</doc_metadata>'
                     self.regulars.append(formatted_item)
                     self.documents.append(formatted_item)
+                    self.raw_documents.append(item)  # Append raw
         
         if self.pairs:
             self.logger.info(f"Example FAQ: {self.pairs[0]}")
@@ -125,4 +128,28 @@ class DataHandler:
             return retrieved_docs
         except Exception as e:
             self.logger.error(f"Error during retrieval: {e}", exc_info=True)
+            return [] 
+
+    def retrieve_raw(self, query: str, k: int) -> List[Dict]:
+        """Retrieve top-k relevant raw document dicts for the query."""
+        import faiss
+        import numpy as np
+
+        if self.retriever is None or self.embedding_model is None:
+            self.logger.error("Retriever or embedding model not initialized.")
+            return []
+        try:
+            self.logger.info(f"Encoding query for retrieval...")
+            query_embedding = self.embedding_model.encode([query], convert_to_tensor=False)
+            query_embedding_np = np.array(query_embedding).astype('float32')
+            faiss.normalize_L2(query_embedding_np)
+
+            self.logger.info(f"Searching FAISS index for top {k} documents...")
+            distances, indices = self.retriever.search(query_embedding_np, k)
+            self.logger.info(f"Retrieved indices: {indices[0]}")
+
+            retrieved_docs = [self.raw_documents[i] for i in indices[0] if i < len(self.raw_documents)]
+            return retrieved_docs
+        except Exception as e:
+            self.logger.error(f"Error during raw retrieval: {e}", exc_info=True)
             return [] 

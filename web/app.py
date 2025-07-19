@@ -53,7 +53,9 @@ st.markdown("""
 # MODAL_ENDPOINT_URL = "https://doespacoluz--unb-chatbot-raft-gguf-web-endpoint-mode-292681-dev.modal.run"
 # MODAL_ENDPOINT_URL = "https://cablite--unb-chatbot-raft-gguf-web-endpoint-modelend-e2846b-dev.modal.run" # 12b_run13
 # MODAL_ENDPOINT_URL = "https://fariasfelipe--unb-chatbot-raft-gguf-web-endpoint-mod-0e084b-dev.modal.run" # 12b_neg_run1
-MODAL_ENDPOINT_URL = "https://lite12bneg--unb-chatbot-raft-gguf-web-endpoint-model-c88e98-dev.modal.run" # 12_4b_neg_run2
+# MODAL_ENDPOINT_URL = "https://lite12bneg--unb-chatbot-raft-gguf-web-endpoint-model-c88e98-dev.modal.run" # 12_4b_neg_run2
+# MODAL_ENDPOINT_URL = "https://fefelilipe--unb-chatbot-raft-gguf-web-endpoint-model-f78d35-dev.modal.run" # 12b_realdis_run1
+MODAL_ENDPOINT_URL = "https://espacoluzdo--unb-chatbot-raft-gguf-web-endpoint-mode-5d90da-dev.modal.run" # 12b_extra_run1
 
 def parse_response(response_text):
     """Parse the response to extract REASON and ANSWER sections"""
@@ -81,7 +83,7 @@ def parse_response(response_text):
         st.error(f"Error parsing response: {e}")
         return response_text, None
 
-def call_modal_endpoint(messages, max_tokens=2048, temperature=0.7, top_p=0.95):
+def call_modal_endpoint(messages, max_tokens=2048, temperature=0.0, top_p=0.95):
     """Call the Modal endpoint with the full chat history (`messages` array)."""
     try:
         payload = {
@@ -189,7 +191,7 @@ with st.sidebar:
     # Model parameters
     st.markdown("#### Parâmetros do Modelo")
     max_tokens = st.slider("Max Tokens", 256, 4096, 2048, 256)
-    temperature = st.slider("Temperature", 0.0, 1.0, 0.7, 0.1)
+    temperature = st.slider("Temperature", 0.0, 1.0, 0.0, 0.1)
     top_p = st.slider("Top P", 0.1, 1.0, 0.95, 0.05)
     
     # Clear chat button

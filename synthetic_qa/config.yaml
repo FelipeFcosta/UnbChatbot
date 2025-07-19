@@ -6,7 +6,7 @@ global:
 
 # Debugging settings
 # debugging:
-  # exclusive_folder: componentes_curriculares/ENE_Depto_Engenharia_Eletrica/
+  # exclusive_folder: bce.unb.br
 
 # Processing settings for specific file types
 processing:
@@ -214,5 +214,9 @@ output:
   format: json
   include_source: true
 
+
+retrieval_endpoint:
+  url: "https://filipiis--retrieval-endpoint-retrievalendpoint-retrieve-dev.modal.run"
+  timeout: 500
 
 base_dir: /home/farias/tcc/input_final/  # set by synthetic_qa_generator

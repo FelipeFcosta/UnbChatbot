@@ -10,6 +10,7 @@ from tqdm import tqdm
 import random
 import time
 from slugify import slugify
+import requests
 
 from modules.utils import create_hash, FileType
 
@@ -92,7 +93,7 @@ You may optionally include a short quote from the context as a blockquote to sup
 
 ### **Edge Cases**
 
-*   If the context lacks the information to answer the question: State this in your <REASON> section. Then, in your <ANSWER> section, politely state that you do not have the information to properly answer the question.
+*   If the context lacks the information to answer the question: State this in your <REASON> section. Then, in your <ANSWER> section, politely state that you do not have the information to properly answer the question and nothing more (DO NOT ADD CHUNK INFORMATION OR A SOURCE, UNLESS FOR CORRECTING/CLARIFYING THE USER'S MISTAKES).
 *   **DO NOT** acknowledge the existence of the context (document) to the user in any way (they don't know about the provided context).
 *   If the question is about pre-requisites, co-requisites, or equivalences of a discipline, consider the correct logic of OR (OU) and AND (E) operators when presenting the information.
 
@@ -107,7 +108,7 @@ You may optionally include a short quote from the context as a blockquote to sup
 
 ---
 
-### **Input Format**
+### **Input**
 
 *   **Original Question:** "{{original_question}}"
 *   **{{context_source_name}}:** "{{context_content}}"
@@ -366,6 +367,34 @@ class QAProcessorRAFT:
             return None
 
     @staticmethod
+    def format_doc(doc: Dict[str, Any]) -> str:
+        """Convert a chunk/FAQ dict into the RAFT string representation used in <DOCUMENT> blocks.
+        This centralises what was previously duplicated in several branches.
+        """
+        # Determine if we have a chunk or a FAQ pair
+        if "chunk" in doc:  # regular/chunk document
+            topic_str = f'Topic: "{doc.get("topic")}", ' if doc.get("topic") else ''
+            professor_str = f'Professor: "{doc.get("professor")}", ' if doc.get("professor") else ''
+            course_str = f'Course: "{doc.get("course")}", ' if doc.get("course") else ''
+            file_type = doc.get("file_type")
+            filename_str = '' if str(file_type) == str(FileType.COMPONENT) else f'File: "{doc.get("file_name", "")}", '
+            is_html = str(doc.get("file_name", "")).lower().endswith((".html", ".htm"))
+            if is_html:
+                url_str = f'URL: "[{doc.get("file_title")}]({doc.get("file_url")})"'
+            else:
+                url_str = f'URLs: "{doc.get("source_page_url")} [{doc.get("file_title")}]({doc.get("file_url")})"'
+            return f'"{doc.get("chunk")}"<doc_metadata>{topic_str}{professor_str}{course_str}{filename_str}{url_str}</doc_metadata>'
+        else:  # FAQ document
+            topic_list = doc.get("topic", []) or doc.get("topics", [])
+            if isinstance(topic_list, str):
+                topic_list = [topic_list]
+            topic_str = f'Topic: "{", ".join(topic_list)}", ' if topic_list else ''
+            course_str = f'Course: "{doc.get("course", "")}", ' if doc.get("course") else ''
+            filename_str = f'File: "{doc.get("file_name", "")}", '
+            url_str = f'URL: "[{doc.get("file_title")}]({doc.get("file_url")})"'
+            return f'Q: "{doc.get("question")}", A: "{doc.get("answer")}"<doc_metadata>{topic_str}{course_str}{filename_str}{url_str}</doc_metadata>'
+
+    @staticmethod
     def generate_raft_training_data(
         files: List[Tuple[BeautifulSoup, Path, Path, FileType]],
         output_dir: Path,
@@ -400,6 +429,10 @@ class QAProcessorRAFT:
             debug_dir.mkdir(parents=True, exist_ok=True)
             raft_qa_dir = output_dir / "qa_pairs_raft"
             raft_qa_dir.mkdir(parents=True, exist_ok=True)
+
+            # Directory dedicated to cached distractor lists
+            distractors_dir = output_dir / "distractors"
+            distractors_dir.mkdir(parents=True, exist_ok=True)
 
             final_default_qa = []
             final_extracted_chunks = []
@@ -473,17 +506,8 @@ class QAProcessorRAFT:
                         faq['file_type'] = file_type
 
                         # format faq for original RAFT context
-                        topic_list = faq.get("topic", [])
-                        topic_list = faq.get("topics", []) if not topic_list else topic_list
-                        if not topic_list:
-                            logger.warning(f"No topics found for {file_title} ({faq['question']})")
-                        topic_str = f'Topic: "{", ".join(topic_list)}", ' if topic_list else ''
-                        course_str = f'Course: "{faq.get("course", "")}", ' if faq.get("course") else ''
-                        filename_str = f'File: "{faq["file_name"]}", '
-                        url_str = f'URL: "[{faq["file_title"]}]({faq["file_url"]})"'
-
-                        formatted_qa = f'Q: "{faq["question"]}", A: "{faq["answer"]}"<doc_metadata>{topic_str}{course_str}{filename_str}{url_str}</doc_metadata>'
-                        formatted_contexts.append(f'{formatted_qa}')
+                        
+                        formatted_contexts.append(QAProcessorRAFT.format_doc(faq))
                     contexts.extend(extracted_faq)
                     
                 # load extracted_chunks (for non-FAQ files)
@@ -501,19 +525,7 @@ class QAProcessorRAFT:
                         continue
                     for chunk in extracted_chunks:
                         # format chunk for original RAFT context
-                        topic_str = f'Topic: "{chunk.get("topic")}", ' if chunk.get("topic") else ''
-                        professor_str = f'Professor: "{chunk.get("professor")}", ' if chunk.get("professor") else ''
-                        course_str = f'Course: "{chunk.get("course")}", ' if chunk.get("course") else ''
-                        filename_str = f'File: "{chunk["file_name"]}", ' if file_type != FileType.COMPONENT else ''
-                        is_html_file = chunk["file_name"].lower().endswith((".html", ".htm"))
-
-                        if is_html_file:
-                            url_str = f'URL: "[{chunk["file_title"]}]({chunk["file_url"]})"'
-                        else:
-                            url_str = f'URLs: "{chunk["source_page_url"]} [{chunk["file_title"]}]({chunk["file_url"]})"'
-
-                        formatted_chunk = f'Chunk: "{chunk["chunk"]}"<doc_metadata>{topic_str}{professor_str}{course_str}{filename_str}{url_str}</doc_metadata>'
-                        formatted_contexts.append(formatted_chunk)
+                        formatted_contexts.append(QAProcessorRAFT.format_doc(chunk))
 
                     final_extracted_chunks.extend(extracted_chunks)
                     contexts.extend(extracted_chunks)
@@ -529,6 +541,50 @@ class QAProcessorRAFT:
             raft_config = config.get("processing", {}).get("raft", {})
             num_distract = raft_config.get("num_distractors", 4)
             p_golden = raft_config.get("p_golden_include", 0.8) # probability of including golden document
+
+            # --- New: Retrieval endpoint configuration (optional) ---
+            retrieval_cfg = config.get("retrieval_endpoint", {})
+            retrieval_url = retrieval_cfg.get("url")
+            retrieval_timeout = retrieval_cfg.get("timeout", 10)
+
+            def _get_semantic_distractors(styled_q: str, styled_hash: str, golden_hash: str, k: int) -> List[str]:
+                """Return *k* formatted distractor strings using the retrieval endpoint if available.
+                """
+                cache_path = distractors_dir / f"distractors_{styled_hash}.json"
+
+                doc_dicts: List[Dict[str, Any]] = []
+
+                # Try cache first
+                if cache_path.exists():
+                    try:
+                        with open(cache_path, 'r', encoding='utf-8') as f_cache:
+                            doc_dicts = json.load(f_cache)
+                    except Exception as e:
+                        logger.warning(f"Failed to load distractor cache {cache_path}: {e}. Ignoring cache.")
+
+                # If cache missing or insufficient, call remote endpoint
+                if (not doc_dicts or len(doc_dicts) < k) and retrieval_url:
+                    top_k = max(k + 1, 10)  # may include golden doc, and obey lower cap 10
+                    try:
+                        resp = requests.post(retrieval_url, json={"query": styled_q, "k": top_k}, timeout=retrieval_timeout)
+                        resp.raise_for_status()
+                        doc_dicts = resp.json().get("docs", [])
+                        # Save to cache for future runs
+                        try:
+                            with open(cache_path, 'w', encoding='utf-8') as f_cache:
+                                json.dump(doc_dicts, f_cache, ensure_ascii=False, indent=2)
+                        except Exception as e:
+                            logger.warning(f"Could not write distractor cache {cache_path}: {e}")
+                    except Exception as e:
+                        logger.warning(f"Retrieval endpoint failed ({e}), falling back to empty result.")
+
+                # Filter out golden document based on hash comparison
+                filtered = [d for d in doc_dicts if d.get("chunk_hash") != golden_hash and d.get("qa_pair_hash") != golden_hash]
+
+                if len(filtered) > k:
+                    filtered = filtered[:k]
+
+                return [QAProcessorRAFT.format_doc(d) for d in filtered]
 
             llm_config_styled_q_provider = config.get("providers", {}).get("styled_question", {})
             llm_config_cot_a_provider = config.get("providers", {}).get("cot_answer", {})
@@ -594,9 +650,9 @@ class QAProcessorRAFT:
                 should_add_unanswerable = False
                 
                 if file_type == FileType.COMPONENT:
-                    should_add_unanswerable = (i % 6 == 0)
+                    should_add_unanswerable = (i % 3 == 0)
                 else:
-                    should_add_unanswerable = (i % 2 == 0)
+                    should_add_unanswerable = (i % 1 == 0) # every file
                     
                 if should_add_unanswerable:
                     unanswerable_style = {
@@ -707,7 +763,11 @@ class QAProcessorRAFT:
                             golden_present_flag = True
                             context_docs.append(golden_document)
                             if actual_num_distract > 0:
-                                distractors_dk = random.sample(available_distractors, actual_num_distract)
+                                distractors_dk = _get_semantic_distractors(styled_q, styled_hash, qa_hash, num_distract)
+                                # If semantic retrieval returned fewer than needed, pad with random
+                                if len(distractors_dk) < actual_num_distract:
+                                    missing = actual_num_distract - len(distractors_dk)
+                                    distractors_dk.extend(random.sample(available_distractors, missing))
                                 context_docs.extend(distractors_dk)
                             random.shuffle(context_docs)
                             try:
@@ -720,7 +780,10 @@ class QAProcessorRAFT:
                             golden_idx = -1
                             num_needed = min(actual_num_distract + 1, len(available_distractors))
                             if num_needed > 0:
-                                context_docs = random.sample(available_distractors, num_needed)
+                                context_docs = _get_semantic_distractors(styled_q, styled_hash, qa_hash, num_distract)
+                                if len(context_docs) < num_needed: # If semantic retrieval returned fewer than needed, pad with random
+                                    missing = num_needed - len(context_docs)
+                                    context_docs.extend(random.sample(available_distractors, missing))
                                 random.shuffle(context_docs)
                         
                         assembled_context_str = ""

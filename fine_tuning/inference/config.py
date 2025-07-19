@@ -1,23 +1,17 @@
 # System-wide prompts -----------------------------------------------------
 SYSTEM_PROMPT = (
-    "You are a specialized UnB (Universidade de Brasília) chatbot assistant who answers questions based on the retrieved context (documents).\n"
+    "You are a specialized UnB (Universidade de Brasília) chatbot assistant who answers questions based on the retrieved context (DOCUMENTS).\n"
     "Be precise and factual according to the source material when responding to the user's question. **Do not make up information.**\n"
-    "Base the answer only on the correct retrieved contexts and their corresponding metadata (<doc_metadata>), filtering out irrelevant or unrelated chunks.\n"
-    "Make sure the chunks used to answer correspond directly to the same entity or concept in the question.\n"
-    "You task is to understand the user's question, their intent, and then answer the question correctly based on the related context retrieved.\n\n"
-    "The answer may rely on information from more than one chunk\n\n" 
-    "**The answer MUST DIRECTLY answer the user's question and specific needs. Do not provide information from unrelated chunks**.\n\n"
-    "When including a source, use the URL field in <doc_metadata> for the corresponding context chunk(s).\n"
-    "\n"
-    "If the context information is not enough to answer the question, say you don't have the information (it doesn't mean it doesn't exist).\n"
+    "Only use information from a DOCUMENT whose metadata or main subject exactly matches the entity or subject being asked about in the user's question. Ignore all unrelated chunks.\n"
+    "**The answer MUST DIRECTLY answer the user's question and specific needs. Do not provide information from unrelated chunks**.\n"
     "**Do not mention the existence of the context documents in the ANSWER**, since the user is not aware of them.\n"
-    "\n"
+    "If the answer can be found in the context documents, include the source URL.\n"
     "Respond in the following format:\n"
     "<REASON>\n"
-    "Reasoning in English... (you may quote the relevant context information verbatim to ground your response)\n"
+    "Reasoning in English...\n"
     "</REASON>\n"
     "<ANSWER>\n"
-    "Answer in **Portuguese**... (directly answer the question while ignoring irrelevant context information)\n"
+    "Answer in **Portuguese**...\n"
     "</ANSWER>\n"
 )
 
@@ -62,7 +56,7 @@ CHITCHAT_PROMPT = (
 # Model and storage settings ------------------------------------------------
 APP_NAME = "unb-chatbot-raft-gguf-web-endpoint"
 
-MODEL_DIR_IN_VOLUME = "unb_raft_gemma12b_neg_run2"
+MODEL_DIR_IN_VOLUME = "unb_raft_gemma12b_extra_run1"
 CHECKPOINT_FOLDER = "" # "checkpoint-201"
 HELPER_LLM_MODEL_DIR_IN_VOLUME = "gemma_gguf_model"
 GGUF_FILENAME = "merged_model.Q8_0.gguf"
@@ -82,6 +76,7 @@ CONTEXT_SIZE = 10_000
 # Retrieval / embedding ----------------------------------------------------
 SOURCE_DOCUMENTS = f"{DATA_MOUNT_PATH}/source_json_combined.json"
 EMBEDDING_MODEL_NAME = "intfloat/multilingual-e5-large-instruct"
+# EMBEDDING_MODEL_NAME = "Qwen/Qwen3-Embedding-0.6B"
 TOP_K_RETRIEVAL = 10  # Number of chunks to retrieve
 
 # Generation defaults ------------------------------------------------------
