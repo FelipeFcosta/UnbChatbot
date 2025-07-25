@@ -6,7 +6,7 @@ global:
 
 # Debugging settings
 # debugging:
-  # exclusive_folder: bce.unb.br
+#   exclusive_folder: componentes_curriculares/ENE_Depto_Engenharia_Eletrica/
 
 # Processing settings for specific file types
 processing:
@@ -22,6 +22,7 @@ processing:
   raft:
     num_distractors: 4
     p_golden_include: 1.0
+    min_chunks_for_multi_hop: 2
 
 
 # Iterations by document type (not used)
@@ -44,8 +45,8 @@ question_styles:
       iterations: 1
 
     - name: 'Naturalistic/Imperfect'
-      goal: 'Capture realistic, quickly typed/spoken inputs that use full sentences but contain common grammatical errors, unconventional word order, or minor typos, without losing the core meaning. Improve robustness to non-standard but understandable inputs.'
-      description: 'Generate a question as a student might type quickly into a chat. Use full sentences but **intentionally introduce common, realistic grammatical errors (e.g., verb conjugation, concordance), slightly unconventional word order, or minor typos.** The core meaning and intent **must remain clear and easily understandable**, but the sentence structure should not be perfectly polished. Avoid slang or keyword-only fragments. Examples: "como faz pra trancar a materia", "se eu reprovar no verao conta pro desligamento?", "qual o prazo minimo engenharia da computacao pra formar?".'
+      goal: 'Capture realistic, simple, quickly typed inputs that use full sentences but contain common grammatical errors, informal word ordering, or minor typos, without losing the core meaning. Improve robustness to non-standard but understandable inputs.'
+      description: 'Generate a question as a student might type quickly into a chat. Use full sentences but **intentionally introduce common, acceptable grammatical errors, or minor typos.** The core meaning and intent **must remain clear and easily understandable**, but the sentence structure should not be perfectly polished. Avoid slang or keyword-only fragments. **The question should be simple and not require multiple information to be answered.** Examples: "como faz pra trancar a materia", "se eu reprovar no verao conta pro desligamento?", "qual o prazo minimo pra formar engenharia da computacao?".'
       iterations: 1
 
 # API providers configuration
@@ -80,17 +81,33 @@ providers:
     max_tokens: 16384
     thinking_budget: 8000
 
+  multi_hop_entity_extraction:
+    provider: genai
+    model: gemini-2.5-flash
+    rate_limit_rpm: 100
+    temperature: 0.4
+    max_tokens: 4096
+    thinking_budget: 15000
+
+  multi_hop_generation:
+    provider: genai
+    model: gemini-2.5-pro
+    rate_limit_rpm: 100
+    temperature: 0.4
+    max_tokens: 16384
+    thinking_budget: 15000
+
   styled_question:
     provider: genai
     model: gemini-2.5-flash
     rate_limit_rpm: 150
     temperature: 0.4
-    max_tokens: 2048
+    max_tokens: 4096
     thinking_budget: 10000
 
   cot_answer:
     provider: genai
-    model: gemini-2.5-flash
+    model: gemini-2.5-pro
     rate_limit_rpm: 150
     temperature: 0.4
     max_tokens: 10240
@@ -216,7 +233,9 @@ output:
 
 
 retrieval_endpoint:
-  url: "https://filipiis--retrieval-endpoint-retrievalendpoint-retrieve-dev.modal.run"
+  # url: "https://lite12b--retrieval-endpoint-retrievalendpoint-retrieve-dev.modal.run"
+  url: "https://fefelilipe--retrieval-endpoint-retrievalendpoint-retrieve-dev.modal.run"
   timeout: 500
+  multihop_k: 5
 
 base_dir: /home/farias/tcc/input_final/  # set by synthetic_qa_generator

@@ -49,6 +49,7 @@ image = (
         "ninja",
         )
     .pip_install("flash-attn==2.7.3", extra_options="--no-build-isolation")
+    .env({"PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:True"})
 )
 
 # Volume to store output models and summary
@@ -64,7 +65,7 @@ huggingface_secret = modal.Secret.from_name("huggingface")
     timeout = 60*60*4,
     volumes={"/outputs": output_volume},
     cpu=2,
-    secrets=[huggingface_secret],
+    secrets=[huggingface_secret]
 )
 def run_fine_tuning(
     hf_dataset: str,
@@ -73,7 +74,7 @@ def run_fine_tuning(
     base_model: str = "unsloth/gemma-3-12b-it-bnb-4bit",
     load_in_4bit: bool = True,
     load_in_8bit: bool = False,
-    learning_rate: float = 2.0e-5,
+    learning_rate: float = 2.5e-5,
     batch_size: int = 1, # Actual per-device batch size
     gradient_accumulation_steps: int = 16,
     lora_rank: int = 32,
@@ -268,8 +269,8 @@ def run_fine_tuning(
     # Load dataset from Hugging Face
     logger.info(f"Loading Hugging Face dataset: {hf_dataset}")
     try:
-        train_dataset = load_dataset(hf_dataset, split = "train")
-        eval_dataset = load_dataset(hf_dataset, split = "validation")
+        train_dataset = load_dataset(hf_dataset, split = "train", revision = "114077d")
+        eval_dataset = load_dataset(hf_dataset, split = "validation", revision = "114077d")
         
 
         logger.info(f"Loaded training dataset with {len(train_dataset)} examples")
@@ -339,7 +340,7 @@ def run_fine_tuning(
             # warmup_ratio = warmup_ratio,
             warmup_steps = warmup_steps,
             num_train_epochs = epochs,
-            # max_steps = 0,
+            max_steps = 0,
             learning_rate = learning_rate,
             logging_steps = 1, # Log frequently
             optim = "adamw_8bit", # Unsloth recommended optimizer
@@ -387,7 +388,7 @@ def run_fine_tuning(
         # logger.info("Running final evaluation...")
         # final_eval_metrics = trainer.evaluate()
         # logger.info(f"Final evaluation metrics: {final_eval_metrics}")
-
+ 
         # Example generation
         # logger.info("Running example generation...")
         # tokenizer = get_chat_template(tokenizer, chat_template = "gemma-3")

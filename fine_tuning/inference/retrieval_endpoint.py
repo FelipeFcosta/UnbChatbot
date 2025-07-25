@@ -87,6 +87,7 @@ class RetrievalEndpoint:
 
     @modal.fastapi_endpoint(method="POST")
     async def retrieve(self, request_data: dict):
+        logger.info(f"Request data: {request_data}")
         """Retrieve documents based on query and return as list."""
         if self.data_handler.retriever is None:
             logger.error("Retriever was not initialized successfully.")
@@ -95,6 +96,8 @@ class RetrievalEndpoint:
         query = request_data.get("query")
         if not query:
             raise HTTPException(status_code=400, detail="'query' is required in the request body.")
+
+        logger.info(f"Retrieving documents for query: {query}")
 
         k = request_data.get("k", 5)
 

@@ -3,9 +3,11 @@ SYSTEM_PROMPT = (
     "You are a specialized UnB (Universidade de Brasília) chatbot assistant who answers questions based on the retrieved context (DOCUMENTS).\n"
     "Be precise and factual according to the source material when responding to the user's question. **Do not make up information.**\n"
     "Only use information from a DOCUMENT whose metadata or main subject exactly matches the entity or subject being asked about in the user's question. Ignore all unrelated chunks.\n"
-    "**The answer MUST DIRECTLY answer the user's question and specific needs. Do not provide information from unrelated chunks**.\n"
-    "**Do not mention the existence of the context documents in the ANSWER**, since the user is not aware of them.\n"
-    "If the answer can be found in the context documents, include the source URL.\n"
+    "If the context information is not enough to answer the question, say you don't have the information.\n"
+    # "CHECK EVERY SINGLE DOCUMENT searching for the answer. Include the source URL if the answer can be found.\n"
+    # "The answer should exactly address the user's literal question, with no assumptions.\n"
+    # "The answer may require multiple documents to be fully answered.\n"
+    # # "**Do not mention the existence of the context documents in the ANSWER**, since the user is not aware of them.\n"
     "Respond in the following format:\n"
     "<REASON>\n"
     "Reasoning in English...\n"
@@ -17,7 +19,7 @@ SYSTEM_PROMPT = (
 
 QUERY_EXPANSION_PROMPT = (
     "Você é um especialista em elaboração de mensagens alternativas para melhorar a recuperação sistemas RAG de um chatbot de uma universidade. Gere **apenas 3** mensagens alternativas com base na mensagem original.\n"
-    "O objetivo é melhorar a recuperação de documentos relacionados com a intenção da mensagem, não expanda nenhuma sigla que não conheça.\n"
+    "O objetivo é melhorar a recuperação de documentos relacionados com a intenção da mensagem focando nos aspectos mais importantes da mensagem, não expanda nenhuma sigla que não conheça.\n"
     "NÃO RESPONDA À PERGUNTA\n"
     "**Forneça apenas as mensagens alternativas**, sem nenhum prefixo, cada uma em uma nova linha.\n"
     "Mensagem original: {user_query}\n"
@@ -25,7 +27,7 @@ QUERY_EXPANSION_PROMPT = (
 )
 
 CONTEXTUALIZE_MESSAGE_PROMPT = (
-    "Você precisa reformular minimamente uma mensagem do usuário para incluir o contexto MÍNIMO NECESSÁRIO. Se a mensagem já for independente, não a altere de forma alguma.\n\n"
+    "Você precisa reformular minimamente uma mensagem do usuário para incluir o contexto MÍNIMO NECESSÁRIO. **Se a mensagem já for independente, não a altere de forma alguma.**\n\n"
     "Histórico da Conversa:\n{chat_history}\n"
     "Mensagem Atual: {current}\n\n"
     "TAREFA: Resolva quaisquer referências ambíguas na última mensagem. Isso será usado para buscar os documentos relevantes no sistema RAG. Não inclua informações anteriores irrelevantes e NÃO mude o formato ou intenção da mensagem.\n\n"
@@ -40,8 +42,9 @@ INTENT_CLASSIFIER_PROMPT = (
     "  • domain_query (padrão) — qualquer outra coisa (inclusive reações ao chatbot)\n\n"
     "{history_context}"
     "Mensagem atual: \"{current_text}\"\n\n"
-    "Classifique a intenção da mensagem atual considerando o contexto e retorne apenas o tipo:\n"
-    "Tipo:"
+    "Pense sobre a mensagem, considerando seu conteúdo e o contexto anterior (se houver) e as instruções, e **ao final** classifique a intenção da mensagem nesse formato abaixo.\n\n"
+    "\"RACIOCINIO:\n"
+    "TIPO:\""
 )
 
 CHITCHAT_PROMPT = (
@@ -56,9 +59,10 @@ CHITCHAT_PROMPT = (
 # Model and storage settings ------------------------------------------------
 APP_NAME = "unb-chatbot-raft-gguf-web-endpoint"
 
-MODEL_DIR_IN_VOLUME = "unb_raft_gemma12b_extra_run1"
+MODEL_DIR_IN_VOLUME = "unb_raft_gemma12b_multihop_run2"
 CHECKPOINT_FOLDER = "" # "checkpoint-201"
-HELPER_LLM_MODEL_DIR_IN_VOLUME = "gemma_gguf_model"
+# HELPER_LLM_MODEL_DIR_IN_VOLUME = "gemma_gguf_model"
+HELPER_LLM_MODEL_DIR_IN_VOLUME = "gemmaE4B_gguf_model"
 GGUF_FILENAME = "merged_model.Q8_0.gguf"
 
 VOLUME_NAME = "faq-unb-chatbot-gemma-raft"

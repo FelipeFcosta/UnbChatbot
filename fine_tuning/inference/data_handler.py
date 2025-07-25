@@ -1,6 +1,7 @@
 
 import os
 import json
+import re
 from typing import List, Dict
 
 from .config import SOURCE_DOCUMENTS, EMBEDDING_MODEL_NAME
@@ -10,6 +11,7 @@ class DataHandler:
         self.documents: List[str] = []
         self.pairs: List[Dict] = []
         self.regulars: List[Dict] = []
+        self.documents_embed: List[str] = []
         self.raw_documents: List[Dict] = []  # New: store raw dicts
         self.retriever = None
         self.embedding_model = None
@@ -35,14 +37,23 @@ class DataHandler:
                     answer = item.get("answer", "")
                     topics = item.get("topics")
                     file_url = item.get("file_url")
+                    file_name = item.get("file_name", "")
+
+                    clean_answer = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', answer) # Handle Markdown
+                    clean_answer = re.sub(r'https?:\/\/[^\s<>"]+|www\.[^\s<>"]+', '', clean_answer) # Handle bare URLs
+                    file_name_without_ext = os.path.splitext(file_name)[0]
                     
                     topic_str = f'Topic: "{", ".join(topics)}", ' if topics else ''
-                    filename_str = f'File: "{item.get("file_name", "")}", '
+                    filename_str = f'File: "{file_name}", '
                     url_str = f'URL: "[{file_title}]({file_url})"'
                     
-                    formatted_item = f'Q: "{question}", A: "{answer}"<doc_metadata>{topic_str}{filename_str}{url_str}</doc_metadata>\n'
+                    formatted_item = f'Q: "{question}", A: "{answer}"<doc_metadata>{topic_str}{filename_str}{url_str}</doc_metadata>'
+
+                    formatted_item_embed = f'"{question} {clean_answer}" {topics} {file_name_without_ext}'
+
                     self.pairs.append(formatted_item)
                     self.documents.append(formatted_item)
+                    self.documents_embed.append(formatted_item_embed)
                     self.raw_documents.append(item)  # Append raw
 
                 else:
@@ -52,7 +63,11 @@ class DataHandler:
                     course = item.get("course")
                     file_name = item.get("file_name", "")
                     file_url = item.get("file_url")
-                    
+
+                    clean_chunk = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', chunk) # markdown links
+                    clean_chunk = re.sub(r'https?:\/\/[^\s<>"]+|www\.[^\s<>"]+', '', clean_chunk) # URLs
+                    file_name_without_ext = os.path.splitext(file_name)[0]
+
                     topic_str = f'Topic: "{topics}", ' if topics else ''
                     professor_str = f'Professor: "{professor}", ' if professor else ''
                     course_str = f'Course: "{course}", ' if course else ''
@@ -65,14 +80,17 @@ class DataHandler:
                         url_str = f'URL: "[{file_title}]({file_url})"'
                     
                     formatted_item = f'"{chunk}"<doc_metadata>{topic_str}{professor_str}{course_str}{filename_str}{url_str}</doc_metadata>'
+                    formatted_item_embed = f'"{clean_chunk}" {topics} {professor} {course} {file_name_without_ext}'
                     self.regulars.append(formatted_item)
                     self.documents.append(formatted_item)
+                    self.documents_embed.append(formatted_item_embed)
                     self.raw_documents.append(item)  # Append raw
         
         if self.pairs:
             self.logger.info(f"Example FAQ: {self.pairs[0]}")
         if self.regulars:
             self.logger.info(f"Example Regular: {self.regulars[0]}")
+        self.logger.info(f"Example Embed: {self.documents_embed[0]}")
 
     def build_index(self):
         """Builds the FAISS index from loaded documents."""
@@ -80,7 +98,7 @@ class DataHandler:
         import numpy as np
         from sentence_transformers import SentenceTransformer
 
-        if not self.documents:
+        if not self.documents_embed:
             self.logger.warning("No documents loaded. Skipping index build.")
             return
 
@@ -88,7 +106,7 @@ class DataHandler:
         try:
             self.embedding_model = SentenceTransformer(EMBEDDING_MODEL_NAME, device='cuda')
             self.logger.info("Embedding model loaded. Generating embeddings for documents...")
-            embeddings = self.embedding_model.encode(self.documents, convert_to_tensor=False, show_progress_bar=True)
+            embeddings = self.embedding_model.encode(self.documents_embed, convert_to_tensor=False, show_progress_bar=True)
             self.logger.info(f"Generated {embeddings.shape[0]} embeddings of dimension {embeddings.shape[1]}.")
 
             self.logger.info("Building FAISS index...")
@@ -147,6 +165,8 @@ class DataHandler:
             self.logger.info(f"Searching FAISS index for top {k} documents...")
             distances, indices = self.retriever.search(query_embedding_np, k)
             self.logger.info(f"Retrieved indices: {indices[0]}")
+
+            from sklearn.metrics.pairwise import cosine_similarity
 
             retrieved_docs = [self.raw_documents[i] for i in indices[0] if i < len(self.raw_documents)]
             return retrieved_docs

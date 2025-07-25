@@ -33,8 +33,18 @@ class QueryProcessor:
             history_context=history_context
         )
 
-        resp = self.helper_llm(prompt, max_tokens=16, temperature=0.1)
-        intent = resp["choices"][0]["text"].strip().lower()
+        resp = self.helper_llm(prompt, max_tokens=2048, temperature=1.0)
+        full_text = resp["choices"][0]["text"].strip().lower()
+
+        self.logger.info(f"Intent classifier response: {full_text}")
+
+        import re
+
+        match = re.search(r"TIPO:\s*(\w+)", full_text, re.IGNORECASE)
+        if match:
+            intent = match.group(1).lower()
+        else:
+            intent = "domain_query"
 
         if intent != "domain_query":
             self._non_domain_hashes.add(self._hash_text(current_text))
@@ -48,7 +58,7 @@ class QueryProcessor:
 
         expansion_resp = self.helper_llm(
             QUERY_EXPANSION_PROMPT.format(user_query=user_query),
-            max_tokens=512,
+            max_tokens=2048,
             temperature=1.0,
             top_p=0.95,
             top_k=64,
@@ -70,7 +80,7 @@ class QueryProcessor:
         )
 
         try:
-            resp = self.helper_llm(prompt, max_tokens=128, temperature=0.3, top_p=0.9)
+            resp = self.helper_llm(prompt, max_tokens=2048, temperature=0.3, top_p=0.9)
             if resp and resp.get("choices"):
                 rewritten = resp["choices"][0]["text"].strip()
                 return rewritten or current_question

@@ -41,7 +41,7 @@ class PromptBuilder:
         history_lines = []
         for m in recent_history:
             prefix = "Usuário:" if m["role"] == "user" else "Chatbot:" if m["role"] == "assistant" else f"{m['role']}:"
-            history_lines.append(f"{prefix} {m['content'].strip()}")
+            history_lines.append(f"{prefix} \"{m['content'].strip()}\"")
         return "\n".join(history_lines)
 
     def build_prompt(self, messages: List[Dict], system_prompt: str, assembled_context_str: str, user_query: str) -> str:

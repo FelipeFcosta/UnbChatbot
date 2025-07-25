@@ -113,7 +113,7 @@ class ModelEndpoint:
         if os.path.exists(self.helper_llm_gguf_file_path_in_container):
             self.helper_llm = Llama(
                 model_path=self.helper_llm_gguf_file_path_in_container,
-                n_gpu_layers=30, n_ctx=512, n_batch=512,
+                n_gpu_layers=30, n_ctx=2048, n_batch=512,
                 f16_kv=True, verbose=True, seed=42, offload_kqv=True, use_mlock=True,
             )
             logger.info("Successfully loaded Helper LLM model into container.")

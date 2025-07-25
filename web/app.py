@@ -55,7 +55,9 @@ st.markdown("""
 # MODAL_ENDPOINT_URL = "https://fariasfelipe--unb-chatbot-raft-gguf-web-endpoint-mod-0e084b-dev.modal.run" # 12b_neg_run1
 # MODAL_ENDPOINT_URL = "https://lite12bneg--unb-chatbot-raft-gguf-web-endpoint-model-c88e98-dev.modal.run" # 12_4b_neg_run2
 # MODAL_ENDPOINT_URL = "https://fefelilipe--unb-chatbot-raft-gguf-web-endpoint-model-f78d35-dev.modal.run" # 12b_realdis_run1
-MODAL_ENDPOINT_URL = "https://espacoluzdo--unb-chatbot-raft-gguf-web-endpoint-mode-5d90da-dev.modal.run" # 12b_extra_run1
+# MODAL_ENDPOINT_URL = "https://espacoluzdo--unb-chatbot-raft-gguf-web-endpoint-mode-5d90da-dev.modal.run" # 12b_extra_run1
+# MODAL_ENDPOINT_URL = "https://cabelinhosonic--unb-chatbot-raft-gguf-web-endpoint-m-391656-dev.modal.run" # 12b_extra_run1
+MODAL_ENDPOINT_URL = "https://multihop12b--unb-chatbot-raft-gguf-web-endpoint-mode-dbb199-dev.modal.run" # 12b_multihop_run2
 
 def parse_response(response_text):
     """Parse the response to extract REASON and ANSWER sections"""
@@ -83,7 +85,7 @@ def parse_response(response_text):
         st.error(f"Error parsing response: {e}")
         return response_text, None
 
-def call_modal_endpoint(messages, max_tokens=2048, temperature=0.0, top_p=0.95):
+def call_modal_endpoint(messages, max_tokens=4096, temperature=0.3, top_p=0.95):
     """Call the Modal endpoint with the full chat history (`messages` array)."""
     try:
         payload = {
@@ -95,7 +97,7 @@ def call_modal_endpoint(messages, max_tokens=2048, temperature=0.0, top_p=0.95):
         response = requests.post(
             MODAL_ENDPOINT_URL,
             json=payload,
-            timeout=120  # 2 minute timeout
+            timeout=180
         )
         
         if response.status_code == 200:
@@ -190,8 +192,8 @@ with st.sidebar:
     
     # Model parameters
     st.markdown("#### Parâmetros do Modelo")
-    max_tokens = st.slider("Max Tokens", 256, 4096, 2048, 256)
-    temperature = st.slider("Temperature", 0.0, 1.0, 0.0, 0.1)
+    max_tokens = st.slider("Max Tokens", 256, 4096, 3096, 256)
+    temperature = st.slider("Temperature", 0.0, 1.0, 1.0, 0.1)
     top_p = st.slider("Top P", 0.1, 1.0, 0.95, 0.05)
     
     # Clear chat button
