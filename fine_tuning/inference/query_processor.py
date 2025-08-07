@@ -19,21 +19,26 @@ class QueryProcessor:
         """Detects whether the message is 'domain_query' or 'non_domain_query'."""
         if not self.helper_llm:
             return "domain_query"
-
-        history_context = ""
-        if previous_question and previous_response:
-            history_context = (
-                "Histórico:\n"
-                f"Usuário: \"{previous_question}\"\n"
-                f"Chatbot: \"{previous_response}\"\n\n"
-            )
-
-        prompt = INTENT_CLASSIFIER_PROMPT.format(
+    
+        # Build zero-shot instruction from INTENT_CLASSIFIER_PROMPT
+        base_prompt = INTENT_CLASSIFIER_PROMPT.format(
             current_text=current_text,
-            history_context=history_context
+            history_context=(f"Histórico:\nUsuário: \"{previous_question}\"\nChatbot: \"{previous_response}\"\n\n"
+                             if previous_question and previous_response else "")
+        ).strip()
+
+        # Wrap in ChatML-style start_of_turn markers
+        prompt = (
+            f"<start_of_turn>user\n{base_prompt}\n<end_of_turn>"
+            "\n<start_of_turn>model\n"
         )
 
+        print(prompt)
+
         resp = self.helper_llm(prompt, max_tokens=2048, temperature=1.0)
+
+        print(resp)
+
         full_text = resp["choices"][0]["text"].strip().lower()
 
         self.logger.info(f"Intent classifier response: {full_text}")
@@ -56,38 +61,40 @@ class QueryProcessor:
         if not self.helper_llm:
             return ""
 
-        expansion_resp = self.helper_llm(
-            QUERY_EXPANSION_PROMPT.format(user_query=user_query),
-            max_tokens=2048,
+        prompt = (
+            f"<start_of_turn>user\n{QUERY_EXPANSION_PROMPT.format(user_query=user_query)}\n<end_of_turn>"
+            "\n<start_of_turn>model\n"
+        )
+        resp = self.helper_llm(
+            prompt,
+            max_tokens=256,
             temperature=1.0,
             top_p=0.95,
             top_k=64,
             min_p=0.01,
         )
-
-        if expansion_resp and expansion_resp.get("choices"):
-            return expansion_resp["choices"][0]["text"]
-        return ""
+        return resp.get("choices", [{}])[0].get("text", "").strip()
 
     def contextualize_query(self, chat_history: str, current_question: str) -> str:
-        """Use the helper LLM to rewrite the current question to be self-contained."""
+        """Use the helper LLM to rewrite the current question using CONTEXTUALIZE_MESSAGE_PROMPT and <start_of_turn> tags."""
         if not self.helper_llm:
             return current_question
 
-        prompt = CONTEXTUALIZE_MESSAGE_PROMPT.format(
+        base_prompt = CONTEXTUALIZE_MESSAGE_PROMPT.format(
             chat_history=chat_history,
-            current=current_question,
+            current=current_question
+        ).strip()
+        prompt = (
+            f"<start_of_turn>user\n{base_prompt}\n<end_of_turn>"
+            "\n<start_of_turn>model\n"
         )
-
+        print(prompt)
         try:
             resp = self.helper_llm(prompt, max_tokens=2048, temperature=0.3, top_p=0.9)
-            if resp and resp.get("choices"):
-                rewritten = resp["choices"][0]["text"].strip()
-                return rewritten or current_question
+            return resp.get("choices", [{}])[0].get("text", "").strip() or current_question
         except Exception as e:
             self.logger.error(f"Contextualization helper LLM failed: {e}")
-
-        return current_question
+            return current_question
         
     def get_non_domain_hashes(self) -> set:
         return self._non_domain_hashes 

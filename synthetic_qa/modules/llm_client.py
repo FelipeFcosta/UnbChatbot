@@ -133,7 +133,7 @@ class LLMClient:
         # Handle Gemini API
         if provider == "genai":
             thinking_config = None
-            if "2.5-flash" in model:
+            if "2.5-flash" in model or "2.5-pro" in model:
                 thinking_config=types.ThinkingConfig(thinking_budget=self.config.get("thinking_budget", 1024))
             generation_config = types.GenerateContentConfig(
                 max_output_tokens=self.config.get("max_tokens", 8192),
@@ -155,7 +155,14 @@ class LLMClient:
                             contents=current_prompt,
                             config=generation_config
                         )
-                        full_response += response.text
+                        if response.text: # check if not empty
+                            full_response += response.text
+                        else:
+                            logger.warning(f"Empty response from Gemini API for key index {self.current_key_index}")
+                            if attempt < max_tries - 1:
+                                continue
+                            return None
+                            continue
                     except Exception as e:
                         logger.warning(f"Gemini API error with key index {self.current_key_index}: {e}")
                         # Try rotating API key before falling back

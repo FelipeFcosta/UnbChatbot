@@ -221,6 +221,11 @@ class SyntheticQADataGenerator:
                                 regular_qa_pairs.append(qa_pair)
                 except Exception as e:
                     logger.error(f"Error processing files with QAProcessorRAFT: {e}")
+                    # print error trace
+                    import traceback
+                    traceback.print_exc()
+                    
+
         else:
             logger.info("No files can be processed!")
             return

@@ -49,7 +49,9 @@ class PromptBuilder:
         prompt_parts: List[str] = []
 
         # build full chat history
-        for m in messages[:-1]:
+        # Only include the last 10 exchanges (user/assistant pairs, i.e., up to 20 messages)
+        history_to_include = messages[:-1][-20:]
+        for m in history_to_include:
             role_tag = "user" if m["role"] == "user" else "model"
             content = (m["content"] or "").strip()
             if not content:

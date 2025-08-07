@@ -51,7 +51,9 @@ COT_ANSWER_GENERATION_PROMPT = f"""You are an expert assistant creating training
 
 ### Your Task
 
-Given a question and its corresponding context (from the {{context_source_name}}), your primary task is to generate a detailed chat response. This response is composed of **TWO mandatory parts**:
+Given a question and its corresponding context containing the information (from the {{context_source_name}}), your primary task is to generate a detailed chat response.
+
+This response is composed of **TWO mandatory parts**:
 
 1.  **Internal Reasoning (in English)** - An internal analysis that will not be shown to the user.
 2.  **Final Answer (in Portuguese)** - The public-facing response the student will see.
@@ -70,13 +72,13 @@ This reasoning is for training purposes and must be focused on achieving factual
 
 #### **Rules for Reasoning:**
 *   **A critical requirement:** Your reasoning must be based **exclusively** on the provided context. Do not add any outside information.
-*   **Keep your reasoning SHORT and CONCISE/OBJECTIVE.**
-*   Provide a logical explanation of how you will arrive at the answer using the given {{context_source_name}}. Analyze how to address the question using the provided text.
+*   **Break down your reasoning into simple, sequential steps. (Implicitly! No numbering)**
+*   The resoning should provide a logical explanation of how you to arrive at the answer using the given {{context_source_name}}. Analyze how to address the question using the provided text.
 *   You **MUST** reference the relevant context text during your reasoning. When you do, you **must always** enclose the text in <quote>verbatim text</quote> tags.
 *   This reasoning section is **purely** about how to answer the question factually. It is critical that you **do not** include anything about formatting rules, or any other instructions in this prompt.
 
 ##### **IMPLICIT Identification of the entity/subject(s) of the question**
-*   While reasoning, you MUST quote EITHER a chunk text OR a specific metadata field naturally to confirm that the question's subject(s) or entity(s) exactly matches the one(s) in the context.
+*   While reasoning, you MUST quote a chunk text OR a specific metadata field naturally to confirm that the question's subject(s) or entity(s) exactly matches the one(s) in the context.
 *   The implicit verification should be included naturally as the evidence appears in the context while you are reasoning and quoting the document.
 *   **Do not** include multiple sources of evidence for confirmation of the correct entity/subject(s).
 
@@ -118,6 +120,7 @@ This is the student-facing answer. It must be written in Portuguese and enclosed
 ### **Input**
 
 *   **Question:** "{{original_question}}"
+... (other chunks)
 *   **{{context_source_name}}:** "{{context_content}}"
 {METADATA_TAG}
 *   **URL:** "[{{file_title}}]({{file_url}})"
@@ -126,6 +129,7 @@ This is the student-facing answer. It must be written in Portuguese and enclosed
 {{professor_str}}
 {{course_str}}
 {METADATA_TAG_END}
+...
 
 ---
 
@@ -167,37 +171,6 @@ You will receive the Markdown text of a university component, including code, na
 
 **Output Format:**
 Return ONLY the question in Portuguese, no other text, numbering, or explanations.
-"""
-
-UNANSWERABLE_QUESTION_GENERATION_PROMPT = """
-You are an LLM Generator creating synthetic data for the University of Brasilia chatbot.
-
-**GOAL:** Train the LLM to recognize when it lacks sufficient information to answer a question and respond appropriately with "I don't know" or "I can't answer that based on the information I have" instead of hallucinating.
-
-**The new question should resemble the original question provided.**
-
-**METADATA INFORMATION:**
-- File Title: {file_title}
-- File Name: {file_name}
-- Original Question: {original_question}
-
-**Instructions:**
-- Rewrite the original question so that it contains one (or more) replaced section (replacing entities/subjects in the original question with wrong/misleading information).
-- The replaced section should be plausible but obviously **wrong** (can't be answered by any other context).
-- The new question's length should be more or less the same as the original question.
-- The new question's format should be the similar to the original question but use different wording (and make it natural for a student to ask).
-- The unanswerable question should be natural (not contrived just to be wrong).
-- **The question should not be complex or too specific!**
-- The question should be a single sentence, with no statements. Only a simple question with an honest mistake.
-- Use natural, conversational Portuguese as a Brazilian student might ask.
-
-The user is a student who does not know about the present document, so the question must be specific enough (but not contrived) for the document to be retrieved (by the RAG system)
-
-**Context/Chunk:**
-{context_content}
-
-**Output Format:**
-Return ONLY the single unanswerable question IN PORTUGUESE.
 """
 
 # Prompt for generating a styled question (Q) based on an original pair and a style
@@ -359,46 +332,6 @@ class QAProcessorRAFT:
             return None
 
     @staticmethod
-    def generate_unanswerable_question_raft(
-        chunk: Dict[str, Any],
-        original_question: str,
-        original_answer: str,
-        file_title: str,
-        file_name: str,
-        llm_client: LLMClient
-    ) -> str | None:
-        """Generates an unanswerable question based on the chunk/context only."""
-
-        if chunk:
-            topic_str = f'Topic: "{chunk.get("topic")}"' if chunk.get("topic") else ''
-            file_title_str = f', File Title: "{file_title}"' if file_title else ''
-            professor_str = f', Professor: "{chunk.get("professor")}"' if chunk.get("professor") else ''
-            course_str = f', Course: "{chunk.get("course")}"' if chunk.get("course") else ''
-            context_content = chunk['chunk'] + '\n' + topic_str + file_title_str + professor_str + course_str
-        else:
-            file_title_str = f'File Title: "{file_title}", ' if file_title else ''
-            context_content = original_answer + '\n' + file_title_str
-
-        prompt = UNANSWERABLE_QUESTION_GENERATION_PROMPT.format(
-            file_title=file_title,
-            file_name=file_name,
-            original_question=original_question,
-            context_content=context_content
-        )
-
-        try:
-            response = llm_client.generate_text(prompt.lstrip(), temperature=1.0)
-            if response:
-                unanswerable_q = response.strip().lstrip('*- ').splitlines()[0].strip()
-                return unanswerable_q
-            else:
-                logger.warning("LLM returned empty response for unanswerable question generation")
-                return None
-        except Exception as e:
-            logger.error(f"Error generating unanswerable question: {e}", exc_info=True)
-            return None
-
-    @staticmethod
     def format_doc(doc: Dict[str, Any]) -> str:
         """Convert a chunk/FAQ dict into the RAFT string representation used in <DOCUMENT> blocks.
         This centralises what was previously duplicated in several branches.
@@ -552,13 +485,18 @@ class QAProcessorRAFT:
                         extracted_chunks = json.load(f)
                     # Ensure alignment with `default_qa`
                     if len(extracted_chunks) != len(default_qa):
-                        logger.warning(
+                        logger.error(
                             "Mismatch between default_qa (%d) and extracted_chunks (%d) for %s — rolling back to keep lists in sync.",
                             len(default_qa), len(extracted_chunks), safe_title_slug
                         )
                         del final_default_qa[-len(default_qa):]
                         continue
-                    for chunk in extracted_chunks:
+                    for i, chunk in enumerate(extracted_chunks):
+                        if len(extracted_chunks) > 1 and 'topic' in chunk and 'topic' in default_qa[i] and chunk['topic'] != default_qa[i]['topic']:
+                            logger.error(f"Topic mismatch in extracted_chunks for {chunk['chunk_hash']}: {chunk['topic']} != {default_qa[i]['topic']}. Deleting {str(default_qa_path)}")
+                            if default_qa_path.exists():
+                                os.remove(default_qa_path)
+                            break
                         # format chunk for original RAFT context
                         formatted_contexts.append(QAProcessorRAFT.format_doc(chunk))
 
@@ -681,12 +619,12 @@ class QAProcessorRAFT:
                 should_add_multihop = False
                 
                 if file_type == FileType.COMPONENT:
-                    should_add_unanswerable = (i % 6 == 0)
+                    should_add_unanswerable = ((i+1) % 6 == 0)
                     should_add_multihop = (i % 3 == 0)
                 else:
                     should_add_unanswerable = (i % 2 == 0)
                     should_remove_naturalistic = (i % 4 == 0)
-                    should_remove_casual = ((i+1) % 4 == 0)
+                    should_remove_casual = ((i+1) % 5 == 0)
                     should_remove_formal = ((i+2) % 4 == 0)
                     should_add_multihop = True
                     
@@ -746,11 +684,15 @@ class QAProcessorRAFT:
                         if iteration >= style.get("iterations", 1):
                             continue
 
-                        if style_name == "multi-hop":
+                        # treat both 'multi-hop' and 'unanswerable' via multi-hop pipeline
+                        if style_name in ("multi-hop", "unanswerable"):
                             if not current_chunk:
                                 logger.warning(f"FAQ file")
 
-                            styled_hash = f"{qa_hash}_multi-hop_{iteration}"
+                            is_unanswerable_multi = (style_name == "unanswerable")
+
+                            multi_style_label = "multi_hop_unanswerable" if is_unanswerable_multi else "multi-hop"
+                            styled_hash = f"{qa_hash}_{multi_style_label}_{iteration}"
                             styled_question_path = raft_qa_dir / f"styled_q_{styled_hash}.txt"
                             cot_answer_path = raft_qa_dir / f"cot_a_{styled_hash}.txt"
 
@@ -769,10 +711,10 @@ class QAProcessorRAFT:
                                 multi_hop_qa_pair = None
                                 while not multi_hop_qa_pair:
                                     if current_chunk:
-                                        multi_hop_qa_pair = multi_hop_generator.generate_multi_hop_qa_pair(current_chunk, output_dir, file_type==FileType.COMPONENT)
+                                        multi_hop_qa_pair = multi_hop_generator.generate_multi_hop_qa_pair(current_chunk, output_dir, file_type==FileType.COMPONENT, is_unanswerable=is_unanswerable_multi)
                                     else:
                                         default_qa["chunk_hash"] = qa_hash
-                                        multi_hop_qa_pair = multi_hop_generator.generate_multi_hop_qa_pair(default_qa, output_dir, file_type==FileType.COMPONENT)
+                                        multi_hop_qa_pair = multi_hop_generator.generate_multi_hop_qa_pair(default_qa, output_dir, file_type==FileType.COMPONENT, is_unanswerable=is_unanswerable_multi)
 
                                     if not multi_hop_qa_pair:
                                         logger.warning(f"Failed to generate multi-hop QA for seed {qa_hash}. Retrying...")
@@ -782,7 +724,7 @@ class QAProcessorRAFT:
                                     if retries <= 0:
                                         break
 
-                                if not multi_hop_qa_pair or not all(multi_hop_qa_pair.get(key) for key in ["question", "reasoning", "answer"]):
+                                if not multi_hop_qa_pair or not all(multi_hop_qa_pair.get(key) for key in ["question", "response"]):
                                     logger.warning(f"Failed to generate multi-hop QA for seed {qa_hash}. Skipping style.")
                                     continue
 
@@ -791,24 +733,35 @@ class QAProcessorRAFT:
                                 with open(styled_question_path, 'w', encoding='utf-8') as f:
                                     f.write(styled_q)
 
-                                cot_answer_str = f"{multi_hop_qa_pair['reasoning']}\n{multi_hop_qa_pair['answer']}"
+                                cot_answer_str = f"{multi_hop_qa_pair['response']}"
                                 with open(cot_answer_path, 'w', encoding='utf-8') as f:
                                     f.write(cot_answer_str)
-
-                            multihop_golden_documents = multi_hop_generator.get_golden_documents(qa_hash, output_dir)
-                            if not multihop_golden_documents:
-                                logger.warning(f"Could not retrieve golden documents for multi-hop QA {qa_hash}. Skipping style.")
-                                continue
-
-                            golden_document_list = [QAProcessorRAFT.format_doc(doc) for doc in multihop_golden_documents]
                             
-                            # All other chunks in the dataset are potential distractors
-                            golden_hashes = {doc["chunk_hash"] if "chunk_hash" in doc else doc["qa_pair_hash"] for doc in multihop_golden_documents}
+                            golden_document_list = []
+                            if not is_unanswerable_multi:
+                                multihop_golden_documents = multi_hop_generator.get_golden_documents(qa_hash, output_dir)
+                                if not multihop_golden_documents:
+                                    logger.warning(f"Could not retrieve golden documents for multi-hop QA {qa_hash}. Skipping style.")
+                                    continue
 
-                            num_distract_multihop = num_distract+1 - len(golden_document_list)
+                                golden_document_list = [QAProcessorRAFT.format_doc(doc) for doc in multihop_golden_documents]
+                                
+                                # All other chunks in the dataset are potential distractors
+                                golden_hashes = {doc["chunk_hash"] if "chunk_hash" in doc else doc["qa_pair_hash"] for doc in multihop_golden_documents}
 
-                            distractors_dk = _get_semantic_distractors(styled_q, styled_hash, golden_hashes, num_distract_multihop)
+                                num_distract_multihop = num_distract+1 - len(golden_document_list)
+
+                                distractors_dk = _get_semantic_distractors(styled_q, styled_hash, golden_hashes, num_distract_multihop)
+    
+                            else:
+                                entity_document_list = multi_hop_generator.get_entity_docs(qa_hash, output_dir)
+                                if not entity_document_list:
+                                    logger.warning(f"Could not retrieve entity documents for unanswerable multi-hop QA {qa_hash}. Skipping style.")
+                                    continue
+                                distractors_dk = [QAProcessorRAFT.format_doc(d) for d in entity_document_list]
+
                             context_docs = golden_document_list + distractors_dk
+
                             random.shuffle(context_docs)
 
                             # Assemble the training example (similar to the single-hop path)
@@ -844,7 +797,8 @@ class QAProcessorRAFT:
                                 "question": user_content,
                                 "answer": cot_answer_str,
                                 "original_qa_pair_hash": qa_hash,
-                                "style_name": "multi-hop",
+                                # record combined style name for multi-hop or unanswerable multi-hop
+                                "style_name": multi_style_label,
                                 "styled_question": styled_q,
                                 "raft_qa_pair_hash": f"raft_{styled_hash}",
                                 "golden_present": True,
@@ -880,11 +834,10 @@ class QAProcessorRAFT:
                                 logger.debug(f"Generating styled question for {file_name} ({qa_hash})")
                                 previous_qs_for_pair = previous_questions_cache[qa_hash]
                                 
-                                # Use different generation function for unanswerable style
-                                if style_name == "unanswerable":
-                                    styled_q = QAProcessorRAFT.generate_unanswerable_question_raft(
-                                        current_chunk, default_qa["question"], original_answer, file_title, file_name, llm_client_styled_q
-                                    )
+                                # Skip unanswerable style - now handled by multi-hop generator
+                                if (style_name == "unanswerable"):
+                                    logger.info(f"Skipping unanswerable style for {file_name} - handled by multi-hop generator")
+                                    continue
                                 else:
                                     styled_q = QAProcessorRAFT.generate_styled_question_raft(
                                         default_qa["question"], default_qa["answer"], style, file_title, file_name, previous_qs_for_pair, llm_client_styled_q

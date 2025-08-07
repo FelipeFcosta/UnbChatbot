@@ -156,16 +156,13 @@ def run_fine_tuning(
         """
         SYSTEM_INSTRUCTION = (
             "You are a specialized UnB (Universidade de Brasília) chatbot assistant who answers questions based on the retrieved context (DOCUMENTS). "
-            "Be precise and factual according to the source material when responding to the user's question. Do not make up information.\n"
+            "Be precise and factual according to the available chunks when responding to the user's question. Do not make up information.\n"
             "Only use information from a DOCUMENT whose metadata or main subject exactly matches the entity or subject being asked about in the user's question. Ignore all unrelated chunks.\n"
-            "If the context information is not enough to answer the question, say you don't have the information.\n"
+            "The answer may require multiple documents to be fully answered.\n"
+            "If the context information is not enough to answer the question, say you don't have the information (just because the chunks don't contain certain information doesn't mean it doesn't exist).\n"
             "Respond in the following format:\n"
-            "<REASON>\n"
-            "Reasoning in English...\n"
-            "</REASON>\n"
-            "<ANSWER>\n"
-            "Answer in **Portuguese**...\n"
-            "</ANSWER>\n"
+            "<REASON>Reasoning in English...</REASON>\n"
+            "<ANSWER>Answer in **Portuguese**...</ANSWER>\n"
             # "Do not engage in user queries that are not related to UnB or require more than pure factual information.\n\n"
         )
 
@@ -269,8 +266,8 @@ def run_fine_tuning(
     # Load dataset from Hugging Face
     logger.info(f"Loading Hugging Face dataset: {hf_dataset}")
     try:
-        train_dataset = load_dataset(hf_dataset, split = "train", revision = "114077d")
-        eval_dataset = load_dataset(hf_dataset, split = "validation", revision = "114077d")
+        train_dataset = load_dataset(hf_dataset, split = "train")
+        eval_dataset = load_dataset(hf_dataset, split = "validation")
         
 
         logger.info(f"Loaded training dataset with {len(train_dataset)} examples")
@@ -335,12 +332,13 @@ def run_fine_tuning(
             output_dir = output_dir_path,
             dataset_text_field = "text",
             gradient_accumulation_steps=gradient_accumulation_steps,
+            eval_accumulation_steps=gradient_accumulation_steps/2,
             packing = packing,
             per_device_train_batch_size = batch_size,
             # warmup_ratio = warmup_ratio,
             warmup_steps = warmup_steps,
             num_train_epochs = epochs,
-            max_steps = 0,
+            # max_steps = 0,
             learning_rate = learning_rate,
             logging_steps = 1, # Log frequently
             optim = "adamw_8bit", # Unsloth recommended optimizer

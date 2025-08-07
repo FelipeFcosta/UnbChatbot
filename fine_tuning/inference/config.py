@@ -2,19 +2,16 @@
 SYSTEM_PROMPT = (
     "You are a specialized UnB (Universidade de Brasília) chatbot assistant who answers questions based on the retrieved context (DOCUMENTS).\n"
     "Be precise and factual according to the source material when responding to the user's question. **Do not make up information.**\n"
-    "Only use information from a DOCUMENT whose metadata or main subject exactly matches the entity or subject being asked about in the user's question. Ignore all unrelated chunks.\n"
-    "If the context information is not enough to answer the question, say you don't have the information.\n"
+    "Only use information from a DOCUMENT whose metadata or main subject exactly matches the entity or subject being asked about in the user's question, always verify each document used in <REASON>. Ignore all unrelated chunks.\n"
+    "The answer may require multiple documents to be fully answered.\n"
+    "If the context information is not enough to answer the question, say you don't have the information (just because the chunks don't contain certain information doesn't mean it doesn't exist).\n"
+    "Respond in the following format:\n"
+    "<REASON>Reasoning in English...</REASON>\n"
+    "<ANSWER>Answer in **Portuguese**...</ANSWER>\n"
     # "CHECK EVERY SINGLE DOCUMENT searching for the answer. Include the source URL if the answer can be found.\n"
     # "The answer should exactly address the user's literal question, with no assumptions.\n"
     # "The answer may require multiple documents to be fully answered.\n"
     # # "**Do not mention the existence of the context documents in the ANSWER**, since the user is not aware of them.\n"
-    "Respond in the following format:\n"
-    "<REASON>\n"
-    "Reasoning in English...\n"
-    "</REASON>\n"
-    "<ANSWER>\n"
-    "Answer in **Portuguese**...\n"
-    "</ANSWER>\n"
 )
 
 QUERY_EXPANSION_PROMPT = (
@@ -27,19 +24,19 @@ QUERY_EXPANSION_PROMPT = (
 )
 
 CONTEXTUALIZE_MESSAGE_PROMPT = (
-    "Você precisa reformular minimamente uma mensagem do usuário para incluir o contexto MÍNIMO NECESSÁRIO. **Se a mensagem já for independente, não a altere de forma alguma.**\n\n"
+    "Você precisa reformular minimamente uma mensagem do usuário para incluir o contexto MÍNIMO NECESSÁRIO e torná-la independente. **Se a mensagem já for independente, não a altere de forma alguma.**\n\n"
     "Histórico da Conversa:\n{chat_history}\n"
     "Mensagem Atual: {current}\n\n"
-    "TAREFA: Resolva quaisquer referências ambíguas na última mensagem. Isso será usado para buscar os documentos relevantes no sistema RAG. Não inclua informações anteriores irrelevantes e NÃO mude o formato ou intenção da mensagem.\n\n"
-    "Retorne apenas a última mensagem do usuário reformulada\n\n"
-    "Mensagem Reformulada:"
+    "TAREFA: Resolva quaisquer referências ambíguas na mensagem atual do usuário. Isso será usado para buscar os documentos relevantes no sistema RAG. NÃO mude a intenção da mensagem.\n\n"
+    "A mensagem atual deve conter o contexto do histórico da conversa e fazer sentido por si só.\n"
+    "NÃO RESPONDA À MENSAGEM.  Retorne apenas a mensagem atual do usuário reformulada (independente de qualquer contexto)\n"
 )
 
 INTENT_CLASSIFIER_PROMPT = (
-    "Você é um classificador de intenções para um chatbot da UnB. Você deve decidir se a mensagem atual requer uma busca nos documentos para responder à mensagem corretamente ou não.\n"
+    "Você é um classificador de intenções para um chatbot da UnB. Você deve decidir se a mensagem atual requer uma busca nos documentos sobre a UnB para responder à mensagem corretamente (domain_query) ou não (non_domain_query).\n"
     "Por isso, classifique em um dos tipos:\n"
-    "  • non_domain_query —  saudações, agradecimentos, small talk, insultos, aleatoriedade, perguntas subjetivas\n"
-    "  • domain_query (padrão) — qualquer outra coisa (inclusive reações ao chatbot)\n\n"
+    "  • non_domain_query - saudações, agradecimentos, small talk, insultos, aleatoriedade, perguntas subjetivas\n"
+    "  • domain_query (padrão) - qualquer outra coisa (inclusive reações ao chatbot)\n\n"
     "{history_context}"
     "Mensagem atual: \"{current_text}\"\n\n"
     "Pense sobre a mensagem, considerando seu conteúdo e o contexto anterior (se houver) e as instruções, e **ao final** classifique a intenção da mensagem nesse formato abaixo.\n\n"
@@ -59,7 +56,7 @@ CHITCHAT_PROMPT = (
 # Model and storage settings ------------------------------------------------
 APP_NAME = "unb-chatbot-raft-gguf-web-endpoint"
 
-MODEL_DIR_IN_VOLUME = "unb_raft_gemma12b_multihop_run2"
+MODEL_DIR_IN_VOLUME = "unb_raft_gemma12b_multihop_run3"
 CHECKPOINT_FOLDER = "" # "checkpoint-201"
 # HELPER_LLM_MODEL_DIR_IN_VOLUME = "gemma_gguf_model"
 HELPER_LLM_MODEL_DIR_IN_VOLUME = "gemmaE4B_gguf_model"

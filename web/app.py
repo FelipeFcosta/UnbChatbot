@@ -12,7 +12,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for better styling
 st.markdown("""
 <style>
     .main-header {
@@ -57,7 +56,8 @@ st.markdown("""
 # MODAL_ENDPOINT_URL = "https://fefelilipe--unb-chatbot-raft-gguf-web-endpoint-model-f78d35-dev.modal.run" # 12b_realdis_run1
 # MODAL_ENDPOINT_URL = "https://espacoluzdo--unb-chatbot-raft-gguf-web-endpoint-mode-5d90da-dev.modal.run" # 12b_extra_run1
 # MODAL_ENDPOINT_URL = "https://cabelinhosonic--unb-chatbot-raft-gguf-web-endpoint-m-391656-dev.modal.run" # 12b_extra_run1
-MODAL_ENDPOINT_URL = "https://multihop12b--unb-chatbot-raft-gguf-web-endpoint-mode-dbb199-dev.modal.run" # 12b_multihop_run2
+# MODAL_ENDPOINT_URL = "https://multihop12b--unb-chatbot-raft-gguf-web-endpoint-mode-dbb199-dev.modal.run" # 12b_multihop_run2
+MODAL_ENDPOINT_URL = "https://vanis--unb-chatbot-raft-gguf-web-endpoint-modelendpo-6c8afc-dev.modal.run" # 12b_multihop_run3
 
 def parse_response(response_text):
     """Parse the response to extract REASON and ANSWER sections"""
@@ -148,8 +148,13 @@ for message in st.session_state.messages:
                 with st.expander("🔍 Ver raciocínio do modelo", expanded=False):
                     st.markdown(f"**Raciocínio:**\n\n{message['reasoning']}")
 
-# Chat input
-if prompt := st.chat_input("Faça sua pergunta sobre a UnB..."):
+# Check if there's a pending response
+is_processing = (st.session_state.messages and 
+                st.session_state.messages[-1]["role"] == "assistant" and 
+                st.session_state.messages[-1]["content"] == "")
+
+# Chat input - disable while processing
+if prompt := st.chat_input("Faça sua pergunta sobre a UnB...", disabled=is_processing):
     # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
     

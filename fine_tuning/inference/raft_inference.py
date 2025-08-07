@@ -151,13 +151,13 @@ class ModelEndpoint:
                     break
         return previous_question, previous_response
 
-    def _prepare_context_and_prompt(self, intent: str, contextualized_query: str) -> tuple[str, str]:
+    def _prepare_context_and_prompt(self, intent: str, user_query: str, contextualized_query: str) -> tuple[str, str]:
         """Prepare context (documents) and system prompt"""
         if intent == "domain_query":
             logger.info("Retrieving relevant context...")
             additional_queries = self.query_processor.expand_query(contextualized_query)
             logger.info(f"Additional queries: {additional_queries}")
-            retrieval_input = contextualized_query + "\n" + additional_queries
+            retrieval_input = user_query + "\n" + contextualized_query + "\n" + additional_queries
             retrieved_docs = self.data_handler.retrieve_context(retrieval_input, k=TOP_K_RETRIEVAL)
             
             system_prompt = SYSTEM_PROMPT
@@ -222,9 +222,9 @@ class ModelEndpoint:
                 logger.info(f"Contextualized query: {contextualized_query}")
 
         # gather context documents from contextualized query and its expansions
-        assembled_context_str, system_prompt = self._prepare_context_and_prompt(intent, contextualized_query)
+        assembled_context_str, system_prompt = self._prepare_context_and_prompt(intent, user_query, contextualized_query)
 
-        formatted_prompt = self.prompt_builder.build_prompt(messages, system_prompt, assembled_context_str, contextualized_query)
+        formatted_prompt = self.prompt_builder.build_prompt(messages, system_prompt, assembled_context_str, user_query)
         logger.info(f"Constructed final prompt for LLM (length: {len(formatted_prompt)} chars). Prompt content follows:\n{formatted_prompt}")
 
         try:

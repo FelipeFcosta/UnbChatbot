@@ -8,5 +8,6 @@ fine_tuning/*.md
 **/*Zone.Identifier
 **/README.md
 **/tests/temp_data/
+delete_by_hash.py
 .beamignore
 finetune-gemma-beam.py
