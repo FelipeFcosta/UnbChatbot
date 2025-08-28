@@ -139,25 +139,15 @@ class ModelEndpoint:
         top_p = request_data.get("top_p", DEFAULT_TOP_P)
         return max_tokens, temperature, top_p
 
-    def _get_previous_exchange(self, messages: List[Dict]) -> tuple[str, str]:
-        """Get the previous user question and assistant response for context."""
-        previous_question = ""
-        previous_response = ""
-        if len(messages) >= 3:
-            for i in range(len(messages) - 2, -1, -1):
-                if messages[i].get("role") == "user" and i + 1 < len(messages) and messages[i + 1].get("role") == "assistant":
-                    previous_question = (messages[i].get("content") or "").strip()
-                    previous_response = (messages[i + 1].get("content") or "").strip()
-                    break
-        return previous_question, previous_response
+    
 
     def _prepare_context_and_prompt(self, intent: str, user_query: str, contextualized_query: str) -> tuple[str, str]:
         """Prepare context (documents) and system prompt"""
         if intent == "domain_query":
-            logger.info("Retrieving relevant context...")
             additional_queries = self.query_processor.expand_query(contextualized_query)
             logger.info(f"Additional queries: {additional_queries}")
             retrieval_input = user_query + "\n" + contextualized_query + "\n" + additional_queries
+            logger.info("Retrieving relevant context...")
             retrieved_docs = self.data_handler.retrieve_context(retrieval_input, k=TOP_K_RETRIEVAL)
             
             system_prompt = SYSTEM_PROMPT
@@ -170,8 +160,9 @@ class ModelEndpoint:
             logger.info("Chitchat detected. Skipping query expansion and retrieval.")
             assembled_context_str = ""
             system_prompt = CHITCHAT_PROMPT
+            retrieved_docs = []
         
-        return assembled_context_str, system_prompt
+        return assembled_context_str, system_prompt, retrieved_docs
 
 
     @modal.fastapi_endpoint(method="POST")
@@ -204,16 +195,28 @@ class ModelEndpoint:
         logger.info(f"Received query: {user_query}")
         logger.info(f"Generation parameters: max_tokens={max_tokens}, temperature={temperature}, top_p={top_p}")
 
-        # classify intent based on previous exchange + current query
-        previous_question, previous_response = self._get_previous_exchange(messages)
+        # classify intent based on the last in-domain exchange + current query
+        in_domain_history = self.prompt_builder.process_history(messages)
+        previous_question = ""
+        previous_response = ""
+        if len(in_domain_history) >= 2:
+            previous_response = (messages[-3].get("content") or "").strip()
+            for i in range(len(in_domain_history) - 2, -1, -1):
+                if (
+                    in_domain_history[i].get("role") == "user"
+                    and i + 1 < len(in_domain_history)
+                    and in_domain_history[i + 1].get("role") == "assistant"
+                ):
+                    previous_question = (in_domain_history[i].get("content") or "").strip()
+                    previous_response = (in_domain_history[i + 1].get("content") or "").strip()
+                    break
         intent = self.query_processor.classify_intent(user_query, previous_question, previous_response)
 
         contextualized_query = user_query
         if intent != "domain_query":
-            max_tokens = 300
+            max_tokens = 500
         else:
-            # chat history for contextualization
-            in_domain_history = self.prompt_builder.process_history(messages)
+            # chat history for contextualization (reuse processed history)
             chat_history_str = self.prompt_builder.build_chat_history_str(in_domain_history)
 
             # make query self-contained
@@ -222,9 +225,9 @@ class ModelEndpoint:
                 logger.info(f"Contextualized query: {contextualized_query}")
 
         # gather context documents from contextualized query and its expansions
-        assembled_context_str, system_prompt = self._prepare_context_and_prompt(intent, user_query, contextualized_query)
+        assembled_context_str, system_prompt, retrieved_docs = self._prepare_context_and_prompt(intent, user_query, contextualized_query)
 
-        formatted_prompt = self.prompt_builder.build_prompt(messages, system_prompt, assembled_context_str, user_query)
+        formatted_prompt = self.prompt_builder.build_prompt(messages, system_prompt, assembled_context_str, contextualized_query)
         logger.info(f"Constructed final prompt for LLM (length: {len(formatted_prompt)} chars). Prompt content follows:\n{formatted_prompt}")
 
         try:
@@ -237,7 +240,7 @@ class ModelEndpoint:
                 logger.info(f"Token usage: {usage}")
             
             logger.info("Generation complete.")
-            return {"response": raw_response_text}
+            return {"response": raw_response_text, "retrieved_chunks": retrieved_docs}
         except Exception as e:
             logger.error(f"Error during generation: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail=f"Error during generation: {str(e)}")

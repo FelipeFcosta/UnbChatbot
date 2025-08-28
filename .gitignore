@@ -11,3 +11,5 @@ fine_tuning/*.md
 delete_by_hash.py
 .beamignore
 finetune-gemma-beam.py
+mock_chatbot_server.py
+app.py

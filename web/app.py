@@ -57,7 +57,9 @@ st.markdown("""
 # MODAL_ENDPOINT_URL = "https://espacoluzdo--unb-chatbot-raft-gguf-web-endpoint-mode-5d90da-dev.modal.run" # 12b_extra_run1
 # MODAL_ENDPOINT_URL = "https://cabelinhosonic--unb-chatbot-raft-gguf-web-endpoint-m-391656-dev.modal.run" # 12b_extra_run1
 # MODAL_ENDPOINT_URL = "https://multihop12b--unb-chatbot-raft-gguf-web-endpoint-mode-dbb199-dev.modal.run" # 12b_multihop_run2
-MODAL_ENDPOINT_URL = "https://vanis--unb-chatbot-raft-gguf-web-endpoint-modelendpo-6c8afc-dev.modal.run" # 12b_multihop_run3
+# MODAL_ENDPOINT_URL = "https://vanis--unb-chatbot-raft-gguf-web-endpoint-modelendpo-6c8afc-dev.modal.run" # 12b_multihop_run3
+MODAL_ENDPOINT_URL = "https://felipecostasdc--unb-chatbot-raft-gguf-web-endpoint-m-443271-dev.modal.run" # 12b_multihop_run4
+TEST_ENDPOINT_URL = "http://localhost:8001/"
 
 def parse_response(response_text):
     """Parse the response to extract REASON and ANSWER sections"""
@@ -68,7 +70,7 @@ def parse_response(response_text):
         
         # Extract ANSWER section - handle missing closing tag
         # First try to match with both opening and closing tags
-        answer_match = re.search(r'<ANSWER>(.*?)</ANSWER>', response_text, re.DOTALL)
+        answer_matchatbot = re.search(r'<ANSWER>(.*?)</ANSWER>', response_text, re.DOTALL)
         if answer_match:
             answer = answer_match.group(1).strip()
             return answer, reason
@@ -86,29 +88,37 @@ def parse_response(response_text):
         return response_text, None
 
 def call_modal_endpoint(messages, max_tokens=4096, temperature=0.3, top_p=0.95):
-    """Call the Modal endpoint with the full chat history (`messages` array)."""
+    """Call the main endpoint, and if it fails, fallback to the test endpoint."""
+    payload = {
+        "messages": messages,
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+        "top_p": top_p
+    }
+
+    def _try_request(url):
+        return requests.post(url, json=payload, timeout=180)
+
+    # Try primary endpoint first
     try:
-        payload = {
-            "messages": messages,
-            "max_tokens": max_tokens,
-            "temperature": temperature,
-            "top_p": top_p
-        }
-        response = requests.post(
-            MODAL_ENDPOINT_URL,
-            json=payload,
-            timeout=180
-        )
-        
+        response = _try_request(MODAL_ENDPOINT_URL)
         if response.status_code == 200:
             result = response.json()
-            # Print raw JSON response
+            print(f"RAW JSON RESPONSE: {json.dumps(result, indent=2, ensure_ascii=False)}")
+            return result.get("response", "")
+    except Exception:
+        pass  # silent failover to test endpoint
+           
+    # Fallback to test endpoint if primary didn't return 200 or raised
+    try:
+        response = _try_request(TEST_ENDPOINT_URL)
+        if response.status_code == 200:
+            result = response.json()
             print(f"RAW JSON RESPONSE: {json.dumps(result, indent=2, ensure_ascii=False)}")
             return result.get("response", "")
         else:
             st.error(f"Error: {response.status_code} - {response.text}")
             return None
-            
     except requests.exceptions.Timeout:
         st.error("Request timed out. Please try again.")
         return None
@@ -125,7 +135,7 @@ if "messages" not in st.session_state:
 
 # Header
 st.markdown("<div class='main-header'>", unsafe_allow_html=True)
-st.title("🎓 UnB Chatbot")
+st.title("UnB Chatbot")
 st.markdown("*Assistente virtual da Universidade de Brasília*")
 st.markdown("</div>", unsafe_allow_html=True)
 
@@ -149,12 +159,12 @@ for message in st.session_state.messages:
                     st.markdown(f"**Raciocínio:**\n\n{message['reasoning']}")
 
 # Check if there's a pending response
-is_processing = (st.session_state.messages and 
+is_processing = (len(st.session_state.messages) > 0 and 
                 st.session_state.messages[-1]["role"] == "assistant" and 
                 st.session_state.messages[-1]["content"] == "")
 
 # Chat input - disable while processing
-if prompt := st.chat_input("Faça sua pergunta sobre a UnB...", disabled=is_processing):
+if prompt := st.chat_input("Faça sua pergunta sobre a UnB...", disabled=bool(is_processing)):
     # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
     

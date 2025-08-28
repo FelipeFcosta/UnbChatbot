@@ -1,7 +1,7 @@
 
 import logging
 from typing import Dict, List
-from .config import INTENT_CLASSIFIER_PROMPT, QUERY_EXPANSION_PROMPT, CONTEXTUALIZE_MESSAGE_PROMPT
+from .config import INTENT_CLASSIFIER_PROMPT, INTENT_CLASSIFIER_PROMPT_WITH_HISTORY,QUERY_EXPANSION_PROMPT, CONTEXTUALIZE_MESSAGE_PROMPT
 
 class QueryProcessor:
     def __init__(self, helper_llm, logger):
@@ -19,13 +19,20 @@ class QueryProcessor:
         """Detects whether the message is 'domain_query' or 'non_domain_query'."""
         if not self.helper_llm:
             return "domain_query"
-    
-        # Build zero-shot instruction from INTENT_CLASSIFIER_PROMPT
-        base_prompt = INTENT_CLASSIFIER_PROMPT.format(
-            current_text=current_text,
-            history_context=(f"Histórico:\nUsuário: \"{previous_question}\"\nChatbot: \"{previous_response}\"\n\n"
-                             if previous_question and previous_response else "")
-        ).strip()
+
+
+        if previous_response:
+            print(f"Previous response: {previous_response}")
+            base_prompt = INTENT_CLASSIFIER_PROMPT_WITH_HISTORY.format(
+                current_text=current_text,
+                history_context=(f"Histórico:\nUsuário: \"{previous_question}\"\nChatbot: \"{previous_response}\"\n\n")
+            ).strip()
+        else:
+            base_prompt = INTENT_CLASSIFIER_PROMPT.format(
+                current_text=current_text,
+                history_context=""
+            ).strip()
+
 
         # Wrap in ChatML-style start_of_turn markers
         prompt = (
@@ -90,7 +97,7 @@ class QueryProcessor:
         )
         print(prompt)
         try:
-            resp = self.helper_llm(prompt, max_tokens=2048, temperature=0.3, top_p=0.9)
+            resp = self.helper_llm(prompt, max_tokens=2048, temperature=0.4, top_p=0.9)
             return resp.get("choices", [{}])[0].get("text", "").strip() or current_question
         except Exception as e:
             self.logger.error(f"Contextualization helper LLM failed: {e}")

@@ -47,7 +47,7 @@ class DataHandler:
                     filename_str = f'File: "{file_name}", '
                     url_str = f'URL: "[{file_title}]({file_url})"'
                     
-                    formatted_item = f'Q: "{question}", A: "{answer}"<doc_metadata>{topic_str}{filename_str}{url_str}</doc_metadata>'
+                    formatted_item = f'<doc_metadata>{topic_str}{filename_str}{url_str}</doc_metadata>\nQ: "{question}", A: "{answer}"'
 
                     formatted_item_embed = f'"{question} {clean_answer}" {topics} {file_name_without_ext}'
 
@@ -79,7 +79,7 @@ class DataHandler:
                     else:
                         url_str = f'URL: "[{file_title}]({file_url})"'
                     
-                    formatted_item = f'"{chunk}"<doc_metadata>{topic_str}{professor_str}{course_str}{filename_str}{url_str}</doc_metadata>'
+                    formatted_item = f'<doc_metadata>{topic_str}{professor_str}{course_str}{filename_str}{url_str}</doc_metadata>\n"{chunk}"'
                     formatted_item_embed = f'"{clean_chunk}" {topics} {professor} {course} {file_name_without_ext}'
                     self.regulars.append(formatted_item)
                     self.documents.append(formatted_item)

@@ -2,7 +2,6 @@
 """
 Fine-tune the Gemma-3 LLM using Unsloth's LoRA approach with UNB Chatbot QA data.
 This script uses Modal to run the fine-tuning process on cloud GPUs.
-Includes updated transformers version to address HybridCache error during evaluation.
 Saves comprehensive training summary including parameters and trainer state.
 Added functionality to merge models and export to GGUF format.
 """
@@ -156,7 +155,7 @@ def run_fine_tuning(
         """
         SYSTEM_INSTRUCTION = (
             "You are a specialized UnB (Universidade de Brasília) chatbot assistant who answers questions based on the retrieved context (DOCUMENTS). "
-            "Be precise and factual according to the available chunks when responding to the user's question. Do not make up information.\n"
+            "Be precise and factual according to the UnB source material when responding to the user's question. Do not make up information.\n"
             "Only use information from a DOCUMENT whose metadata or main subject exactly matches the entity or subject being asked about in the user's question. Ignore all unrelated chunks.\n"
             "The answer may require multiple documents to be fully answered.\n"
             "If the context information is not enough to answer the question, say you don't have the information (just because the chunks don't contain certain information doesn't mean it doesn't exist).\n"

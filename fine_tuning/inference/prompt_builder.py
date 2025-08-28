@@ -35,8 +35,8 @@ class PromptBuilder:
         return in_domain_history
 
     def build_chat_history_str(self, in_domain_history: List[Dict]) -> str:
-        """Build plain-text history string for contextualization, limited to last 3 exchanges."""
-        recent_history = in_domain_history[-6:] if len(in_domain_history) > 6 else in_domain_history
+        """Build plain-text history string for contextualization, limited to last 2 exchanges."""
+        recent_history = in_domain_history[-4:] if len(in_domain_history) > 4 else in_domain_history
         
         history_lines = []
         for m in recent_history:
@@ -49,13 +49,18 @@ class PromptBuilder:
         prompt_parts: List[str] = []
 
         # build full chat history
-        # Only include the last 10 exchanges (user/assistant pairs, i.e., up to 20 messages)
-        history_to_include = messages[:-1][-20:]
+        # Only include the last 3 exchanges (6 messages)
+        history_to_include = messages[:-1][-6:]
         for m in history_to_include:
             role_tag = "user" if m["role"] == "user" else "model"
-            content = (m["content"] or "").strip()
-            if not content:
+            answer = (m["content"] or "").strip()
+            reasoning = m["reasoning"] if "reasoning" in m else ""
+            if not answer:
                 continue
+            if reasoning:
+                content = f"<REASON>{reasoning}</REASON>\n<ANSWER>{answer}</ANSWER>"
+            else:
+                content = answer
             prompt_parts.append(
                 f"<start_of_turn>{role_tag}\n{content}\n<end_of_turn>"
             )
