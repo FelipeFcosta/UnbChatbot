@@ -43,7 +43,6 @@ class UnBChatbot {
             clearChat: document.getElementById('clearChat'),
             sidebar: document.getElementById('sidebar'),
             sidebarToggle: document.getElementById('sidebarToggle'),
-            endpointUrl: document.getElementById('endpointUrl'),
             maxTokens: document.getElementById('maxTokens'),
             maxTokensValue: document.getElementById('maxTokensValue'),
             temperature: document.getElementById('temperature'),
@@ -198,12 +197,7 @@ class UnBChatbot {
             this.elements.topPValue.textContent = e.target.value;
             this.saveState();
         });
-        
-        // Custom endpoint URL
-        this.elements.endpointUrl.addEventListener('change', (e) => {
-            this.primaryEndpoint = e.target.value;
-            this.saveState();
-        });
+
     }
     
     toggleSidebar() {
@@ -650,7 +644,6 @@ class UnBChatbot {
         const state = {
             messages: this.messages,
             config: this.config,
-            primaryEndpoint: this.primaryEndpoint,
             lastRetrievedChunks: this.lastRetrievedChunks, // Save chunks only for the last message
             scrollTop: this.elements.chatContainer.scrollTop,
             isAtBottom: Math.abs(
@@ -701,11 +694,7 @@ class UnBChatbot {
                     this.elements.topPValue.textContent = this.config.topP;
                 }
                 
-                // Restore endpoint
-                if (state.primaryEndpoint) {
-                    this.primaryEndpoint = state.primaryEndpoint;
-                    this.elements.endpointUrl.value = this.primaryEndpoint;
-                }
+
             }
             
             // Restore sidebar state
@@ -717,10 +706,7 @@ class UnBChatbot {
             console.error('Error loading saved state:', error);
         }
 
-        // Ensure the input shows the current endpoint if none saved
-        if (!this.elements.endpointUrl.value) {
-            this.elements.endpointUrl.value = this.primaryEndpoint;
-        }
+
 
         // Sync the sidebar toggle icon with current state
         this.updateSidebarToggleIcon();
