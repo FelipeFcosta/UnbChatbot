@@ -71,7 +71,7 @@ helper_llm_volume = modal.Volume.from_name(HELPER_LLM_VOLUME_NAME)
         HELPER_LLM_MODEL_MOUNT_PATH: helper_llm_volume # where helper llm model is mounted
     },
     timeout=60*6,
-    min_containers=1
+    min_containers=2
 )
 @modal.concurrent(max_inputs=3)
 class ModelEndpoint:
@@ -227,7 +227,7 @@ class ModelEndpoint:
         # gather context documents from contextualized query and its expansions
         assembled_context_str, system_prompt, retrieved_docs = self._prepare_context_and_prompt(intent, user_query, contextualized_query)
 
-        formatted_prompt = self.prompt_builder.build_prompt(messages, system_prompt, assembled_context_str, contextualized_query)
+        formatted_prompt = self.prompt_builder.build_prompt(messages, system_prompt, assembled_context_str, user_query)
         logger.info(f"Constructed final prompt for LLM (length: {len(formatted_prompt)} chars). Prompt content follows:\n{formatted_prompt}")
 
         try:
