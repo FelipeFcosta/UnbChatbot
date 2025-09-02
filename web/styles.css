@@ -525,6 +525,42 @@ body {
     }
 }
 
+/* Copy indicator */
+.copy-indicator {
+    position: absolute;
+    right: -40px;
+    top: 6px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.message.assistant:hover .copy-indicator {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.copy-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: rgba(102, 126, 234, 0.1);
+    color: var(--primary-color);
+    border-radius: 50%;
+    font-size: 0.7rem;
+    transition: background 0.3s ease, transform 0.2s ease, color 0.3s ease;
+    cursor: pointer;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.copy-trigger:hover {
+    background: rgba(102, 126, 234, 0.2);
+    transform: scale(1.1);
+}
+
 /* Chunks indicator */
 .chunks-indicator {
     position: absolute;
@@ -737,6 +773,10 @@ body {
 
 /* Responsive: keep popup inside viewport */
 @media (max-width: 768px) {
+    .copy-indicator {
+        right: -35px;
+    }
+    
     .chunks-popup {
         width: 280px;
         right: -40px;
@@ -1007,6 +1047,17 @@ body {
         background: rgba(59, 130, 246, 0.08);
         border-color: rgba(59, 130, 246, 0.4);
         color: rgba(59, 130, 246, 0.4);
+    }
+
+    /* Dark mode: copy indicator */
+    .copy-trigger {
+        background: rgba(59, 130, 246, 0.15);
+        border-color: rgba(59, 130, 246, 0.3);
+        color: var(--primary-color);
+    }
+
+    .copy-trigger:hover {
+        background: rgba(59, 130, 246, 0.25);
     }
 
     /* Dark mode: chunks indicator */

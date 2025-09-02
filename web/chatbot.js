@@ -362,19 +362,22 @@ class UnBChatbot {
     
     addMessage(role, content, reasoning = null) {
         const message = { role, content, reasoning };
-        this.messages.push(message);
         
-        // Clear previous chunks UI from all assistant messages
-        if (role === 'assistant') {
-            this.clearChunksUI();
+        // Store retrieved chunks with this specific message if it's an assistant message
+        if (role === 'assistant' && this.lastRetrievedChunks && this.lastRetrievedChunks.length > 0) {
+            message.retrieved_chunks = this.lastRetrievedChunks;
+            // Clear lastRetrievedChunks after storing with message
+            this.lastRetrievedChunks = null;
         }
+        
+        this.messages.push(message);
         
         const messageElement = this.createMessageElement(message);
         this.elements.chatMessages.appendChild(messageElement);
         
-        // Add chunks UI only to the latest assistant message if chunks are available
-        if (role === 'assistant' && this.lastRetrievedChunks && this.lastRetrievedChunks.length > 0) {
-            this.addChunksUI(messageElement);
+        // Add copy functionality to assistant messages
+        if (role === 'assistant') {
+            this.addCopyUI(messageElement, content);
         }
         
         // Delay scroll to ensure DOM is updated and markdown is rendered
@@ -440,19 +443,15 @@ class UnBChatbot {
         }
         messageDiv.appendChild(contentWrapper);
         
+        // Add chunks UI if this message has retrieved chunks
+        if (message.role === 'assistant' && message.retrieved_chunks && message.retrieved_chunks.length > 0) {
+            this.addChunksUI(messageDiv, message.retrieved_chunks);
+        }
+        
         return messageDiv;
     }
     
-    clearChunksUI() {
-        // Remove any existing chunks UI elements
-        try {
-            this.elements.chatMessages.querySelectorAll('.chunks-indicator').forEach(el => el.remove());
-        } catch (error) {
-            console.error('Error clearing chunks UI:', error);
-        }
-    }
-    
-    addChunksUI(messageElement) {
+    addChunksUI(messageElement, chunks) {
         try {
             const contentWrapper = messageElement.querySelector('.message-content');
             if (!contentWrapper) return;
@@ -492,7 +491,7 @@ class UnBChatbot {
 
             // Populate popup content
             const popupContent = chunksIndicator.querySelector('.chunks-popup-content');
-            this.lastRetrievedChunks.forEach((chunk, index) => {
+            chunks.forEach((chunk, index) => {
                 const chunkItem = document.createElement('details');
                 chunkItem.className = 'chunk-item';
                 
@@ -563,9 +562,80 @@ class UnBChatbot {
             // Append to message
             contentWrapper.appendChild(chunksIndicator);
             
-            console.log('Added chunks UI with', this.lastRetrievedChunks.length, 'chunks');
+            console.log('Added chunks UI with', chunks.length, 'chunks');
         } catch (error) {
             console.error('Error adding chunks UI:', error);
+        }
+    }
+    
+    addCopyUI(messageElement, content) {
+        try {
+            const contentWrapper = messageElement.querySelector('.message-content');
+            if (!contentWrapper) return;
+            
+            // Copy indicator (visible on hover)
+            const copyIndicator = document.createElement('div');
+            copyIndicator.className = 'copy-indicator';
+            copyIndicator.innerHTML = `
+                <div class="copy-trigger" title="Copiar resposta">
+                    <i class="fas fa-copy"></i>
+                </div>
+            `;
+            
+            // Add click event to copy content
+            const copyTrigger = copyIndicator.querySelector('.copy-trigger');
+            copyTrigger.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                await this.copyToClipboard(content);
+                
+                // Visual feedback
+                const icon = copyTrigger.querySelector('i');
+                const originalClass = icon.className;
+                icon.className = 'fas fa-check';
+                copyTrigger.style.background = 'rgba(40, 167, 69, 0.2)';
+                copyTrigger.style.color = '#28a745';
+                
+                setTimeout(() => {
+                    icon.className = originalClass;
+                    copyTrigger.style.background = '';
+                    copyTrigger.style.color = '';
+                }, 1500);
+            });
+            
+            // Append to message
+            contentWrapper.appendChild(copyIndicator);
+            
+        } catch (error) {
+            console.error('Error adding copy UI:', error);
+        }
+    }
+    
+    async copyToClipboard(text) {
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                // Use modern clipboard API
+                await navigator.clipboard.writeText(text);
+            } else {
+                // Fallback for older browsers or non-secure contexts
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    document.execCommand('copy');
+                } catch (err) {
+                    console.error('Fallback copy failed:', err);
+                }
+                
+                document.body.removeChild(textArea);
+            }
+        } catch (error) {
+            console.error('Copy to clipboard failed:', error);
         }
     }
     
@@ -644,7 +714,6 @@ class UnBChatbot {
         const state = {
             messages: this.messages,
             config: this.config,
-            lastRetrievedChunks: this.lastRetrievedChunks, // Save chunks only for the last message
             scrollTop: this.elements.chatContainer.scrollTop,
             isAtBottom: Math.abs(
                 this.elements.chatContainer.scrollHeight -
@@ -667,19 +736,27 @@ class UnBChatbot {
                     this.messages.forEach(msg => {
                         const messageElement = this.createMessageElement(msg);
                         this.elements.chatMessages.appendChild(messageElement);
+                        
+                        // Add copy functionality to restored assistant messages
+                        if (msg.role === 'assistant') {
+                            this.addCopyUI(messageElement, msg.content);
+                        }
                     });
                 // After restoring messages, scroll to the bottom with proper timing
                 this.scrollToBottomDelayed();
                 }
                 
-                // Restore last retrieved chunks
+                // Legacy: Restore last retrieved chunks for backward compatibility
                 if (state.lastRetrievedChunks && Array.isArray(state.lastRetrievedChunks)) {
                     this.lastRetrievedChunks = state.lastRetrievedChunks;
-                    // Find the last assistant message and add chunks UI
+                    // Find the last assistant message and add chunks UI if it doesn't already have chunks
                     const assistantMessages = this.elements.chatMessages.querySelectorAll('.message.assistant');
                     if (assistantMessages.length > 0) {
                         const lastAssistantMessage = assistantMessages[assistantMessages.length - 1];
-                        this.addChunksUI(lastAssistantMessage);
+                        const lastMessage = this.messages[this.messages.length - 1];
+                        if (lastMessage && lastMessage.role === 'assistant' && !lastMessage.retrieved_chunks) {
+                            this.addChunksUI(lastAssistantMessage, this.lastRetrievedChunks);
+                        }
                     }
                 }
                 
